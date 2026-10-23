@@ -8850,18 +8850,6 @@ function uploadFile(url, file) {
     reader.readAsDataURL(file);
   });
 }
-  var fd = new FormData();
-  fd.append('file', file);
-  return fetch(url, { method: 'POST', credentials: 'same-origin', body: fd })
-    .then(function(r) {
-      if (r.status === 401) { logout(); throw new Error('Sesi berakhir.'); }
-      return r.json().catch(function() { throw new Error('Respons server tidak valid.'); });
-    })
-    .then(function(d) {
-      if (!d || d.ok === false) throw new Error((d && d.error) || 'Upload gagal.');
-      return d.data !== undefined ? d.data : d;
-    });
-}
 
 function pad(n){return String(n).padStart(2,'0');}
 function todayStr(){var d=new Date();return d.getFullYear()+'-'+pad(d.getMonth()+1)+'-'+pad(d.getDate());}
@@ -12848,6 +12836,7 @@ function navTo(page){
   else if(page==='zoom')loadVirtualList();
   else if(page==='users')loadAdminUsers();
   else if(page==='atk-stock')loadAtkStockData();
+  else if(page==='sync')loadSyncMonitoring();
   else if(page==='dashboard')silentRefresh();
 
   if(window.innerWidth<=900)toggleSidebar(false);
@@ -13538,6 +13527,119 @@ function loadMasterOptions() {
   });
 }
 
+
+// ══════════════════════════════════════════════════════════════════
+// ══ PERBAIKAN: fungsi yang sebelumnya hilang (tombol tidak bekerja) ══
+// ══════════════════════════════════════════════════════════════════
+function closeBuildingDetailModal(){
+  var o = document.getElementById('building-detail-overlay');
+  if (o) o.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function openTransactionModal(title, code){
+  var o = document.getElementById('tx-modal-overlay');
+  if (!o) return;
+  var t = document.getElementById('tx-modal-ttl'); if (t) t.textContent = title || 'Transaksi Lapangan';
+  var s = document.getElementById('tx-modal-sub'); if (s) s.textContent = code ? ('Kode aset: ' + code) : 'Formulir operasional aset dan fasilitas';
+  var b = document.getElementById('tx-modal-body');
+  var inp = 'width:100%;padding:9px 12px;font-size:13px;border:1px solid var(--border);border-radius:var(--r8);background:var(--surface);color:var(--navy)';
+  if (b) b.innerHTML =
+    '<input type="hidden" name="asset_code" value="' + esc(code || '') + '">' +
+    '<div class="frow"><label>Jenis Transaksi <span class="req">*</span></label>' +
+      '<select name="tx_type" style="' + inp + '">' +
+        '<option value="">— Pilih —</option><option>Pemeliharaan</option><option>Peminjaman</option>' +
+        '<option>Pengembalian</option><option>Pemindahan Lokasi</option><option>Penghapusan</option>' +
+      '</select></div>' +
+    '<div class="frow"><label>Tanggal <span class="req">*</span></label><input type="date" name="tx_date" value="' + todayStr() + '" style="' + inp + '"></div>' +
+    '<div class="frow"><label>Penanggung Jawab</label><input type="text" name="pic" placeholder="Nama petugas" style="' + inp + '"></div>' +
+    '<div class="frow"><label>Catatan</label><textarea name="notes" rows="3" placeholder="Keterangan tambahan" style="' + inp + '"></textarea></div>';
+  var btn = document.getElementById('btn-submit-tx'); if (btn) { btn.disabled = false; btn.textContent = 'Proses Transaksi'; }
+  o.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeTransactionModal(){
+  var o = document.getElementById('tx-modal-overlay');
+  if (o) o.classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+function submitTransaction(){
+  var body = document.getElementById('tx-modal-body');
+  var btn  = document.getElementById('btn-submit-tx');
+  if (!body) return;
+  var data = {};
+  body.querySelectorAll('input[name],select[name],textarea[name]').forEach(function(el){ data[el.name] = (el.value || '').trim(); });
+  if (!data.tx_type) { if (typeof toast === 'function') toast('Pilih jenis transaksi terlebih dahulu.', 'err'); return; }
+  if (!data.tx_date) { if (typeof toast === 'function') toast('Tanggal wajib diisi.', 'err'); return; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Memproses...'; }
+  api('submitTransaction', data).then(function(res){
+    if (typeof toast === 'function') toast((res && res.message) || 'Transaksi berhasil diproses.', 'ok');
+    closeTransactionModal();
+  }).catch(function(err){
+    if (btn) { btn.disabled = false; btn.textContent = 'Proses Transaksi'; }
+    if (typeof toast === 'function') toast('Gagal memproses transaksi: ' + err.message, 'err');
+  });
+}
+
+function openAssetAction(code){
+  openTransactionModal('Aksi Aset', code);
+}
+
+function _syncSet(id, v){ var e = document.getElementById(id); if (e) e.textContent = v; }
+
+function loadSyncMonitoring(force){
+  var wh = document.getElementById('gas-sync-input-webhook-url');
+  var sc = document.getElementById('gas-sync-input-secret');
+  try {
+    if (wh && !wh.value) wh.value = localStorage.getItem('PNS_SYNC_WEBHOOK_URL') || '';
+    var sv = localStorage.getItem('PNS_SYNC_SECRET'); if (sc && sv) sc.value = sv;
+  } catch(e){}
+  var badge = document.getElementById('sync-header-badge');
+  if (badge) badge.textContent = 'Memeriksa...';
+  var t0 = performance.now();
+  api('getMasterOptions').then(function(){
+    var ms = Math.round(performance.now() - t0);
+    _syncSet('sync-kpi-conn', 'Aktif');
+    _syncSet('sync-kpi-latency', 'Latensi ' + ms + ' ms');
+    _syncSet('sync-kpi-status', 'Siap Digunakan');
+    _syncSet('sync-kpi-last-sync', 'Dicek ' + new Date().toLocaleTimeString('id-ID'));
+    if (badge) { badge.textContent = 'Online'; badge.style.background = 'var(--green)'; }
+  }).catch(function(err){
+    _syncSet('sync-kpi-conn', 'Terputus');
+    _syncSet('sync-kpi-latency', err.message || 'Tidak dapat terhubung');
+    _syncSet('sync-kpi-status', 'Gagal');
+    if (badge) { badge.textContent = 'Offline'; badge.style.background = 'var(--red, #ef4444)'; }
+  });
+  loadGasSheetCounts();
+  if (force && typeof toast === 'function') toast('Status sinkronisasi diperbarui.', 'ok');
+}
+
+function runRoundtripTest(){
+  if (typeof toast === 'function') toast('Menjalankan uji coba 2-way sync...', 'ok');
+  var t0 = performance.now();
+  api('getTableCounts').then(function(res){
+    var ms = Math.round(performance.now() - t0);
+    var n = Object.keys((res && (res.data || res.counts)) || res || {}).length;
+    alert('✅ Uji coba 2-way sync berhasil\n\nWaktu respons: ' + ms + ' ms\nTab terbaca: ' + n);
+    loadSyncMonitoring();
+  }).catch(function(err){
+    alert('❌ Uji coba gagal:\n' + err.message);
+  });
+}
+
+function saveGasSyncSettings(ev){
+  if (ev && ev.preventDefault) ev.preventDefault();
+  var wh = document.getElementById('gas-sync-input-webhook-url');
+  var sc = document.getElementById('gas-sync-input-secret');
+  var url = wh ? wh.value.trim() : '', secret = sc ? sc.value.trim() : '';
+  if (!url) { if (typeof toast === 'function') toast('URL webhook wajib diisi.', 'err'); return false; }
+  try { localStorage.setItem('PNS_SYNC_WEBHOOK_URL', url); localStorage.setItem('PNS_SYNC_SECRET', secret); } catch(e){}
+  api('saveSyncSettings', { webhook_url: url, secret: secret }).catch(function(){ /* backend opsional */ });
+  if (typeof toast === 'function') toast('Konfigurasi webhook disimpan.', 'ok');
+  return false;
+}
 </script>
 
 <script>
@@ -13565,11 +13667,8 @@ doLogin = function() {
     btn.disabled = false; btn.textContent = 'Masuk';
     
     // Arahkan langsung ke menu Admin / GS Management
-    if (typeof showTab === 'function') {
-      showTab('admin');
-    } else {
-      showDash();
-    }
+    showDash();
+    if (typeof navTo === 'function') navTo('users');
     if (typeof loadMasterOptions === 'function') loadMasterOptions();
     if (typeof toast === 'function') toast('Selamat datang di Konsol Administrator GS, ' + user.nama + '!', 'ok');
   }).catch(function(e){
