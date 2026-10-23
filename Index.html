@@ -13428,44 +13428,5 @@ function loadMasterOptions() {
 
 </script>
 
-<script>
-window.IS_ADMIN_PORTAL = true;
-// Otomatis arahkan ke dashboard admin ketika login
-var _origDoLogin = doLogin;
-doLogin = function() {
-  var email = document.getElementById('login-email').value.trim(),
-      pin   = document.getElementById('login-pin').value,
-      err   = document.getElementById('login-err'),
-      btn   = document.getElementById('btn-login');
-  err.classList.remove('show');
-  if(!email){ err.textContent='Masukkan email Admin Anda.'; err.classList.add('show'); return; }
-  if(!pin){ err.textContent='Password wajib diisi.'; err.classList.add('show'); return; }
-  btn.disabled = true; btn.textContent = 'Memverifikasi Akses Admin...';
-
-  api('verifyPin', { email: email, pin: pin }).then(function(user){
-    try { localStorage.setItem('pns_session', JSON.stringify(user)); } catch(e){}
-    window.SESSION = user;
-    _session = user;
-    var loginScreen = document.getElementById('login-screen');
-    var appScreen = document.getElementById('app-screen');
-    if (loginScreen) loginScreen.style.display = 'none';
-    if (appScreen) appScreen.style.display = 'flex';
-    btn.disabled = false; btn.textContent = 'Masuk';
-    
-    // Arahkan langsung ke menu Admin / GS Management
-    if (typeof showTab === 'function') {
-      showTab('admin');
-    } else {
-      showDash();
-    }
-    if (typeof loadMasterOptions === 'function') loadMasterOptions();
-    if (typeof toast === 'function') toast('Selamat datang di Konsol Administrator GS, ' + user.nama + '!', 'ok');
-  }).catch(function(e){
-    err.textContent = e.message || 'Login admin gagal.'; err.classList.add('show');
-    btn.disabled = false; btn.textContent = 'Masuk';
-    document.getElementById('login-pin').value = '';
-  });
-};
-</script>
 </body>
 </html>
