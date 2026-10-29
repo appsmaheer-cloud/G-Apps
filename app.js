@@ -819,46 +819,52 @@
   }
 
   function getDefaultRoomFacilityAssets(kodeGedung, namaRuangan) {
-    const bCode = kodeGedung || 'PNS-FAC';
-    const rName = namaRuangan || 'Kamar';
-    const rUpper = rName.toUpperCase();
-    const prefix = 'AST-' + bCode.replace(/[^A-Za-z0-9]/g, '').slice(-6) + '-';
+  var rName = namaRuangan || 'Kamar';
+  var rUpper = String(rName).toUpperCase();
 
-    if (rUpper.includes('PANTRY') || rUpper.includes('DAPUR')) {
-      return [
-        { no_asset: prefix + '101', nama_asset: 'Kulkas 2 Pintu Sharp SJ-237ND', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 3450000, tanggal_perolehan: '2023-05-12' },
-        { no_asset: prefix + '102', nama_asset: 'Dispenser Air Minum Polytron PWC776', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 1850000, tanggal_perolehan: '2023-05-12' },
-        { no_asset: prefix + '103', nama_asset: 'Kompor Gas 2 Tungku Rinnai RI-522C', kondisi: 'Baik', kategori_asset: 'Peralatan', total_harga_perolehan: 450000, tanggal_perolehan: '2023-05-15' },
-        { no_asset: prefix + '104', nama_asset: 'Tabung Gas LPG 12 KG Pertamina', kondisi: 'Baik', kategori_asset: 'Peralatan', total_harga_perolehan: 650000, tanggal_perolehan: '2023-05-15' },
-        { no_asset: prefix + '105', nama_asset: 'Meja Makan Stainless Steel 120x60 cm', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1200000, tanggal_perolehan: '2023-06-01' },
-        { no_asset: prefix + '106', nama_asset: 'Kursi Lipat Chitose Yamato HAA (4 Unit)', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1100000, tanggal_perolehan: '2023-06-01' }
-      ];
-    }
-
-    if (rUpper.includes('KANTOR') || rUpper.includes('OFFICE') || rUpper.includes('MEETING') || rUpper.includes('RUANG KERJA')) {
-      return [
-        { no_asset: prefix + '201', nama_asset: 'Meja Kerja Staff 120x74x75 cm Laminated', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1450000, tanggal_perolehan: '2023-02-10' },
-        { no_asset: prefix + '202', nama_asset: 'Kursi Kerja Staff Putar Hidrolik Indachi', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 850000, tanggal_perolehan: '2023-02-10' },
-        { no_asset: prefix + '203', nama_asset: 'Filling Cabinet 4 Laci Metal Merk Lion', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 2750000, tanggal_perolehan: '2022-11-05' },
-        { no_asset: prefix + '204', nama_asset: 'AC Split 1.5 PK Daikin Inverter Standard', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 5800000, tanggal_perolehan: '2023-03-20' },
-        { no_asset: prefix + '205', nama_asset: 'Whiteboard Magnetic 120x240 cm Sakana', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 650000, tanggal_perolehan: '2023-01-15' }
-      ];
-    }
-
-    // Default: Standar Fasilitas Fisik Kamar (Longhouse, Mess, Barak, Guest House)
+  if (rUpper.indexOf('PANTRY') !== -1 || rUpper.indexOf('DAPUR') !== -1) {
     return [
-      { no_asset: prefix + '001', nama_asset: 'Springbed 100 x 200 x 25 Romance Feeling Lovely', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 2850000, tanggal_perolehan: '2023-04-10' },
-      { no_asset: prefix + '002', nama_asset: 'Ranjang Susun Besi Romance 2 Tingkat 98x208', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 3450000, tanggal_perolehan: '2023-04-10' },
-      { no_asset: prefix + '003', nama_asset: 'Lemari Pakaian 2 Pintu LC-Nathan 80x42x190', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1950000, tanggal_perolehan: '2023-04-12' },
-      { no_asset: prefix + '004', nama_asset: 'Loker Besi 3 Pintu Lion Type L-553', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 2350000, tanggal_perolehan: '2023-04-12' },
-      { no_asset: prefix + '005', nama_asset: 'AC Split 1.5 PK Panasonic Eco Inverter', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 5600000, tanggal_perolehan: '2023-06-15' },
-      { no_asset: prefix + '006', nama_asset: 'Bantal Dacron Kepala Romance 48x71 (2 Unit)', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 180000, tanggal_perolehan: '2023-04-15' },
-      { no_asset: prefix + '007', nama_asset: 'Guling Dacron Romance 37x89 (2 Unit)', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 190000, tanggal_perolehan: '2023-04-15' },
-      { no_asset: prefix + '008', nama_asset: 'Sprei & Selimut Handuk Honey 160x200', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 320000, tanggal_perolehan: '2023-04-15' },
-      { no_asset: prefix + '009', nama_asset: 'Kursi Lipat Chitose Type Yamato HAA', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 295000, tanggal_perolehan: '2023-04-18' },
-      { no_asset: prefix + '010', nama_asset: 'Keranjang Pakaian Kotor 20L Lion Star + Tutup', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 85000, tanggal_perolehan: '2023-04-18' }
+      { no_asset: 'PNS-FAC-KK-25', nama_asset: 'KULKAS 2 PINTU SHARP SJ-237ND', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 3150000, tanggal_perolehan: '2020-05-12' },
+      { no_asset: 'PNS-FAC-DPS-40', nama_asset: 'DISPENSER POLYTRON PWC776', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 2150000, tanggal_perolehan: '2019-11-20' },
+      { no_asset: 'N-700-712-0001-9723', nama_asset: 'KOMPOR GAS 2 TUNGKU', kondisi: 'Baik', kategori_asset: 'Peralatan', total_harga_perolehan: 300000, tanggal_perolehan: '2021-06-15' },
+      { no_asset: 'N-700-712-0001-1868', nama_asset: 'TABUNG GAS LPG 12 KG', kondisi: 'Baik', kategori_asset: 'Peralatan', total_harga_perolehan: 490000, tanggal_perolehan: '2017-12-20' },
+      { no_asset: 'N-700-712-0001-5086', nama_asset: 'MEJA MAKAN 120 X 60 CM', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 725000, tanggal_perolehan: '2019-06-03' },
+      { no_asset: 'N-700-712-0001-2291', nama_asset: 'KURSI LIPAT MERK CHITOSE TYPE YAMATO HAA', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 305000, tanggal_perolehan: '2018-04-10' },
+      { no_asset: 'N-700-712-0001-3517', nama_asset: 'LEMARI PIRING ALUMUNIUM UK.74 X 40 X 160 CM', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 850000, tanggal_perolehan: '2018-10-25' },
+      { no_asset: 'PNS-FAC-TV-54', nama_asset: 'TV LED SAMSUNG 32 INCH 32N4001AK', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 2431000, tanggal_perolehan: '2020-08-15' }
     ];
   }
+
+  if (rUpper.indexOf('KANTOR') !== -1 || rUpper.indexOf('OFFICE') !== -1 || rUpper.indexOf('MEETING') !== -1 || rUpper.indexOf('RUANG KERJA') !== -1) {
+    return [
+      { no_asset: 'PNS-MK-327', nama_asset: 'MEJA STAFF UK 1200X740X750', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1320000, tanggal_perolehan: '2020-10-16' },
+      { no_asset: 'PNS-MCSE-125', nama_asset: 'MEETING TABLE LARGE 3500X2900X750', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 8485200, tanggal_perolehan: '2020-10-16' },
+      { no_asset: 'PNS-FCL-05C', nama_asset: 'FILLING CABINET 4 LACI MERK LION', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 2300000, tanggal_perolehan: '2015-10-17' },
+      { no_asset: 'PNS-FAC-FP-03', nama_asset: 'FINGERPRINT SOLUTION X107', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 2090000, tanggal_perolehan: '2019-01-03' },
+      { no_asset: 'N-700-712-0002-22', nama_asset: 'KULKAS 1 PINTU SHARP SJ-X165M-SG/SR', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 1790000, tanggal_perolehan: '2021-03-05' },
+      { no_asset: 'PNS-FAC-AC-75', nama_asset: 'AC SHARP AH-A9SAY THAILAND 1 PK', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 4650000, tanggal_perolehan: '2019-05-15' }
+    ];
+  }
+
+  // Standar Fasilitas Fisik Kamar Sesuai Database Asli PT Pratama Nusantara Sakti (m_ruangan_assets)
+  return [
+    { no_asset: 'N-700-712-0001-9704', nama_asset: 'SPRINGBED 100 X 200 X 25 ROMANCE TYPE FEELING LOVELY COMPLETE SET', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 3218600, tanggal_perolehan: '2021-06-16' },
+    { no_asset: 'N-700-712-0001-9705', nama_asset: 'SPRINGBED 100 X 200 X 25 ROMANCE TYPE FEELING LOVELY COMPLETE SET', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 3218600, tanggal_perolehan: '2021-06-16' },
+    { no_asset: 'N-700-712-0001-10497', nama_asset: 'LEMARI 2 PINTU LC - NATHAN 2PK UKURAN 800 X 420 X 1900MM', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 800000, tanggal_perolehan: '2021-09-14' },
+    { no_asset: 'PNS-FAC-LOKER-362', nama_asset: 'LOKER BESI 3 PINTU LION TYPE L-553', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 1048300, tanggal_perolehan: '2018-10-05' },
+    { no_asset: 'N-700-712-0001-4417', nama_asset: 'BANTAL DACRON KEPALA 48 X 71 MERK ROMANCE', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 110000, tanggal_perolehan: '2019-04-08' },
+    { no_asset: 'N-700-712-0001-3918', nama_asset: 'GULING DACRON ROMANCE UK 37X89 CM', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 118800, tanggal_perolehan: '2019-04-05' },
+    { no_asset: 'N-700-712-0001-5186', nama_asset: 'SELIMUT HANDUK 160 X 200 MERK HONEY', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 123000, tanggal_perolehan: '2019-06-10' },
+    { no_asset: 'N-700-712-0001-2923', nama_asset: 'SPREI 100X200 CM STAR POLKADOT', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 104000, tanggal_perolehan: '2018-08-12' },
+    { no_asset: 'N-700-712-0001-1278', nama_asset: 'KURSI LIPAT MERK CHITOSE TYPE YAMATO HAA', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 305000, tanggal_perolehan: '2017-10-15' },
+    { no_asset: 'N-700-712-0001-1657', nama_asset: 'KERANJANG PAKAIAN KOTOR KAPS 20L LION STAR + TUTUP', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 95000, tanggal_perolehan: '2017-11-23' },
+    { no_asset: 'N-700-712-0001-5111', nama_asset: 'MEJA MAKAN 120 X 60 CM', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 725000, tanggal_perolehan: '2019-06-03' },
+    { no_asset: 'N-700-712-0001-5429', nama_asset: 'PENGKI + SAPU LANTAI NAGATA', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 45000, tanggal_perolehan: '2019-11-14' },
+    { no_asset: 'PNS-FAC-AC-75', nama_asset: 'AC SHARP AH-A9SAY THAILAND 1 PK', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 4650000, tanggal_perolehan: '2019-05-15' },
+    { no_asset: 'N-700-712-0001-2100', nama_asset: 'GORDEN UK 130 X 160 CM', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 160000, tanggal_perolehan: '2018-01-08' },
+    { no_asset: 'N-700-712-0001-3319', nama_asset: 'TIANG GORDEN UK. 120 CM', kondisi: 'Baik', kategori_asset: 'LONGHOUSE', total_harga_perolehan: 53000, tanggal_perolehan: '2018-09-24' }
+  ];
+}
 
   function onInspRuanganChange() {
     const bCode = document.getElementById('insp-gedung').value;
