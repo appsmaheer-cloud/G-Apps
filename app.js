@@ -1,9 +1,3 @@
-/**
- * ==========================================================================
- * PNS ASSET MANAGEMENT ENTERPRISE — FRONTEND CONTROLLER
- * PT Pratama Nusantara Sakti (Dual-Engine: GAS + REST Fetch for GitHub Pages)
- * ==========================================================================
- */
 // Single Compact 64x64 Base64 Logo (Eliminates 4x 28KB HTML Duplication)
   const PNS_LOGO_URI = "data:image/png;base64,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";
 
@@ -36,6 +30,53 @@
     {"kode_gedung": "PNS-GH-01", "nama_ruangan": "KAMAR TAMU 01", "no_asset": "AST-2023-0105", "nama_asset": "AC Split 1.5 PK Daikin Inverter", "kondisi": "Baik", "kategori_asset": "Elektronik", "total_harga_perolehan": 6500000, "tanggal_perolehan": "2023-08-20"},
     {"kode_gedung": "PNS-GH-01", "nama_ruangan": "KAMAR TAMU 01", "no_asset": "AST-2023-0106", "nama_asset": "Smart TV 43 Inch LG 4K", "kondisi": "Baik", "kategori_asset": "Elektronik", "total_harga_perolehan": 4800000, "tanggal_perolehan": "2023-08-20"}
   ];
+
+
+  // ==========================================
+  // ENTERPRISE ASSET REPOSITORY (SELURUH ASET PORTOFOLIO)
+  // ==========================================
+  const ENTERPRISE_PORTFOLIO_SAMPLE = [
+    { no_asset: 'PNS-HE-EXC-001', nama_asset: 'Excavator Komatsu PC200-8M0 Heavy Duty', kategori_asset: 'HEAVY EQUIPMENT', kode_gedung: 'Central Workshop', lokasi_site: 'Factory / Pabrik (FR)', kondisi: 'Baik', total_harga_perolehan: 1850000000, tanggal_perolehan: '2021-03-15' },
+    { no_asset: 'PNS-HE-DOZ-004', nama_asset: 'Bulldozer Caterpillar D6R XL Forestry Spec', kategori_asset: 'HEAVY EQUIPMENT', kode_gedung: 'Workshop Estate 1', lokasi_site: 'Estate 1 (E1)', kondisi: 'Baik', total_harga_perolehan: 2450000000, tanggal_perolehan: '2020-07-20' },
+    { no_asset: 'PNS-VH-HLX-012', nama_asset: 'Toyota Hilux Double Cabin 2.4G 4x4 Operasional', kategori_asset: 'VEHICLE', kode_gedung: 'Pool Kendaraan Central', lokasi_site: 'Central Office (CO)', kondisi: 'Baik', total_harga_perolehan: 465000000, tanggal_perolehan: '2022-05-10' },
+    { no_asset: 'PNS-VH-DT-008', nama_asset: 'Dump Truck Hino 500 FM 260 JD 6x4', kategori_asset: 'VEHICLE', kode_gedung: 'Workshop Pabrik', lokasi_site: 'Factory / Pabrik (FR)', kondisi: 'Baik', total_harga_perolehan: 980000000, tanggal_perolehan: '2021-11-28' },
+    { no_asset: 'PNS-MC-TRB-001', nama_asset: 'Steam Turbine Generator Shinko 3500 kW Power Plant', kategori_asset: 'PABRIK', kode_gedung: 'Power House Pabrik', lokasi_site: 'Factory / Pabrik (FR)', kondisi: 'Baik', total_harga_perolehan: 8750000000, tanggal_perolehan: '2019-08-14' },
+    { no_asset: 'PNS-MC-BLR-002', nama_asset: 'Water Tube Boiler Takuma 45 Ton/Hour High Pressure', kategori_asset: 'PABRIK', kode_gedung: 'Boiler Station', lokasi_site: 'Factory / Pabrik (FR)', kondisi: 'Baik', total_harga_perolehan: 12400000000, tanggal_perolehan: '2019-09-01' },
+    { no_asset: 'PNS-AG-TRC-015', nama_asset: 'Agricultural Tractor John Deere 6120B 120 HP 4WD', kategori_asset: 'PERTANIAN', kode_gedung: 'Gudang Traktor E2', lokasi_site: 'Estate 2 (E2)', kondisi: 'Baik', total_harga_perolehan: 820000000, tanggal_perolehan: '2022-01-18' },
+    { no_asset: 'PNS-AG-HRV-003', nama_asset: 'Sugarcane Harvester Austoft 8810 Case IH Track', kategori_asset: 'PERTANIAN', kode_gedung: 'Pool Panen Estate 3', lokasi_site: 'Estate 3 (E3)', kondisi: 'Baik', total_harga_perolehan: 4150000000, tanggal_perolehan: '2021-04-12' },
+    { no_asset: 'PNS-IT-SRV-001', nama_asset: 'Server Dell PowerEdge R750 2x Xeon 128GB RAM Dual PSU', kategori_asset: 'IT', kode_gedung: 'Server Room Central Office', lokasi_site: 'Central Office (CO)', kondisi: 'Baik', total_harga_perolehan: 175000000, tanggal_perolehan: '2023-02-10' },
+    { no_asset: 'PNS-EL-TRF-003', nama_asset: 'Transformer Trafo Schneider 2500 kVA 20kV / 400V', kategori_asset: 'IT', kode_gedung: 'Substation Central', lokasi_site: 'Central Office (CO)', kondisi: 'Baik', total_harga_perolehan: 650000000, tanggal_perolehan: '2020-04-15' },
+    { no_asset: 'PNS-BL-KTR-001', nama_asset: 'Gedung Utama Head Central Office 2 Lantai 1200 m2', kategori_asset: 'FASILITAS', kode_gedung: 'PNS-CENTRAL-OFFICE-01', lokasi_site: 'Central Office (CO)', kondisi: 'Baik', total_harga_perolehan: 7800000000, tanggal_perolehan: '2018-12-01' },
+    { no_asset: 'PNS-BL-LH-001', nama_asset: 'Bangunan Longhouse Staff & Operator 14 Pintu Block A', kategori_asset: 'FASILITAS', kode_gedung: 'PNS-FAC-LH 01', lokasi_site: 'Factory / Pabrik (FR)', kondisi: 'Baik', total_harga_perolehan: 3200000000, tanggal_perolehan: '2019-03-20' }
+  ];
+
+  const REAL_VALIDATIONS = [
+    { opname_id: 'OPN-202610-001', tanggal: '2026-10-25', lokasi: 'PNS-FAC-LH 01', total_terdaftar: 326, sesuai: 324, selisih: 2, status: 'Ada Selisih', auditor: 'Miftahul Khoiry', catatan: '2 Kasur busa robek di Kamar 3' },
+    { opname_id: 'OPN-202610-002', tanggal: '2026-10-26', lokasi: 'PNS-GH-01', total_terdaftar: 48, sesuai: 48, selisih: 0, status: 'Valid', auditor: 'Rizal Dwi', catatan: 'Seluruh aset kamar guest house lengkap & baik' },
+    { opname_id: 'OPN-202610-003', tanggal: '2026-10-27', lokasi: 'PNS-CENTRAL-OFFICE-01', total_terdaftar: 530, sesuai: 528, selisih: 2, status: 'Ada Selisih', auditor: 'Budiono MU', catatan: '1 unit kursi kerja rusak hidrolik' },
+    { opname_id: 'OPN-202610-004', tanggal: '2026-10-28', lokasi: 'PNS-LND', total_terdaftar: 451, sesuai: 451, selisih: 0, status: 'Valid', auditor: 'Rocky', catatan: 'Fasilitas mess training center lengkap' },
+    { opname_id: 'OPN-202610-005', tanggal: '2026-10-29', lokasi: 'PNS-FAC-KANTIN', total_terdaftar: 112, sesuai: 110, selisih: 2, status: 'Proses', auditor: 'Miftahul Khoiry', catatan: 'Proses verifikasi inventaris dapur' }
+  ];
+
+  // Helper Validator: Pastikan HANYA gedung nyata fisik yang diproses
+  function isGenuineBuilding(b) {
+    if (!b) return false;
+    const kode = String(b.kode_gedung || '').trim();
+    const nama = String(b.nama_gedung || '').trim();
+    const kat = String(b.kategori || '').toUpperCase();
+    const sub = String(b.sub_kategori || '').toUpperCase();
+
+    // 1. Tolak kode murni angka (seperti 18142, 8141, 8229)
+    if (/^\d+$/.test(kode)) return false;
+
+    // 2. Tolak infrastruktur non-bangunan
+    const combo = (kode + ' ' + nama + ' ' + kat + ' ' + sub).toUpperCase();
+    const bads = ['JALAN', 'PARIT', 'KANAL', 'DERMAGA', 'LANDSCAPING', 'EMPLACEMENT', 'HELIPAD', 'TEMPAT PARKIR', 'TIDAK TERKLASIFIKASI', 'ERROR'];
+    for (let i = 0; i < bads.length; i++) {
+      if (combo.includes(bads[i])) return false;
+    }
+    return true;
+  }
 
   let chartSiteBarInstance = null;
   let chartCondDonutInstance = null;
@@ -126,6 +167,9 @@
       { nik: 'PNS-AGR-02', nama_penghuni: 'Bambang Triatmojo', departemen: 'Factory', kode_gedung: 'PNS-FAC-LH 01', nama_ruangan: 'KAMAR NO.1', nomor_kasur: 'Bed B', status_hunian: 'Aktif', no_kontak: '0813-8821-445' },
       { nik: 'PNS-LOG-01', nama_penghuni: 'Dedi Kurniawan', departemen: 'Logistik', kode_gedung: 'PNS-LH-05-01', nama_ruangan: 'KAMAR NO.2', nomor_kasur: 'Bed A', status_hunian: 'Aktif', no_kontak: '0857-9912-334' }
     ],
+    validations: REAL_VALIDATIONS,
+    enterpriseAssets: ENTERPRISE_PORTFOLIO_SAMPLE,
+    portfolioCatFilter: '',
     currentBldgFilterSite: '',
     currentInspAssets: []
   };
@@ -238,6 +282,8 @@
     renderHistoryTable();
     renderWorkOrdersTable();
     renderPenghuniTable();
+    renderPortfolioAllTable();
+    renderValidasiTable();
 
     syncAllFromBackend(false);
   });
@@ -254,9 +300,15 @@
     if (!data) return;
     if (data.stats) onLiveStatsLoaded(data.stats);
     if (Array.isArray(data.buildings) && data.buildings.length > 0) {
-      appState.buildings = data.buildings;
+      appState.buildings = data.buildings.filter(isGenuineBuilding);
       const subEl = document.getElementById('subtitle-gedung-count');
-      if (subEl) subEl.innerText = `${data.buildings.length.toLocaleString('id-ID')} data gedung nyata dari database Google Sheets`;
+      if (subEl) subEl.innerText = `${appState.buildings.length.toLocaleString('id-ID')} data gedung nyata dari database Google Sheets`;
+    }
+    if (Array.isArray(data.validations) && data.validations.length > 0) {
+      appState.validations = data.validations;
+    }
+    if (Array.isArray(data.assets) && data.assets.length > 0) {
+      appState.enterpriseAssets = data.assets;
     }
     if (Array.isArray(data.rooms) && data.rooms.length > 0) {
       appState.rooms = data.rooms;
@@ -283,6 +335,8 @@
     renderHistoryTable();
     renderWorkOrdersTable();
     renderPenghuniTable();
+    renderPortfolioAllTable();
+    renderValidasiTable();
     setSyncIndicator('Sheets Synchronized', false);
   }
 
@@ -373,6 +427,12 @@
       if (matched) matched.classList.add('active');
     }
     appState.currentView = viewId;
+
+    if (viewId === 'view-portfolio-all') {
+      renderPortfolioAllTable();
+    } else if (viewId === 'view-validasi') {
+      renderValidasiTable();
+    }
 
     if (window.innerWidth < 1024) {
       const sb = document.getElementById('app-sidebar');
@@ -555,7 +615,8 @@
   function filterBuildings() {
     const searchInput = document.getElementById('search-bldg');
     const query = (searchInput ? searchInput.value : '').toLowerCase();
-    const filtered = appState.buildings.filter(b => {
+    const filtered = (appState.buildings || []).filter(b => {
+      if (!isGenuineBuilding(b)) return false;
       const matchSite = !appState.currentBldgFilterSite || b.lokasi_site === appState.currentBldgFilterSite;
       const matchQuery = !query ||
         String(b.kode_gedung || '').toLowerCase().includes(query) ||
@@ -687,11 +748,13 @@
     const regGedung = document.getElementById('reg-gedung');
     const mutGedung = document.getElementById('mut-ke-gedung');
 
-    const bldgOptionsHtml = appState.buildings.map(b =>
+    const genuineBuildings = (appState.buildings || []).filter(isGenuineBuilding);
+
+    const bldgOptionsHtml = genuineBuildings.map(b =>
       `<option value="${escapeHtml(b.kode_gedung)}">${escapeHtml(b.nama_gedung)} (${escapeHtml(b.lokasi_site)})</option>`
     ).join('');
 
-    const filterOptionsHtml = appState.buildings.map(b =>
+    const filterOptionsHtml = genuineBuildings.map(b =>
       `<option value="${escapeHtml(b.kode_gedung)}">${escapeHtml(b.kode_gedung)} - ${escapeHtml(b.nama_gedung)}</option>`
     ).join('');
 
@@ -699,6 +762,8 @@
     if (filterBldgSelect) filterBldgSelect.innerHTML = '<option value="">Semua Gedung</option>' + filterOptionsHtml;
     if (regGedung) regGedung.innerHTML = bldgOptionsHtml;
     if (mutGedung) mutGedung.innerHTML = bldgOptionsHtml;
+    const opnLokasi = document.getElementById('opn-lokasi');
+    if (opnLokasi) opnLokasi.innerHTML = '<option value="Semua Site">Semua Site / Gedung</option>' + bldgOptionsHtml;
 
     loadRegRooms();
     loadMutRooms();
@@ -1260,4 +1325,239 @@
         });
       }
     });
+  }
+
+
+
+  // ==========================================
+  // VIEW: SELURUH PORTOFOLIO ASET (ENTERPRISE)
+  // ==========================================
+  function filterPortfolioCategory(cat, btnEl) {
+    appState.portfolioCatFilter = cat || '';
+    document.querySelectorAll('.ent-cat-pill').forEach(b => {
+      b.classList.remove('active', 'bg-slate-900', 'text-white', 'dark:bg-sky-500', 'dark:text-slate-950');
+      b.classList.add('bg-slate-100', 'text-slate-600', 'dark:bg-slate-800', 'dark:text-slate-300');
+    });
+    if (btnEl) {
+      btnEl.classList.remove('bg-slate-100', 'text-slate-600', 'dark:bg-slate-800', 'dark:text-slate-300');
+      btnEl.classList.add('active', 'bg-slate-900', 'text-white', 'dark:bg-sky-500', 'dark:text-slate-950');
+    }
+    renderPortfolioAllTable();
+  }
+
+  function onSearchPortfolioAll() {
+    renderPortfolioAllTable();
+  }
+
+  function renderPortfolioAllTable() {
+    const tbody = document.getElementById('table-portfolio-all-body');
+    if (!tbody) return;
+
+    const search = (document.getElementById('search-portfolio-all')?.value || '').toLowerCase();
+    const catFilter = appState.portfolioCatFilter || '';
+
+    const sourceData = (appState.enterpriseAssets && appState.enterpriseAssets.length > 0)
+      ? appState.enterpriseAssets
+      : ENTERPRISE_PORTFOLIO_SAMPLE;
+
+    const filtered = sourceData.filter(a => {
+      const matchCat = !catFilter || String(a.kategori_asset || '').toUpperCase().includes(catFilter);
+      const matchQuery = !search ||
+        String(a.no_asset || '').toLowerCase().includes(search) ||
+        String(a.nama_asset || '').toLowerCase().includes(search) ||
+        String(a.lokasi_site || a.kode_gedung || '').toLowerCase().includes(search);
+      return matchCat && matchQuery;
+    });
+
+    const infoEl = document.getElementById('portfolio-all-count-info');
+    if (infoEl) infoEl.innerText = `Menampilkan ${Math.min(filtered.length, 100)} dari ${filtered.length} aset terdaftar`;
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Tidak ada aset enterprise yang cocok dengan filter.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = filtered.slice(0, 100).map(a => `
+      <tr>
+        <td class="font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(a.no_asset)}</td>
+        <td>
+          <div class="font-semibold text-slate-900 dark:text-white">${escapeHtml(a.nama_asset)}</div>
+          <div class="text-[10px] text-slate-400 font-mono">${escapeHtml(a.kode_gedung || '-')}</div>
+        </td>
+        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">${escapeHtml(a.kategori_asset || 'ASSET')}</span></td>
+        <td>${escapeHtml(a.lokasi_site || 'Site Operasional')}</td>
+        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${a.kondisi === 'Baik' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-rose-100 text-rose-800'}">${escapeHtml(a.kondisi || 'Baik')}</span></td>
+        <td class="font-mono num-tabular">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</td>
+        <td class="num-tabular">${escapeHtml(a.tanggal_perolehan || '-')}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ==========================================
+  // VIEW: REPORT ASSET [VALIDASI & OPNAME ASET]
+  // ==========================================
+  function renderValidasiTable() {
+    const tbody = document.getElementById('table-validasi-body');
+    if (!tbody) return;
+
+    const query = (document.getElementById('search-validasi')?.value || '').toLowerCase();
+    const filterStatus = document.getElementById('filter-val-status')?.value || '';
+
+    const list = (appState.validations || REAL_VALIDATIONS).filter(v => {
+      const matchStatus = !filterStatus || v.status === filterStatus;
+      const matchQuery = !query ||
+        String(v.opname_id || '').toLowerCase().includes(query) ||
+        String(v.lokasi || '').toLowerCase().includes(query) ||
+        String(v.auditor || '').toLowerCase().includes(query);
+      return matchStatus && matchQuery;
+    });
+
+    // Update stats cards
+    const totalSessions = (appState.validations || []).length;
+    const totalAssets = (appState.validations || []).reduce((acc, v) => acc + (Number(v.total_terdaftar) || 0), 0);
+    const validAssets = (appState.validations || []).reduce((acc, v) => acc + (Number(v.sesuai) || 0), 0);
+    const diffAssets = (appState.validations || []).reduce((acc, v) => acc + (Number(v.selisih) || 0), 0);
+
+    const setValText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
+    setValText('val-stat-sessions', totalSessions + ' Sesi');
+    setValText('val-stat-total', totalAssets.toLocaleString('id-ID') + ' Unit');
+    setValText('val-stat-valid', validAssets.toLocaleString('id-ID') + ' Unit');
+    setValText('val-stat-selisih', diffAssets.toLocaleString('id-ID') + ' Unit');
+
+    if (list.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-400">Tidak ada catatan opname yang cocok.</td></tr>`;
+      return;
+    }
+
+    tbody.innerHTML = list.map(v => {
+      const statusBadge = v.status === 'Valid'
+        ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">Valid (Sesuai)</span>'
+        : (v.status === 'Ada Selisih'
+          ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">Ada Selisih</span>'
+          : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300">Proses</span>');
+
+      return `
+        <tr>
+          <td class="font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(v.opname_id)}</td>
+          <td class="num-tabular">${escapeHtml(v.tanggal)}</td>
+          <td class="font-semibold text-slate-900 dark:text-white">${escapeHtml(v.lokasi)}</td>
+          <td class="num-tabular font-bold">${Number(v.total_terdaftar).toLocaleString('id-ID')}</td>
+          <td class="num-tabular text-emerald-600 font-bold">${Number(v.sesuai).toLocaleString('id-ID')}</td>
+          <td class="num-tabular ${v.selisih > 0 ? 'text-amber-600 font-bold' : 'text-slate-400'}">${Number(v.selisih)}</td>
+          <td>${statusBadge}</td>
+          <td>${escapeHtml(v.auditor)}</td>
+          <td class="text-xs text-slate-500 max-w-xs truncate">${escapeHtml(v.catatan || '-')}</td>
+          <td class="text-right">
+            <button onclick="verifikasiOpname('${escapeHtml(v.opname_id)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400 hover:bg-sky-600 hover:text-white transition">
+              Detail / Sync
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function onSearchValidasi() {
+    renderValidasiTable();
+  }
+
+  function openModalTambahOpname() {
+    const modal = document.getElementById('modal-tambah-opname');
+    if (!modal) return;
+    const newId = 'OPN-' + new Date().toISOString().slice(0, 7).replace('-', '') + '-' + ('00' + ((appState.validations || []).length + 1)).slice(-3);
+    const opnIdInput = document.getElementById('opn-id');
+    if (opnIdInput) opnIdInput.value = newId;
+
+    // Populate genuine buildings to opn-lokasi
+    const opnLokasi = document.getElementById('opn-lokasi');
+    if (opnLokasi) {
+      const genuine = (appState.buildings || []).filter(isGenuineBuilding);
+      opnLokasi.innerHTML = '<option value="Semua Site Operasional">Semua Site Operasional</option>' +
+        genuine.map(b => `<option value="${escapeHtml(b.kode_gedung)}">${escapeHtml(b.nama_gedung)} (${escapeHtml(b.lokasi_site)})</option>`).join('');
+    }
+    modal.classList.remove('hidden');
+  }
+
+  function closeModalTambahOpname() {
+    const modal = document.getElementById('modal-tambah-opname');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function calcOpnSelisih() {
+    const total = parseInt(document.getElementById('opn-total')?.value, 10) || 0;
+    const sesuai = parseInt(document.getElementById('opn-sesuai')?.value, 10) || 0;
+    const selisihEl = document.getElementById('opn-selisih');
+    if (selisihEl) selisihEl.value = Math.max(0, total - sesuai);
+  }
+
+  function submitTambahOpname(e) {
+    if (e) e.preventDefault();
+    const id = document.getElementById('opn-id')?.value || ('OPN-' + Date.now());
+    const lokasi = document.getElementById('opn-lokasi')?.value || 'Site Operasional';
+    const total = parseInt(document.getElementById('opn-total')?.value, 10) || 0;
+    const sesuai = parseInt(document.getElementById('opn-sesuai')?.value, 10) || 0;
+    const selisih = parseInt(document.getElementById('opn-selisih')?.value, 10) || 0;
+    const status = document.getElementById('opn-status')?.value || 'Valid';
+    const auditor = document.getElementById('opn-auditor')?.value || 'Petugas Auditor';
+    const catatan = document.getElementById('opn-catatan')?.value || '';
+
+    const newOpname = {
+      opname_id: id,
+      tanggal: new Date().toISOString().slice(0, 10),
+      lokasi: lokasi,
+      total_terdaftar: total,
+      sesuai: sesuai,
+      selisih: selisih,
+      status: status,
+      auditor: auditor,
+      catatan: catatan
+    };
+
+    if (!appState.validations) appState.validations = [];
+    appState.validations.unshift(newOpname);
+    renderValidasiTable();
+    closeModalTambahOpname();
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ title: 'Menyimpan Opname...', didOpen: () => Swal.showLoading() });
+    }
+
+    callBackendPost('save_validation', newOpname, res => {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire('Sukses Tersimpan', `Data stock opname ${id} tercatat di Google Sheets.`, 'success');
+      }
+    });
+  }
+
+  function verifikasiOpname(opnId) {
+    const opn = (appState.validations || []).find(v => v.opname_id === opnId);
+    if (!opn || typeof Swal === 'undefined') return;
+    Swal.fire({
+      title: `Detail Validasi: ${opn.opname_id}`,
+      html: `
+        <div class="text-left text-xs space-y-2 p-2">
+          <div><strong>Lokasi Audit:</strong> ${escapeHtml(opn.lokasi)}</div>
+          <div><strong>Tanggal:</strong> ${escapeHtml(opn.tanggal)}</div>
+          <div><strong>Total Aset:</strong> ${opn.total_terdaftar} unit (Sesuai: <span class="text-emerald-600 font-bold">${opn.sesuai}</span>, Selisih: <span class="text-rose-600 font-bold">${opn.selisih}</span>)</div>
+          <div><strong>Status Validasi:</strong> <span class="font-bold">${escapeHtml(opn.status)}</span></div>
+          <div><strong>Auditor:</strong> ${escapeHtml(opn.auditor)}</div>
+          <div><strong>Catatan:</strong> ${escapeHtml(opn.catatan || '-')}</div>
+        </div>
+      `,
+      icon: 'info',
+      confirmButtonText: 'Tutup'
+    });
+  }
+
+  function exportValidasiCsv() {
+    const list = appState.validations || REAL_VALIDATIONS;
+    let csv = 'ID Opname,Tanggal,Lokasi,Total Terdaftar,Sesuai,Selisih,Status,Auditor,Catatan\r\n';
+    list.forEach(v => {
+      csv += `"${v.opname_id}","${v.tanggal}","${v.lokasi}",${v.total_terdaftar},${v.sesuai},${v.selisih},"${v.status}","${v.auditor}","${(v.catatan || '').replace(/"/g, '""')}"\r\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `PNS_Validasi_Opname_Aset_${new Date().toISOString().slice(0, 10)}.csv`;
+    link.click();
   }
