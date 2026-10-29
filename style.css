@@ -1,0 +1,170 @@
+/* ==========================================================================
+   PNS ASSET MANAGEMENT ENTERPRISE — STYLESHEET
+   PT Pratama Nusantara Sakti (GitHub Pages Frontend for Google Apps Script)
+   ========================================================================== */
+:root {
+    /* Layer 1 & 2: Primitive & Semantic Tokens (Light Mode) */
+    --bg-canvas: #F8FAFC;
+    --bg-surface: #FFFFFF;
+    --bg-subtle: #F1F5F9;
+    --border-subtle: #E2E8F0;
+    --border-hover: #CBD5E1;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #64748B;
+    --primary-color: #0284C7;
+    --primary-dark: #0369A1;
+    --accent-color: #10B981;
+    --selection-bg: rgba(2, 132, 199, 0.16);
+    --selection-text: #0F172A;
+  }
+
+  html.dark {
+    /* Layer 2: Semantic Tokens (Dark Mode) */
+    --bg-canvas: #0B1120;
+    --bg-surface: #0F172A;
+    --bg-subtle: #1E293B;
+    --border-subtle: #1E293B;
+    --border-hover: #334155;
+    --text-primary: #F8FAFC;
+    --text-secondary: #CBD5E1;
+    --text-muted: #94A3B8;
+    --selection-bg: rgba(56, 189, 248, 0.25);
+    --selection-text: #F8FAFC;
+  }
+
+  ::selection {
+    background-color: var(--selection-bg);
+    color: var(--selection-text);
+  }
+
+  body {
+    background-color: var(--bg-canvas) !important;
+    color: var(--text-primary);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
+    letter-spacing: -0.011em;
+    -webkit-tap-highlight-color: transparent;
+    text-rendering: optimizeLegibility;
+  }
+
+  input, textarea, select {
+    caret-color: var(--primary-color);
+  }
+
+  /* Clean Surface Cards (Craft Floor: 1px crisp border, subtle elevation, no decorative top bars) */
+  .clean-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+
+  .clean-card:hover {
+    border-color: var(--border-hover);
+    box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
+  }
+
+  html.dark .clean-card {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
+  }
+
+  /* Performance Optimization for Large Lists/Grids */
+  .bldg-card-item {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 128px;
+  }
+
+  /* Data Tables (Operate & Craft Floor: Tabular Nums, Scannable Density) */
+  table thead th {
+    background-color: var(--bg-canvas);
+    color: var(--text-muted);
+    text-transform: uppercase;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 10px 14px;
+    white-space: nowrap;
+  }
+
+  table tbody td {
+    border-bottom: 1px solid var(--border-subtle);
+    padding: 10px 14px;
+    font-size: 0.8125rem;
+    vertical-align: middle;
+  }
+
+  table tbody tr:hover td {
+    background-color: rgba(2, 132, 199, 0.03);
+  }
+
+  html.dark table tbody tr:hover td {
+    background-color: rgba(30, 41, 59, 0.5);
+  }
+
+  .num-tabular,
+  td.font-mono,
+  #kpi-val-hpp,
+  #kpi-val-dep,
+  #kpi-val-nbv,
+  #kpi-val-mtc,
+  #stat-bldg-count,
+  #stat-room-count,
+  #stat-asset-count,
+  #stat-insp-count {
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Active Navigation State */
+  .nav-btn {
+    transition: background-color 0.15s ease, color 0.15s ease;
+  }
+
+  .nav-btn.active {
+    background-color: #0F172A;
+    color: #FFFFFF !important;
+    font-weight: 600;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
+  }
+
+  html.dark .nav-btn.active {
+    background-color: #0284C7;
+    color: #FFFFFF !important;
+    box-shadow: 0 1px 6px rgba(2, 132, 199, 0.25);
+  }
+
+  /* Accessible Keyboard Focus Rings */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--primary-color);
+    outline-offset: 2px;
+  }
+
+  /* Thin Scrollbars */
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #CBD5E1;
+    border-radius: 9999px;
+  }
+  html.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+    background-color: #334155;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *, ::before, ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
