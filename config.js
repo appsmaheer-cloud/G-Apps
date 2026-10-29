@@ -3,7 +3,7 @@
  * KONFIGURASI FRONTEND GOOGLE APPS SCRIPT (PNS ASSET ENTERPRISE)
  * PT Pratama Nusantara Sakti
  * ==========================================================================
- * Frontend Statis untuk GitHub Pages (https://appsmaheer-cloud.github.io/asset/)
+ * Frontend Statis untuk GitHub Pages (https://appsmaheer-cloud.github.io/G-Apps/)
  * Terhubung langsung ke Web App Google Apps Script & Google Spreadsheet.
  */
 const CONFIG = {

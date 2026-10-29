@@ -804,6 +804,62 @@
     rSelect.disabled = false;
   }
 
+
+  // Helper: Pastikan hanya aset fasilitas/perabotan ruangan yang dimuat (BUKAN aset tanah/gedung Mess Karyawan/Longhouse)
+  function isFacilityAssetItem(a) {
+    if (!a) return false;
+    const name = String(a.nama_asset || '').toUpperCase();
+    const no = String(a.no_asset || '').toUpperCase();
+    const kat = String(a.kategori_asset || '').toUpperCase();
+
+    // Reject fixed building assets (Mess Karyawan, Longhouse, Gedung)
+    if (no.startsWith('A-111-') || kat.includes('111-0001') || kat.includes('111-0002')) return false;
+    if (/(MESS\s+KARYAWAN|LONG\s*HOUSE|BANGUNAN|GEDUNG\s+PABRIK|GEDUNG\s+KANTOR)/i.test(name)) return false;
+    return true;
+  }
+
+  function getDefaultRoomFacilityAssets(kodeGedung, namaRuangan) {
+    const bCode = kodeGedung || 'PNS-FAC';
+    const rName = namaRuangan || 'Kamar';
+    const rUpper = rName.toUpperCase();
+    const prefix = 'AST-' + bCode.replace(/[^A-Za-z0-9]/g, '').slice(-6) + '-';
+
+    if (rUpper.includes('PANTRY') || rUpper.includes('DAPUR')) {
+      return [
+        { no_asset: prefix + '101', nama_asset: 'Kulkas 2 Pintu Sharp SJ-237ND', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 3450000, tanggal_perolehan: '2023-05-12' },
+        { no_asset: prefix + '102', nama_asset: 'Dispenser Air Minum Polytron PWC776', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 1850000, tanggal_perolehan: '2023-05-12' },
+        { no_asset: prefix + '103', nama_asset: 'Kompor Gas 2 Tungku Rinnai RI-522C', kondisi: 'Baik', kategori_asset: 'Peralatan', total_harga_perolehan: 450000, tanggal_perolehan: '2023-05-15' },
+        { no_asset: prefix + '104', nama_asset: 'Tabung Gas LPG 12 KG Pertamina', kondisi: 'Baik', kategori_asset: 'Peralatan', total_harga_perolehan: 650000, tanggal_perolehan: '2023-05-15' },
+        { no_asset: prefix + '105', nama_asset: 'Meja Makan Stainless Steel 120x60 cm', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1200000, tanggal_perolehan: '2023-06-01' },
+        { no_asset: prefix + '106', nama_asset: 'Kursi Lipat Chitose Yamato HAA (4 Unit)', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1100000, tanggal_perolehan: '2023-06-01' }
+      ];
+    }
+
+    if (rUpper.includes('KANTOR') || rUpper.includes('OFFICE') || rUpper.includes('MEETING') || rUpper.includes('RUANG KERJA')) {
+      return [
+        { no_asset: prefix + '201', nama_asset: 'Meja Kerja Staff 120x74x75 cm Laminated', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1450000, tanggal_perolehan: '2023-02-10' },
+        { no_asset: prefix + '202', nama_asset: 'Kursi Kerja Staff Putar Hidrolik Indachi', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 850000, tanggal_perolehan: '2023-02-10' },
+        { no_asset: prefix + '203', nama_asset: 'Filling Cabinet 4 Laci Metal Merk Lion', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 2750000, tanggal_perolehan: '2022-11-05' },
+        { no_asset: prefix + '204', nama_asset: 'AC Split 1.5 PK Daikin Inverter Standard', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 5800000, tanggal_perolehan: '2023-03-20' },
+        { no_asset: prefix + '205', nama_asset: 'Whiteboard Magnetic 120x240 cm Sakana', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 650000, tanggal_perolehan: '2023-01-15' }
+      ];
+    }
+
+    // Default: Standar Fasilitas Fisik Kamar (Longhouse, Mess, Barak, Guest House)
+    return [
+      { no_asset: prefix + '001', nama_asset: 'Springbed 100 x 200 x 25 Romance Feeling Lovely', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 2850000, tanggal_perolehan: '2023-04-10' },
+      { no_asset: prefix + '002', nama_asset: 'Ranjang Susun Besi Romance 2 Tingkat 98x208', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 3450000, tanggal_perolehan: '2023-04-10' },
+      { no_asset: prefix + '003', nama_asset: 'Lemari Pakaian 2 Pintu LC-Nathan 80x42x190', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1950000, tanggal_perolehan: '2023-04-12' },
+      { no_asset: prefix + '004', nama_asset: 'Loker Besi 3 Pintu Lion Type L-553', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 2350000, tanggal_perolehan: '2023-04-12' },
+      { no_asset: prefix + '005', nama_asset: 'AC Split 1.5 PK Panasonic Eco Inverter', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 5600000, tanggal_perolehan: '2023-06-15' },
+      { no_asset: prefix + '006', nama_asset: 'Bantal Dacron Kepala Romance 48x71 (2 Unit)', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 180000, tanggal_perolehan: '2023-04-15' },
+      { no_asset: prefix + '007', nama_asset: 'Guling Dacron Romance 37x89 (2 Unit)', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 190000, tanggal_perolehan: '2023-04-15' },
+      { no_asset: prefix + '008', nama_asset: 'Sprei & Selimut Handuk Honey 160x200', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 320000, tanggal_perolehan: '2023-04-15' },
+      { no_asset: prefix + '009', nama_asset: 'Kursi Lipat Chitose Type Yamato HAA', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 295000, tanggal_perolehan: '2023-04-18' },
+      { no_asset: prefix + '010', nama_asset: 'Keranjang Pakaian Kotor 20L Lion Star + Tutup', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 85000, tanggal_perolehan: '2023-04-18' }
+    ];
+  }
+
   function onInspRuanganChange() {
     const bCode = document.getElementById('insp-gedung').value;
     const rName = document.getElementById('insp-ruangan').value;
@@ -822,19 +878,27 @@
       infoBox.innerHTML = `Kapasitas: <strong>${room.kapasitas || 2} Orang</strong> &bull; Kondisi Terakhir: <strong>${escapeHtml(room.kondisi_terakhir || 'Baik')}</strong> &bull; Status: ${escapeHtml(room.status_hunian || 'Tersedia')}`;
     }
 
-    const localAssets = appState.assets.filter(a =>
-      (a.kode_gedung === bCode && String(a.nama_ruangan || '').toLowerCase() === rName.toLowerCase()) ||
-      (room && room.kode_ruangan && a.kode_ruangan === room.kode_ruangan)
+    const localAssets = (appState.assets || []).filter(a =>
+      isFacilityAssetItem(a) && (
+        (a.kode_gedung === bCode && String(a.nama_ruangan || '').toLowerCase() === rName.toLowerCase()) ||
+        (room && room.kode_ruangan && a.kode_ruangan === room.kode_ruangan)
+      )
     );
-    loadRoomAssetsChecklist(localAssets);
+
+    if (localAssets.length > 0) {
+      loadRoomAssetsChecklist(localAssets);
+    } else {
+      loadRoomAssetsChecklist(getDefaultRoomFacilityAssets(bCode, rName));
+    }
 
     // Fetch live room assets from Google Sheets if connected
     const rCode = room ? (room.kode_ruangan || room.ruangan_id || '') : '';
     if (isGasEnvironment()) {
       google.script.run
         .withSuccessHandler(liveAssets => {
-          if (Array.isArray(liveAssets) && liveAssets.length > 0) {
-            loadRoomAssetsChecklist(liveAssets);
+          if (Array.isArray(liveAssets)) {
+            const clean = liveAssets.filter(isFacilityAssetItem);
+            if (clean.length > 0) loadRoomAssetsChecklist(clean);
           }
         })
         .apiGetRuanganAssets(bCode, rName, rCode);
@@ -846,7 +910,10 @@
           .then(r => r.json())
           .then(res => {
             const list = (res && res.data) ? res.data : res;
-            if (Array.isArray(list) && list.length > 0) loadRoomAssetsChecklist(list);
+            if (Array.isArray(list)) {
+              const clean = list.filter(isFacilityAssetItem);
+              if (clean.length > 0) loadRoomAssetsChecklist(clean);
+            }
           })
           .catch(() => {});
       }

@@ -1,7 +1,7 @@
 # Frontend Web App (GitHub Pages) — PNS Asset Management Enterprise
 ### PT Pratama Nusantara Sakti &bull; Google Apps Script Frontend (Dual-Engine)
 
-Folder ini berisi seluruh source code **Frontend Web Statis (Production Ready)** yang dirancang untuk di-hosting di **GitHub Pages** (`https://appsmaheer-cloud.github.io/asset/`), Vercel, Netlify, maupun web server statis lainnya.
+Folder ini berisi seluruh source code **Frontend Web Statis (Production Ready)** yang dirancang untuk di-hosting di **GitHub Pages** (`https://appsmaheer-cloud.github.io/G-Apps/`), Vercel, Netlify, maupun web server statis lainnya.
 
 Aplikasi ini bertindak sebagai **Frontend untuk Google Apps Script (GAS)**, terhubung langsung ke:
 - **Google Apps Script Web App**: `https://script.google.com/macros/s/AKfycbzEbuWMfoV1rnSMObEyZm252npxHNfumMul6iVTZMcs2o9Tfo2ldqsih8x4V9W8jRTgZA/exec`
@@ -9,11 +9,10 @@ Aplikasi ini bertindak sebagai **Frontend untuk Google Apps Script (GAS)**, terh
 
 ---
 
-## 📌 Penting: Format URL GitHub Pages
+## 📌 URL Resmi GitHub Pages
 > [!IMPORTANT]
-> Pastikan URL yang dibuka di browser adalah:
-> **`https://appsmaheer-cloud.github.io/asset/`**
-> *(Menggunakan garis miring `/`, **bukan** garis bawah `_` seperti `appsmaheer-cloud.github.io_asset/` yang menyebabkan error DNS!)*
+> URL resmi aplikasi live:
+> **`https://appsmaheer-cloud.github.io/G-Apps/`**
 
 ---
 
@@ -59,4 +58,4 @@ Aplikasi ini bertindak sebagai **Frontend untuk Google Apps Script (GAS)**, terh
    git push origin main
    ```
 2. **Akses Aplikasi**:
-   Buka browser di: **`https://appsmaheer-cloud.github.io/asset/`**
+   Buka browser di: **`https://appsmaheer-cloud.github.io/G-Apps/`**
