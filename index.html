@@ -641,32 +641,47 @@
           </div>
         </div>
 
-        <!-- Step 4: Checklist Aset Ruangan -->
+                <!-- Step 4: Checklist Aset Ruangan (Identik dengan Versi PHP fac-inspeksi.php) -->
         <div class="clean-card p-4 space-y-3">
-          <div class="flex justify-between items-center flex-wrap gap-2">
+          <div class="flex justify-between items-center flex-wrap gap-2 pb-2 border-b border-slate-100 dark:border-slate-800">
             <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full bg-slate-900 dark:bg-sky-500 text-white dark:text-slate-950 font-bold text-xs flex items-center justify-center">4</span>
-              <span class="font-bold text-xs text-slate-900 dark:text-white uppercase tracking-wider">Checklist Aset Fisik di Ruangan Ini</span>
+              <span class="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">4</span>
+              <div>
+                <span class="font-bold text-xs sm:text-sm text-slate-900 dark:text-white uppercase tracking-wider block">Checklist Aset Fisik di Ruangan Ini</span>
+                <span class="text-[11px] text-slate-400">Verifikasi kode, lokasi, kondisi fisik, dan kelengkapan fasilitas ruangan</span>
+              </div>
             </div>
-            <button type="button" onclick="promptAddAssetToRoom()" class="flex items-center gap-1.5 px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-200 border border-slate-200 dark:border-slate-700">
-              <i class="ph-bold ph-plus" aria-hidden="true"></i> Tambah Item Aset Baru
-            </button>
+            <div class="flex items-center gap-2">
+              <span id="insp-asset-count-badge" class="px-2.5 py-1 rounded text-xs font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-200 dark:border-slate-700">0 Item Aset</span>
+              <button type="button" onclick="markAllAssetsGood()" id="btn-mark-all-good" class="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 transition shadow-2xs">
+                <i class="ph-bold ph-check-circle text-sm text-emerald-600"></i> Tandai Semua Baik
+              </button>
+              <button type="button" onclick="promptAddAssetToRoom()" class="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg bg-sky-50 dark:bg-sky-950/40 text-sky-700 dark:text-sky-300 border border-sky-200 dark:border-sky-800 hover:bg-sky-100 transition shadow-2xs">
+                <i class="ph-bold ph-plus text-sm text-sky-600"></i> Tambah Item Aset Baru
+              </button>
+            </div>
           </div>
 
-          <div class="overflow-x-auto border border-slate-200 dark:border-slate-700 rounded-lg">
+          <!-- DESKTOP & TABLET TABLE VIEW (Sesuai fac-inspeksi.php) -->
+          <div class="overflow-x-auto border border-slate-200/80 dark:border-slate-700 rounded-xl">
             <table class="w-full text-left border-collapse text-xs">
-              <thead>
+              <thead class="bg-slate-50 dark:bg-slate-800/80 text-slate-500 uppercase tracking-wider text-[11px] font-bold border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th>No Aset</th>
-                  <th>Nama Aset</th>
-                  <th>Kondisi Tercatat</th>
-                  <th>Kondisi Aktual Audit</th>
-                  <th>Catatan Khusus</th>
+                  <th class="py-2.5 px-3">No Aset</th>
+                  <th class="py-2.5 px-3">Nama Aset</th>
+                  <th class="py-2.5 px-3">Verifikasi Fisik</th>
+                  <th class="py-2.5 px-3">Kondisi Aktual</th>
+                  <th class="py-2.5 px-3">Foto / Bukti</th>
+                  <th class="py-2.5 px-3">Catatan Khusus</th>
+                  <th class="py-2.5 px-2 text-center">Aksi</th>
                 </tr>
               </thead>
-              <tbody id="insp-asset-checklist">
+              <tbody id="insp-asset-checklist" class="divide-y divide-slate-100 dark:divide-slate-800">
                 <tr>
-                  <td colspan="5" class="text-center py-6 text-slate-400">Pilih gedung dan ruangan untuk memuat daftar aset.</td>
+                  <td colspan="7" class="text-center py-8 text-slate-400">
+                    <i class="ph-bold ph-arrow-bend-left-up text-lg mb-1 block text-slate-300"></i>
+                    Pilih gedung bangunan dan ruangan di atas untuk memuat daftar aset nyata dari database.
+                  </td>
                 </tr>
               </tbody>
             </table>
