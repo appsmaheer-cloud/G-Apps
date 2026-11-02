@@ -1,154 +1,170 @@
 :root {
-    /* Layer 1 & 2: Primitive & Semantic Tokens (Light Mode) */
-    --bg-canvas: #F8FAFC;
-    --bg-surface: #FFFFFF;
-    --bg-subtle: #F1F5F9;
-    --border-subtle: #E2E8F0;
-    --border-hover: #CBD5E1;
-    --text-primary: #0F172A;
-    --text-secondary: #475569;
-    --text-muted: #64748B;
-    --primary-color: #0284C7;
-    --primary-dark: #0369A1;
-    --accent-color: #10B981;
-    --selection-bg: rgba(2, 132, 199, 0.16);
-    --selection-text: #0F172A;
-  }
-
+  /* Pratama Nusantara Sakti Enterprise Design Tokens (Harmonized Corporate Light Mode) */
+  --bg-canvas: #F8FAFC;         /* slate-50 canvas */
+  --bg-surface: #FFFFFF;        /* pure white cards */
+  --bg-subtle: #F1F5F9;         /* slate-100 subtle backgrounds */
+  --border-subtle: #E2E8F0;     /* slate-200 crisp border */
+  --border-hover: #CBD5E1;      /* slate-300 hover border */
   
+  --text-primary: #0F172A;      /* slate-900 high contrast headers */
+  --text-body: #334155;         /* slate-700 readable body text */
+  --text-secondary: #475569;    /* slate-600 secondary descriptions */
+  --text-muted: #64748B;        /* slate-500 helper meta */
+  
+  --primary-color: #059669;     /* emerald-600 PNS brand primary */
+  --primary-dark: #047857;      /* emerald-700 */
+  --primary-light: #ECFDF5;     /* emerald-50 soft accent */
+  
+  --secondary-color: #0284C7;   /* sky-600 corporate blue */
+  --secondary-light: #F0F9FF;   /* sky-50 soft accent */
+  
+  --status-success: #10B981;    /* emerald-500 */
+  --status-warning: #F59E0B;    /* amber-500 */
+  --status-danger: #EF4444;     /* rose-500 */
+  --status-info: #6366F1;       /* indigo-500 */
 
-  ::selection {
-    background-color: var(--selection-bg);
-    color: var(--selection-text);
-  }
+  --selection-bg: rgba(5, 150, 105, 0.18);
+  --selection-text: #064E3B;
+}
 
-  body {
-    background-color: var(--bg-canvas) !important;
-    color: var(--text-primary);
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
-    letter-spacing: -0.011em;
-    -webkit-tap-highlight-color: transparent;
-    text-rendering: optimizeLegibility;
-  }
+::selection {
+  background-color: var(--selection-bg);
+  color: var(--selection-text);
+}
 
-  input, textarea, select {
-    caret-color: var(--primary-color);
-  }
+body {
+  background-color: var(--bg-canvas) !important;
+  color: var(--text-body);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+  letter-spacing: -0.011em;
+  -webkit-tap-highlight-color: transparent;
+  text-rendering: optimizeLegibility;
+}
 
-  /* Clean Surface Cards (Craft Floor: 1px crisp border, subtle elevation, no decorative top bars) */
-  .clean-card {
-    background: var(--bg-surface);
-    border: 1px solid var(--border-subtle);
-    border-radius: 0.75rem;
-    box-shadow: 0 1px 2px 0 rgba(15, 23, 42, 0.03);
-    transition: border-color 0.15s ease, box-shadow 0.15s ease;
-  }
+/* Form controls font and caret */
+input, textarea, select {
+  caret-color: var(--primary-color);
+  color: var(--text-primary);
+  font-family: inherit;
+}
 
-  .clean-card:hover {
-    border-color: var(--border-hover);
-    box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.05);
-  }
+input::placeholder, textarea::placeholder {
+  color: #94A3B8; /* slate-400 */
+}
 
-  html.dark .clean-card {
-    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.25);
-  }
+/* Clean Surface Cards (Craft Floor: 1px crisp border, subtle elevation, no heavy dark slabs) */
+.clean-card {
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
 
-  /* Performance Optimization for Large Lists/Grids */
-  .bldg-card-item {
-    content-visibility: auto;
-    contain-intrinsic-size: auto 128px;
-  }
+.clean-card:hover {
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+}
 
-  /* Data Tables (Operate & Craft Floor: Tabular Nums, Scannable Density) */
-  table thead th {
-    background-color: var(--bg-canvas);
-    color: var(--text-muted);
-    text-transform: uppercase;
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    border-bottom: 1px solid var(--border-subtle);
-    padding: 10px 14px;
-    white-space: nowrap;
-  }
+/* Performance Optimization for Large Lists/Grids */
+.bldg-card-item {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 128px;
+}
 
-  table tbody td {
-    border-bottom: 1px solid var(--border-subtle);
-    padding: 10px 14px;
-    font-size: 0.8125rem;
-    vertical-align: middle;
-  }
+/* Data Tables (Operate & Craft Floor: Tabular Nums, Scannable Density, High Contrast) */
+table thead th {
+  background-color: #F8FAFC !important;
+  color: #475569 !important; /* slate-600 */
+  text-transform: uppercase;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 10px 14px;
+  white-space: nowrap;
+}
 
-  table tbody tr:hover td {
-    background-color: rgba(2, 132, 199, 0.03);
-  }
+table tbody td {
+  border-bottom: 1px solid var(--border-subtle);
+  padding: 10px 14px;
+  font-size: 0.8125rem;
+  color: var(--text-body);
+  vertical-align: middle;
+}
 
-  html.dark table tbody tr:hover td {
-    background-color: rgba(30, 41, 59, 0.5);
-  }
+table tbody tr:hover td {
+  background-color: #F8FAFC;
+}
 
-  .num-tabular,
-  td.font-mono,
-  #kpi-val-hpp,
-  #kpi-val-dep,
-  #kpi-val-nbv,
-  #kpi-val-mtc,
-  #stat-bldg-count,
-  #stat-room-count,
-  #stat-asset-count,
-  #stat-insp-count {
-    font-variant-numeric: tabular-nums;
-  }
+.num-tabular,
+td.font-mono,
+#kpi-val-hpp,
+#kpi-val-dep,
+#kpi-val-nbv,
+#kpi-val-mtc,
+#stat-bldg-count,
+#stat-room-count,
+#stat-asset-count,
+#stat-insp-count {
+  font-variant-numeric: tabular-nums;
+}
 
-  /* Active Navigation State */
-  .nav-btn {
-    transition: background-color 0.15s ease, color 0.15s ease;
-  }
+/* Active Navigation State - Pratama NS General Services Style */
+.nav-btn {
+  color: #475569; /* slate-600 */
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.15s ease;
+}
 
-  .nav-btn.active {
-    background-color: #0F172A;
-    color: #FFFFFF !important;
-    font-weight: 600;
-    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12);
-  }
+.nav-btn:hover {
+  background-color: #F1F5F9; /* slate-100 */
+  color: #0F172A; /* slate-900 */
+}
 
-  html.dark .nav-btn.active {
-    background-color: #0284C7;
-    color: #FFFFFF !important;
-    box-shadow: 0 1px 6px rgba(2, 132, 199, 0.25);
-  }
+.nav-btn.active {
+  background-color: #ECFDF5 !important; /* emerald-50 */
+  color: #065F46 !important;            /* emerald-800 */
+  font-weight: 700 !important;
+  border-right: 3px solid #059669 !important; /* emerald-600 accent bar */
+}
 
-  /* Accessible Keyboard Focus Rings */
-  button:focus-visible,
-  a:focus-visible,
-  input:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible {
-    outline: 2px solid var(--primary-color);
-    outline-offset: 2px;
-  }
+.nav-btn.active i {
+  color: #059669 !important;
+}
 
-  /* Thin Scrollbars */
-  .scrollbar-thin::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
-  }
-  .scrollbar-thin::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #CBD5E1;
-    border-radius: 9999px;
-  }
-  html.dark .scrollbar-thin::-webkit-scrollbar-thumb {
-    background-color: #334155;
-  }
+/* Accessible Keyboard Focus Rings */
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
 
-  @media (prefers-reduced-motion: reduce) {
-    *, ::before, ::after {
-      animation-duration: 0.01ms !important;
-      animation-iteration-count: 1 !important;
-      transition-duration: 0.01ms !important;
-      scroll-behavior: auto !important;
-    }
+/* Thin Scrollbars */
+.scrollbar-thin::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.scrollbar-thin::-webkit-scrollbar-track {
+  background: transparent;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background-color: #CBD5E1;
+  border-radius: 9999px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb:hover {
+  background-color: #94A3B8;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
+}

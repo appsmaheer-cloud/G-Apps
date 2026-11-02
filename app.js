@@ -650,10 +650,10 @@
     const pillWo = document.getElementById('top-pill-wo');
 
     const resetPill = (el) => {
-      if (el) el.className = 'top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 shadow-2xs cursor-pointer';
+      if (el) el.className = 'top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700  hover:bg-white :bg-slate-700 shadow-2xs cursor-pointer';
     };
     const activePill = (el) => {
-      if (el) el.className = 'top-nav-pill active px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs cursor-pointer ring-1 ring-slate-200 dark:ring-slate-600';
+      if (el) el.className = 'top-nav-pill active px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white  text-slate-900  shadow-xs cursor-pointer ring-1 ring-slate-200 ';
     };
 
     resetPill(pillHrga);
@@ -751,14 +751,14 @@
     const toggleBtn = document.getElementById('btn-theme-toggle');
     if (toggleBtn) {
       toggleBtn.addEventListener('click', () => {
-        document.documentElement.classList.toggle('dark');
+        
         localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
       });
     }
     if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      document.documentElement.classList.add('dark');
+      
     } else {
-      document.documentElement.classList.remove('dark');
+      
     }
   }
 
@@ -844,29 +844,29 @@
         <div class="clean-card p-5 flex flex-col justify-between space-y-4">
           <div class="space-y-2">
             <div class="flex items-center justify-between">
-              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-sky-100 dark:bg-sky-950 text-sky-700 dark:text-sky-300">SITE ${s.code}</span>
-              <span class="num-tabular text-xs font-semibold text-emerald-600 dark:text-emerald-400">Aktif Beroperasi</span>
+              <span class="px-2.5 py-0.5 rounded text-xs font-mono font-bold bg-sky-100 text-sky-700">SITE ${s.code}</span>
+              <span class="num-tabular text-xs font-semibold text-emerald-600">Aktif Beroperasi</span>
             </div>
-            <h3 class="text-base font-bold text-slate-900 dark:text-white">${escapeHtml(s.name)}</h3>
-            <p class="text-xs text-slate-500 dark:text-slate-400 leading-relaxed">${escapeHtml(s.desc)}</p>
+            <h3 class="text-base font-bold text-slate-900">${escapeHtml(s.name)}</h3>
+            <p class="text-xs text-slate-500 leading-relaxed">${escapeHtml(s.desc)}</p>
           </div>
 
-          <div class="space-y-3 pt-3 border-t border-slate-100 dark:border-slate-800 text-xs">
+          <div class="space-y-3 pt-3 border-t border-slate-100 text-xs">
             <div class="flex justify-between">
               <span class="text-slate-500">Penanggungjawab (PIC):</span>
-              <strong class="text-slate-800 dark:text-slate-200">${escapeHtml(s.pic)}</strong>
+              <strong class="text-slate-800">${escapeHtml(s.pic)}</strong>
             </div>
-            <div class="grid grid-cols-2 gap-2 bg-slate-50 dark:bg-slate-800/60 p-2.5 rounded-lg">
+            <div class="grid grid-cols-2 gap-2 bg-slate-50 p-2.5 rounded-lg">
               <div>
-                <div class="text-[10px] text-slate-400 uppercase font-semibold">Total Gedung</div>
-                <div class="num-tabular text-sm font-bold text-slate-900 dark:text-white">${countBldg.toLocaleString('id-ID')} Unit</div>
+                <div class="text-[10px] text-slate-500 uppercase font-semibold">Total Gedung</div>
+                <div class="num-tabular text-sm font-bold text-slate-900">${countBldg.toLocaleString('id-ID')} Unit</div>
               </div>
               <div>
-                <div class="text-[10px] text-slate-400 uppercase font-semibold">Estimasi Ruangan</div>
-                <div class="num-tabular text-sm font-bold text-sky-600 dark:text-sky-400">${countRooms.toLocaleString('id-ID')} Ruang</div>
+                <div class="text-[10px] text-slate-500 uppercase font-semibold">Estimasi Ruangan</div>
+                <div class="num-tabular text-sm font-bold text-sky-600">${countRooms.toLocaleString('id-ID')} Ruang</div>
               </div>
             </div>
-            <button onclick="openSiteBuildings('${s.name}')" class="w-full py-2 text-xs font-semibold rounded-lg bg-slate-100 dark:bg-slate-800 hover:bg-slate-900 hover:text-white dark:hover:bg-sky-500 dark:hover:text-slate-950 transition">
+            <button onclick="openSiteBuildings('${s.name}')" class="w-full py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-900 hover:text-white :bg-sky-500 :text-slate-950 transition">
               Buka Daftar Gedung ${s.code}
             </button>
           </div>
@@ -897,12 +897,12 @@
   function setBldgSiteFilter(site, btnEl) {
     appState.currentBldgFilterSite = site;
     document.querySelectorAll('.bldg-site-pill').forEach(b => {
-      b.classList.remove('active', 'bg-slate-900', 'text-white', 'dark:bg-sky-500', 'dark:text-slate-950');
-      b.classList.add('bg-slate-100', 'text-slate-600', 'dark:bg-slate-800', 'dark:text-slate-300');
+      b.classList.remove('active', 'bg-slate-900', 'text-white', '', '');
+      b.classList.add('bg-slate-100', 'text-slate-600', '', '');
     });
     if (btnEl) {
-      btnEl.classList.remove('bg-slate-100', 'text-slate-600', 'dark:bg-slate-800', 'dark:text-slate-300');
-      btnEl.classList.add('active', 'bg-slate-900', 'text-white', 'dark:bg-sky-500', 'dark:text-slate-950');
+      btnEl.classList.remove('bg-slate-100', 'text-slate-600', '', '');
+      btnEl.classList.add('active', 'bg-slate-900', 'text-white', '', '');
     }
     filterBuildings();
   }
@@ -928,7 +928,7 @@
     if (!container) return;
 
     if (data.length === 0) {
-      container.innerHTML = `<div class="col-span-full clean-card p-8 text-center text-xs text-slate-400">Tidak ada gedung yang cocok dengan pencarian Anda.</div>`;
+      container.innerHTML = `<div class="col-span-full clean-card p-8 text-center text-xs text-slate-500">Tidak ada gedung yang cocok dengan pencarian Anda.</div>`;
       return;
     }
 
@@ -936,22 +936,22 @@
       <div class="clean-card bldg-card-item p-4 flex flex-col justify-between">
         <div>
           <div class="flex justify-between items-start gap-2 mb-1.5">
-            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 font-mono">${escapeHtml(b.kode_gedung)}</span>
-            <span class="text-[10px] font-medium text-slate-400">${escapeHtml(b.lokasi_site)}</span>
+            <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-mono">${escapeHtml(b.kode_gedung)}</span>
+            <span class="text-[10px] font-medium text-slate-500">${escapeHtml(b.lokasi_site)}</span>
           </div>
-          <h4 class="font-bold text-xs text-slate-900 dark:text-white line-clamp-2 leading-snug">${escapeHtml(b.nama_gedung)}</h4>
-          <div class="mt-2 text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1.5">
+          <h4 class="font-bold text-xs text-slate-900 line-clamp-2 leading-snug">${escapeHtml(b.nama_gedung)}</h4>
+          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1.5">
             <i class="ph-bold ph-user text-xs" aria-hidden="true"></i> ${escapeHtml(b.penanggungjawab || 'Tim General Services')}
           </div>
         </div>
 
-        <div class="mt-4 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between">
+        <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
           <div class="num-tabular flex gap-2 text-[10px] font-semibold">
-            <span class="text-sky-600 dark:text-sky-400">${b.total_ruangan || 0} Ruangan</span>
-            <span class="text-slate-300 dark:text-slate-700">&bull;</span>
-            <span class="text-teal-600 dark:text-teal-400">${b.total_asset || 0} Aset</span>
+            <span class="text-sky-600">${b.total_ruangan || 0} Ruangan</span>
+            <span class="text-slate-500">&bull;</span>
+            <span class="text-teal-600">${b.total_asset || 0} Aset</span>
           </div>
-          <button onclick="startInspectionForBldg('${escapeHtml(b.kode_gedung)}')" class="px-2.5 py-1 text-[11px] font-bold rounded bg-slate-100 dark:bg-slate-800 hover:bg-emerald-600 hover:text-white text-slate-700 dark:text-slate-200 transition">
+          <button onclick="startInspectionForBldg('${escapeHtml(b.kode_gedung)}')" class="px-2.5 py-1 text-[11px] font-bold rounded bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 transition">
             Audit
           </button>
         </div>
@@ -979,20 +979,20 @@
     });
 
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-slate-400">Tidak ada ruangan yang sesuai filter.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="9" class="text-center py-6 text-slate-500">Tidak ada ruangan yang sesuai filter.</td></tr>`;
       return;
     }
 
     tbody.innerHTML = filtered.slice(0, 120).map(r => `
       <tr>
-        <td class="font-mono text-slate-600 dark:text-slate-400">${escapeHtml(r.kode_gedung)}</td>
-        <td class="font-bold text-slate-900 dark:text-white">${escapeHtml(r.nama_ruangan)}</td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800">${escapeHtml(r.tipe_ruangan || 'Kamar')}</span></td>
+        <td class="font-mono text-slate-600">${escapeHtml(r.kode_gedung)}</td>
+        <td class="font-bold text-slate-900">${escapeHtml(r.nama_ruangan)}</td>
+        <td><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">${escapeHtml(r.tipe_ruangan || 'Kamar')}</span></td>
         <td class="num-tabular">${r.kapasitas || 2} Orang</td>
         <td>${escapeHtml(r.penanggungjawab || '-')}</td>
-        <td class="num-tabular font-bold text-sky-600 dark:text-sky-400">${r.total_asset || 0} item</td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.kondisi_terakhir === 'Baik' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-amber-100 text-amber-800'}">${escapeHtml(r.kondisi_terakhir || 'Baik')}</span></td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">${escapeHtml(r.status_hunian || 'Tersedia')}</span></td>
+        <td class="num-tabular font-bold text-sky-600">${r.total_asset || 0} item</td>
+        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.kondisi_terakhir === 'Baik' ? 'bg-emerald-100 text-emerald-800 ' : 'bg-amber-100 text-amber-800'}">${escapeHtml(r.kondisi_terakhir || 'Baik')}</span></td>
+        <td><span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700">${escapeHtml(r.status_hunian || 'Tersedia')}</span></td>
         <td>
           <button onclick="startInspectionForRoom('${escapeHtml(r.kode_gedung)}', '${escapeHtml(r.nama_ruangan)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800 hover:bg-emerald-600 hover:text-white transition">
             Audit Kamar
@@ -1080,29 +1080,29 @@
     if (badgeEl) badgeEl.innerText = totalCount.toLocaleString('id-ID');
 
     if (paginated.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada aset fasilitas yang cocok dengan filter.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500">Tidak ada aset fasilitas yang cocok dengan filter.</td></tr>`;
       return;
     }
 
     tbody.innerHTML = paginated.map(a => {
       const kondisi = a.kondisi || 'Baik';
-      let kondisiClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+      let kondisiClass = 'bg-emerald-100 text-emerald-800  ';
       if (kondisi.toLowerCase().includes('rusak berat')) {
-        kondisiClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
+        kondisiClass = 'bg-rose-100 text-rose-800  ';
       } else if (kondisi.toLowerCase().includes('rusak ringan')) {
-        kondisiClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+        kondisiClass = 'bg-amber-100 text-amber-800  ';
       }
 
       return `
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-          <td class="py-2 px-3 font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(a.no_asset)}</td>
-          <td class="py-2 px-3 font-semibold text-slate-900 dark:text-white">${escapeHtml(a.nama_asset)}</td>
+        <tr class="hover:bg-slate-50 :bg-slate-800/50 transition">
+          <td class="py-2 px-3 font-mono font-bold text-sky-600">${escapeHtml(a.no_asset)}</td>
+          <td class="py-2 px-3 font-semibold text-slate-900">${escapeHtml(a.nama_asset)}</td>
           <td class="py-2 px-3 font-mono text-slate-500">${escapeHtml(a.kode_gedung)}</td>
           <td class="py-2 px-3">${escapeHtml(a.nama_ruangan)}</td>
-          <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800">${escapeHtml(a.kategori_asset || '-')}</span></td>
+          <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">${escapeHtml(a.kategori_asset || '-')}</span></td>
           <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${kondisiClass}">${escapeHtml(kondisi)}</span></td>
           <td class="py-2 px-3 text-right font-mono num-tabular">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</td>
-          <td class="py-2 px-3 text-slate-400 font-mono">${escapeHtml(a.tanggal_perolehan || '-')}</td>
+          <td class="py-2 px-3 text-slate-500 font-mono">${escapeHtml(a.tanggal_perolehan || '-')}</td>
         </tr>
       `;
     }).join('');
@@ -1274,17 +1274,17 @@
       let bedSlotsHtml = '';
       if (occs.length > 0) {
         bedSlotsHtml = occs.map((o, i) => `
-          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between shadow-2xs">
+          <div class="p-2 rounded-lg bg-white border border-slate-200 flex items-center justify-between shadow-2xs">
             <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold text-[10px] flex items-center justify-center">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 font-bold text-[10px] flex items-center justify-center">
                 ${escapeHtml(o.nomor_kasur || ('Bed ' + (i + 1)))}
               </span>
               <div>
-                <span class="font-bold text-slate-800 dark:text-slate-100 block text-xs">${escapeHtml(o.nama_penghuni)}</span>
-                <span class="text-[10px] text-slate-400 font-medium">${escapeHtml(o.departemen || 'Karyawan')} &bull; ${escapeHtml(o.no_kontak || '-')}</span>
+                <span class="font-bold text-slate-800 block text-xs">${escapeHtml(o.nama_penghuni)}</span>
+                <span class="text-[10px] text-slate-500 font-medium">${escapeHtml(o.departemen || 'Karyawan')} &bull; ${escapeHtml(o.no_kontak || '-')}</span>
               </div>
             </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">
               Aktif
             </span>
           </div>
@@ -1296,17 +1296,17 @@
           const vacantCount = roomCap - occs.length;
           for (let v = 0; v < vacantCount; v++) {
             bedSlotsHtml += `
-              <div class="p-2 rounded-lg bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/50 flex items-center justify-between">
+              <div class="p-2 rounded-lg bg-amber-50/60 border border-amber-200/80 flex items-center justify-between">
                 <div class="flex items-center gap-2">
-                  <span class="w-6 h-6 rounded-full bg-amber-200/60 text-amber-900 dark:bg-amber-900 dark:text-amber-200 font-bold text-[10px] flex items-center justify-center">
+                  <span class="w-6 h-6 rounded-full bg-amber-200/60 text-amber-900 font-bold text-[10px] flex items-center justify-center">
                     Bed ${occs.length + v + 1}
                   </span>
                   <div>
-                    <span class="font-semibold text-amber-800 dark:text-amber-300 italic text-xs">Vacant (Slot Kosong)</span>
+                    <span class="font-semibold text-amber-800 italic text-xs">Vacant (Slot Kosong)</span>
                     <span class="text-[10px] text-amber-600/70 block">Kamar siap dihuni</span>
                   </div>
                 </div>
-                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">
                   Vacant
                 </span>
               </div>
@@ -1315,34 +1315,34 @@
         }
       } else if (isMessOrLH) {
         bedSlotsHtml = `
-          <div class="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between col-span-2">
+          <div class="p-2 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-between col-span-2">
             <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-[10px] flex items-center justify-center">0</span>
+              <span class="w-6 h-6 rounded-full bg-slate-200 text-slate-600 font-bold text-[10px] flex items-center justify-center">0</span>
               <span class="text-xs text-slate-500 italic">Seluruh slot ranjang di kamar ini berstatus <strong>Vacant (Kosong)</strong></span>
             </div>
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">Vacant</span>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-600">Vacant</span>
           </div>
         `;
       } else {
         bedSlotsHtml = `
-          <div class="text-xs text-slate-400 italic p-1">Ruangan fasilitas/operasional (bukan hunian karyawan tetap).</div>
+          <div class="text-xs text-slate-500 italic p-1">Ruangan fasilitas/operasional (bukan hunian karyawan tetap).</div>
         `;
       }
 
       infoBox.innerHTML = `
         <div class="space-y-2.5">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 dark:border-slate-700/80 pb-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 pb-2">
             <div class="flex items-center gap-2">
               <i class="ph-bold ph-bed text-indigo-500 text-base"></i>
-              <span class="font-bold text-slate-900 dark:text-white text-xs">${escapeHtml(rName)}</span>
-              <span class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">${escapeHtml(room ? room.tipe_ruangan || 'Kamar' : 'Kamar')}</span>
+              <span class="font-bold text-slate-900 text-xs">${escapeHtml(rName)}</span>
+              <span class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-200 text-slate-700">${escapeHtml(room ? room.tipe_ruangan || 'Kamar' : 'Kamar')}</span>
             </div>
             <div class="text-[11px] font-semibold text-slate-500">
-              Kapasitas: <strong class="text-slate-800 dark:text-slate-200">${room ? room.kapasitas || 2 : 2} Orang</strong> &bull; Terisi: <strong class="text-emerald-600">${occs.length} Penghuni</strong>
+              Kapasitas: <strong class="text-slate-800">${room ? room.kapasitas || 2 : 2} Orang</strong> &bull; Terisi: <strong class="text-emerald-600">${occs.length} Penghuni</strong>
             </div>
           </div>
           <div>
-            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Data Penghuni &amp; Ketersediaan Ranjang (Koneksi Modul Hunian):</div>
+            <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1.5">Data Penghuni &amp; Ketersediaan Ranjang (Koneksi Modul Hunian):</div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
               ${bedSlotsHtml}
             </div>
@@ -1444,8 +1444,8 @@
     if (appState.currentInspAssets.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="8" class="text-center py-8 text-slate-400">
-            <i class="ph-bold ph-cube text-xl mb-1 block text-slate-300"></i>
+          <td colspan="8" class="text-center py-8 text-slate-500">
+            <i class="ph-bold ph-cube text-xl mb-1 block text-slate-500"></i>
             Tidak ada aset tercatat di ruangan ini. Klik <strong>Tambah Item Aset Baru</strong> jika menemukan barang fisik saat audit.
           </td>
         </tr>
@@ -1455,37 +1455,37 @@
     }
 
     tbody.innerHTML = appState.currentInspAssets.map((ast, idx) => `
-      <tr class="hover:bg-slate-50/70 dark:hover:bg-slate-800/40 transition">
+      <tr class="hover:bg-slate-50/70 :bg-slate-800/40 transition">
         <td class="py-2.5 px-3">
-          <span class="font-mono font-bold text-slate-800 dark:text-slate-200 text-xs block">${escapeHtml(ast.no_asset)}</span>
-          ${ast.is_new ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 inline-block mt-0.5">BARU</span>' : ''}
+          <span class="font-mono font-bold text-slate-800 text-xs block">${escapeHtml(ast.no_asset)}</span>
+          ${ast.is_new ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 inline-block mt-0.5">BARU</span>' : ''}
         </td>
         <td class="py-2.5 px-3">
-          <span class="font-bold text-slate-900 dark:text-white text-xs block leading-tight">${escapeHtml(ast.nama_asset)}</span>
-          <span class="text-[10px] text-slate-400 dark:text-slate-500 font-medium">${escapeHtml(ast.kategori_asset || 'Fasilitas')}</span>
+          <span class="font-bold text-slate-900 text-xs block leading-tight">${escapeHtml(ast.nama_asset)}</span>
+          <span class="text-[10px] text-slate-500 font-medium">${escapeHtml(ast.kategori_asset || 'Fasilitas')}</span>
         </td>
         <td class="py-2.5 px-3 whitespace-nowrap">
           <div class="flex flex-col gap-1 items-start">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${ast.jenis_aset === 'Non-Valuable' ? 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800' : 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800'}">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${ast.jenis_aset === 'Non-Valuable' ? 'bg-amber-50 text-amber-700 border border-amber-200 ' : 'bg-blue-50 text-blue-700 border border-blue-200 '}">
               ${ast.jenis_aset === 'Non-Valuable' ? '⚡ Non-Valuable' : '💎 Valuable Aset'}
             </span>
-            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 dark:text-slate-200">
-              <i class="ph-bold ph-stack text-slate-400"></i> ${escapeHtml(ast.qty || '1 Unit')}
+            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700">
+              <i class="ph-bold ph-stack text-slate-500"></i> ${escapeHtml(ast.qty || '1 Unit')}
             </span>
           </div>
         </td>
         <td class="py-2.5 px-3 space-y-1 whitespace-nowrap">
           <label class="flex items-center gap-1.5 cursor-pointer text-[11px]">
             <input type="checkbox" ${ast.kode_sesuai ? 'checked' : ''} onchange="toggleVerifyCode(${idx}, this.checked)" class="rounded text-emerald-600 focus:ring-emerald-500">
-            <span class="${ast.kode_sesuai ? 'text-emerald-700 dark:text-emerald-400 font-semibold' : 'text-slate-400'}">Kode Sesuai</span>
+            <span class="${ast.kode_sesuai ? 'text-emerald-700 font-semibold' : 'text-slate-500'}">Kode Sesuai</span>
           </label>
           <label class="flex items-center gap-1.5 cursor-pointer text-[11px]">
             <input type="checkbox" ${ast.lokasi_sesuai ? 'checked' : ''} onchange="toggleVerifyLocation(${idx}, this.checked)" class="rounded text-emerald-600 focus:ring-emerald-500">
-            <span class="${ast.lokasi_sesuai ? 'text-emerald-700 dark:text-emerald-400 font-semibold' : 'text-slate-400'}">Lokasi Sesuai</span>
+            <span class="${ast.lokasi_sesuai ? 'text-emerald-700 font-semibold' : 'text-slate-500'}">Lokasi Sesuai</span>
           </label>
         </td>
         <td class="py-2.5 px-3">
-          <select onchange="setAssetStatus(${idx}, this.value)" class="px-2.5 py-1.5 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs font-semibold text-slate-700 dark:text-slate-200 focus:border-emerald-500">
+          <select onchange="setAssetStatus(${idx}, this.value)" class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:border-emerald-500">
             <option value="Baik" ${ast.kondisi_inspeksi === 'Baik' ? 'selected' : ''}>✅ Baik</option>
             <option value="Rusak Ringan" ${ast.kondisi_inspeksi === 'Rusak Ringan' ? 'selected' : ''}>⚠️ Rusak Ringan</option>
             <option value="Rusak Berat" ${ast.kondisi_inspeksi === 'Rusak Berat' ? 'selected' : ''}>❌ Rusak Berat</option>
@@ -1501,17 +1501,17 @@
               <i class="ph-bold ph-camera text-xs"></i> Kamera
             </button>
             <!-- Tombol Galeri File -->
-            <label class="p-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] flex items-center cursor-pointer transition" title="Pilih dari Galeri / File">
+            <label class="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] flex items-center cursor-pointer transition" title="Pilih dari Galeri / File">
               <i class="ph-bold ph-image text-xs"></i>
               <input type="file" accept="image/*" onchange="uploadAssetPhoto(${idx}, event)" class="hidden">
             </label>
           </div>
         </td>
         <td class="py-2.5 px-3">
-          <input type="text" oninput="updateAssetNote(${idx}, this.value)" value="${escapeHtml(ast.catatan_inspeksi || '')}" placeholder="Catatan fisik..." class="w-full px-2.5 py-1.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs text-slate-800 dark:text-slate-200">
+          <input type="text" oninput="updateAssetNote(${idx}, this.value)" value="${escapeHtml(ast.catatan_inspeksi || '')}" placeholder="Catatan fisik..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800">
         </td>
         <td class="py-2.5 px-2 text-center">
-          <button type="button" onclick="deleteAssetItem(${idx})" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-950/40 transition" title="Hapus dari checklist">
+          <button type="button" onclick="deleteAssetItem(${idx})" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 :bg-rose-950/40 transition" title="Hapus dari checklist">
             <i class="ph-bold ph-trash text-sm"></i>
           </button>
         </td>
@@ -1794,17 +1794,17 @@
 
     tbody.innerHTML = appState.inspections.map(item => `
       <tr>
-        <td class="font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(item.no_inspeksi)}</td>
+        <td class="font-mono font-bold text-sky-600">${escapeHtml(item.no_inspeksi)}</td>
         <td class="num-tabular">${escapeHtml(item.tanggal_inspeksi)}</td>
         <td class="font-bold">${escapeHtml(item.kode_gedung)}</td>
         <td>${escapeHtml(item.nama_ruangan)}</td>
         <td>${escapeHtml(item.penanggungjawab)}</td>
         <td>${escapeHtml(item.inspector_nama)}</td>
         <td class="num-tabular"><span class="font-bold text-emerald-600">${item.skor_kelaikan}</span>/100</td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.kondisi_ruangan === 'Aman' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-rose-100 text-rose-800'}">${escapeHtml(item.kondisi_ruangan)}</span></td>
+        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.kondisi_ruangan === 'Aman' ? 'bg-emerald-100 text-emerald-800 ' : 'bg-rose-100 text-rose-800'}">${escapeHtml(item.kondisi_ruangan)}</span></td>
         <td class="num-tabular">${item.total_asset_diperiksa} item</td>
         <td>
-          <button onclick="viewInspectionDetail('${escapeHtml(item.no_inspeksi)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700">
+          <button onclick="viewInspectionDetail('${escapeHtml(item.no_inspeksi)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-100 hover:bg-slate-200 :bg-slate-700">
             Detail / Resume
           </button>
         </td>
@@ -1818,28 +1818,28 @@
 
     document.getElementById('modal-insp-title').innerText = `Laporan Audit: ${item.no_inspeksi}`;
     document.getElementById('modal-insp-content').innerHTML = `
-      <div class="border-b border-slate-200 dark:border-slate-700 pb-3 flex justify-between items-center">
+      <div class="border-b border-slate-200 pb-3 flex justify-between items-center">
         <div>
-          <div class="text-[10px] text-slate-400 uppercase font-bold">PT PRATAMA NUSANTARA SAKTI &bull; DIVISI GENERAL SERVICES &amp; FASILITAS</div>
-          <div class="text-base font-bold text-slate-900 dark:text-white">${escapeHtml(item.nama_gedung || item.kode_gedung)}</div>
+          <div class="text-[10px] text-slate-500 uppercase font-bold">PT PRATAMA NUSANTARA SAKTI &bull; DIVISI GENERAL SERVICES &amp; FASILITAS</div>
+          <div class="text-base font-bold text-slate-900">${escapeHtml(item.nama_gedung || item.kode_gedung)}</div>
           <div class="text-xs text-slate-500">Ruangan / Kamar: <strong>${escapeHtml(item.nama_ruangan)}</strong></div>
         </div>
         <div class="text-right num-tabular">
-          <span class="text-2xl font-black text-emerald-600">${item.skor_kelaikan}</span><span class="text-xs text-slate-400">/100</span>
-          <div class="text-[11px] font-bold text-slate-700 dark:text-slate-300">${escapeHtml(item.kondisi_ruangan)}</div>
+          <span class="text-2xl font-black text-emerald-600">${item.skor_kelaikan}</span><span class="text-xs text-slate-500">/100</span>
+          <div class="text-[11px] font-bold text-slate-700">${escapeHtml(item.kondisi_ruangan)}</div>
         </div>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 bg-slate-50 dark:bg-slate-800/60 p-3 rounded-lg">
-        <div><span class="text-slate-400">Tanggal Audit:</span> <strong class="num-tabular">${escapeHtml(item.tanggal_inspeksi)}</strong></div>
-        <div><span class="text-slate-400">Auditor:</span> <strong>${escapeHtml(item.inspector_nama)}</strong></div>
-        <div><span class="text-slate-400">Penanggungjawab PIC:</span> <strong>${escapeHtml(item.penanggungjawab)}</strong></div>
-        <div><span class="text-slate-400">Total Aset Diperiksa:</span> <strong class="num-tabular">${item.total_asset_diperiksa} Item</strong></div>
+      <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-lg">
+        <div><span class="text-slate-500">Tanggal Audit:</span> <strong class="num-tabular">${escapeHtml(item.tanggal_inspeksi)}</strong></div>
+        <div><span class="text-slate-500">Auditor:</span> <strong>${escapeHtml(item.inspector_nama)}</strong></div>
+        <div><span class="text-slate-500">Penanggungjawab PIC:</span> <strong>${escapeHtml(item.penanggungjawab)}</strong></div>
+        <div><span class="text-slate-500">Total Aset Diperiksa:</span> <strong class="num-tabular">${item.total_asset_diperiksa} Item</strong></div>
       </div>
 
       <div>
         <div class="font-bold text-xs uppercase tracking-wider text-slate-500 mb-1">Catatan Temuan Fisik:</div>
-        <div class="p-3 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 rounded-lg text-amber-900 dark:text-amber-200">
+        <div class="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-900">
           ${escapeHtml(item.catatan_temuan || 'Tidak ada catatan temuan. Kondisi fisik ruangan dan aset dalam keadaan baik sesuai SOP PT Pratama Nusantara Sakti.')}
         </div>
       </div>
@@ -1871,19 +1871,19 @@
       if (kanbanEl) kanbanEl.classList.remove('hidden');
       if (tableEl) tableEl.classList.add('hidden');
       if (btnKanban) {
-        btnKanban.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs transition cursor-pointer';
+        btnKanban.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white  text-slate-900  shadow-2xs transition cursor-pointer';
       }
       if (btnTable) {
-        btnTable.className = 'px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 transition cursor-pointer';
+        btnTable.className = 'px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600  hover:text-slate-900 transition cursor-pointer';
       }
     } else {
       if (kanbanEl) kanbanEl.classList.add('hidden');
       if (tableEl) tableEl.classList.remove('hidden');
       if (btnTable) {
-        btnTable.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs transition cursor-pointer';
+        btnTable.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white  text-slate-900  shadow-2xs transition cursor-pointer';
       }
       if (btnKanban) {
-        btnKanban.className = 'px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 transition cursor-pointer';
+        btnKanban.className = 'px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600  hover:text-slate-900 transition cursor-pointer';
       }
     }
   }
@@ -1957,7 +1957,7 @@
     ['Baru', 'Ditugaskan', 'Dikerjakan', 'Selesai'].forEach(st => {
       const col = document.getElementById(`col-${st}`);
       if (col && col.children.length === 0) {
-        col.innerHTML = '<div class="py-8 text-center text-xs text-slate-400 font-medium">Tidak ada tiket di tahap ini</div>';
+        col.innerHTML = '<div class="py-8 text-center text-xs text-slate-500 font-medium">Tidak ada tiket di tahap ini</div>';
       }
     });
 
@@ -1965,27 +1965,27 @@
     const tbody = document.getElementById('table-wo-body');
     if (tbody) {
       if (filtered.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="10" class="py-6 text-center text-slate-400">Tidak ada tiket work order yang sesuai filter</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="10" class="py-6 text-center text-slate-500">Tidak ada tiket work order yang sesuai filter</td></tr>';
       } else {
         tbody.innerHTML = filtered.map(w => {
-          const prioClass = w.prioritas === 'Tinggi' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' :
-            (w.prioritas === 'Sedang' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-800');
-          const statusClass = w.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
-            (w.status === 'Dikerjakan' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
-            (w.status === 'Ditugaskan' ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300' : 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300'));
+          const prioClass = w.prioritas === 'Tinggi' ? 'bg-rose-100 text-rose-800  ' :
+            (w.prioritas === 'Sedang' ? 'bg-amber-100 text-amber-800  ' : 'bg-slate-100 text-slate-700 ');
+          const statusClass = w.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800  ' :
+            (w.status === 'Dikerjakan' ? 'bg-amber-100 text-amber-800  ' :
+            (w.status === 'Ditugaskan' ? 'bg-indigo-100 text-indigo-800  ' : 'bg-sky-100 text-sky-800  '));
           return `
-            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-              <td class="py-2 px-3 font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(w.no_wo)}</td>
-              <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800">${escapeHtml(w.tipe_wo || 'Korektif')}</span></td>
+            <tr class="hover:bg-slate-50 :bg-slate-800/50 transition">
+              <td class="py-2 px-3 font-mono font-bold text-sky-600">${escapeHtml(w.no_wo)}</td>
+              <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">${escapeHtml(w.tipe_wo || 'Korektif')}</span></td>
               <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${prioClass}">${escapeHtml(w.prioritas || 'Sedang')}</span></td>
-              <td class="py-2 px-3 font-bold text-slate-800 dark:text-slate-200">${escapeHtml(w.judul_pekerjaan)}</td>
+              <td class="py-2 px-3 font-bold text-slate-800">${escapeHtml(w.judul_pekerjaan)}</td>
               <td class="py-2 px-3">${escapeHtml(w.kode_gedung)} &bull; ${escapeHtml(w.lokasi_detail || '-')}</td>
               <td class="py-2 px-3">${escapeHtml(w.teknisi_nama || 'Belum Ditugaskan')}</td>
               <td class="py-2 px-3">${escapeHtml(w.sla_target || 'SLA 2 Hari')}</td>
               <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${statusClass}">${escapeHtml(w.status || 'Baru')}</span></td>
               <td class="py-2 px-3 font-mono num-tabular">Rp ${Number(w.biaya_estimasi || 0).toLocaleString('id-ID')}</td>
               <td class="py-2 px-3 text-center">
-                <button onclick="moveStatusPrompt('${w.wo_id || w.no_wo}', '${w.status || 'Baru'}')" class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-sky-600 hover:text-white text-xs font-semibold transition cursor-pointer">
+                <button onclick="moveStatusPrompt('${w.wo_id || w.no_wo}', '${w.status || 'Baru'}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-sky-600 hover:text-white text-xs font-semibold transition cursor-pointer">
                   Ubah Status
                 </button>
               </td>
@@ -1998,20 +1998,20 @@
 
   function createKanbanCard(w) {
     const card = document.createElement('div');
-    card.className = 'clean-card p-3 space-y-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-xl hover:shadow-md transition cursor-pointer hover:-translate-y-0.5';
+    card.className = 'clean-card p-3 space-y-2 bg-white  border border-slate-200  rounded-xl hover:shadow-md transition cursor-pointer hover:-translate-y-0.5';
 
-    let prioBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">Sedang</span>`;
+    let prioBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-700">Sedang</span>`;
     if (w.prioritas === 'Tinggi') {
-      prioBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">Tinggi</span>`;
+      prioBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-700">Tinggi</span>`;
     } else if (w.prioritas === 'Rendah') {
-      prioBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">Rendah</span>`;
+      prioBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-600">Rendah</span>`;
     }
 
-    let slaBadge = `<span class="text-[10px] text-slate-400">${escapeHtml(w.sla_target || 'SLA 2 Hari')}</span>`;
+    let slaBadge = `<span class="text-[10px] text-slate-500">${escapeHtml(w.sla_target || 'SLA 2 Hari')}</span>`;
     if (w.is_overdue === '1' || (w.sla_target && w.sla_target.includes('Lewat'))) {
-      slaBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">Lewat SLA</span>`;
+      slaBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-700">Lewat SLA</span>`;
     } else if (w.status === 'Selesai') {
-      slaBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">Tepat Waktu</span>`;
+      slaBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700">Tepat Waktu</span>`;
     }
 
     const techName = w.teknisi_nama || 'Belum Ditugaskan';
@@ -2019,21 +2019,21 @@
 
     card.innerHTML = `
       <div class="flex items-center justify-between">
-        <span class="font-mono text-[10.5px] font-bold text-sky-600 dark:text-sky-400">${escapeHtml(w.no_wo)}</span>
+        <span class="font-mono text-[10.5px] font-bold text-sky-600">${escapeHtml(w.no_wo)}</span>
         <div class="flex items-center gap-1">
-          <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">${escapeHtml(w.tipe_wo || 'Korektif')}</span>
+          <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-slate-100 text-slate-600">${escapeHtml(w.tipe_wo || 'Korektif')}</span>
           ${prioBadge}
         </div>
       </div>
-      <h4 class="text-xs font-bold text-slate-900 dark:text-white leading-snug line-clamp-2">${escapeHtml(w.judul_pekerjaan)}</h4>
-      <p class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 truncate">
-        <i class="ph-bold ph-map-pin text-slate-400 shrink-0"></i>
+      <h4 class="text-xs font-bold text-slate-900 leading-snug line-clamp-2">${escapeHtml(w.judul_pekerjaan)}</h4>
+      <p class="text-[11px] text-slate-500 flex items-center gap-1 truncate">
+        <i class="ph-bold ph-map-pin text-slate-500 shrink-0"></i>
         <span class="truncate">${escapeHtml(w.kode_gedung)}${w.lokasi_detail ? ' &bull; ' + escapeHtml(w.lokasi_detail) : ''}</span>
       </p>
-      <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+      <div class="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
         <div class="flex items-center gap-1.5 min-w-0">
           <span class="w-5 h-5 rounded-full bg-indigo-600 text-white font-bold text-[9px] flex items-center justify-center shrink-0">${inisial}</span>
-          <span class="text-[10.5px] font-medium text-slate-700 dark:text-slate-300 truncate">${escapeHtml(techName)}</span>
+          <span class="text-[10.5px] font-medium text-slate-700 truncate">${escapeHtml(techName)}</span>
         </div>
         ${slaBadge}
       </div>
@@ -2263,7 +2263,7 @@
           icon.className = 'text-xs ml-0.5 text-indigo-600 font-extrabold';
         } else {
           icon.innerHTML = '&#8597;';
-          icon.className = 'text-xs ml-0.5 text-slate-400';
+          icon.className = 'text-xs ml-0.5 text-slate-500';
         }
       }
     });
@@ -2362,10 +2362,10 @@
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="9" class="text-center py-12 text-slate-400">
-            <i class="ph-bold ph-bed text-3xl mb-2 block text-slate-300"></i>
+          <td colspan="9" class="text-center py-12 text-slate-500">
+            <i class="ph-bold ph-bed text-3xl mb-2 block text-slate-500"></i>
             <span class="font-bold text-slate-600 block">Tidak ada kamar atau penghuni yang cocok</span>
-            <span class="text-[11px] text-slate-400">Coba ganti filter pencarian atau pilih gedung/LH lain.</span>
+            <span class="text-[11px] text-slate-500">Coba ganti filter pencarian atau pilih gedung/LH lain.</span>
           </td>
         </tr>
       `;
@@ -2396,7 +2396,7 @@
           </td>
           <!-- 4. NIK -->
           <td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
-            ${isVacant ? '<span class="text-slate-300 font-bold">-</span>' : escapeHtml(p.nik)}
+            ${isVacant ? '<span class="text-slate-500 font-bold">-</span>' : escapeHtml(p.nik)}
           </td>
           <!-- 5. NAMA PENGHUNI -->
           <td class="py-2.5 px-3.5 whitespace-nowrap">
@@ -2406,7 +2406,7 @@
           </td>
           <!-- 6. DEPARTEMEN -->
           <td class="py-2.5 px-3 whitespace-nowrap">
-            ${isVacant ? '<span class="text-slate-300">-</span>' : `<span class="text-slate-600 font-medium">${escapeHtml(p.departemen || '-')}</span>`}
+            ${isVacant ? '<span class="text-slate-500">-</span>' : `<span class="text-slate-600 font-medium">${escapeHtml(p.departemen || '-')}</span>`}
           </td>
           <!-- 7. STATUS HUNIAN -->
           <td class="py-2.5 px-3 whitespace-nowrap">
@@ -2416,7 +2416,7 @@
           </td>
           <!-- 8. KONTAK -->
           <td class="py-2.5 px-3 num-tabular whitespace-nowrap text-slate-600 font-mono text-[11px]">
-            ${isVacant ? '<span class="text-slate-300">-</span>' : escapeHtml(p.no_kontak || '-')}
+            ${isVacant ? '<span class="text-slate-500">-</span>' : escapeHtml(p.no_kontak || '-')}
           </td>
           <!-- 9. AKSI EDIT / ISI PENGHUNI -->
           <td class="py-2.5 px-3 text-center whitespace-nowrap">
@@ -2440,11 +2440,11 @@
           <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
             <div class="grid grid-cols-2 gap-2">
               <div>
-                <span class="text-[10px] uppercase font-bold text-slate-400 block">Gedung / LH</span>
+                <span class="text-[10px] uppercase font-bold text-slate-500 block">Gedung / LH</span>
                 <span class="font-bold text-indigo-700 text-sm">${escapeHtml(item.kode_gedung)}</span>
               </div>
               <div>
-                <span class="text-[10px] uppercase font-bold text-slate-400 block">Ruangan / Kamar</span>
+                <span class="text-[10px] uppercase font-bold text-slate-500 block">Ruangan / Kamar</span>
                 <span class="font-bold text-slate-900 text-sm">${escapeHtml(item.nama_ruangan)}</span>
               </div>
             </div>
@@ -2760,12 +2760,12 @@
   function filterPortfolioCategory(cat, btnEl) {
     appState.portfolioCatFilter = cat || '';
     document.querySelectorAll('.ent-cat-pill').forEach(b => {
-      b.classList.remove('active', 'bg-slate-900', 'text-white', 'dark:bg-sky-500', 'dark:text-slate-950');
-      b.classList.add('bg-slate-100', 'text-slate-600', 'dark:bg-slate-800', 'dark:text-slate-300');
+      b.classList.remove('active', 'bg-slate-900', 'text-white', '', '');
+      b.classList.add('bg-slate-100', 'text-slate-600', '', '');
     });
     if (btnEl) {
-      btnEl.classList.remove('bg-slate-100', 'text-slate-600', 'dark:bg-slate-800', 'dark:text-slate-300');
-      btnEl.classList.add('active', 'bg-slate-900', 'text-white', 'dark:bg-sky-500', 'dark:text-slate-950');
+      btnEl.classList.remove('bg-slate-100', 'text-slate-600', '', '');
+      btnEl.classList.add('active', 'bg-slate-900', 'text-white', '', '');
     }
     renderPortfolioAllTable();
   }
@@ -2922,7 +2922,7 @@
     if (nextBtn) nextBtn.disabled = (assetCurrentPage >= totalPages);
 
     if (paginated.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-slate-400">Tidak ada aset yang sesuai kriteria pencarian</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-slate-500">Tidak ada aset yang sesuai kriteria pencarian</td></tr>';
       return;
     }
 
@@ -2930,28 +2930,28 @@
       const perolehan = Number(a.total_harga_perolehan || 0);
       const buku = Number(a.nilai_buku || (perolehan * 0.65));
       const kondisi = a.kondisi || 'Baik';
-      let kondisiBadge = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+      let kondisiBadge = 'bg-emerald-100 text-emerald-800  ';
       if (kondisi.toLowerCase().includes('rusak') || kondisi.toLowerCase().includes('broken')) {
-        kondisiBadge = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
+        kondisiBadge = 'bg-rose-100 text-rose-800  ';
       } else if (kondisi.toLowerCase().includes('repair') || kondisi.toLowerCase().includes('perbaikan')) {
-        kondisiBadge = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+        kondisiBadge = 'bg-amber-100 text-amber-800  ';
       }
 
       return `
-        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
-          <td class="py-2.5 px-3 font-mono font-bold text-sky-600 dark:text-sky-400 whitespace-nowrap">${escapeHtml(a.no_asset)}</td>
-          <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-slate-100 max-w-[240px]">
+        <tr class="hover:bg-slate-50 :bg-slate-800/50 transition">
+          <td class="py-2.5 px-3 font-mono font-bold text-sky-600 whitespace-nowrap">${escapeHtml(a.no_asset)}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-800 max-w-[240px]">
             <div class="truncate">${escapeHtml(a.nama_asset)}</div>
-            <div class="text-[10px] text-slate-400 font-normal">Tgl Perolehan: ${escapeHtml(a.tanggal_perolehan || '-')}</div>
+            <div class="text-[10px] text-slate-500 font-normal">Tgl Perolehan: ${escapeHtml(a.tanggal_perolehan || '-')}</div>
           </td>
-          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800">${escapeHtml(a.kategori_asset || '-')}</span></td>
-          <td class="py-2.5 px-3 text-slate-600 dark:text-slate-300">${escapeHtml(a.departemen || a.pic || 'Operasional')}</td>
-          <td class="py-2.5 px-3 text-slate-600 dark:text-slate-300">${escapeHtml(a.lokasi_site || a.kode_gedung || 'Sentral')}</td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">${escapeHtml(a.kategori_asset || '-')}</span></td>
+          <td class="py-2.5 px-3 text-slate-600">${escapeHtml(a.departemen || a.pic || 'Operasional')}</td>
+          <td class="py-2.5 px-3 text-slate-600">${escapeHtml(a.lokasi_site || a.kode_gedung || 'Sentral')}</td>
           <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${kondisiBadge}">${escapeHtml(kondisi)}</span></td>
           <td class="py-2.5 px-3 text-right font-mono num-tabular">Rp ${perolehan.toLocaleString('id-ID')}</td>
-          <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400 num-tabular">Rp ${buku.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-600 num-tabular">Rp ${buku.toLocaleString('id-ID')}</td>
           <td class="py-2.5 px-3 text-center">
-            <button onclick="showAssetDetailModal('${escapeHtml(a.no_asset)}')" class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-sky-600 hover:text-white text-xs font-semibold transition cursor-pointer">
+            <button onclick="showAssetDetailModal('${escapeHtml(a.no_asset)}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-sky-600 hover:text-white text-xs font-semibold transition cursor-pointer">
               Detail
             </button>
           </td>
@@ -2969,15 +2969,15 @@
     Swal.fire({
       title: `<span class="text-base font-bold">${escapeHtml(a.no_asset)}</span>`,
       html: `
-        <div class="text-left text-xs space-y-2 p-2 bg-slate-50 dark:bg-slate-800/80 rounded-xl">
-          <div><span class="text-slate-400">Nama Aset:</span> <b class="text-slate-900 dark:text-white block">${escapeHtml(a.nama_asset)}</b></div>
-          <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200 dark:border-slate-700">
-            <div><span class="text-slate-400">Kategori:</span> <span class="font-semibold block">${escapeHtml(a.kategori_asset || '-')}</span></div>
-            <div><span class="text-slate-400">Kondisi:</span> <span class="font-semibold block">${escapeHtml(a.kondisi || 'Baik')}</span></div>
-            <div><span class="text-slate-400">Lokasi / Site:</span> <span class="font-semibold block">${escapeHtml(a.lokasi_site || a.kode_gedung || '-')}</span></div>
-            <div><span class="text-slate-400">Departemen:</span> <span class="font-semibold block">${escapeHtml(a.departemen || 'Operasional')}</span></div>
-            <div><span class="text-slate-400">Harga Perolehan:</span> <span class="font-mono font-bold text-sky-600 block">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</span></div>
-            <div><span class="text-slate-400">Nilai Buku:</span> <span class="font-mono font-bold text-emerald-600 block">Rp ${Number(a.nilai_buku || (Number(a.total_harga_perolehan || 0) * 0.65)).toLocaleString('id-ID')}</span></div>
+        <div class="text-left text-xs space-y-2 p-2 bg-slate-50 rounded-xl">
+          <div><span class="text-slate-500">Nama Aset:</span> <b class="text-slate-900 block">${escapeHtml(a.nama_asset)}</b></div>
+          <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200">
+            <div><span class="text-slate-500">Kategori:</span> <span class="font-semibold block">${escapeHtml(a.kategori_asset || '-')}</span></div>
+            <div><span class="text-slate-500">Kondisi:</span> <span class="font-semibold block">${escapeHtml(a.kondisi || 'Baik')}</span></div>
+            <div><span class="text-slate-500">Lokasi / Site:</span> <span class="font-semibold block">${escapeHtml(a.lokasi_site || a.kode_gedung || '-')}</span></div>
+            <div><span class="text-slate-500">Departemen:</span> <span class="font-semibold block">${escapeHtml(a.departemen || 'Operasional')}</span></div>
+            <div><span class="text-slate-500">Harga Perolehan:</span> <span class="font-mono font-bold text-sky-600 block">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</span></div>
+            <div><span class="text-slate-500">Nilai Buku:</span> <span class="font-mono font-bold text-emerald-600 block">Rp ${Number(a.nilai_buku || (Number(a.total_harga_perolehan || 0) * 0.65)).toLocaleString('id-ID')}</span></div>
           </div>
         </div>
       `,
@@ -3019,30 +3019,30 @@
     setValText('val-stat-selisih', diffAssets.toLocaleString('id-ID') + ' Unit');
 
     if (list.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-400">Tidak ada catatan opname yang cocok.</td></tr>`;
+      tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-500">Tidak ada catatan opname yang cocok.</td></tr>`;
       return;
     }
 
     tbody.innerHTML = list.map(v => {
       const statusBadge = v.status === 'Valid'
-        ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">Valid (Sesuai)</span>'
+        ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Valid (Sesuai)</span>'
         : (v.status === 'Ada Selisih'
-          ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950/60 dark:text-amber-300">Ada Selisih</span>'
-          : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800 dark:bg-sky-950/60 dark:text-sky-300">Proses</span>');
+          ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Ada Selisih</span>'
+          : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800">Proses</span>');
 
       return `
         <tr>
-          <td class="font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(v.opname_id)}</td>
+          <td class="font-mono font-bold text-sky-600">${escapeHtml(v.opname_id)}</td>
           <td class="num-tabular">${escapeHtml(v.tanggal)}</td>
-          <td class="font-semibold text-slate-900 dark:text-white">${escapeHtml(v.lokasi)}</td>
+          <td class="font-semibold text-slate-900">${escapeHtml(v.lokasi)}</td>
           <td class="num-tabular font-bold">${Number(v.total_terdaftar).toLocaleString('id-ID')}</td>
           <td class="num-tabular text-emerald-600 font-bold">${Number(v.sesuai).toLocaleString('id-ID')}</td>
-          <td class="num-tabular ${v.selisih > 0 ? 'text-amber-600 font-bold' : 'text-slate-400'}">${Number(v.selisih)}</td>
+          <td class="num-tabular ${v.selisih > 0 ? 'text-amber-600 font-bold' : 'text-slate-500'}">${Number(v.selisih)}</td>
           <td>${statusBadge}</td>
           <td>${escapeHtml(v.auditor)}</td>
           <td class="text-xs text-slate-500 max-w-xs truncate">${escapeHtml(v.catatan || '-')}</td>
           <td class="text-right">
-            <button onclick="verifikasiOpname('${escapeHtml(v.opname_id)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-sky-50 dark:bg-sky-950 text-sky-600 dark:text-sky-400 hover:bg-sky-600 hover:text-white transition">
+            <button onclick="verifikasiOpname('${escapeHtml(v.opname_id)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition">
               Detail / Sync
             </button>
           </td>
