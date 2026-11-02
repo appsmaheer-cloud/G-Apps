@@ -71,7 +71,7 @@
 
     // 2. Tolak infrastruktur non-bangunan
     const combo = (kode + ' ' + nama + ' ' + kat + ' ' + sub).toUpperCase();
-    const bads = ['JALAN', 'PARIT', 'KANAL', 'DERMAGA', 'LANDSCAPING', 'EMPLACEMENT', 'HELIPAD', 'TEMPAT PARKIR', 'TIDAK TERKLASIFIKASI', 'ERROR'];
+    const bads = ['JALAN', 'PARIT', 'KANAL', 'DERMAGA', 'LANDSCAPING', 'EMPLACEMENT', 'HELIPAD', 'TEMPAT PARKIR', 'TIDAK TERKLASIFIKASI', 'ERROR', 'LAMPU', 'PENERANGAN', 'TIANG'];
     for (let i = 0; i < bads.length; i++) {
       if (combo.includes(bads[i])) return false;
     }
@@ -403,6 +403,10 @@
     currentInspAssets: []
   };
 
+  if (typeof window !== "undefined") {
+    window.appState = appState;
+  }
+
   // ==========================================
   // PERFORMANCE HELPERS (DEBOUNCE & CURRENCY)
   // ==========================================
@@ -433,7 +437,10 @@
   const onSearchBldg = debounce(() => filterBuildings(), 150);
   const onSearchRoom = debounce(() => renderRoomsTable(), 150);
   const onSearchAsset = debounce(() => renderAssetsTable(), 150);
-  const onSearchPenghuni = debounce(() => renderPenghuniTable(), 150);
+  const onSearchPenghuni = debounce(() => {
+    penghuniCurrentPage = 1;
+    renderPenghuniTable();
+  }, 150);
 
   // ==========================================
   // UNIFIED DUAL-ENGINE BRIDGE (GAS + GIT FETCH)
@@ -684,20 +691,30 @@
     appState.currentView = viewId;
     syncTopPills(viewId);
 
-    if (viewId === 'view-wo') {
-      renderWorkOrdersKanban();
-    } else if (viewId === 'view-portfolio-all') {
-      renderAllAssetsTable();
-    } else if (viewId === 'view-validasi') {
-      renderValidasiTable();
-    } else if (viewId === 'view-penghuni') {
-      initPenghuniFilters();
-      renderPenghuniTable();
+    // Close mobile drawer immediately
+    const sb = document.getElementById('app-sidebar');
+    if (sb) {
+      sb.classList.add('-translate-x-full');
     }
 
-    if (window.innerWidth < 1024) {
-      const sb = document.getElementById('app-sidebar');
-      if (sb) sb.classList.add('-translate-x-full');
+    // Scroll to top for seamless mobile view transition
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    try {
+      if (viewId === 'view-wo') {
+        renderWorkOrdersKanban();
+      } else if (viewId === 'view-portfolio-all') {
+        renderAllAssetsTable();
+      } else if (viewId === 'view-validasi') {
+        renderValidasiTable();
+      } else if (viewId === 'view-penghuni') {
+        initPenghuniFilters();
+        renderPenghuniTable();
+      }
+    } catch (err) {
+      console.error('Error switching view to ' + viewId + ':', err);
     }
   }
 
@@ -711,6 +728,16 @@
       if (Array.isArray(d.rooms) && d.rooms.length > 0) {
         appState.rooms = d.rooms;
       }
+      
+      try {
+        const savedPenghuni = localStorage.getItem('pns_custom_penghuni');
+        if (savedPenghuni) {
+          const parsed = JSON.parse(savedPenghuni);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            appState.penghuni = parsed;
+          }
+        }
+      } catch (e) {}
       if (Array.isArray(d.penghuni) && d.penghuni.length > 0) {
         appState.penghuni = d.penghuni;
       }
@@ -1110,6 +1137,39 @@
 
 
 
+  
+  // ========================================================
+  // CATEGORY SLICER FOR INSPECTION STEP 1 (HUNIAN, KANTOR, GUDANG/FASILITAS)
+  // ========================================================
+  let currentInspBldgCategory = 'ALL';
+
+  function setInspBldgCategory(cat, btnEl) {
+    currentInspBldgCategory = cat;
+    document.querySelectorAll('.insp-cat-btn').forEach(btn => {
+      btn.className = 'insp-cat-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer';
+    });
+    if (btnEl) {
+      btnEl.className = 'insp-cat-btn active px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-900 text-white transition cursor-pointer shadow-xs';
+    }
+
+    const gSelect = document.getElementById('insp-gedung');
+    if (!gSelect) return;
+
+    let list = (appState.buildings || []).filter(isGenuineBuilding);
+    if (cat === 'HUNIAN') {
+      list = list.filter(b => b.inspection_category === 'HUNIAN' || b.kategori === 'MESS & HUNIAN' || (b.nama_gedung || '').toLowerCase().includes('mess') || (b.nama_gedung || '').toLowerCase().includes('longhouse') || (b.nama_gedung || '').toLowerCase().includes('guest house') || (b.kode_gedung || '').includes('-LH') || (b.kode_gedung || '').includes('-GH-') || (b.kode_gedung || '').includes('-MESS'));
+    } else if (cat === 'KANTOR') {
+      list = list.filter(b => b.inspection_category === 'KANTOR' || b.kategori === 'BANGUNAN KANTOR' || (b.nama_gedung || '').toLowerCase().includes('office') || (b.nama_gedung || '').toLowerCase().includes('kantor') || (b.nama_gedung || '').toLowerCase().includes('security') || (b.nama_gedung || '').toLowerCase().includes('pos'));
+    } else if (cat === 'GUDANG_FASILITAS') {
+      list = list.filter(b => b.inspection_category === 'GUDANG_FASILITAS' || b.kategori === 'GUDANG' || b.kategori === 'WORKSHOP' || (b.nama_gedung || '').toLowerCase().includes('gudang') || (b.nama_gedung || '').toLowerCase().includes('workshop') || (b.nama_gedung || '').toLowerCase().includes('laundry') || (b.nama_gedung || '').toLowerCase().includes('kantin') || (b.nama_gedung || '').toLowerCase().includes('genset') || (b.nama_gedung || '').toLowerCase().includes('wtp') || (b.nama_gedung || '').toLowerCase().includes('water') || (b.nama_gedung || '').toLowerCase().includes('klinik'));
+    }
+
+    gSelect.innerHTML = `<option value="">-- Pilih Gedung (${list.length}) --</option>` +
+      list.map(b => `<option value="${escapeHtml(b.kode_gedung)}">${escapeHtml(b.nama_gedung)} (${escapeHtml(b.lokasi_site)})</option>`).join('');
+
+    onInspGedungChange();
+  }
+
   function initInspectionFormDropdowns() {
     const gSelect = document.getElementById('insp-gedung');
     const filterBldgSelect = document.getElementById('filter-room-bldg');
@@ -1184,7 +1244,7 @@
     if (!gSelect || !rSelect) return;
 
     const bCode = gSelect.value;
-    const selectedOpt = gSelect.options[gSelect.selectedIndex];
+    const selectedOpt = (gSelect.options && gSelect.selectedIndex >= 0) ? gSelect.options[gSelect.selectedIndex] : null;
     const bSite = selectedOpt ? selectedOpt.getAttribute('data-site') : '';
     const bId = selectedOpt ? selectedOpt.getAttribute('data-id') : '';
 
@@ -1590,18 +1650,24 @@
             <option value="Hilang" ${ast.kondisi_inspeksi === 'Hilang' ? 'selected' : ''}>❓ Hilang</option>
           </select>
         </td>
-        <!-- FOTO LANGSUNG DARI KAMERA HP & GALERI FILE -->
+        <!-- FOTO LANGSUNG DARI KAMERA HP (NATIVE CAPTURE) & GALERI FILE -->
         <td class="py-2.5 px-3">
-          <div class="flex items-center gap-1.5">
-            ${ast.foto_asset ? `<img src="${ast.foto_asset}" class="w-7 h-7 rounded object-cover border border-slate-200 shrink-0 cursor-pointer" onclick="Swal.fire({imageUrl: '${ast.foto_asset}', imageAlt: 'Foto Aset', showConfirmButton: false})" title="Klik lihat foto">` : ''}
-            <!-- Tombol Ambil Foto Langsung dari HP (Live Camera) -->
-            <button type="button" onclick="openLiveCameraModal(${idx})" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs" title="Buka Kamera HP Langsung">
-              <i class="ph-bold ph-camera text-xs"></i> Kamera
-            </button>
-            <!-- Tombol Galeri File -->
-            <label class="p-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] flex items-center cursor-pointer transition" title="Pilih dari Galeri / File">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            ${ast.foto_asset ? `
+              <div class="relative group">
+                <img src="${ast.foto_asset}" class="w-8 h-8 rounded-lg object-cover border border-emerald-300 shadow-2xs shrink-0 cursor-pointer" onclick="Swal.fire({imageUrl: '${ast.foto_asset}', imageAlt: 'Foto Fisik Aset', showConfirmButton: false})" title="Klik perbesar foto">
+                <button type="button" onclick="removeAssetPhoto(${idx}, event)" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center hover:bg-rose-700 shadow-xs" title="Hapus foto">&times;</button>
+              </div>
+            ` : ''}
+            <!-- Tombol Buka Kamera HP Langsung (Native Camera Viewfinder) -->
+            <label class="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs" title="Buka Kamera HP Langsung">
+              <i class="ph-bold ph-camera text-xs"></i> <span>Kamera</span>
+              <input type="file" accept="image/*" capture="environment" onchange="uploadAssetPhotoDirect(${idx}, event)" class="hidden">
+            </label>
+            <!-- Tombol Pilih dari Galeri / File -->
+            <label class="p-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] flex items-center cursor-pointer transition border border-slate-200" title="Pilih dari Galeri Foto">
               <i class="ph-bold ph-image text-xs"></i>
-              <input type="file" accept="image/*" onchange="uploadAssetPhoto(${idx}, event)" class="hidden">
+              <input type="file" accept="image/*" onchange="uploadAssetPhotoDirect(${idx}, event)" class="hidden">
             </label>
           </div>
         </td>
@@ -1643,6 +1709,64 @@
   function updateAssetNote(idx, val) {
     if (appState.currentInspAssets[idx]) {
       appState.currentInspAssets[idx].catatan_inspeksi = val;
+    }
+  }
+
+  
+  // ========================================================
+  // COMPACT & FAST IMAGE PROCESSOR FOR SMARTPHONE CAMERAS
+  // ========================================================
+  function uploadAssetPhotoDirect(idx, event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const img = new Image();
+      img.onload = function() {
+        const canvas = document.createElement('canvas');
+        let w = img.width;
+        let h = img.height;
+        const maxDim = 1024;
+        if (w > maxDim || h > maxDim) {
+          if (w > h) {
+            h = Math.round((h * maxDim) / w);
+            w = maxDim;
+          } else {
+            w = Math.round((w * maxDim) / h);
+            h = maxDim;
+          }
+        }
+        canvas.width = w;
+        canvas.height = h;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0, w, h);
+
+        const compressedBase64 = canvas.toDataURL('image/jpeg', 0.75);
+        if (appState.currentInspAssets && appState.currentInspAssets[idx]) {
+          appState.currentInspAssets[idx].foto_asset = compressedBase64;
+          loadRoomAssetsChecklist(appState.currentInspAssets);
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({
+              icon: 'success',
+              title: 'Foto Tersimpan',
+              text: 'Foto fisik aset berhasil dilampirkan.',
+              timer: 1100,
+              showConfirmButton: false
+            });
+          }
+        }
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function removeAssetPhoto(idx, evt) {
+    if (evt) evt.stopPropagation();
+    if (appState.currentInspAssets && appState.currentInspAssets[idx]) {
+      appState.currentInspAssets[idx].foto_asset = null;
+      loadRoomAssetsChecklist(appState.currentInspAssets);
     }
   }
 
@@ -2309,17 +2433,93 @@
   }
 
   // ==========================================
-  // AVAILABILITY & PENGHUNI HUNIAN CONTROLLER
+  // ==========================================
+  // AVAILABILITY & PENGHUNI HUNIAN CONTROLLER (UNIFIED BED SLOTS)
+  // Standard LH Staff: 4 bed slots per room (Bed A Bawah, Bed B Atas, Bed C Bawah, Bed D Atas)
+  // Format Kolom: Gedung | Ruangan | No. Bed | Status | NIK | Nama Penghuni | Departemen | Kontak | Aksi
   // ==========================================
   let penghuniSortCol = 'kode_gedung';
   let penghuniSortAsc = true;
+  let penghuniCurrentPage = 1;
+  const penghuniPageSize = 50;
+  let cachedPenghuniSlots = null;
+
+  function buildUnifiedPenghuniSlots() {
+    const occMap = {};
+    (appState.penghuni || []).forEach(p => {
+      const key = (p.kode_gedung || '').trim() + '___' + (p.nama_ruangan || '').trim();
+      if (!occMap[key]) occMap[key] = [];
+      occMap[key].push(p);
+    });
+
+    const standardBeds = ['Bed A (Bawah)', 'Bed B (Atas)', 'Bed C (Bawah)', 'Bed D (Atas)'];
+    const roomKeys = new Set();
+
+    (appState.rooms || []).forEach(r => {
+      const bldg = r.kode_gedung || '';
+      const isHunian = bldg.includes('-LH') || bldg.includes('-GH') || bldg.includes('-MESS') ||
+        (r.nama_ruangan || '').toLowerCase().includes('kamar') || (r.tipe_ruangan || '').toLowerCase().includes('kamar') ||
+        occMap[bldg + '___' + r.nama_ruangan];
+      if (isHunian) {
+        roomKeys.add(bldg + '___' + r.nama_ruangan);
+      }
+    });
+    Object.keys(occMap).forEach(k => roomKeys.add(k));
+
+    const sortedKeys = Array.from(roomKeys).sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
+    const slots = [];
+
+    sortedKeys.forEach(k => {
+      const [bldg, room] = k.split('___');
+      const existing = occMap[k] || [];
+      const isVip = bldg.includes('-GH-') || bldg.includes('GUEST');
+      const cap = isVip ? 2 : 4;
+
+      for (let i = 0; i < cap; i++) {
+        const defaultBed = isVip ? ('Kamar VIP Bed ' + (i + 1)) : standardBeds[i];
+        let occ = existing.find(p => p.nomor_kasur === defaultBed) || existing[i];
+
+        if (occ && occ.nama_penghuni && occ.nama_penghuni !== '-' && occ.status_hunian !== 'Vacant') {
+          slots.push({
+            id: occ.id || (bldg + '_' + room + '_' + i),
+            kode_gedung: bldg,
+            nama_ruangan: room,
+            nomor_kasur: occ.nomor_kasur || defaultBed,
+            nik: occ.nik || '-',
+            nama_penghuni: occ.nama_penghuni,
+            departemen: occ.departemen || '-',
+            status_hunian: 'Aktif',
+            no_kontak: occ.no_kontak || '-'
+          });
+        } else {
+          // Explicit Vacant bed slot per user specification (LH 1 - Kamar 1 - -)
+          slots.push({
+            id: 'vacant_' + bldg + '_' + room + '_' + i,
+            kode_gedung: bldg,
+            nama_ruangan: room,
+            nomor_kasur: defaultBed,
+            nik: '-',
+            nama_penghuni: '-',
+            departemen: '-',
+            status_hunian: 'Vacant',
+            no_kontak: '-'
+          });
+        }
+      }
+    });
+
+    cachedPenghuniSlots = slots;
+    return slots;
+  }
 
   function initPenghuniFilters() {
     const bldgSelect = document.getElementById('filter-penghuni-bldg');
     if (!bldgSelect) return;
 
     const currentVal = bldgSelect.value;
-    const bldgs = Array.from(new Set(appState.penghuni.map(p => p.kode_gedung).filter(Boolean))).sort();
+    const allSlots = cachedPenghuniSlots || buildUnifiedPenghuniSlots();
+    const bldgs = Array.from(new Set(allSlots.map(p => p.kode_gedung).filter(Boolean))).sort();
+
     bldgSelect.innerHTML = '<option value="">Semua Gedung / LH (' + bldgs.length + ')</option>' +
       bldgs.map(b => `<option value="${escapeHtml(b)}" ${b === currentVal ? 'selected' : ''}>${escapeHtml(b)}</option>`).join('');
 
@@ -2331,18 +2531,21 @@
     const roomSelect = document.getElementById('filter-penghuni-room');
     if (!roomSelect) return;
 
+    const allSlots = cachedPenghuniSlots || buildUnifiedPenghuniSlots();
     let rooms = [];
     if (bldg) {
-      rooms = Array.from(new Set(appState.penghuni.filter(p => p.kode_gedung === bldg).map(p => p.nama_ruangan).filter(Boolean))).sort();
+      rooms = Array.from(new Set(allSlots.filter(p => p.kode_gedung === bldg).map(p => p.nama_ruangan).filter(Boolean))).sort();
     } else {
-      rooms = Array.from(new Set(appState.penghuni.map(p => p.nama_ruangan).filter(Boolean))).sort();
+      rooms = Array.from(new Set(allSlots.map(p => p.nama_ruangan).filter(Boolean))).sort();
     }
 
-    roomSelect.innerHTML = '<option value="">Semua Ruangan / Kamar (' + rooms.length + ')</option>' +
+    roomSelect.innerHTML = '<option value="">Semua Kamar (' + rooms.length + ')</option>' +
       rooms.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
 
+    penghuniCurrentPage = 1;
     renderPenghuniTable();
   }
+
 
   function sortPenghuni(col) {
     if (penghuniSortCol === col) {
@@ -2352,8 +2555,7 @@
       penghuniSortAsc = true;
     }
 
-    // Update indicator icons with clean unicode arrows (▲ / ▼ / ↕)
-    ['kode_gedung', 'nama_ruangan', 'nomor_kasur', 'nik', 'nama_penghuni', 'departemen', 'status_hunian'].forEach(c => {
+    ['kode_gedung', 'nama_ruangan', 'nomor_kasur', 'status_hunian', 'nik', 'nama_penghuni', 'departemen'].forEach(c => {
       const icon = document.getElementById('sort-icon-' + c);
       if (icon) {
         if (c === col) {
@@ -2361,7 +2563,7 @@
           icon.className = 'text-xs ml-0.5 text-indigo-600 font-extrabold';
         } else {
           icon.innerHTML = '&#8597;';
-          icon.className = 'text-xs ml-0.5 text-slate-500';
+          icon.className = 'text-xs ml-0.5 text-slate-400';
         }
       }
     });
@@ -2369,42 +2571,13 @@
     renderPenghuniTable();
   }
 
-  function initPenghuniFilters() {
-    const bldgSelect = document.getElementById('filter-penghuni-bldg');
-    if (!bldgSelect) return;
-
-    const currentVal = bldgSelect.value;
-    // Extract unique buildings from both rooms and penghuni
-    const bldgsFromPenghuni = (appState.penghuni || []).map(p => p.kode_gedung).filter(Boolean);
-    const bldgsFromRooms = (appState.rooms || []).map(r => r.kode_gedung).filter(Boolean);
-    const allBldgs = Array.from(new Set([...bldgsFromPenghuni, ...bldgsFromRooms])).sort();
-
-    bldgSelect.innerHTML = '<option value="">Semua Gedung / LH (' + allBldgs.length + ')</option>' +
-      allBldgs.map(b => `<option value="${escapeHtml(b)}" ${b === currentVal ? 'selected' : ''}>${escapeHtml(b)}</option>`).join('');
-
-    onPenghuniBldgFilterChange();
-  }
-
-  function onPenghuniBldgFilterChange() {
-    const bldg = document.getElementById('filter-penghuni-bldg') ? document.getElementById('filter-penghuni-bldg').value : '';
-    const roomSelect = document.getElementById('filter-penghuni-room');
-    if (!roomSelect) return;
-
-    let rooms = [];
-    if (bldg) {
-      const r1 = (appState.penghuni || []).filter(p => p.kode_gedung === bldg).map(p => p.nama_ruangan);
-      const r2 = (appState.rooms || []).filter(r => r.kode_gedung === bldg).map(r => r.nama_ruangan);
-      rooms = Array.from(new Set([...r1, ...r2].filter(Boolean))).sort();
-    } else {
-      const r1 = (appState.penghuni || []).map(p => p.nama_ruangan);
-      const r2 = (appState.rooms || []).map(r => r.nama_ruangan);
-      rooms = Array.from(new Set([...r1, ...r2].filter(Boolean))).sort();
-    }
-
-    roomSelect.innerHTML = '<option value="">Semua Kamar (' + rooms.length + ')</option>' +
-      rooms.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
-
+  function setPenghuniPage(page) {
+    penghuniCurrentPage = page;
     renderPenghuniTable();
+    const tableEl = document.getElementById('table-penghuni-body');
+    if (tableEl) {
+      tableEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   function renderPenghuniTable() {
@@ -2416,10 +2589,10 @@
     const tbody = document.getElementById('table-penghuni-body');
     if (!tbody) return;
 
-    let rawList = appState.penghuni || [];
+    const allSlots = cachedPenghuniSlots || buildUnifiedPenghuniSlots();
 
-    // Filter by user input
-    let filtered = rawList.filter(p => {
+    // Filter
+    let filtered = allSlots.filter(p => {
       const matchQuery = !query ||
         String(p.nama_penghuni || '').toLowerCase().includes(query) ||
         String(p.nik || '').toLowerCase().includes(query) ||
@@ -2445,34 +2618,70 @@
       return 0;
     });
 
-    // Update Counter Badges
-    const totalCount = rawList.length;
-    const terisiCount = rawList.filter(p => p.status_hunian === 'Aktif' && p.nama_penghuni && p.nama_penghuni !== '-').length;
-    const vacantCount = totalCount - terisiCount;
+    // Badges Counters
+    const totalSlots = allSlots.length;
+    const terisiSlots = allSlots.filter(p => p.status_hunian === 'Aktif').length;
+    const vacantSlots = totalSlots - terisiSlots;
 
     const bTotal = document.getElementById('badge-total-slots');
     const bTerisi = document.getElementById('badge-terisi-slots');
     const bVacant = document.getElementById('badge-vacant-slots');
-    if (bTotal) bTotal.innerText = 'Total: ' + totalCount + ' Bed';
-    if (bTerisi) bTerisi.innerText = 'Terisi: ' + terisiCount;
-    if (bVacant) bVacant.innerText = 'Vacant: ' + vacantCount;
+    if (bTotal) bTotal.innerText = 'Total: ' + totalSlots.toLocaleString('id-ID') + ' Bed';
+    if (bTerisi) bTerisi.innerText = 'Terisi: ' + terisiSlots.toLocaleString('id-ID');
+    if (bVacant) bVacant.innerText = 'Vacant: ' + vacantSlots.toLocaleString('id-ID');
 
-    if (filtered.length === 0) {
+    // Pagination
+    const totalPages = Math.ceil(filtered.length / penghuniPageSize) || 1;
+    if (penghuniCurrentPage > totalPages) penghuniCurrentPage = totalPages;
+    if (penghuniCurrentPage < 1) penghuniCurrentPage = 1;
+
+    const startIdx = (penghuniCurrentPage - 1) * penghuniPageSize;
+    const endIdx = Math.min(startIdx + penghuniPageSize, filtered.length);
+    const pagedItems = filtered.slice(startIdx, endIdx);
+
+    const pageInfo = document.getElementById('penghuni-page-info');
+    const pageControls = document.getElementById('penghuni-page-controls');
+    if (pageInfo) {
+      if (filtered.length === 0) {
+        pageInfo.innerText = 'Tidak ada slot kamar yang cocok';
+      } else {
+        pageInfo.innerText = `Menampilkan ${(startIdx + 1).toLocaleString('id-ID')} - ${endIdx.toLocaleString('id-ID')} dari ${filtered.length.toLocaleString('id-ID')} Slot Ranjang`;
+      }
+    }
+    if (pageControls) {
+      if (totalPages <= 1) {
+        pageControls.innerHTML = '';
+      } else {
+        pageControls.innerHTML = `
+          <button onclick="setPenghuniPage(${penghuniCurrentPage - 1})" ${penghuniCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-semibold cursor-pointer">
+            &laquo; Prev
+          </button>
+          <span class="px-2 font-bold text-slate-700">Halaman ${penghuniCurrentPage} / ${totalPages}</span>
+          <button onclick="setPenghuniPage(${penghuniCurrentPage + 1})" ${penghuniCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-semibold cursor-pointer">
+            Next &raquo;
+          </button>
+        `;
+      }
+    }
+
+    if (pagedItems.length === 0) {
       tbody.innerHTML = `
         <tr>
           <td colspan="9" class="text-center py-12 text-slate-500">
-            <i class="ph-bold ph-bed text-3xl mb-2 block text-slate-500"></i>
-            <span class="font-bold text-slate-600 block">Tidak ada kamar atau penghuni yang cocok</span>
-            <span class="text-[11px] text-slate-500">Coba ganti filter pencarian atau pilih gedung/LH lain.</span>
+            <i class="ph-bold ph-bed text-3xl mb-2 block text-slate-400"></i>
+            <span class="font-bold text-slate-700 block">Tidak ada kamar atau slot ranjang yang cocok</span>
+            <span class="text-[11px] text-slate-400">Coba ubah kata kunci pencarian atau reset filter gedung/kamar.</span>
           </td>
         </tr>
       `;
       return;
     }
 
-    tbody.innerHTML = filtered.map(p => {
-      const isVacant = String(p.status_hunian || '').toLowerCase() === 'vacant' || !p.nama_penghuni || p.nama_penghuni === '-';
-      const bedLabel = p.nomor_kasur || 'Bed 1';
+    // Sequence: Gedung | Ruangan | No. Bed | Status | NIK | Nama Penghuni | Departemen | Kontak | Aksi
+    tbody.innerHTML = pagedItems.map(p => {
+      const isVacant = p.status_hunian === 'Vacant' || !p.nama_penghuni || p.nama_penghuni === '-';
+      const slotIdEscaped = escapeHtml(String(p.id));
+
       return `
         <tr class="hover:bg-slate-50/90 transition border-b border-slate-100 ${isVacant ? 'bg-amber-50/20' : ''}">
           <!-- 1. GEDUNG / LH -->
@@ -2486,39 +2695,39 @@
           <td class="py-2.5 px-3 font-semibold text-slate-800 whitespace-nowrap">
             ${escapeHtml(p.nama_ruangan)}
           </td>
-          <!-- 3. NO. RANJANG / BED -->
+          <!-- 3. NO. BED / SLOT (Standar 4 Bed per Kamar) -->
           <td class="py-2.5 px-3 whitespace-nowrap">
             <span class="px-2 py-0.5 rounded text-[11px] font-bold ${isVacant ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-700 border border-slate-200'}">
-              <i class="ph-bold ph-bed text-xs mr-0.5"></i> ${escapeHtml(bedLabel)}
+              <i class="ph-bold ph-bed text-xs mr-0.5"></i> ${escapeHtml(p.nomor_kasur)}
             </span>
           </td>
-          <!-- 4. NIK -->
-          <td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
-            ${isVacant ? '<span class="text-slate-500 font-bold">-</span>' : escapeHtml(p.nik)}
+          <!-- 4. STATUS HUNIAN -->
+          <td class="py-2.5 px-3 whitespace-nowrap">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isVacant ? 'bg-amber-100 text-amber-800 border border-amber-300' : 'bg-emerald-100 text-emerald-800 border border-emerald-300'}">
+              ${isVacant ? 'Vacant (Kosong)' : 'Aktif (Terisi)'}
+            </span>
           </td>
-          <!-- 5. NAMA PENGHUNI -->
+          <!-- 5. NIK -->
+          <td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
+            ${isVacant ? '<span class="text-slate-400 font-bold">-</span>' : escapeHtml(p.nik)}
+          </td>
+          <!-- 6. NAMA PENGHUNI -->
           <td class="py-2.5 px-3.5 whitespace-nowrap">
             ${isVacant 
-              ? '<span class="text-amber-700 italic font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Vacant (Belum Ada Penghuni)</span>'
+              ? '<span class="text-amber-700 font-semibold italic flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> - (Belum Ada Penghuni)</span>'
               : `<strong class="text-slate-900 font-bold">${escapeHtml(p.nama_penghuni)}</strong>`}
           </td>
-          <!-- 6. DEPARTEMEN -->
+          <!-- 7. DEPARTEMEN -->
           <td class="py-2.5 px-3 whitespace-nowrap">
-            ${isVacant ? '<span class="text-slate-500">-</span>' : `<span class="text-slate-600 font-medium">${escapeHtml(p.departemen || '-')}</span>`}
-          </td>
-          <!-- 7. STATUS HUNIAN -->
-          <td class="py-2.5 px-3 whitespace-nowrap">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isVacant ? 'bg-amber-100 text-amber-800 border border-amber-300/80' : 'bg-emerald-100 text-emerald-800 border border-emerald-300/80'}">
-              ${isVacant ? 'Vacant' : 'Aktif Terisi'}
-            </span>
+            ${isVacant ? '<span class="text-slate-400">-</span>' : `<span class="text-slate-700 font-medium">${escapeHtml(p.departemen || '-')}</span>`}
           </td>
           <!-- 8. KONTAK -->
           <td class="py-2.5 px-3 num-tabular whitespace-nowrap text-slate-600 font-mono text-[11px]">
-            ${isVacant ? '<span class="text-slate-500">-</span>' : escapeHtml(p.no_kontak || '-')}
+            ${isVacant ? '<span class="text-slate-400">-</span>' : escapeHtml(p.no_kontak || '-')}
           </td>
-          <!-- 9. AKSI EDIT / ISI PENGHUNI -->
+          <!-- 9. AKSI EDIT / TETAPKAN PENGHUNI -->
           <td class="py-2.5 px-3 text-center whitespace-nowrap">
-            <button onclick="editPenghuni('${p.id || p.nik}')" class="px-3 py-1 rounded-lg text-xs font-bold ${isVacant ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs' : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200'} transition cursor-pointer" title="Edit atau tetapkan penghuni">
+            <button onclick="editPenghuni('${slotIdEscaped}')" class="px-3 py-1 rounded-lg text-xs font-bold ${isVacant ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-2xs' : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200'} transition cursor-pointer" title="${isVacant ? 'Tetapkan Penghuni Baru' : 'Edit Data Penghuni'}">
               <i class="ph-bold ${isVacant ? 'ph-user-plus' : 'ph-pencil-simple'} text-xs"></i> ${isVacant ? '+ Isi' : 'Edit'}
             </button>
           </td>
@@ -2527,73 +2736,72 @@
     }).join('');
   }
 
-  function editPenghuni(idOrNik) {
-    const item = (appState.penghuni || []).find(p => String(p.id) === String(idOrNik) || String(p.nik) === String(idOrNik));
+  function editPenghuni(slotId) {
+    const allSlots = cachedPenghuniSlots || buildUnifiedPenghuniSlots();
+    const item = allSlots.find(p => String(p.id) === String(slotId));
     if (!item) return;
 
+    const isCurrentlyVacant = item.status_hunian === 'Vacant' || !item.nama_penghuni || item.nama_penghuni === '-';
+
     Swal.fire({
-      title: 'Tetapkan / Edit Data Penghuni Hunian',
+      title: isCurrentlyVacant ? 'Tetapkan Penghuni Baru' : 'Edit Data Penghuni Hunian',
       html: `
         <div class="space-y-3 text-left text-xs">
-          <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
-            <div class="grid grid-cols-2 gap-2">
-              <div>
-                <span class="text-[10px] uppercase font-bold text-slate-500 block">Gedung / LH</span>
-                <span class="font-bold text-indigo-700 text-sm">${escapeHtml(item.kode_gedung)}</span>
-              </div>
-              <div>
-                <span class="text-[10px] uppercase font-bold text-slate-500 block">Ruangan / Kamar</span>
-                <span class="font-bold text-slate-900 text-sm">${escapeHtml(item.nama_ruangan)}</span>
-              </div>
+          <div class="p-3 bg-indigo-50/80 border border-indigo-100 rounded-xl space-y-1">
+            <div class="text-[10px] uppercase font-bold text-indigo-900 tracking-wider flex items-center gap-1.5">
+              <i class="ph-bold ph-bed text-indigo-600"></i> Detail Kamar &amp; Ranjang
             </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block font-semibold mb-1">No. Ranjang / Slot:</label>
-              <input type="text" id="swal-p-bed" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nomor_kasur || 'Bed 1')}">
+            <div class="text-xs font-bold text-slate-800">
+              Gedung: <span class="text-indigo-700">${escapeHtml(item.kode_gedung)}</span> &bull; Ruangan: <span class="text-slate-900">${escapeHtml(item.nama_ruangan)}</span>
             </div>
-            <div>
-              <label class="block font-semibold mb-1">Status Hunian:</label>
-              <select id="swal-p-status" class="swal2-select !h-8 !text-xs !w-full !m-0" onchange="toggleSwalVacant(this.value)">
-                <option value="Aktif" ${item.status_hunian === 'Aktif' ? 'selected' : ''}>Aktif (Terisi)</option>
-                <option value="Vacant" ${item.status_hunian === 'Vacant' ? 'selected' : ''}>Vacant (Kosong)</option>
-              </select>
+            <div class="text-xs font-semibold text-indigo-600">
+              Posisi Ranjang: <strong>${escapeHtml(item.nomor_kasur)}</strong>
             </div>
           </div>
           <div>
-            <label class="block font-semibold mb-1">Nama Penghuni:</label>
-            <input type="text" id="swal-p-name" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nama_penghuni && item.nama_penghuni !== '-' ? item.nama_penghuni : '')}" placeholder="Nama lengkap karyawan...">
+            <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Penghuni <span class="text-rose-500">*</span>:</label>
+            <input type="text" id="swal-p-name" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 font-semibold" value="${isCurrentlyVacant ? '' : escapeHtml(item.nama_penghuni)}" placeholder="Contoh: Aji Pratama">
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block font-semibold mb-1">NIK Karyawan:</label>
-              <input type="text" id="swal-p-nik" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nik && item.nik !== '-' ? item.nik : '')}" placeholder="PNS-AGR-...">
+              <label class="block font-semibold text-slate-700 mb-1">NIK Karyawan:</label>
+              <input type="text" id="swal-p-nik" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:border-indigo-500 font-mono" value="${isCurrentlyVacant || item.nik === '-' ? '' : escapeHtml(item.nik)}" placeholder="PNS-AGR-...">
             </div>
             <div>
-              <label class="block font-semibold mb-1">Departemen:</label>
-              <input type="text" id="swal-p-dept" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.departemen && item.departemen !== '-' ? item.departemen : '')}" placeholder="Agronomi / HRGA / Pabrik">
+              <label class="block font-semibold text-slate-700 mb-1">Departemen:</label>
+              <input type="text" id="swal-p-dept" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:border-indigo-500" value="${isCurrentlyVacant || item.departemen === '-' ? '' : escapeHtml(item.departemen)}" placeholder="Agronomi / HRGA / MB">
             </div>
           </div>
           <div>
-            <label class="block font-semibold mb-1">No. Kontak / WhatsApp:</label>
-            <input type="text" id="swal-p-kontak" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.no_kontak && item.no_kontak !== '-' ? item.no_kontak : '')}" placeholder="0813-xxxx-xxxx">
+            <label class="block font-semibold text-slate-700 mb-1">No. Kontak / WhatsApp:</label>
+            <input type="text" id="swal-p-kontak" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 focus:border-indigo-500 font-mono" value="${isCurrentlyVacant || item.no_kontak === '-' ? '' : escapeHtml(item.no_kontak)}" placeholder="0813-xxxx-xxxx">
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Status Ketersediaan:</label>
+            <select id="swal-p-status" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 font-bold text-slate-800">
+              <option value="Aktif" ${!isCurrentlyVacant ? 'selected' : ''}>Aktif (Terisi)</option>
+              <option value="Vacant" ${isCurrentlyVacant ? 'selected' : ''}>Vacant (Kosong)</option>
+            </select>
           </div>
         </div>
       `,
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonText: 'Simpan ke Google Sheets',
+      showDenyButton: !isCurrentlyVacant,
+      denyButtonText: 'Kosongkan (Check-out)',
+      confirmButtonText: 'Simpan Data',
       cancelButtonText: 'Batal',
+      confirmButtonColor: '#4f46e5',
+      denyButtonColor: '#e11d48',
       preConfirm: () => {
         const status = document.getElementById('swal-p-status').value;
         const name = document.getElementById('swal-p-name').value.trim();
         const nik = document.getElementById('swal-p-nik').value.trim();
         const dept = document.getElementById('swal-p-dept').value.trim();
-        const bed = document.getElementById('swal-p-bed').value.trim();
         const kontak = document.getElementById('swal-p-kontak').value.trim();
 
         if (status === 'Aktif' && !name) {
-          Swal.showValidationMessage('Nama penghuni wajib diisi jika status Aktif Terisi');
+          Swal.showValidationMessage('Nama penghuni wajib diisi untuk status Aktif Terisi');
           return false;
         }
 
@@ -2601,24 +2809,85 @@
           nama_penghuni: status === 'Vacant' ? '-' : name,
           nik: status === 'Vacant' ? '-' : (nik || '-'),
           departemen: status === 'Vacant' ? '-' : (dept || '-'),
-          nomor_kasur: bed || 'Bed 1',
           status_hunian: status,
           no_kontak: status === 'Vacant' ? '-' : (kontak || '-')
         };
       }
     }).then(res => {
       if (res.isConfirmed) {
-        Object.assign(item, res.value);
-        renderPenghuniTable();
-        callBackendPost('save_penghuni', item);
-        Swal.fire({
-          icon: 'success',
-          title: 'Tersimpan',
-          text: 'Data kamar ' + item.nama_ruangan + ' (' + (item.nomor_kasur || 'Bed') + ') berhasil disimpan.',
-          timer: 1500,
-          showConfirmButton: false
+        savePenghuniSlotData(item, res.value);
+      } else if (res.isDenied) {
+        savePenghuniSlotData(item, {
+          nama_penghuni: '-',
+          nik: '-',
+          departemen: '-',
+          status_hunian: 'Vacant',
+          no_kontak: '-'
         });
       }
+    });
+  }
+
+  function savePenghuniSlotData(slot, data) {
+    if (!appState.penghuni) appState.penghuni = [];
+
+    let existingIdx = appState.penghuni.findIndex(p => {
+      return (p.kode_gedung === slot.kode_gedung) &&
+             (p.nama_ruangan === slot.nama_ruangan) &&
+             (p.nomor_kasur === slot.nomor_kasur);
+    });
+
+    if (data.status_hunian === 'Vacant' || !data.nama_penghuni || data.nama_penghuni === '-') {
+      if (existingIdx >= 0) {
+        appState.penghuni.splice(existingIdx, 1);
+      }
+    } else {
+      const record = {
+        id: (existingIdx >= 0 && appState.penghuni[existingIdx].id) ? appState.penghuni[existingIdx].id : ('p_' + Date.now()),
+        nik: data.nik || '-',
+        nama_penghuni: data.nama_penghuni,
+        departemen: data.departemen || '-',
+        kode_gedung: slot.kode_gedung,
+        nama_ruangan: slot.nama_ruangan,
+        nomor_kasur: slot.nomor_kasur,
+        status_hunian: 'Aktif',
+        no_kontak: data.no_kontak || '-',
+        updated_at: new Date().toISOString()
+      };
+      if (existingIdx >= 0) {
+        appState.penghuni[existingIdx] = Object.assign(appState.penghuni[existingIdx], record);
+      } else {
+        appState.penghuni.push(record);
+      }
+    }
+
+    try {
+      localStorage.setItem('pns_custom_penghuni', JSON.stringify(appState.penghuni));
+    } catch (e) {}
+
+    // Invalidate cached slots and rebuild
+    buildUnifiedPenghuniSlots();
+    renderPenghuniTable();
+
+    const badge = document.getElementById('nav-badge-penghuni');
+    if (badge) badge.innerText = appState.penghuni.length;
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: 'success',
+        title: 'Tersimpan',
+        text: 'Data kamar ' + slot.nama_ruangan + ' (' + slot.nomor_kasur + ') berhasil diperbarui.',
+        timer: 1300,
+        showConfirmButton: false
+      });
+    }
+
+    // Background sync to GAS if available
+    callBackendPost('save_penghuni', {
+      kode_gedung: slot.kode_gedung,
+      nama_ruangan: slot.nama_ruangan,
+      nomor_kasur: slot.nomor_kasur,
+      ...data
     });
   }
 
@@ -3451,3 +3720,13 @@
     closeCameraModal();
   }
     
+  // Global window exposure for inline onclick handlers
+  if (typeof window !== "undefined") {
+    window.setInspBldgCategory = setInspBldgCategory;
+    window.navTo = navTo;
+    window.editPenghuni = editPenghuni;
+    window.setPenghuniPage = setPenghuniPage;
+    window.sortPenghuni = sortPenghuni;
+    window.uploadAssetPhotoDirect = uploadAssetPhotoDirect;
+    window.removeAssetPhoto = removeAssetPhoto;
+  }

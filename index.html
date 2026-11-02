@@ -33,6 +33,18 @@
 
   <!-- Modular CSS Included from CSS.html -->
   <link rel="stylesheet" href="style.css">
+  <script>
+    window.toggleSidebar = function(forceState) {
+      const sb = document.getElementById('app-sidebar');
+      if (!sb) return;
+      if (typeof forceState === 'boolean') {
+        if (forceState) sb.classList.remove('-translate-x-full');
+        else sb.classList.add('-translate-x-full');
+      } else {
+        sb.classList.toggle('-translate-x-full');
+      }
+    };
+  </script>
 </head>
 <body class="text-slate-800 bg-slate-50 h-screen overflow-hidden flex flex-col font-sans antialiased">
 
@@ -167,16 +179,10 @@
               <i class="ph-bold ph-clipboard-text text-base text-emerald-500"></i> Inspeksi
             </button>
 
-            <!-- SUB MODUL 4: AVAILABILITY HUNIAN -->
-            <button onclick="navTo('view-penghuni', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-left transition">
+            <!-- SUB MODUL 4: AVAILABILITY & PENGHUNI HUNIAN -->
+            <button onclick="navTo('view-penghuni', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-left transition" id="nav-btn-availability">
               <span class="flex items-center gap-2.5"><i class="ph-bold ph-bed text-base text-indigo-500"></i> Availability Hunian</span>
-              <span id="nav-badge-penghuni" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold">409</span>
-            </button>
-
-            <!-- PENGHUNI & RIWAYAT -->
-            <button onclick="navTo('view-penghuni', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-left transition">
-              <span class="flex items-center gap-2.5"><i class="ph-bold ph-users text-base text-sky-500"></i> Data Penghuni Mess</span>
-              <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold" id="nav-badge-penghuni">409</span>
+              <span id="nav-badge-penghuni" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">409</span>
             </button>
             <button onclick="navTo('view-riwayat-inspeksi', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-left transition">
               <i class="ph-bold ph-clock-counter-clockwise text-base text-slate-500"></i> Riwayat Laporan Temuan
@@ -768,6 +774,21 @@
             <div class="flex items-center gap-2">
               <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">1</span>
               <label for="insp-gedung" class="font-bold text-xs text-slate-900 uppercase tracking-wider">Pilih Gedung / Bangunan</label>
+            </div>
+            <!-- Category Slicer Buttons (Hunian, Bangunan Kantor, Gudang & Fasilitas) -->
+            <div class="flex items-center gap-1.5 flex-wrap">
+              <button type="button" onclick="setInspBldgCategory('ALL', this)" id="cat-btn-all" class="insp-cat-btn active px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-900 text-white transition cursor-pointer shadow-xs">
+                Semua (416)
+              </button>
+              <button type="button" onclick="setInspBldgCategory('HUNIAN', this)" id="cat-btn-hunian" class="insp-cat-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer">
+                🏡 Hunian / Mess (113)
+              </button>
+              <button type="button" onclick="setInspBldgCategory('KANTOR', this)" id="cat-btn-kantor" class="insp-cat-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer">
+                🏢 Bangunan Kantor (21)
+              </button>
+              <button type="button" onclick="setInspBldgCategory('GUDANG_FASILITAS', this)" id="cat-btn-gudang" class="insp-cat-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer">
+                🏭 Gudang &amp; Fasilitas (282)
+              </button>
             </div>
             <select id="insp-gedung" onchange="onInspGedungChange()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 font-medium">
               <option value="">-- Pilih Gedung Acuan --</option>
@@ -1393,62 +1414,62 @@
         <div class="clean-card overflow-hidden border border-slate-200 rounded-xl shadow-xs bg-white">
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
-              <thead class="bg-slate-50/90 text-slate-600 uppercase tracking-wider text-[11px] font-bold border-b border-slate-200 select-none">
+              <thead class="bg-slate-50/95 text-slate-700 uppercase tracking-wider text-[11px] font-bold border-b border-slate-200 select-none">
                 <tr>
-                  <!-- 1. GEDUNG (Area Orange) -->
-                  <th onclick="sortPenghuni('kode_gedung')" class="py-3 px-3.5 cursor-pointer hover:bg-slate-100/80 hover:text-indigo-600 transition group whitespace-nowrap">
+                  <!-- 1. GEDUNG / LH -->
+                  <th onclick="sortPenghuni('kode_gedung')" class="py-3 px-3.5 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
                     <div class="flex items-center gap-1.5">
                       <i class="ph-bold ph-buildings text-indigo-500"></i>
                       <span>Gedung / LH</span>
-                      <span id="sort-icon-kode_gedung" class="text-xs font-black text-slate-500 group-hover:text-indigo-600">&#8597;</span>
+                      <span id="sort-icon-kode_gedung" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
                     </div>
                   </th>
-                  <!-- 2. RUANGAN / KAMAR (Area Orange) -->
-                  <th onclick="sortPenghuni('nama_ruangan')" class="py-3 px-3 cursor-pointer hover:bg-slate-100/80 hover:text-indigo-600 transition group whitespace-nowrap">
+                  <!-- 2. RUANGAN / KAMAR -->
+                  <th onclick="sortPenghuni('nama_ruangan')" class="py-3 px-3 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
                     <div class="flex items-center gap-1.5">
                       <i class="ph-bold ph-door text-slate-500"></i>
                       <span>Ruangan / Kamar</span>
-                      <span id="sort-icon-nama_ruangan" class="text-xs font-black text-slate-500 group-hover:text-indigo-600">&#8597;</span>
+                      <span id="sort-icon-nama_ruangan" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
                     </div>
                   </th>
-                  <!-- 3. NO. BED / SLOT (Area Orange) -->
-                  <th onclick="sortPenghuni('nomor_kasur')" class="py-3 px-3 cursor-pointer hover:bg-slate-100/80 hover:text-indigo-600 transition group whitespace-nowrap">
+                  <!-- 3. NO. BED / SLOT (Standar 4 Bed per Kamar) -->
+                  <th onclick="sortPenghuni('nomor_kasur')" class="py-3 px-3 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
                     <div class="flex items-center gap-1.5">
                       <i class="ph-bold ph-bed text-indigo-500"></i>
                       <span>No. Bed / Slot</span>
-                      <span id="sort-icon-nomor_kasur" class="text-xs font-black text-slate-500 group-hover:text-indigo-600">&#8597;</span>
+                      <span id="sort-icon-nomor_kasur" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
                     </div>
                   </th>
-                  <!-- 4. NIK (Area Orange) -->
-                  <th onclick="sortPenghuni('nik')" class="py-3 px-3 cursor-pointer hover:bg-slate-100/80 hover:text-indigo-600 transition group whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-identification-card text-slate-500"></i>
-                      <span>NIK</span>
-                      <span id="sort-icon-nik" class="text-xs font-black text-slate-500 group-hover:text-indigo-600">&#8597;</span>
-                    </div>
-                  </th>
-                  <!-- 5. NAMA PENGHUNI (Area Orange) -->
-                  <th onclick="sortPenghuni('nama_penghuni')" class="py-3 px-3.5 cursor-pointer hover:bg-slate-100/80 hover:text-indigo-600 transition group whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-user text-emerald-500"></i>
-                      <span>Nama Penghuni</span>
-                      <span id="sort-icon-nama_penghuni" class="text-xs font-black text-slate-500 group-hover:text-indigo-600">&#8597;</span>
-                    </div>
-                  </th>
-                  <!-- 6. DEPARTEMEN (Area Orange) -->
-                  <th onclick="sortPenghuni('departemen')" class="py-3 px-3 cursor-pointer hover:bg-slate-100/80 hover:text-indigo-600 transition group whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-briefcase text-slate-500"></i>
-                      <span>Departemen</span>
-                      <span id="sort-icon-departemen" class="text-xs font-black text-slate-500 group-hover:text-indigo-600">&#8597;</span>
-                    </div>
-                  </th>
-                  <!-- 7. STATUS HUNIAN -->
-                  <th onclick="sortPenghuni('status_hunian')" class="py-3 px-3 cursor-pointer hover:bg-slate-100/80 hover:text-indigo-600 transition group whitespace-nowrap">
+                  <!-- 4. STATUS (Terisi / Vacant) -->
+                  <th onclick="sortPenghuni('status_hunian')" class="py-3 px-3 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
                     <div class="flex items-center gap-1.5">
                       <i class="ph-bold ph-info text-amber-500"></i>
                       <span>Status</span>
-                      <span id="sort-icon-status_hunian" class="text-xs font-black text-slate-500 group-hover:text-indigo-600">&#8597;</span>
+                      <span id="sort-icon-status_hunian" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
+                    </div>
+                  </th>
+                  <!-- 5. NIK -->
+                  <th onclick="sortPenghuni('nik')" class="py-3 px-3 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
+                    <div class="flex items-center gap-1.5">
+                      <i class="ph-bold ph-identification-card text-slate-500"></i>
+                      <span>NIK</span>
+                      <span id="sort-icon-nik" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
+                    </div>
+                  </th>
+                  <!-- 6. NAMA PENGHUNI (Bisa Langsung Diisi / Diedit) -->
+                  <th onclick="sortPenghuni('nama_penghuni')" class="py-3 px-3.5 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
+                    <div class="flex items-center gap-1.5">
+                      <i class="ph-bold ph-user text-emerald-500"></i>
+                      <span>Nama Penghuni</span>
+                      <span id="sort-icon-nama_penghuni" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
+                    </div>
+                  </th>
+                  <!-- 7. DEPARTEMEN -->
+                  <th onclick="sortPenghuni('departemen')" class="py-3 px-3 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
+                    <div class="flex items-center gap-1.5">
+                      <i class="ph-bold ph-briefcase text-slate-500"></i>
+                      <span>Departemen</span>
+                      <span id="sort-icon-departemen" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
                     </div>
                   </th>
                   <!-- 8. KONTAK -->
@@ -1466,6 +1487,15 @@
                 <!-- Rendered dynamically via renderPenghuniTable() in app.js -->
               </tbody>
             </table>
+          </div>
+          <!-- Pagination Toolbar for 3,000+ Bed Slots -->
+          <div id="penghuni-pagination-bar" class="p-3 bg-slate-50/80 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
+            <div id="penghuni-page-info" class="font-medium">
+              Menampilkan data ranjang...
+            </div>
+            <div class="flex items-center gap-1.5" id="penghuni-page-controls">
+              <!-- Dynamically populated buttons -->
+            </div>
           </div>
         </div>
       </div>
@@ -1531,7 +1561,7 @@
         <!-- Fallback File Picker -->
         <label class="p-2.5 rounded-xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 transition shadow-2xs cursor-pointer" title="Pilih dari Galeri / File Manager">
           <i class="ph-bold ph-image text-base"></i>
-          <input type="file" id="fallback-camera-file" accept="image/*" onchange="uploadAssetPhotoFromInput(event)" class="hidden">
+          <input type="file" id="fallback-camera-file" accept="image/*" capture="environment" onchange="uploadAssetPhotoFromInput(event)" class="hidden">
         </label>
       </div>
     </div>
