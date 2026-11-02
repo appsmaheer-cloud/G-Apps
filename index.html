@@ -850,8 +850,51 @@
             </div>
           </div>
 
+          <!-- RINGKASAN VISUAL KARTU JUMLAH JENIS ASET (Persis Desain Lapangan Facility Management Hunian.html) -->
+          <div id="insp-visual-summary-container" class="space-y-3 pt-1">
+            <div class="flex items-center justify-between flex-wrap gap-2.5 pb-1">
+              <div>
+                <div class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
+                  <i class="ph-bold ph-squares-four text-emerald-600"></i>
+                  <span>Ringkasan Fasilitas &amp; Jumlah Jenis Aset</span>
+                </div>
+                <div class="text-[11px] text-slate-500">
+                  Klik kartu visual untuk memfilter daftar aset, atau gunakan tombol cepat untuk verifikasi kondisi per jenis barang.
+                </div>
+              </div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <!-- Tombol Reset Filter Jenis -->
+                <button type="button" onclick="resetInspectionAssetFilter()" id="btn-reset-type-filter" class="hidden px-2.5 py-1 text-[11px] font-bold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition cursor-pointer flex items-center gap-1 shadow-2xs">
+                  <i class="ph-bold ph-x text-xs text-rose-500"></i> <span>Tampilkan Semua (<span id="filter-all-count">0</span>)</span>
+                </button>
+                <!-- Switcher Mode Tampilan: Kartu Visual vs Mode Lapangan vs Tabel Detail -->
+                <div class="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-[11px] font-bold">
+                  <button type="button" onclick="setInspectionViewMode('grid', this)" id="btn-viewmode-grid" class="px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition flex items-center gap-1 cursor-pointer">
+                    <i class="ph-bold ph-squares-four text-emerald-600"></i> Kartu Visual
+                  </button>
+                  <button type="button" onclick="setInspectionViewMode('field', this)" id="btn-viewmode-field" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">
+                    <i class="ph-bold ph-device-mobile text-indigo-500"></i> Mode Lapangan
+                  </button>
+                  <button type="button" onclick="setInspectionViewMode('table', this)" id="btn-viewmode-table" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">
+                    <i class="ph-bold ph-table text-sky-600"></i> Tabel Detail
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- GRID CARD VISUAL BUTTONS: Bantal 4, Kasur 2, Lampu 7, dll -->
+            <div id="insp-visual-cards-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
+              <!-- Rendered dynamically via renderInspectionVisualCards() in app.js -->
+            </div>
+
+            <!-- MODE KARTU LAPANGAN INTERAKTIF (Persis mInspeksi() di Facility Management Hunian.html) -->
+            <div id="insp-field-mode-container" class="hidden space-y-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200">
+              <!-- Rendered dynamically via renderInspectionFieldCards() in app.js -->
+            </div>
+          </div>
+
           <!-- DESKTOP & TABLET TABLE VIEW (Sesuai fac-inspeksi.php) -->
-          <div class="overflow-x-auto border border-slate-200/80 rounded-xl">
+          <div id="insp-detail-table-container" class="overflow-x-auto border border-slate-200/80 rounded-xl">
             <table class="w-full text-left border-collapse text-xs">
               <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] font-bold border-b border-slate-200">
                 <tr>

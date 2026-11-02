@@ -1578,32 +1578,365 @@
     loadRoomAssetsChecklist(checklist);
   }
 
-  function loadRoomAssetsChecklist(assets) {
-    appState.currentInspAssets = (assets || []).map(a => ({
-      no_asset: a.no_asset || '',
-      nama_asset: a.nama_asset || '',
-      qty: a.qty || '1 Unit',
-      jenis_aset: a.jenis_aset || (String(a.no_asset || '').startsWith('NVA-') ? 'Non-Valuable' : 'Valuable'),
-      kategori_asset: a.kategori_asset || 'FASILITAS',
-      kondisi: a.kondisi || 'Baik',
-      kondisi_inspeksi: a.kondisi_inspeksi || a.kondisi || 'Baik',
-      kode_sesuai: a.kode_sesuai !== false,
-      lokasi_sesuai: a.lokasi_sesuai !== false,
-      foto_asset: a.foto_asset || '',
-      catatan_inspeksi: a.catatan_inspeksi || a.catatan || '',
-      is_new: !!a.is_new
-    }));
+  
+  // ========================================================
+  // ASSET VISUAL CARDS & FIELD INSPECTION ENGINE (HRGA)
+  // Persis Desain Lapangan Facility Management Hunian.html
+  // Visual Cards: Bantal 4, Kasur 2, Lampu 7, Lemari 2, dll
+  // ========================================================
+  let activeInspTypeFilter = null;
+  let inspCurrentViewMode = 'grid'; // 'grid' | 'field' | 'table'
 
+  function classifyAssetType(namaAsset) {
+    const n = String(namaAsset || '').toLowerCase();
+    if (n.includes('bantal')) return { key: 'Bantal', label: 'Bantal Kepala', icon: 'ph-feather', color: 'indigo', std: 4 };
+    if (n.includes('kasur') || n.includes('spring') || n.includes('matras') || n.includes('bed')) return { key: 'Kasur', label: 'Kasur / Springbed', icon: 'ph-bed', color: 'emerald', std: 2 };
+    if (n.includes('lampu') || n.includes('led') || n.includes('penerangan')) return { key: 'Lampu', label: 'Lampu Kamar', icon: 'ph-lightbulb', color: 'amber', std: 2 };
+    if (n.includes('lemari') || n.includes('wardrobe')) return { key: 'Lemari', label: 'Lemari 2 Pintu', icon: 'ph-door', color: 'blue', std: 2 };
+    if (n.includes('loker') || n.includes('locker')) return { key: 'Loker', label: 'Loker Besi 3P', icon: 'ph-lockers', color: 'cyan', std: 2 };
+    if (n.includes('gorden') || n.includes('curtain') || n.includes('tiang gorden')) return { key: 'Gorden', label: 'Gorden & Tiang', icon: 'ph-curtains', color: 'purple', std: 2 };
+    if (n.includes('ranjang') || n.includes('dipan')) return { key: 'Ranjang', label: 'Ranjang Susun', icon: 'ph-stack', color: 'teal', std: 1 };
+    if (n.includes('guling')) return { key: 'Guling', label: 'Guling Tidur', icon: 'ph-cylinder', color: 'rose', std: 4 };
+    if (n.includes('sprei') || n.includes('selimut') || n.includes('handuk')) return { key: 'Sprei', label: 'Sprei & Selimut', icon: 'ph-coat-hanger', color: 'pink', std: 4 };
+    if (n.includes('keranjang')) return { key: 'Keranjang', label: 'Keranjang Pakaian', icon: 'ph-tote', color: 'orange', std: 2 };
+    if (n.includes('keset') || n.includes('karpet')) return { key: 'Keset', label: 'Keset Lantai', icon: 'ph-rug', color: 'slate', std: 1 };
+    if (n.includes('sapu') || n.includes('pengki')) return { key: 'Sapu', label: 'Pengki & Sapu', icon: 'ph-broom', color: 'lime', std: 1 };
+    if (n.includes('ac ') || n.includes('air conditioner') || n.includes('kipas')) return { key: 'AC', label: 'AC / Pendingin', icon: 'ph-snowflake', color: 'sky', std: 1 };
+    if (n.includes('mesin cuci') || n.includes('washing')) return { key: 'MesinCuci', label: 'Mesin Cuci', icon: 'ph-arrows-clockwise', color: 'blue', std: 1 };
+    if (n.includes('dryer') || n.includes('pengering')) return { key: 'Dryer', label: 'Dryer Mesin', icon: 'ph-wind', color: 'amber', std: 1 };
+    if (n.includes('meja') || n.includes('kursi')) return { key: 'MejaKursi', label: 'Meja & Kursi', icon: 'ph-chair', color: 'stone', std: 2 };
+    if (n.includes('tv') || n.includes('televisi')) return { key: 'TV', label: 'Smart TV', icon: 'ph-television', color: 'violet', std: 1 };
+    return { key: 'Lainnya', label: 'Fasilitas Lain', icon: 'ph-cube', color: 'slate', std: 1 };
+  }
+
+  function getGroupedRoomAssets(customList) {
+    const list = customList || appState.currentInspAssets || [];
+    const groups = {};
+
+    list.forEach((ast, idx) => {
+      const c = classifyAssetType(ast.nama_asset);
+      if (!groups[c.key]) {
+        groups[c.key] = {
+          key: c.key,
+          label: c.label,
+          icon: c.icon,
+          color: c.color,
+          std: c.std,
+          total: 0,
+          baik: 0,
+          rusak: 0,
+          hilang: 0,
+          indices: []
+        };
+      }
+      groups[c.key].total++;
+      groups[c.key].count = groups[c.key].total;
+      groups[c.key].indices.push(idx);
+
+      const st = String(ast.kondisi_inspeksi || 'Baik').toLowerCase();
+      if (st.includes('hilang')) groups[c.key].hilang++;
+      else if (st.includes('rusak')) groups[c.key].rusak++;
+      else groups[c.key].baik++;
+    });
+
+    return groups;
+  }
+
+  function renderInspectionVisualCards() {
+    const container = document.getElementById('insp-visual-cards-grid');
+    if (!container) return;
+
+    const groups = getGroupedRoomAssets();
+    const groupList = Object.values(groups);
+
+    const totalAssets = (appState.currentInspAssets || []).length;
+    const filterAllCount = document.getElementById('filter-all-count');
+    if (filterAllCount) filterAllCount.innerText = totalAssets;
+
+    if (groupList.length === 0) {
+      container.innerHTML = `
+        <div class="col-span-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-center text-xs text-slate-500">
+          <i class="ph-bold ph-cube text-xl block mb-1 text-slate-400"></i>
+          Pilih gedung dan ruangan terlebih dahulu untuk melihat ringkasan visual jenis aset.
+        </div>
+      `;
+      return;
+    }
+
+    container.innerHTML = groupList.map(g => {
+      const isSelected = activeInspTypeFilter === g.key;
+      let condBadge = '';
+      if (g.rusak > 0 && g.hilang > 0) {
+        condBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200">⚠️ ${g.rusak}R, ${g.hilang}H</span>`;
+      } else if (g.rusak > 0) {
+        condBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">⚠️ ${g.rusak} Rusak</span>`;
+      } else if (g.hilang > 0) {
+        condBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200">✕ ${g.hilang} Hilang</span>`;
+      } else {
+        condBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">✓ ${g.baik} Baik</span>`;
+      }
+
+      // Color maps for icon backgrounds
+      const bgMap = {
+        indigo: 'bg-indigo-50 text-indigo-600',
+        emerald: 'bg-emerald-50 text-emerald-600',
+        amber: 'bg-amber-50 text-amber-600',
+        blue: 'bg-blue-50 text-blue-600',
+        cyan: 'bg-cyan-50 text-cyan-600',
+        purple: 'bg-purple-50 text-purple-600',
+        teal: 'bg-teal-50 text-teal-600',
+        rose: 'bg-rose-50 text-rose-600',
+        pink: 'bg-pink-50 text-pink-600',
+        orange: 'bg-orange-50 text-orange-600',
+        lime: 'bg-lime-50 text-lime-600',
+        sky: 'bg-sky-50 text-sky-600',
+        stone: 'bg-stone-50 text-stone-600',
+        violet: 'bg-violet-50 text-violet-600',
+        slate: 'bg-slate-100 text-slate-600'
+      };
+      const iconCls = bgMap[g.color] || bgMap.slate;
+
+      return `
+        <button type="button" onclick="filterInspectionTableByType('${g.key}', this)" class="insp-asset-visual-card relative flex flex-col justify-between p-3 rounded-xl border text-left transition-all cursor-pointer ${isSelected ? 'bg-indigo-50/50 border-indigo-500 ring-2 ring-indigo-500/20 shadow-xs' : 'bg-white border-slate-200/90 hover:border-indigo-400 hover:shadow-2xs'}" data-type-key="${g.key}">
+          <!-- Top Row: Icon container + Big Bold Quantity -->
+          <div class="flex items-center justify-between gap-1.5 mb-2 w-full">
+            <div class="w-8 h-8 rounded-lg ${iconCls} flex items-center justify-center font-bold text-base shrink-0 shadow-2xs">
+              <i class="ph-bold ${g.icon}"></i>
+            </div>
+            <div class="text-right">
+              <span class="text-xl font-black text-slate-900 num-tabular tracking-tight block">${g.total}</span>
+              <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider -mt-1 block">Unit</span>
+            </div>
+          </div>
+
+          <!-- Middle: Label & Subtitle -->
+          <div class="mb-2">
+            <div class="font-bold text-xs text-slate-900 leading-tight truncate" title="${escapeHtml(g.label)}">${escapeHtml(g.label)}</div>
+            <div class="text-[10px] text-slate-500 font-medium mt-0.5">Standar: ${g.std} Unit</div>
+          </div>
+
+          <!-- Bottom: Condition Tag & Filter Indicator -->
+          <div class="flex items-center justify-between pt-2 border-t border-slate-100 w-full text-[10px]">
+            ${condBadge}
+            <span class="${isSelected ? 'text-indigo-700 font-extrabold' : 'text-slate-400 font-medium group-hover:text-indigo-600'} text-[10px]">
+              ${isSelected ? 'Aktif ✓' : 'Filter &rarr;'}
+            </span>
+          </div>
+        </button>
+      `;
+    }).join('');
+  }
+
+  function filterInspectionTableByType(typeKey, cardEl) {
+    if (activeInspTypeFilter === typeKey) {
+      // Toggle off
+      activeInspTypeFilter = null;
+    } else {
+      activeInspTypeFilter = typeKey;
+    }
+
+    renderInspectionVisualCards();
+    renderInspectionChecklistTable();
+    renderInspectionFieldCards();
+
+    const resetBtn = document.getElementById('btn-reset-type-filter');
+    if (resetBtn) {
+      if (activeInspTypeFilter) resetBtn.classList.remove('hidden');
+      else resetBtn.classList.add('hidden');
+    }
+  }
+
+  function resetInspectionAssetFilter() {
+    activeInspTypeFilter = null;
+    renderInspectionVisualCards();
+    renderInspectionChecklistTable();
+    renderInspectionFieldCards();
+
+    const resetBtn = document.getElementById('btn-reset-type-filter');
+    if (resetBtn) resetBtn.classList.add('hidden');
+  }
+
+  // Persis mInspeksi() di Facility Management Hunian.html
+  function renderInspectionFieldCards() {
+    const container = document.getElementById('insp-field-mode-container');
+    if (!container) return;
+
+    const groups = getGroupedRoomAssets();
+    const groupList = Object.values(groups);
+
+    if (groupList.length === 0) {
+      container.innerHTML = '<div class="text-center py-4 text-xs text-slate-500">Tidak ada aset di ruangan ini.</div>';
+      return;
+    }
+
+    // Filter if active filter is applied
+    const displayedGroups = activeInspTypeFilter 
+      ? groupList.filter(g => g.key === activeInspTypeFilter)
+      : groupList;
+
+    container.innerHTML = `
+      <div class="text-xs font-bold text-slate-800 uppercase tracking-wider mb-2 flex items-center justify-between">
+        <span>Pemeriksaan Lapangan Per Jenis Barang</span>
+        <span class="text-[11px] font-normal text-slate-500">Standar checklist audit mess HRGA</span>
+      </div>
+      <div class="space-y-2.5">
+        ${displayedGroups.map(g => {
+          const firstIdx = g.indices[0];
+          const firstAst = appState.currentInspAssets[firstIdx];
+          const currentCond = firstAst ? (firstAst.kondisi_inspeksi || 'Baik') : 'Baik';
+          const isRs = currentCond.includes('Rusak');
+          const isHl = currentCond.includes('Hilang');
+
+          return `
+            <div class="bg-white rounded-xl border ${isRs ? 'border-amber-300 ring-1 ring-amber-200' : isHl ? 'border-rose-300 ring-1 ring-rose-200' : 'border-slate-200'} p-3.5 space-y-3 transition shadow-2xs">
+              <!-- Header Row -->
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm">
+                    <i class="ph-bold ${g.icon}"></i>
+                  </div>
+                  <div>
+                    <div class="font-bold text-xs text-slate-900">${escapeHtml(g.label)}</div>
+                    <div class="text-[10px] text-slate-500">Standar: ${g.std} Unit &bull; Fisik Terdata: <strong class="text-slate-800 font-bold">${g.total} Unit</strong></div>
+                  </div>
+                </div>
+                <!-- Stepper Jumlah Fisik -->
+                <div class="flex items-center gap-1.5 bg-slate-100 p-0.5 rounded-lg border border-slate-200">
+                  <button type="button" onclick="stepAssetTypeQuantity('${g.key}', -1)" class="w-6 h-6 rounded bg-white hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shadow-2xs cursor-pointer" title="Kurangi 1 unit">&minus;</button>
+                  <span class="w-6 text-center font-black text-xs text-slate-800 num-tabular">${g.total}</span>
+                  <button type="button" onclick="stepAssetTypeQuantity('${g.key}', 1)" class="w-6 h-6 rounded bg-white hover:bg-slate-200 text-slate-700 font-bold text-xs flex items-center justify-center shadow-2xs cursor-pointer" title="Tambah 1 unit">+</button>
+                </div>
+              </div>
+
+              <!-- 3 Tombol Kondisi Lapangan (Baik, Rusak, Hilang) persis Facility Management Hunian.html -->
+              <div class="grid grid-cols-3 gap-2">
+                <button type="button" onclick="setGroupCondition('${g.key}', 'Baik')" class="py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${currentCond === 'Baik' ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-emerald-50 hover:text-emerald-700 border border-slate-200'}">
+                  <i class="ph-bold ph-check text-xs"></i> Baik (${g.baik})
+                </button>
+                <button type="button" onclick="setGroupCondition('${g.key}', 'Rusak Ringan')" class="py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${isRs ? 'bg-amber-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-amber-50 hover:text-amber-700 border border-slate-200'}">
+                  <i class="ph-bold ph-warning text-xs"></i> Rusak (${g.rusak})
+                </button>
+                <button type="button" onclick="setGroupCondition('${g.key}', 'Hilang')" class="py-1.5 px-2 rounded-lg text-xs font-bold transition flex items-center justify-center gap-1 cursor-pointer ${isHl ? 'bg-rose-600 text-white shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-rose-50 hover:text-rose-700 border border-slate-200'}">
+                  <i class="ph-bold ph-x text-xs"></i> Hilang (${g.hilang})
+                </button>
+              </div>
+
+              <!-- Jika ada temuan Rusak atau Hilang: Tampilkan tombol Foto Kamera & Catatan Lapangan -->
+              ${(isRs || isHl) ? `
+                <div class="pt-2 border-t border-slate-100 flex items-center gap-2 flex-wrap">
+                  <!-- Tombol Kamera Native HP Langsung -->
+                  <label class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 cursor-pointer transition shadow-2xs">
+                    <i class="ph-bold ph-camera text-sm"></i> <span>+ Foto Bukti Kamera</span>
+                    <input type="file" accept="image/*" capture="environment" onchange="uploadAssetPhotoDirect(${firstIdx}, event)" class="hidden">
+                  </label>
+                  <input type="text" oninput="updateAssetNote(${firstIdx}, this.value)" value="${escapeHtml(firstAst.catatan_inspeksi || '')}" placeholder="Catatan temuan (mis: busa sobek / lampu mati)..." class="flex-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 focus:bg-white focus:border-indigo-500">
+                </div>
+              ` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function setGroupCondition(typeKey, cond) {
+    const list = appState.currentInspAssets || [];
+    list.forEach(ast => {
+      if (classifyAssetType(ast.nama_asset).key === typeKey) {
+        ast.kondisi_inspeksi = cond;
+      }
+    });
+
+    renderInspectionVisualCards();
+    renderInspectionChecklistTable();
+    renderInspectionFieldCards();
+    calcInspectionScore();
+  }
+
+  function stepAssetTypeQuantity(typeKey, delta) {
+    const list = appState.currentInspAssets || [];
+    if (delta > 0) {
+      // Add a unit of this type
+      const sample = list.find(a => classifyAssetType(a.nama_asset).key === typeKey);
+      const newAst = {
+        no_asset: 'NVA-' + typeKey.toUpperCase() + '-' + Date.now().toString().slice(-4),
+        nama_asset: sample ? sample.nama_asset : (typeKey + ' Tambahan'),
+        qty: '1 Unit',
+        jenis_aset: 'Non-Valuable',
+        kategori_asset: sample ? sample.kategori_asset : 'FASILITAS',
+        kondisi: 'Baik',
+        kondisi_inspeksi: 'Baik',
+        kode_sesuai: true,
+        lokasi_sesuai: true,
+        foto_asset: '',
+        catatan_inspeksi: 'Ditambahkan saat inspeksi lapangan',
+        is_new: true
+      };
+      appState.currentInspAssets.push(newAst);
+    } else if (delta < 0) {
+      // Remove last matching unit if more than 1
+      const matchingIndices = [];
+      list.forEach((a, idx) => {
+        if (classifyAssetType(a.nama_asset).key === typeKey) matchingIndices.push(idx);
+      });
+      if (matchingIndices.length > 0) {
+        const lastIdx = matchingIndices[matchingIndices.length - 1];
+        appState.currentInspAssets.splice(lastIdx, 1);
+      }
+    }
+
+    renderInspectionVisualCards();
+    renderInspectionChecklistTable();
+    renderInspectionFieldCards();
+    calcInspectionScore();
+  }
+
+  function setInspectionViewMode(mode, btnEl) {
+    inspCurrentViewMode = mode;
+
+    ['grid', 'field', 'table'].forEach(m => {
+      const b = document.getElementById('btn-viewmode-' + m);
+      if (b) {
+        if (m === mode) {
+          b.className = 'px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition flex items-center gap-1 cursor-pointer font-bold';
+        } else {
+          b.className = 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer font-bold';
+        }
+      }
+    });
+
+    const gridEl = document.getElementById('insp-visual-cards-grid');
+    const fieldEl = document.getElementById('insp-field-mode-container');
+    const tableEl = document.getElementById('insp-detail-table-container');
+
+    if (mode === 'grid') {
+      if (gridEl) gridEl.classList.remove('hidden');
+      if (fieldEl) fieldEl.classList.add('hidden');
+      if (tableEl) tableEl.classList.remove('hidden');
+    } else if (mode === 'field') {
+      if (gridEl) gridEl.classList.remove('hidden');
+      if (fieldEl) fieldEl.classList.remove('hidden');
+      if (tableEl) tableEl.classList.add('hidden');
+    } else if (mode === 'table') {
+      if (gridEl) gridEl.classList.add('hidden');
+      if (fieldEl) fieldEl.classList.add('hidden');
+      if (tableEl) tableEl.classList.remove('hidden');
+    }
+  }
+
+  function renderInspectionChecklistTable() {
     const tbody = document.getElementById('insp-asset-checklist');
     const badge = document.getElementById('insp-asset-count-badge');
-    if (badge) badge.innerText = appState.currentInspAssets.length + ' Item Aset';
+    const list = appState.currentInspAssets || [];
+
+    if (badge) badge.innerText = list.length + ' Item Aset';
     if (!tbody) return;
 
-    if (appState.currentInspAssets.length === 0) {
+    if (list.length === 0) {
       tbody.innerHTML = `
         <tr>
           <td colspan="8" class="text-center py-8 text-slate-500">
-            <i class="ph-bold ph-cube text-xl mb-1 block text-slate-500"></i>
+            <i class="ph-bold ph-cube text-xl mb-1 block text-slate-400"></i>
             Tidak ada aset tercatat di ruangan ini. Klik <strong>Tambah Item Aset Baru</strong> jika menemukan barang fisik saat audit.
           </td>
         </tr>
@@ -1612,8 +1945,28 @@
       return;
     }
 
-    tbody.innerHTML = appState.currentInspAssets.map((ast, idx) => `
-      <tr class="hover:bg-slate-50/70 :bg-slate-800/40 transition">
+    // Filter by type if active
+    const filtered = list.map((ast, idx) => ({ ast, idx })).filter(item => {
+      if (!activeInspTypeFilter) return true;
+      return classifyAssetType(item.ast.nama_asset).key === activeInspTypeFilter;
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="8" class="text-center py-8 text-slate-500">
+            <i class="ph-bold ph-funnel text-xl mb-1 block text-slate-400"></i>
+            Tidak ada aset jenis ${escapeHtml(activeInspTypeFilter)} di ruangan ini.
+            <button type="button" onclick="resetInspectionAssetFilter()" class="block mx-auto mt-2 text-indigo-600 font-bold hover:underline">Tampilkan Semua Aset</button>
+          </td>
+        </tr>
+      `;
+      calcInspectionScore();
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(({ ast, idx }) => `
+      <tr class="hover:bg-slate-50/70 transition">
         <td class="py-2.5 px-3">
           <span class="font-mono font-bold text-slate-800 text-xs block">${escapeHtml(ast.no_asset)}</span>
           ${ast.is_new ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 inline-block mt-0.5">BARU</span>' : ''}
@@ -1624,8 +1977,8 @@
         </td>
         <td class="py-2.5 px-3 whitespace-nowrap">
           <div class="flex flex-col gap-1 items-start">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${ast.jenis_aset === 'Non-Valuable' ? 'bg-amber-50 text-amber-700 border border-amber-200 ' : 'bg-blue-50 text-blue-700 border border-blue-200 '}">
-              ${ast.jenis_aset === 'Non-Valuable' ? '⚡ Non-Valuable' : '💎 Valuable Aset'}
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${ast.jenis_aset === 'Non-Valuable' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}">
+              ${ast.jenis_aset === 'Non-Valuable' ? '📦 Non-Valuable' : '💎 Valuable Aset'}
             </span>
             <span class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700">
               <i class="ph-bold ph-stack text-slate-500"></i> ${escapeHtml(ast.qty || '1 Unit')}
@@ -1647,7 +2000,7 @@
             <option value="Baik" ${ast.kondisi_inspeksi === 'Baik' ? 'selected' : ''}>✅ Baik</option>
             <option value="Rusak Ringan" ${ast.kondisi_inspeksi === 'Rusak Ringan' ? 'selected' : ''}>⚠️ Rusak Ringan</option>
             <option value="Rusak Berat" ${ast.kondisi_inspeksi === 'Rusak Berat' ? 'selected' : ''}>❌ Rusak Berat</option>
-            <option value="Hilang" ${ast.kondisi_inspeksi === 'Hilang' ? 'selected' : ''}>❓ Hilang</option>
+            <option value="Hilang" ${ast.kondisi_inspeksi === 'Hilang' ? 'selected' : ''}>🚫 Hilang</option>
           </select>
         </td>
         <!-- FOTO LANGSUNG DARI KAMERA HP (NATIVE CAPTURE) & GALERI FILE -->
@@ -1659,7 +2012,7 @@
                 <button type="button" onclick="removeAssetPhoto(${idx}, event)" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center hover:bg-rose-700 shadow-xs" title="Hapus foto">&times;</button>
               </div>
             ` : ''}
-            <!-- Tombol Buka Kamera HP Langsung (Native Camera Viewfinder) -->
+            <!-- Tombol Buka Kamera HP Langsung -->
             <label class="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs" title="Buka Kamera HP Langsung">
               <i class="ph-bold ph-camera text-xs"></i> <span>Kamera</span>
               <input type="file" accept="image/*" capture="environment" onchange="uploadAssetPhotoDirect(${idx}, event)" class="hidden">
@@ -1675,7 +2028,7 @@
           <input type="text" oninput="updateAssetNote(${idx}, this.value)" value="${escapeHtml(ast.catatan_inspeksi || '')}" placeholder="Catatan fisik..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800">
         </td>
         <td class="py-2.5 px-2 text-center">
-          <button type="button" onclick="deleteAssetItem(${idx})" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 :bg-rose-950/40 transition" title="Hapus dari checklist">
+          <button type="button" onclick="deleteAssetItem(${idx})" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition" title="Hapus dari checklist">
             <i class="ph-bold ph-trash text-sm"></i>
           </button>
         </td>
@@ -1683,6 +2036,28 @@
     `).join('');
 
     calcInspectionScore();
+  }
+
+  function loadRoomAssetsChecklist(assets) {
+    appState.currentInspAssets = (assets || []).map(a => ({
+      no_asset: a.no_asset || '',
+      nama_asset: a.nama_asset || '',
+      qty: a.qty || '1 Unit',
+      jenis_aset: a.jenis_aset || (String(a.no_asset || '').startsWith('NVA-') ? 'Non-Valuable' : 'Valuable'),
+      kategori_asset: a.kategori_asset || 'FASILITAS',
+      kondisi: a.kondisi || 'Baik',
+      kondisi_inspeksi: a.kondisi_inspeksi || a.kondisi || 'Baik',
+      kode_sesuai: a.kode_sesuai !== false,
+      lokasi_sesuai: a.lokasi_sesuai !== false,
+      foto_asset: a.foto_asset || '',
+      catatan_inspeksi: a.catatan_inspeksi || a.catatan || '',
+      is_new: !!a.is_new
+    }));
+
+    activeInspTypeFilter = null;
+    renderInspectionVisualCards();
+    renderInspectionChecklistTable();
+    renderInspectionFieldCards();
   }
 
   function toggleVerifyCode(idx, checked) {
@@ -3729,4 +4104,15 @@
     window.sortPenghuni = sortPenghuni;
     window.uploadAssetPhotoDirect = uploadAssetPhotoDirect;
     window.removeAssetPhoto = removeAssetPhoto;
+
+    window.classifyAssetType = classifyAssetType;
+    window.getGroupedRoomAssets = getGroupedRoomAssets;
+    window.renderInspectionVisualCards = renderInspectionVisualCards;
+    window.filterInspectionTableByType = filterInspectionTableByType;
+    window.resetInspectionAssetFilter = resetInspectionAssetFilter;
+    window.renderInspectionFieldCards = renderInspectionFieldCards;
+    window.setGroupCondition = setGroupCondition;
+    window.stepAssetTypeQuantity = stepAssetTypeQuantity;
+    window.setInspectionViewMode = setInspectionViewMode;
+
   }
