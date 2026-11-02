@@ -712,6 +712,21 @@
       } else if (viewId === 'view-penghuni') {
         initPenghuniFilters();
         renderPenghuniTable();
+      } else if (viewId === 'view-gedung') {
+        renderBuildingsTable();
+      } else if (viewId === 'view-assets') {
+        updateFacilitiesKpi();
+        renderAssetsTable();
+      } else if (viewId === 'view-asset-sebaran') {
+        renderAssetSebaran();
+      } else if (viewId === 'view-asset-depreciation') {
+        renderAssetDepreciation();
+      } else if (viewId === 'view-asset-location') {
+        initAssetLocationView();
+      } else if (viewId === 'view-asset-status') {
+        initAssetStatusView();
+      } else if (viewId === 'view-asset-disposal') {
+        initAssetDisposalView();
       }
     } catch (err) {
       console.error('Error switching view to ' + viewId + ':', err);
@@ -918,7 +933,536 @@
     syncAllFromBackend(true);
   }
 
+  
+  function toggleNavModule(groupId) {
+    const el = document.getElementById(groupId);
+    const caret = document.getElementById('caret-' + groupId);
+    if (!el) return;
+    const isHidden = el.classList.contains('hidden');
+    if (isHidden) {
+      el.classList.remove('hidden');
+      if (caret) caret.classList.add('rotate-180');
+    } else {
+      el.classList.add('hidden');
+      if (caret) caret.classList.remove('rotate-180');
+    }
+  }
+
+
+  let buildingCurrentPage = 1;
+  const BUILDINGS_PER_PAGE = 25;
+  let currentFilteredBuildings = [];
+
+  function setBuildingViewMode(mode, btnEl) {
+    const tableContainer = document.getElementById('bldg-table-view-container');
+    const cardsContainer = document.getElementById('bldg-cards-container');
+    const btnTable = document.getElementById('btn-bldg-mode-table');
+    const btnGrid = document.getElementById('btn-bldg-mode-grid');
+
+    if (mode === 'table') {
+      if (tableContainer) tableContainer.classList.remove('hidden');
+      if (cardsContainer) cardsContainer.classList.add('hidden');
+      if (btnTable) {
+        btnTable.className = 'px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-2xs transition flex items-center gap-1.5 cursor-pointer';
+      }
+      if (btnGrid) {
+        btnGrid.className = 'px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5 cursor-pointer';
+      }
+    } else {
+      if (tableContainer) tableContainer.classList.add('hidden');
+      if (cardsContainer) cardsContainer.classList.remove('hidden');
+      if (btnGrid) {
+        btnGrid.className = 'px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-2xs transition flex items-center gap-1.5 cursor-pointer';
+      }
+      if (btnTable) {
+        btnTable.className = 'px-3 py-1.5 rounded-md text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5 cursor-pointer';
+      }
+    }
+  }
+
+  function changeBuildingPage(delta) {
+    const totalCount = currentFilteredBuildings.length;
+    const totalPages = Math.max(1, Math.ceil(totalCount / BUILDINGS_PER_PAGE));
+    buildingCurrentPage = Math.max(1, Math.min(totalPages, buildingCurrentPage + delta));
+    renderBuildingsTable(currentFilteredBuildings);
+  }
+
+  function goToBuildingPage(page) {
+    const totalCount = currentFilteredBuildings.length;
+    const totalPages = Math.max(1, Math.ceil(totalCount / BUILDINGS_PER_PAGE));
+    buildingCurrentPage = Math.max(1, Math.min(totalPages, page));
+    renderBuildingsTable(currentFilteredBuildings);
+  }
+
+  function filterBuildings() {
+    const searchInput = document.getElementById('search-bldg');
+    const query = (searchInput ? searchInput.value : '').toLowerCase();
+    currentFilteredBuildings = (appState.buildings || []).filter(b => {
+      if (!isGenuineBuilding(b)) return false;
+      const matchSite = !appState.currentBldgFilterSite || b.lokasi_site === appState.currentBldgFilterSite;
+      const matchQuery = !query ||
+        String(b.kode_gedung || '').toLowerCase().includes(query) ||
+        String(b.nama_gedung || '').toLowerCase().includes(query) ||
+        String(b.penanggungjawab || '').toLowerCase().includes(query);
+      return matchSite && matchQuery;
+    });
+
+    buildingCurrentPage = 1;
+    renderBuildingsTable(currentFilteredBuildings);
+    renderBuildingsCards(currentFilteredBuildings);
+  }
+
+  function renderBuildingsTable(list) {
+    const data = (list && list.length > 0) ? list : (currentFilteredBuildings && currentFilteredBuildings.length > 0) ? currentFilteredBuildings : (appState.buildings || []);
+    currentFilteredBuildings = data;
+    const tbody = document.getElementById('table-bldg-body');
+    if (!tbody) return;
+
+    const totalCount = data.length;
+    const totalPages = Math.max(1, Math.ceil(totalCount / BUILDINGS_PER_PAGE));
+    if (buildingCurrentPage > totalPages) buildingCurrentPage = totalPages;
+    const startIndex = (buildingCurrentPage - 1) * BUILDINGS_PER_PAGE;
+    const paginated = data.slice(startIndex, startIndex + BUILDINGS_PER_PAGE);
+
+    // Update KPI badges
+    const kpiTotal = document.getElementById('kpi-bldg-total');
+    if (kpiTotal) kpiTotal.innerText = (appState.buildings || []).length.toLocaleString('id-ID');
+    const kpiRooms = document.getElementById('kpi-bldg-rooms');
+    if (kpiRooms) kpiRooms.innerText = (appState.rooms || []).length.toLocaleString('id-ID');
+    const kpiAssets = document.getElementById('kpi-bldg-assets');
+    if (kpiAssets) kpiAssets.innerText = (appState.assets || []).length.toLocaleString('id-ID');
+
+    // Update paging info & buttons
+    const infoEl = document.getElementById('bldg-paging-info');
+    if (infoEl) {
+      infoEl.innerText = `Menampilkan ${totalCount > 0 ? startIndex + 1 : 0} - ${Math.min(startIndex + BUILDINGS_PER_PAGE, totalCount)} dari ${totalCount.toLocaleString('id-ID')} gedung referensi fisik`;
+    }
+
+    const indEl = document.getElementById('bldg-page-indicator');
+    if (indEl) indEl.innerText = `Hal ${buildingCurrentPage} / ${totalPages}`;
+
+    const prevBtn = document.getElementById('btn-bldg-prev');
+    const nextBtn = document.getElementById('btn-bldg-next');
+    if (prevBtn) prevBtn.disabled = (buildingCurrentPage <= 1);
+    if (nextBtn) nextBtn.disabled = (buildingCurrentPage >= totalPages);
+
+    if (paginated.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Tidak ada gedung yang cocok dengan pencarian.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = paginated.map(b => {
+      const siteDotColor = b.lokasi_site.includes('Central') ? 'bg-sky-500' :
+                           b.lokasi_site.includes('Factory') ? 'bg-amber-500' : 'bg-emerald-500';
+      return `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="font-bold text-slate-900 font-mono text-[11px] py-2.5 px-3">${escapeHtml(b.kode_gedung)}</td>
+          <td class="py-2.5 px-3">
+            <span class="font-bold text-slate-900 block text-xs">${escapeHtml(b.nama_gedung)}</span>
+            <span class="text-[10px] text-slate-400 block font-medium">${escapeHtml(b.sub_kategori || '-')}</span>
+          </td>
+          <td class="text-xs text-slate-600 font-medium py-2.5 px-3">${escapeHtml(b.kategori || 'GEDUNG')}</td>
+          <td class="py-2.5 px-3">
+            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">
+              <span class="w-1.5 h-1.5 rounded-full ${siteDotColor}"></span>
+              ${escapeHtml(b.lokasi_site)}
+            </span>
+          </td>
+          <td class="py-2.5 px-3">
+            <span class="text-xs font-semibold text-slate-800 block">${escapeHtml(b.penanggungjawab || 'Tim GS')}</span>
+            <span class="text-[10px] text-slate-400 block">PIC Operasional</span>
+          </td>
+          <td class="text-xs font-semibold text-slate-700 py-2.5 px-3">${b.total_ruangan || 0} Ruangan</td>
+          <td class="py-2.5 px-3">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
+              <i class="ph-bold ph-cube text-xs"></i> ${Number(b.total_asset || 0).toLocaleString('id-ID')} unit
+            </span>
+          </td>
+          <td class="py-2.5 px-3">
+            <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800">AKTIF</span>
+          </td>
+          <td class="py-2.5 px-3 text-center">
+            <button type="button" onclick="startInspectionForBldg('${escapeHtml(b.kode_gedung)}')" class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200 transition cursor-pointer">
+              <i class="ph-bold ph-clipboard-text"></i> Audit
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+
+  function goToFacilityPage(page) {
+    const filtered = getFilteredFacilities();
+    const totalCount = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(totalCount / FACILITIES_PER_PAGE));
+    facilityCurrentPage = Math.max(1, Math.min(totalPages, page));
+    renderAssetsTable();
+  }
+
+  function getFilteredFacilities() {
+    return (appState.assets || []).filter(a => {
+      const matchBldg = (facilityBldgFilter === 'ALL' || a.kode_gedung === facilityBldgFilter);
+      const matchKondisi = (facilityKondisiFilter === 'ALL' || (a.kondisi || '').toLowerCase() === facilityKondisiFilter.toLowerCase());
+      const q = facilitySearchQuery.toLowerCase();
+      const matchSearch = !q ||
+        String(a.no_asset || '').toLowerCase().includes(q) ||
+        String(a.nama_asset || '').toLowerCase().includes(q) ||
+        String(a.kode_gedung || '').toLowerCase().includes(q) ||
+        String(a.nama_ruangan || '').toLowerCase().includes(q);
+      return matchBldg && matchKondisi && matchSearch;
+    });
+  }
+
+  function updateFacilitiesKpi() {
+    const list = appState.assets || [];
+    let baik = 0, rusakRingan = 0, rusakBerat = 0;
+    list.forEach(a => {
+      const k = String(a.kondisi || 'Baik').toLowerCase();
+      if (k.includes('berat') || k.includes('hilang')) rusakBerat++;
+      else if (k.includes('ringan')) rusakRingan++;
+      else baik++;
+    });
+
+    const setEl = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.innerText = val.toLocaleString('id-ID');
+    };
+    setEl('fac-kpi-total', list.length);
+    setEl('fac-kpi-baik', baik);
+    setEl('fac-kpi-rusak-ringan', rusakRingan);
+    setEl('fac-kpi-rusak-berat', rusakBerat);
+  }
+
+
   // ==========================================
+  // ASSET MANAGEMENT: SEBARAN KANTOR & SITE
+  // ==========================================
+  function renderAssetSebaran() {
+    const container = document.getElementById('asset-sebaran-grid');
+    if (!container) return;
+
+    const sites = [
+      { name: 'Central Office (CO)', bldg: 355, rooms: 1240, assets: 11200, pic: 'Miftahul Khoiry / Rizal Dwi', color: 'sky' },
+      { name: 'Factory / Pabrik (FR)', bldg: 32, rooms: 180, assets: 2850, pic: 'Ilyasa, Elvan, Nuh & Nando', color: 'amber' },
+      { name: 'Estate 1 (E1)', bldg: 1, rooms: 15, assets: 320, pic: 'Biner & Basran', color: 'emerald' },
+      { name: 'Estate 2 (E2)', bldg: 12, rooms: 54, assets: 756, pic: 'Rizal Dwi & Rocky', color: 'indigo' },
+      { name: 'Estate 3 (E3)', bldg: 16, rooms: 70, assets: 760, pic: 'Budiono MU & Dwiki', color: 'teal' }
+    ];
+
+    container.innerHTML = sites.map(s => `
+      <div class="clean-card p-4 space-y-3">
+        <div class="flex items-start justify-between">
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-lg bg-${s.color}-50 text-${s.color}-600 flex items-center justify-center font-bold text-base">
+              <i class="ph-bold ph-map-pin"></i>
+            </div>
+            <div>
+              <h4 class="font-bold text-xs text-slate-900">${s.name}</h4>
+              <p class="text-[10px] text-slate-400">Wilayah Operasional PNS</p>
+            </div>
+          </div>
+          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-${s.color}-50 text-${s.color}-700 border border-${s.color}-100">AKTIF</span>
+        </div>
+        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center font-mono">
+          <div class="bg-slate-50 p-2 rounded-lg">
+            <span class="text-xs font-black text-slate-900 block">${s.bldg}</span>
+            <span class="text-[9px] text-slate-400 uppercase font-sans">Gedung</span>
+          </div>
+          <div class="bg-slate-50 p-2 rounded-lg">
+            <span class="text-xs font-black text-slate-900 block">${s.rooms}</span>
+            <span class="text-[9px] text-slate-400 uppercase font-sans">Ruangan</span>
+          </div>
+          <div class="bg-slate-50 p-2 rounded-lg">
+            <span class="text-xs font-black text-emerald-600 block">${s.assets.toLocaleString('id-ID')}</span>
+            <span class="text-[9px] text-slate-400 uppercase font-sans">Aset</span>
+          </div>
+        </div>
+        <div class="text-[11px] text-slate-500 pt-1 flex items-center gap-1.5">
+          <i class="ph-bold ph-user text-slate-400"></i> PIC: <span class="font-semibold text-slate-700">${s.pic}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  // ==========================================
+  // ASSET MANAGEMENT: DEPRESIASI & NILAI BUKU
+  // ==========================================
+  function renderAssetDepreciation() {
+    const tbody = document.getElementById('table-depresiasi-body');
+    if (!tbody) return;
+
+    const data = [
+      { gol: 'Golongan 1 (Peralatan Kantor & IT)', unit: 4820, masa: '4 Tahun (25% / thn)', hpp: 14500000000, akm: 11200000000, nbv: 3300000000, status: 'Aktif' },
+      { gol: 'Golongan 2 (Mebel & Fasilitas Hunian)', unit: 15886, masa: '8 Tahun (12.5% / thn)', hpp: 28400000000, akm: 14800000000, nbv: 13600000000, status: 'Aktif' },
+      { gol: 'Golongan 3 (Mesin & Alat Operasional)', unit: 1240, masa: '16 Tahun (6.25% / thn)', hpp: 112500000000, akm: 52100000000, nbv: 60400000000, status: 'Aktif' },
+      { gol: 'Bangunan Fisik & Properti', unit: 416, masa: '20 Tahun (5% / thn)', hpp: 327100000000, akm: 136700000000, nbv: 190400000000, status: 'Aktif' }
+    ];
+
+    tbody.innerHTML = data.map(d => `
+      <tr class="hover:bg-slate-50 transition-colors">
+        <td class="py-2.5 px-3 font-semibold text-slate-800 font-sans">${d.gol}</td>
+        <td class="py-2.5 px-3 text-slate-600">${d.unit.toLocaleString('id-ID')} Unit</td>
+        <td class="py-2.5 px-3 text-slate-500 font-sans text-[11px]">${d.masa}</td>
+        <td class="py-2.5 px-3 text-right font-bold text-slate-900">Rp ${d.hpp.toLocaleString('id-ID')}</td>
+        <td class="py-2.5 px-3 text-right font-bold text-amber-600">Rp ${d.akm.toLocaleString('id-ID')}</td>
+        <td class="py-2.5 px-3 text-right font-black text-blue-600">Rp ${d.nbv.toLocaleString('id-ID')}</td>
+        <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 font-sans">Aktif</span></td>
+      </tr>
+    `).join('');
+  }
+
+  function exportDepreciationCsv() {
+    const csv = 'Golongan;Unit;Masa Manfaat;HPP;Akumulasi Depresiasi;NBV;Status\n' +
+      'Golongan 1 (Peralatan Kantor & IT);4820;4 Tahun;14500000000;11200000000;3300000000;Aktif\n' +
+      'Golongan 2 (Mebel & Fasilitas Hunian);15886;8 Tahun;28400000000;14800000000;13600000000;Aktif\n' +
+      'Golongan 3 (Mesin & Alat Operasional);1240;16 Tahun;112500000000;52100000000;60400000000;Aktif\n' +
+      'Bangunan Fisik & Properti;416;20 Tahun;327100000000;136700000000;190400000000;Aktif\n';
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Laporan_Depresiasi_PNS_Asset.csv';
+    link.click();
+  }
+
+  // ==========================================
+  // ASSET MANAGEMENT: PERUBAHAN LOKASI FISIK
+  // ==========================================
+  let assetRelocHistory = [
+    { tgl: '2026-10-28', no_asset: 'AST-2024-0012', nama: 'Kasur Busa High Density', dari: 'PNS-FAC-LH 01 / Kamar 1', ke: 'PNS-FAC-LH 01 / Kamar 2', pic: 'Ilyasa' },
+    { tgl: '2026-10-25', no_asset: 'AST-2023-0105', nama: 'AC Split 1.5 PK Daikin', dari: 'PNS-GH-01 / Kamar Tamu 1', ke: 'PNS-FAC-OFFICE-01 / HRGA', pic: 'Rocky' }
+  ];
+
+  function initAssetLocationView() {
+    const select = document.getElementById('loc-select-asset');
+    const targetBldg = document.getElementById('loc-target-bldg');
+    if (select && select.options.length <= 1) {
+      (appState.assets || []).slice(0, 100).forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.no_asset;
+        opt.textContent = `${a.no_asset} - ${a.nama_asset}`;
+        select.appendChild(opt);
+      });
+    }
+    if (targetBldg && targetBldg.options.length <= 1) {
+      (appState.buildings || []).slice(0, 80).forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = b.kode_gedung;
+        opt.textContent = `${b.kode_gedung} - ${b.nama_gedung}`;
+        targetBldg.appendChild(opt);
+      });
+    }
+    renderLocHistoryTable();
+  }
+
+  function onLocAssetSelected() {
+    const noAsset = document.getElementById('loc-select-asset')?.value;
+    const item = (appState.assets || []).find(a => a.no_asset === noAsset);
+    const asalBldg = document.getElementById('loc-asal-bldg');
+    const asalRoom = document.getElementById('loc-asal-room');
+    const asalPic = document.getElementById('loc-asal-pic');
+    if (item) {
+      if (asalBldg) asalBldg.innerText = item.kode_gedung || '-';
+      if (asalRoom) asalRoom.innerText = item.nama_ruangan || '-';
+      if (asalPic) asalPic.innerText = item.penanggungjawab || 'Tim GS';
+    }
+  }
+
+  function onLocTargetBldgChange() {
+    const bldgCode = document.getElementById('loc-target-bldg')?.value;
+    const roomSelect = document.getElementById('loc-target-room');
+    if (!roomSelect) return;
+    roomSelect.innerHTML = '<option value="">-- Pilih Ruangan Tujuan --</option>';
+    const filteredRooms = (appState.rooms || []).filter(r => r.kode_gedung === bldgCode);
+    filteredRooms.forEach(r => {
+      const opt = document.createElement('option');
+      opt.value = r.nama_ruangan;
+      opt.textContent = r.nama_ruangan;
+      roomSelect.appendChild(opt);
+    });
+  }
+
+  function submitAssetLocation(evt) {
+    if (evt) evt.preventDefault();
+    const noAsset = document.getElementById('loc-select-asset')?.value;
+    const targetBldg = document.getElementById('loc-target-bldg')?.value;
+    const targetRoom = document.getElementById('loc-target-room')?.value;
+    const targetPic = document.getElementById('loc-target-pic')?.value;
+    const item = (appState.assets || []).find(a => a.no_asset === noAsset);
+
+    if (item) {
+      assetRelocHistory.unshift({
+        tgl: new Date().toISOString().slice(0, 10),
+        no_asset: noAsset,
+        nama: item.nama_asset,
+        dari: `${item.kode_gedung} / ${item.nama_ruangan}`,
+        ke: `${targetBldg} / ${targetRoom}`,
+        pic: targetPic
+      });
+      item.kode_gedung = targetBldg;
+      item.nama_ruangan = targetRoom;
+      renderLocHistoryTable();
+      renderAssetsTable();
+      alert('Lokasi fisik aset ' + noAsset + ' berhasil diperbarui ke ' + targetBldg + '!');
+      document.getElementById('form-asset-relocation')?.reset();
+    }
+  }
+
+  function renderLocHistoryTable() {
+    const tbody = document.getElementById('table-loc-history-body');
+    if (!tbody) return;
+    tbody.innerHTML = assetRelocHistory.map(h => `
+      <tr class="hover:bg-slate-50">
+        <td class="py-2 px-3 font-mono text-[11px] text-slate-500">${h.tgl}</td>
+        <td class="py-2 px-3 font-mono text-[11px] font-bold text-blue-600">${escapeHtml(h.no_asset)}</td>
+        <td class="py-2 px-3 font-semibold text-slate-800">${escapeHtml(h.nama)}</td>
+        <td class="py-2 px-3 text-slate-500">${escapeHtml(h.dari)}</td>
+        <td class="py-2 px-3 font-bold text-slate-800">${escapeHtml(h.ke)}</td>
+        <td class="py-2 px-3 text-slate-700">${escapeHtml(h.pic)}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ==========================================
+  // ASSET MANAGEMENT: STATUS & KONDISI
+  // ==========================================
+  let assetStatusHistory = [
+    { tgl: '2026-10-27', no_asset: 'AST-2024-0014', kondisi: 'Rusak Ringan', status: 'Dalam Perbaikan', pic: 'Miftahul Khoiry', notes: 'Engsel pintu kiri lemari longgar' }
+  ];
+
+  function initAssetStatusView() {
+    const select = document.getElementById('status-select-asset');
+    if (select && select.options.length <= 1) {
+      (appState.assets || []).slice(0, 100).forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.no_asset;
+        opt.textContent = `${a.no_asset} - ${a.nama_asset}`;
+        select.appendChild(opt);
+      });
+    }
+    renderStatusHistoryTable();
+  }
+
+  function onStatusAssetSelected() {
+    const noAsset = document.getElementById('status-select-asset')?.value;
+    const item = (appState.assets || []).find(a => a.no_asset === noAsset);
+    const currName = document.getElementById('status-curr-name');
+    const currCond = document.getElementById('status-curr-cond');
+    if (item) {
+      if (currName) currName.innerText = item.nama_asset || '-';
+      if (currCond) currCond.innerText = item.kondisi || 'Baik';
+    }
+  }
+
+  function submitAssetStatus(evt) {
+    if (evt) evt.preventDefault();
+    const noAsset = document.getElementById('status-select-asset')?.value;
+    const cond = document.getElementById('status-new-cond')?.value;
+    const ops = document.getElementById('status-new-ops')?.value;
+    const notes = document.getElementById('status-notes')?.value;
+    const item = (appState.assets || []).find(a => a.no_asset === noAsset);
+
+    if (item) {
+      item.kondisi = cond;
+      assetStatusHistory.unshift({
+        tgl: new Date().toISOString().slice(0, 10),
+        no_asset: noAsset,
+        kondisi: cond,
+        status: ops,
+        pic: 'Miftahul Khoiry (Admin)',
+        notes: notes
+      });
+      renderStatusHistoryTable();
+      renderAssetsTable();
+      alert('Status & kondisi aset ' + noAsset + ' berhasil diperbarui!');
+      document.getElementById('form-asset-status')?.reset();
+    }
+  }
+
+  function renderStatusHistoryTable() {
+    const tbody = document.getElementById('table-status-history-body');
+    if (!tbody) return;
+    tbody.innerHTML = assetStatusHistory.map(h => `
+      <tr class="hover:bg-slate-50">
+        <td class="py-2 px-3 font-mono text-[11px] text-slate-500">${h.tgl}</td>
+        <td class="py-2 px-3 font-mono text-[11px] font-bold text-blue-600">${escapeHtml(h.no_asset)}</td>
+        <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">${escapeHtml(h.kondisi)}</span></td>
+        <td class="py-2 px-3 text-slate-700 font-semibold">${escapeHtml(h.status)}</td>
+        <td class="py-2 px-3 text-slate-600">${escapeHtml(h.pic)}</td>
+        <td class="py-2 px-3 text-slate-500">${escapeHtml(h.notes)}</td>
+      </tr>
+    `).join('');
+  }
+
+  // ==========================================
+  // ASSET MANAGEMENT: DISPOSAL
+  // ==========================================
+  let assetDisposalHistory = [
+    { no_ba: 'BA/PNS/DISP/2026/001', no_asset: 'AST-2022-0089', nama: 'Kasur Busa Rusak Berat', method: 'Afkir / Scrap', nbv: 0, status: 'Disetujui' }
+  ];
+
+  function initAssetDisposalView() {
+    const select = document.getElementById('disp-select-asset');
+    if (select && select.options.length <= 1) {
+      (appState.assets || []).slice(0, 100).forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.no_asset;
+        opt.textContent = `${a.no_asset} - ${a.nama_asset}`;
+        select.appendChild(opt);
+      });
+    }
+    renderDispHistoryTable();
+  }
+
+  function onDispAssetSelected() {
+    const noAsset = document.getElementById('disp-select-asset')?.value;
+    const item = (appState.assets || []).find(a => a.no_asset === noAsset);
+    const currName = document.getElementById('disp-curr-name');
+    const currNbv = document.getElementById('disp-curr-nbv');
+    if (item) {
+      if (currName) currName.innerText = item.nama_asset || '-';
+      if (currNbv) currNbv.innerText = 'Rp ' + Number(item.total_harga_perolehan || 0).toLocaleString('id-ID');
+    }
+  }
+
+  function submitAssetDisposal(evt) {
+    if (evt) evt.preventDefault();
+    const noAsset = document.getElementById('disp-select-asset')?.value;
+    const method = document.getElementById('disp-method')?.value;
+    const noBa = document.getElementById('disp-no-ba')?.value;
+    const item = (appState.assets || []).find(a => a.no_asset === noAsset);
+
+    if (item) {
+      assetDisposalHistory.unshift({
+        no_ba: noBa,
+        no_asset: noAsset,
+        nama: item.nama_asset,
+        method: method,
+        nbv: item.total_harga_perolehan || 0,
+        status: 'Menunggu Review GM'
+      });
+      renderDispHistoryTable();
+      alert('Pengajuan Berita Acara Disposal ' + noBa + ' berhasil dicatat!');
+      document.getElementById('form-asset-disposal')?.reset();
+    }
+  }
+
+  function renderDispHistoryTable() {
+    const tbody = document.getElementById('table-disp-history-body');
+    if (!tbody) return;
+    tbody.innerHTML = assetDisposalHistory.map(h => `
+      <tr class="hover:bg-slate-50">
+        <td class="py-2 px-3 font-mono text-[11px] font-bold text-rose-600">${escapeHtml(h.no_ba)}</td>
+        <td class="py-2 px-3 font-mono text-[11px] font-bold text-slate-800">${escapeHtml(h.no_asset)}</td>
+        <td class="py-2 px-3 font-semibold text-slate-800">${escapeHtml(h.nama)}</td>
+        <td class="py-2 px-3 text-slate-600">${escapeHtml(h.method)}</td>
+        <td class="py-2 px-3 text-right font-mono text-slate-800">Rp ${Number(h.nbv).toLocaleString('id-ID')}</td>
+        <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">${escapeHtml(h.status)}</span></td>
+      </tr>
+    `).join('');
+  }
+
+// ==========================================
   // MASTER GEDUNG
   // ==========================================
   function setBldgSiteFilter(site, btnEl) {
@@ -4097,14 +4641,69 @@
     
   // Global window exposure for inline onclick handlers
   if (typeof window !== "undefined") {
-    window.setInspBldgCategory = setInspBldgCategory;
+    // Navigation & UI
     window.navTo = navTo;
-    window.editPenghuni = editPenghuni;
-    window.setPenghuniPage = setPenghuniPage;
-    window.sortPenghuni = sortPenghuni;
-    window.uploadAssetPhotoDirect = uploadAssetPhotoDirect;
-    window.removeAssetPhoto = removeAssetPhoto;
+    window.toggleSidebar = typeof toggleSidebar !== 'undefined' ? toggleSidebar : function(show) {
+      const sb = document.getElementById('app-sidebar');
+      if (sb) {
+        if (show === false) sb.classList.add('-translate-x-full');
+        else sb.classList.toggle('-translate-x-full');
+      }
+    };
+    window.toggleNavModule = toggleNavModule;
+    window.refreshDashboard = refreshDashboard;
+    window.syncAllFromBackend = syncAllFromBackend;
 
+    // Building Master (view-gedung)
+    window.setBuildingViewMode = setBuildingViewMode;
+    window.setBldgSiteFilter = setBldgSiteFilter;
+    window.filterBuildings = filterBuildings;
+    window.renderBuildingsTable = renderBuildingsTable;
+    window.renderBuildingsCards = renderBuildingsCards;
+    window.changeBuildingPage = changeBuildingPage;
+    window.goToBuildingPage = goToBuildingPage;
+    window.onSearchBldg = onSearchBldg;
+    window.startInspectionForBldg = startInspectionForBldg;
+
+    // Facilities (view-assets)
+    window.renderAssetsTable = renderAssetsTable;
+    window.changeFacilityPage = changeFacilityPage;
+    window.goToFacilityPage = goToFacilityPage;
+    window.onFacilityFilterChange = onFacilityFilterChange;
+    window.onFacilitySearch = onFacilitySearch;
+    window.onSearchAsset = onSearchAsset;
+    window.updateFacilitiesKpi = updateFacilitiesKpi;
+
+    // Asset Management Submodules
+    window.renderAssetSebaran = renderAssetSebaran;
+    window.renderAssetDepreciation = renderAssetDepreciation;
+    window.exportDepreciationCsv = exportDepreciationCsv;
+    window.initAssetLocationView = initAssetLocationView;
+    window.onLocAssetSelected = onLocAssetSelected;
+    window.onLocTargetBldgChange = onLocTargetBldgChange;
+    window.submitAssetLocation = submitAssetLocation;
+    window.initAssetStatusView = initAssetStatusView;
+    window.onStatusAssetSelected = onStatusAssetSelected;
+    window.submitAssetStatus = submitAssetStatus;
+    window.initAssetDisposalView = initAssetDisposalView;
+    window.onDispAssetSelected = onDispAssetSelected;
+    window.submitAssetDisposal = submitAssetDisposal;
+
+    // Master Catalog & Portfolio (34K+)
+    window.renderAllAssetsTable = renderAllAssetsTable;
+    window.onAssetFilterChange = onAssetFilterChange;
+    window.onAssetSearch = onAssetSearch;
+    window.changeAssetPage = changeAssetPage;
+    window.exportAssetCatalogCsv = exportAssetCatalogCsv;
+
+    // Inspection Module
+    window.setInspBldgCategory = setInspBldgCategory;
+    window.onInspGedungChange = onInspGedungChange;
+    window.onInspRuanganChange = onInspRuanganChange;
+    window.markAllAssetsGood = markAllAssetsGood;
+    window.promptAddAssetToRoom = promptAddAssetToRoom;
+    window.resetInspectionForm = resetInspectionForm;
+    window.submitInspection = submitInspection;
     window.classifyAssetType = classifyAssetType;
     window.getGroupedRoomAssets = getGroupedRoomAssets;
     window.renderInspectionVisualCards = renderInspectionVisualCards;
@@ -4115,4 +4714,43 @@
     window.stepAssetTypeQuantity = stepAssetTypeQuantity;
     window.setInspectionViewMode = setInspectionViewMode;
 
+    // Camera & Photo Proof
+    window.closeCameraModal = closeCameraModal;
+    window.flipCamera = flipCamera;
+    window.captureLivePhoto = captureLivePhoto;
+    window.retakeLivePhoto = retakeLivePhoto;
+    window.saveLivePhoto = saveLivePhoto;
+    window.uploadAssetPhotoFromInput = uploadAssetPhotoFromInput;
+    window.uploadAssetPhotoDirect = uploadAssetPhotoDirect;
+    window.removeAssetPhoto = removeAssetPhoto;
+    window.closeDetailModal = closeDetailModal;
+
+    // Rooms & Penghuni
+    window.renderRoomsTable = renderRoomsTable;
+    window.onSearchRoom = onSearchRoom;
+    window.editPenghuni = editPenghuni;
+    window.setPenghuniPage = setPenghuniPage;
+    window.sortPenghuni = sortPenghuni;
+    window.promptAddPenghuni = promptAddPenghuni;
+    window.onSearchPenghuni = onSearchPenghuni;
+    window.onPenghuniBldgFilterChange = onPenghuniBldgFilterChange;
+    window.renderPenghuniTable = renderPenghuniTable;
+
+    // Stock Opname & Validasi
+    window.openModalTambahOpname = openModalTambahOpname;
+    window.closeModalTambahOpname = closeModalTambahOpname;
+    window.submitTambahOpname = submitTambahOpname;
+    window.calcOpnSelisih = calcOpnSelisih;
+    window.renderValidasiTable = renderValidasiTable;
+    window.exportValidasiCsv = exportValidasiCsv;
+    window.onSearchValidasi = onSearchValidasi;
+
+    // Work Orders & Mutations
+    window.renderWorkOrdersKanban = renderWorkOrdersKanban;
+    window.promptCreateWo = promptCreateWo;
+    window.switchWoViewMode = switchWoViewMode;
+    window.loadRegRooms = loadRegRooms;
+    window.submitRegisterAsset = submitRegisterAsset;
+    window.loadMutRooms = loadMutRooms;
+    window.submitMutasiAsset = submitMutasiAsset;
   }
