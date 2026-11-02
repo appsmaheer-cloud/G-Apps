@@ -103,6 +103,7 @@
 
     <!-- SIDEBAR NAVIGATION (3 PILAR OPERASIONAL) -->
         <!-- SIDEBAR NAVIGATION (HRGA ASSET, ALL ASSET & MAINTENANCE) -->
+        <!-- SIDEBAR NAVIGATION: ASSET MANAGEMENT & FACILITY MANAGEMENT (HRGA) -->
     <aside id="app-sidebar" class="w-64 bg-white dark:bg-[#0F172A] border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 transition-transform duration-200 overflow-y-auto scrollbar-thin absolute lg:static z-30 inset-y-0 left-0 -translate-x-full lg:translate-x-0">
       <div class="p-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center gap-3 bg-slate-50/70 dark:bg-slate-900/50">
         <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 flex items-center justify-center shadow-xs shrink-0">
@@ -111,67 +112,77 @@
         <div class="overflow-hidden">
           <div class="font-extrabold text-xs text-slate-900 dark:text-white truncate">PT Pratama Nusantara Sakti</div>
           <div class="text-[10px] text-slate-500 dark:text-slate-400 flex items-center gap-1">
-            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Database Google Sheets
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Enterprise System
           </div>
         </div>
       </div>
 
       <nav class="p-3 space-y-5 flex-1 text-xs font-medium" aria-label="Menu Utama">
-        <!-- MODUL 1: ASSET DEPARTMENT HRGA (FOKUS UTAMA) -->
+        <!-- MODUL 1: ASSET MANAGEMENT (VERSI PHP) -->
         <div>
-          <div class="px-2 mb-2 text-[10px] font-bold tracking-wider text-amber-600 dark:text-amber-400 uppercase flex items-center justify-between">
-            <span class="flex items-center gap-1.5"><i class="ph-bold ph-buildings text-amber-500"></i> Asset Dept. HRGA</span>
-            <span class="text-[9px] px-1.5 py-0.2 rounded font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">HRGA</span>
+          <div class="px-2 mb-2 text-[10px] font-bold tracking-wider text-sky-600 dark:text-sky-400 uppercase flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><i class="ph-bold ph-database text-sky-500"></i> Asset Management</span>
+            <span class="text-[9px] px-1.5 py-0.2 rounded font-extrabold bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300">ENTERPRISE</span>
           </div>
           <div class="space-y-1">
-            <button onclick="navTo('view-inspeksi', this)" class="nav-btn active w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition font-semibold">
-              <i class="ph-bold ph-clipboard-text text-base text-emerald-500" aria-hidden="true"></i> Form Sensus &amp; Audit Fisik
+            <button onclick="navTo('view-dashboard', this)" class="nav-btn active w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition font-semibold">
+              <i class="ph-bold ph-gauge text-base text-sky-500"></i> Dashboard Overview
             </button>
-            <button onclick="navTo('view-gedung', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <span class="flex items-center gap-2.5"><i class="ph-bold ph-building-office text-base" aria-hidden="true"></i> Master Gedung HRGA</span>
-              <span id="nav-badge-bldg" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">422</span>
+            <button onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <i class="ph-bold ph-database text-base text-sky-500"></i> Master Katalog Aset (34K+)
             </button>
-            <button onclick="navTo('view-ruangan', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <span class="flex items-center gap-2.5"><i class="ph-bold ph-door text-base" aria-hidden="true"></i> Inventaris Ruangan &amp; Mess</span>
-              <span id="nav-badge-room" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">1.559</span>
+            <button onclick="navTo('view-portfolio', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <i class="ph-bold ph-map-pin-line text-base text-rose-500"></i> Sebaran Kantor &amp; Site
             </button>
-            <button onclick="navTo('view-assets', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <span class="flex items-center gap-2.5"><i class="ph-bold ph-armchair text-base text-emerald-600" aria-hidden="true"></i> Aset Fasilitas Ruangan</span>
-              <span id="nav-badge-asset" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500">15.778</span>
+            <button onclick="navTo('view-validasi', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <i class="ph-fill ph-seal-check text-base text-emerald-500"></i> Validasi &amp; Opname Fisik
             </button>
-            <button onclick="navTo('view-penghuni', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <i class="ph-bold ph-users text-base" aria-hidden="true"></i> Penghuni Mess &amp; Longhouse
+            <button onclick="navTo('view-reg-asset', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <i class="ph-bold ph-plus-circle text-base text-indigo-500"></i> Register Aset Baru
             </button>
-            <button onclick="navTo('view-riwayat-inspeksi', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <i class="ph-bold ph-clock-counter-clockwise text-base" aria-hidden="true"></i> Riwayat Laporan Audit
+            <button onclick="navTo('view-mutasi', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <i class="ph-bold ph-arrows-left-right text-base text-amber-500"></i> Mutasi Antar Lokasi
             </button>
           </div>
         </div>
 
-        <!-- MODUL 2: ALL ASSET (ENTERPRISE MASTER KATALOG) -->
+        <!-- MODUL 2: FACILITY MANAGEMENT (HRGA) -->
         <div>
-          <div class="px-2 mb-2 text-[10px] font-bold tracking-wider text-sky-600 dark:text-sky-400 uppercase flex items-center justify-between">
-            <span class="flex items-center gap-1.5"><i class="ph-bold ph-database text-sky-500"></i> All Asset (Enterprise)</span>
-            <span class="text-[9px] px-1.5 py-0.2 rounded font-extrabold bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300">34K+</span>
+          <div class="px-2 mb-2 text-[10px] font-bold tracking-wider text-amber-600 dark:text-amber-400 uppercase flex items-center justify-between">
+            <span class="flex items-center gap-1.5"><i class="ph-bold ph-buildings text-amber-500"></i> Facility Management</span>
+            <span class="text-[9px] px-1.5 py-0.2 rounded font-extrabold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">HRGA</span>
           </div>
           <div class="space-y-1">
-            <button onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <i class="ph-bold ph-database text-base text-sky-500" aria-hidden="true"></i> Master Katalog Seluruh Aset
+            <!-- SUB MODUL 1: BUILDING -->
+            <button onclick="navTo('view-gedung', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <span class="flex items-center gap-2.5"><i class="ph-bold ph-building-office text-base text-amber-500"></i> Building</span>
+              <span id="nav-badge-bldg" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">422</span>
             </button>
-            <button onclick="navTo('view-portfolio', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <i class="ph-bold ph-map-pin-line text-base" aria-hidden="true"></i> Sebaran Lokasi &amp; Site
+
+            <!-- SUB MODUL 2: FACILITIES -->
+            <button onclick="navTo('view-assets', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <span class="flex items-center gap-2.5"><i class="ph-bold ph-armchair text-base text-emerald-600"></i> Facilities (Aset Fasilitas)</span>
+              <span id="nav-badge-asset" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">15.778</span>
             </button>
-            <button onclick="navTo('view-dashboard', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <i class="ph-bold ph-gauge text-base" aria-hidden="true"></i> Executive Overview
+
+            <!-- SUB MODUL 3: INSPEKSI -->
+            <button onclick="navTo('view-inspeksi', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <i class="ph-bold ph-clipboard-text text-base text-emerald-500"></i> Inspeksi
             </button>
-            <button onclick="navTo('view-validasi', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <i class="ph-fill ph-seal-check text-base text-sky-500" aria-hidden="true"></i> Validasi &amp; Opname Fisik
+
+            <!-- SUB MODUL 4: AVAILABILITY HUNIAN -->
+            <button onclick="navTo('view-ruangan', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <span class="flex items-center gap-2.5"><i class="ph-bold ph-bed text-base text-indigo-500"></i> Availability Hunian</span>
+              <span id="nav-badge-room" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold">1.559</span>
             </button>
-            <button onclick="navTo('view-reg-asset', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <i class="ph-bold ph-plus-circle text-base" aria-hidden="true"></i> Registrasi Aset Baru
+
+            <!-- PENGHUNI & RIWAYAT -->
+            <button onclick="navTo('view-penghuni', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <span class="flex items-center gap-2.5"><i class="ph-bold ph-users text-base text-sky-500"></i> Data Penghuni Mess</span>
+              <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 dark:bg-slate-800 text-slate-500 font-bold" id="nav-badge-penghuni">409</span>
             </button>
-            <button onclick="navTo('view-mutasi', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <i class="ph-bold ph-arrows-left-right text-base" aria-hidden="true"></i> Mutasi Antar Lokasi
+            <button onclick="navTo('view-riwayat-inspeksi', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
+              <i class="ph-bold ph-clock-counter-clockwise text-base text-slate-400"></i> Riwayat Laporan Temuan
             </button>
           </div>
         </div>
@@ -180,15 +191,15 @@
         <div>
           <div class="px-2 mb-2 text-[10px] font-bold tracking-wider text-emerald-600 dark:text-emerald-400 uppercase flex items-center justify-between">
             <span class="flex items-center gap-1.5"><i class="ph-bold ph-wrench text-emerald-500"></i> Maintenance &amp; Servis</span>
-            <span id="nav-badge-wo" class="text-[9px] px-1.5 py-0.2 rounded font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">WO</span>
+            <span class="text-[9px] px-1.5 py-0.2 rounded font-extrabold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">MTC</span>
           </div>
           <div class="space-y-1">
             <button onclick="navTo('view-wo', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 text-left transition">
-              <span class="flex items-center gap-2.5"><i class="ph-bold ph-kanban text-base text-amber-500" aria-hidden="true"></i> Work Order Kanban</span>
+              <span class="flex items-center gap-2.5"><i class="ph-bold ph-kanban text-base text-amber-500"></i> Work Order Kanban</span>
               <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 dark:bg-amber-950 text-amber-700 dark:text-amber-300 font-bold" id="sidebar-wo-count">15</span>
             </button>
             <button onclick="promptCreateWo()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-emerald-700 dark:text-emerald-300 hover:bg-emerald-50 dark:hover:bg-emerald-950/40 text-left transition font-semibold">
-              <i class="ph-bold ph-plus-circle text-base text-emerald-500" aria-hidden="true"></i> + Buat Work Order Baru
+              <i class="ph-bold ph-plus-circle text-base text-emerald-500"></i> + Buat Work Order Baru
             </button>
           </div>
         </div>
@@ -197,7 +208,7 @@
       <!-- Sidebar Footer -->
       <div class="p-3 border-t border-slate-200 dark:border-slate-800 text-[11px] text-slate-400 text-center flex items-center justify-between">
         <span>PT PNS &bull; v2.5</span>
-        <span class="text-[10px] font-mono text-emerald-500">GAS-to-Git</span>
+        <span class="text-[10px] font-mono text-emerald-500">HRGA Suite</span>
       </div>
     </aside>
 
@@ -629,47 +640,98 @@
 
       <!-- ======================================================== -->
       <!-- VIEW: ASET FASILITAS RUANGAN (FACILITY ROOM ASSETS ONLY) -->
+            <!-- ======================================================== -->
+      <!-- VIEW: FACILITIES (ASET FASILITAS BANGUNAN & HUNIAN HRGA) -->
       <!-- ======================================================== -->
       <div id="view-assets" class="page-view hidden space-y-4">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <div class="flex items-center gap-2 mb-1">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Facility &amp; Room Management</span>
+              <span class="text-[11px] font-bold text-slate-400 tracking-wider uppercase">Facility Management &bull; HRGA</span>
             </div>
             <h2 class="text-xl font-bold text-slate-900 dark:text-white flex items-center gap-2">
-              <i class="ph-bold ph-armchair text-emerald-600"></i> Katalog Aset Fasilitas Ruangan
+              <i class="ph-bold ph-armchair text-emerald-600"></i> Facilities (Aset Fasilitas Bangunan &amp; Hunian)
             </h2>
-            <p class="text-xs text-slate-500 dark:text-slate-400">Hanya aset fasilitas &amp; inventaris fisik di dalam gedung/ruangan (Kasur, AC, Meja, Kursi, Lemari, TV, Dispenser, Exhaust) dari M_RUANGAN_ASSETS.</p>
+            <p class="text-xs text-slate-500 dark:text-slate-400">Seluruh 15.778 aset fasilitas fisik di dalam bangunan dan hunian mess/longhouse (Kasur, AC, Meja, Kursi, Lemari, TV, Exhaust) yang diatur oleh HRGA.</p>
           </div>
           <div class="flex items-center gap-2">
-            <button onclick="navTo('view-inspeksi')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition flex items-center gap-1.5">
+            <button onclick="navTo('view-inspeksi')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition flex items-center gap-1.5 cursor-pointer">
               <i class="ph-bold ph-clipboard-text"></i> Audit / Inspeksi Ruangan
             </button>
-            <input type="text" id="search-asset" oninput="onSearchAsset()" placeholder="Cari aset fasilitas..." aria-label="Cari aset" class="px-3 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200">
           </div>
         </div>
 
-        <div class="clean-card overflow-x-auto">
-          <table class="w-full text-left border-collapse">
-            <thead>
-              <tr>
-                <th>No Aset</th>
-                <th>Nama Aset</th>
-                <th>Kode Gedung</th>
-                <th>Nama Ruangan</th>
-                <th>Kategori</th>
-                <th>Kondisi</th>
-                <th>Harga Perolehan</th>
-                <th>Tanggal Perolehan</th>
-              </tr>
-            </thead>
-            <tbody id="table-assets-body">
-              <!-- Rendered via JS -->
-            </tbody>
-          </table>
+        <!-- Filter & Slicer Bar for Facilities -->
+        <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xs gap-3">
+          <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+            <!-- Filter Gedung -->
+            <div class="flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2.5 py-1.5 border border-slate-200 dark:border-slate-700">
+              <span class="text-[10px] font-bold text-slate-400 uppercase mr-1.5">Gedung:</span>
+              <select id="filter-facility-bldg" onchange="onFacilityFilterChange()" class="bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer max-w-[170px] truncate">
+                <option value="ALL">Semua Gedung (422)</option>
+              </select>
+            </div>
+
+            <!-- Filter Kondisi -->
+            <div class="flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-2.5 py-1.5 border border-slate-200 dark:border-slate-700">
+              <span class="text-[10px] font-bold text-slate-400 uppercase mr-1.5">Kondisi:</span>
+              <select id="filter-facility-kondisi" onchange="onFacilityFilterChange()" class="bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none cursor-pointer">
+                <option value="ALL">Semua Kondisi</option>
+                <option value="Baik">Baik</option>
+                <option value="Rusak Ringan">Rusak Ringan</option>
+                <option value="Rusak Berat">Rusak Berat</option>
+              </select>
+            </div>
+
+            <!-- Quick Search -->
+            <div class="flex items-center bg-slate-50 dark:bg-slate-800/80 rounded-lg px-3 py-1.5 border border-slate-200 dark:border-slate-700 flex-1 min-w-[200px]">
+              <i class="ph-bold ph-magnifying-glass text-slate-400 mr-2 text-xs"></i>
+              <input type="text" id="search-asset" oninput="onFacilitySearch(this.value)" placeholder="Cari No Aset / Nama / Ruangan..." class="bg-transparent text-xs font-semibold text-slate-800 dark:text-slate-200 focus:outline-none w-full placeholder:text-slate-400">
+            </div>
+          </div>
+
+          <div class="text-[11px] font-mono font-bold text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/80 px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 shrink-0">
+            <span id="facilities-total-badge">15.778</span> Unit Aset
+          </div>
+        </div>
+
+        <div class="clean-card overflow-hidden">
+          <div class="p-3 border-b border-slate-200 dark:border-slate-800 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-slate-50/50 dark:bg-slate-900/50">
+            <span id="facilities-paging-info" class="text-xs text-slate-500 font-medium">Memuat aset fasilitas...</span>
+            <div class="flex items-center gap-1.5">
+              <button onclick="changeFacilityPage(-1)" id="btn-facilities-prev" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 disabled:opacity-40 cursor-pointer">
+                &larr; Prev
+              </button>
+              <span id="facilities-page-indicator" class="text-xs font-mono font-bold px-2 text-slate-600 dark:text-slate-300">Hal 1 / 1</span>
+              <button onclick="changeFacilityPage(1)" id="btn-facilities-next" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-200 hover:bg-slate-100 disabled:opacity-40 cursor-pointer">
+                Next &rarr;
+              </button>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-50 dark:bg-slate-800/80 border-b border-slate-200 dark:border-slate-700 text-slate-500">
+                  <th class="py-2.5 px-3">No Aset</th>
+                  <th class="py-2.5 px-3">Nama Aset Fasilitas</th>
+                  <th class="py-2.5 px-3">Kode Gedung</th>
+                  <th class="py-2.5 px-3">Nama Ruangan</th>
+                  <th class="py-2.5 px-3">Kategori</th>
+                  <th class="py-2.5 px-3">Kondisi</th>
+                  <th class="py-2.5 px-3 text-right">Harga Perolehan</th>
+                  <th class="py-2.5 px-3">Tgl Perolehan</th>
+                </tr>
+              </thead>
+              <tbody id="table-assets-body" class="divide-y divide-slate-100 dark:divide-slate-800">
+                <!-- Rendered via JS -->
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
+
 
       <!-- ======================================================== -->
       <!-- VIEW: FORM INSPEKSI 5-LANGKAH -->
@@ -1295,6 +1357,7 @@
 
   <!-- Modular JS Included from JS.html -->
   <script src="config.js"></script>
+  <script src="pns_data_master.js"></script>
   <script src="app.js"></script>
 
 

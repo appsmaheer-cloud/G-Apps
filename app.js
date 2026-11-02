@@ -499,6 +499,7 @@
   // INITIALIZATION & BOOTSTRAP SYNC
   // ==========================================
   document.addEventListener('DOMContentLoaded', () => {
+    initAppMasterData();
     initBrandLogos();
     initTheme();
     initNavigation();
@@ -694,6 +695,40 @@
     if (window.innerWidth < 1024) {
       const sb = document.getElementById('app-sidebar');
       if (sb) sb.classList.add('-translate-x-full');
+    }
+  }
+
+  
+  function initAppMasterData() {
+    if (typeof window !== 'undefined' && window.PNS_MASTER_DATA) {
+      const d = window.PNS_MASTER_DATA;
+      if (Array.isArray(d.buildings) && d.buildings.length > 0) {
+        appState.buildings = d.buildings;
+      }
+      if (Array.isArray(d.rooms) && d.rooms.length > 0) {
+        appState.rooms = d.rooms;
+      }
+      if (Array.isArray(d.penghuni) && d.penghuni.length > 0) {
+        appState.penghuni = d.penghuni;
+      }
+      if (Array.isArray(d.workOrders) && d.workOrders.length > 0) {
+        appState.workOrders = d.workOrders;
+      }
+      if (Array.isArray(d.hrgaAssets) && d.hrgaAssets.length > 0) {
+        appState.assets = d.hrgaAssets;
+        appState.enterpriseAssets = d.hrgaAssets;
+      }
+      // Update badge counts
+      const setBadge = (id, count) => {
+        const el = document.getElementById(id);
+        if (el) el.innerText = count.toLocaleString('id-ID');
+      };
+      setBadge('nav-badge-bldg', appState.buildings.length);
+      setBadge('nav-badge-room', appState.rooms.length);
+      setBadge('nav-badge-asset', appState.assets.length);
+      setBadge('nav-badge-penghuni', appState.penghuni.length);
+      setBadge('sidebar-wo-count', appState.workOrders.length);
+      setBadge('facilities-total-badge', appState.assets.length);
     }
   }
 
@@ -964,41 +999,114 @@
     `).join('');
   }
 
+    // ==========================================
+  // FACILITIES MANAGEMENT (15.778 ASET FASILITAS HRGA)
+  // ==========================================
+  let facilityBldgFilter = 'ALL';
+  let facilityKondisiFilter = 'ALL';
+  let facilitySearchQuery = '';
+  let facilityCurrentPage = 1;
+  const FACILITIES_PER_PAGE = 25;
+
+  function onFacilityFilterChange() {
+    facilityBldgFilter = document.getElementById('filter-facility-bldg')?.value || 'ALL';
+    facilityKondisiFilter = document.getElementById('filter-facility-kondisi')?.value || 'ALL';
+    facilityCurrentPage = 1;
+    renderAssetsTable();
+  }
+
+  function onFacilitySearch(query) {
+    facilitySearchQuery = query || '';
+    facilityCurrentPage = 1;
+    renderAssetsTable();
+  }
+
+  function changeFacilityPage(delta) {
+    facilityCurrentPage = Math.max(1, facilityCurrentPage + delta);
+    renderAssetsTable();
+  }
+
   function renderAssetsTable() {
-    const searchEl = document.getElementById('search-asset');
-    const search = (searchEl ? searchEl.value : '').toLowerCase();
     const tbody = document.getElementById('table-assets-body');
     if (!tbody) return;
 
+    // Populate Gedung dropdown if empty
+    const bldgSelect = document.getElementById('filter-facility-bldg');
+    if (bldgSelect && bldgSelect.options.length <= 1) {
+      const bldgSet = new Set(appState.assets.map(a => a.kode_gedung).filter(Boolean));
+      [...bldgSet].sort().forEach(code => {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = code;
+        bldgSelect.appendChild(opt);
+      });
+    }
+
     const filtered = appState.assets.filter(a => {
-      return !search ||
-        String(a.no_asset || '').toLowerCase().includes(search) ||
-        String(a.nama_asset || '').toLowerCase().includes(search) ||
-        String(a.kode_gedung || '').toLowerCase().includes(search);
+      const matchBldg = (facilityBldgFilter === 'ALL' || a.kode_gedung === facilityBldgFilter);
+      const matchKondisi = (facilityKondisiFilter === 'ALL' || (a.kondisi || '').toLowerCase() === facilityKondisiFilter.toLowerCase());
+      const q = facilitySearchQuery.toLowerCase();
+      const matchSearch = !q ||
+        String(a.no_asset || '').toLowerCase().includes(q) ||
+        String(a.nama_asset || '').toLowerCase().includes(q) ||
+        String(a.kode_gedung || '').toLowerCase().includes(q) ||
+        String(a.nama_ruangan || '').toLowerCase().includes(q);
+      return matchBldg && matchKondisi && matchSearch;
     });
 
-    if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-6 text-slate-400">Tidak ada aset fisik yang cocok dengan kata kunci.</td></tr>`;
+    const totalCount = filtered.length;
+    const totalPages = Math.max(1, Math.ceil(totalCount / FACILITIES_PER_PAGE));
+    if (facilityCurrentPage > totalPages) facilityCurrentPage = totalPages;
+    const startIndex = (facilityCurrentPage - 1) * FACILITIES_PER_PAGE;
+    const paginated = filtered.slice(startIndex, startIndex + FACILITIES_PER_PAGE);
+
+    const infoEl = document.getElementById('facilities-paging-info');
+    if (infoEl) {
+      infoEl.innerText = `Menampilkan ${totalCount > 0 ? startIndex + 1 : 0} - ${Math.min(startIndex + FACILITIES_PER_PAGE, totalCount)} dari ${totalCount.toLocaleString('id-ID')} aset fasilitas`;
+    }
+
+    const indEl = document.getElementById('facilities-page-indicator');
+    if (indEl) indEl.innerText = `Hal ${facilityCurrentPage} / ${totalPages}`;
+
+    const prevBtn = document.getElementById('btn-facilities-prev');
+    const nextBtn = document.getElementById('btn-facilities-next');
+    if (prevBtn) prevBtn.disabled = (facilityCurrentPage <= 1);
+    if (nextBtn) nextBtn.disabled = (facilityCurrentPage >= totalPages);
+
+    const badgeEl = document.getElementById('facilities-total-badge');
+    if (badgeEl) badgeEl.innerText = totalCount.toLocaleString('id-ID');
+
+    if (paginated.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada aset fasilitas yang cocok dengan filter.</td></tr>`;
       return;
     }
 
-    tbody.innerHTML = filtered.slice(0, 120).map(a => `
-      <tr>
-        <td class="font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(a.no_asset)}</td>
-        <td class="font-medium text-slate-900 dark:text-white">${escapeHtml(a.nama_asset)}</td>
-        <td class="font-mono text-slate-500">${escapeHtml(a.kode_gedung)}</td>
-        <td>${escapeHtml(a.nama_ruangan)}</td>
-        <td>${escapeHtml(a.kategori_asset || '-')}</td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${a.kondisi === 'Baik' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-rose-100 text-rose-800'}">${escapeHtml(a.kondisi)}</span></td>
-        <td class="font-mono num-tabular">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</td>
-        <td class="num-tabular">${escapeHtml(a.tanggal_perolehan || '-')}</td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = paginated.map(a => {
+      const kondisi = a.kondisi || 'Baik';
+      let kondisiClass = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+      if (kondisi.toLowerCase().includes('rusak berat')) {
+        kondisiClass = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
+      } else if (kondisi.toLowerCase().includes('rusak ringan')) {
+        kondisiClass = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+      }
+
+      return `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+          <td class="py-2 px-3 font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(a.no_asset)}</td>
+          <td class="py-2 px-3 font-semibold text-slate-900 dark:text-white">${escapeHtml(a.nama_asset)}</td>
+          <td class="py-2 px-3 font-mono text-slate-500">${escapeHtml(a.kode_gedung)}</td>
+          <td class="py-2 px-3">${escapeHtml(a.nama_ruangan)}</td>
+          <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800">${escapeHtml(a.kategori_asset || '-')}</span></td>
+          <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${kondisiClass}">${escapeHtml(kondisi)}</span></td>
+          <td class="py-2 px-3 text-right font-mono num-tabular">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</td>
+          <td class="py-2 px-3 text-slate-400 font-mono">${escapeHtml(a.tanggal_perolehan || '-')}</td>
+        </tr>
+      `;
+    }).join('');
   }
 
-  // ==========================================
-  // FORM INSPEKSI 5-LANGKAH LOGIC (BATCHED DOM)
-  // ==========================================
+
+
   function initInspectionFormDropdowns() {
     const gSelect = document.getElementById('insp-gedung');
     const filterBldgSelect = document.getElementById('filter-room-bldg');
