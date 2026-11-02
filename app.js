@@ -690,6 +690,9 @@
       renderAllAssetsTable();
     } else if (viewId === 'view-validasi') {
       renderValidasiTable();
+    } else if (viewId === 'view-penghuni') {
+      initPenghuniFilters();
+      renderPenghuniTable();
     }
 
     if (window.innerWidth < 1024) {
@@ -1263,22 +1266,97 @@
 
     if (infoBox) {
       infoBox.classList.remove('hidden');
-      const occHtml = occs.length > 0 
-        ? occs.map(o => `<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 mr-1 mb-1 shadow-2xs">👤 ${escapeHtml(o.nama_penghuni)} (${escapeHtml(o.departemen || '-')}, Bed ${escapeHtml(o.nomor_ranjang || '-')})</span>`).join('')
-        : '<span class="text-slate-400 italic">Ruangan kosong / Belum ada penghuni terdaftar</span>';
+
+      // Tampilkan status slot hunian dan penghuni kamar (sesuai contoh: Ilyasa HRGA 0813... & Vacant)
+      const bUpper = String(bCode).toUpperCase();
+      const isMessOrLH = bUpper.includes('LH') || bUpper.includes('LONGHOUSE') || bUpper.includes('MESS') || bUpper.includes('SPV') || bUpper.includes('STAFF');
+      
+      let bedSlotsHtml = '';
+      if (occs.length > 0) {
+        bedSlotsHtml = occs.map((o, i) => `
+          <div class="p-2 rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 flex items-center justify-between shadow-2xs">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 font-bold text-[10px] flex items-center justify-center">
+                ${escapeHtml(o.nomor_kasur || ('Bed ' + (i + 1)))}
+              </span>
+              <div>
+                <span class="font-bold text-slate-800 dark:text-slate-100 block text-xs">${escapeHtml(o.nama_penghuni)}</span>
+                <span class="text-[10px] text-slate-400 font-medium">${escapeHtml(o.departemen || 'Karyawan')} &bull; ${escapeHtml(o.no_kontak || '-')}</span>
+              </div>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300">
+              Aktif
+            </span>
+          </div>
+        `).join('');
+
+        // Jika kamar mess berkapasitas 2 atau 4 orang dan masih ada slot kosong
+        const roomCap = parseInt(room ? (room.kapasitas || 2) : 2, 10) || 2;
+        if (isMessOrLH && occs.length < roomCap) {
+          const vacantCount = roomCap - occs.length;
+          for (let v = 0; v < vacantCount; v++) {
+            bedSlotsHtml += `
+              <div class="p-2 rounded-lg bg-amber-50/60 dark:bg-amber-950/20 border border-amber-200/80 dark:border-amber-900/50 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-full bg-amber-200/60 text-amber-900 dark:bg-amber-900 dark:text-amber-200 font-bold text-[10px] flex items-center justify-center">
+                    Bed ${occs.length + v + 1}
+                  </span>
+                  <div>
+                    <span class="font-semibold text-amber-800 dark:text-amber-300 italic text-xs">Vacant (Slot Kosong)</span>
+                    <span class="text-[10px] text-amber-600/70 block">Kamar siap dihuni</span>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300">
+                  Vacant
+                </span>
+              </div>
+            `;
+          }
+        }
+      } else if (isMessOrLH) {
+        bedSlotsHtml = `
+          <div class="p-2 rounded-lg bg-slate-100 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 flex items-center justify-between col-span-2">
+            <div class="flex items-center gap-2">
+              <span class="w-6 h-6 rounded-full bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400 font-bold text-[10px] flex items-center justify-center">0</span>
+              <span class="text-xs text-slate-500 italic">Seluruh slot ranjang di kamar ini berstatus <strong>Vacant (Kosong)</strong></span>
+            </div>
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-400">Vacant</span>
+          </div>
+        `;
+      } else {
+        bedSlotsHtml = `
+          <div class="text-xs text-slate-400 italic p-1">Ruangan fasilitas/operasional (bukan hunian karyawan tetap).</div>
+        `;
+      }
 
       infoBox.innerHTML = `
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-          <div>
-            <span class="font-bold text-slate-800 dark:text-slate-100">${escapeHtml(rName)}</span>
-            <span class="text-slate-400 dark:text-slate-500 text-[11px] ml-1">(${escapeHtml(room ? room.tipe_ruangan || 'Kamar' : 'Kamar')})</span>
+        <div class="space-y-2.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1 border-b border-slate-200/80 dark:border-slate-700/80 pb-2">
+            <div class="flex items-center gap-2">
+              <i class="ph-bold ph-bed text-indigo-500 text-base"></i>
+              <span class="font-bold text-slate-900 dark:text-white text-xs">${escapeHtml(rName)}</span>
+              <span class="px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200">${escapeHtml(room ? room.tipe_ruangan || 'Kamar' : 'Kamar')}</span>
+            </div>
+            <div class="text-[11px] font-semibold text-slate-500">
+              Kapasitas: <strong class="text-slate-800 dark:text-slate-200">${room ? room.kapasitas || 2 : 2} Orang</strong> &bull; Terisi: <strong class="text-emerald-600">${occs.length} Penghuni</strong>
+            </div>
           </div>
-          <div class="text-[11px]">
-            <span class="font-semibold text-slate-500 mr-1">Penghuni Aktif:</span>
-            ${occHtml}
+          <div>
+            <div class="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1.5">Data Penghuni &amp; Ketersediaan Ranjang (Koneksi Modul Hunian):</div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              ${bedSlotsHtml}
+            </div>
           </div>
         </div>
       `;
+
+      // Jika ada penghuni aktif, auto-fill PIC penanggungjawab ruangan dengan nama penghuni pertama
+      if (occs.length > 0 && occs[0].nama_penghuni) {
+        const picField = document.getElementById('insp-pic');
+        if (picField && (!picField.value || picField.value === '-' || picField.value === 'Miftahul Khoiry')) {
+          picField.value = occs[0].nama_penghuni + (occs[0].departemen ? ' (' + occs[0].departemen + ')' : '');
+        }
+      }
     }
 
     // 1. Ambil aset terdaftar di database untuk gedung & ruangan ini
@@ -1300,7 +1378,7 @@
     if (matchedAssets.length > 0) {
       checklist = matchedAssets.map(a => {
         const no = a.no_asset || a.kode_asset || '';
-        const isNV = no.startsWith('NVA-') || /PENGKI|SAPU|BANTAL|GULING|SPREI|SELIMUT|KERANJANG|LAMPU|STOPs*KONTAK|SAKLAR|CERMIN/i.test(a.nama_asset || '');
+        const isNV = no.startsWith('NVA-') || /PENGKI|SAPU|BANTAL|GULING|SPREI|SELIMUT|KERANJANG|LAMPU|STOP\s*KONTAK|SAKLAR|CERMIN/i.test(a.nama_asset || '');
         return {
           no_asset: no,
           nama_asset: a.nama_asset || '',
@@ -1315,7 +1393,7 @@
         };
       });
 
-      // Tambahkan item non-valuable mess standar (lampu, stop kontak, bantal, guling, sprei, selimut, dll.) jika belum tercatat
+      // Tambahkan item non-valuable mess standar jika belum ada
       const defaults = getDefaultRoomFacilityAssets(bCode, rName);
       const defaultNonValuables = defaults.filter(d => d.jenis_aset === 'Non-Valuable');
       defaultNonValuables.forEach(nv => {
@@ -1336,7 +1414,6 @@
         }
       });
     } else {
-      // Jika ruangan belum ada catatan aset di database, gunakan checklist standar fasilitas hunian lengkap
       checklist = getDefaultRoomFacilityAssets(bCode, rName);
     }
 
@@ -1389,7 +1466,7 @@
         </td>
         <td class="py-2.5 px-3 whitespace-nowrap">
           <div class="flex flex-col gap-1 items-start">
-            <span class="inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold ${ast.jenis_aset === 'Non-Valuable' ? 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800' : 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800'}">
+            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${ast.jenis_aset === 'Non-Valuable' ? 'bg-amber-50 text-amber-700 border border-amber-200 dark:bg-amber-950/40 dark:text-amber-300 dark:border-amber-800' : 'bg-blue-50 text-blue-700 border border-blue-200 dark:bg-blue-950/40 dark:text-blue-300 dark:border-blue-800'}">
               ${ast.jenis_aset === 'Non-Valuable' ? '⚡ Non-Valuable' : '💎 Valuable Aset'}
             </span>
             <span class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700 dark:text-slate-200">
@@ -1415,11 +1492,18 @@
             <option value="Hilang" ${ast.kondisi_inspeksi === 'Hilang' ? 'selected' : ''}>❓ Hilang</option>
           </select>
         </td>
+        <!-- FOTO LANGSUNG DARI KAMERA HP & GALERI FILE -->
         <td class="py-2.5 px-3">
           <div class="flex items-center gap-1.5">
-            ${ast.foto_asset ? `<img src="${ast.foto_asset}" class="w-7 h-7 rounded object-cover border border-slate-200 shrink-0 cursor-pointer" onclick="alert('Foto aset terlampir')" title="Klik lihat foto">` : ''}
-            <label class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-[10px] font-semibold flex items-center gap-1 cursor-pointer" title="Unggah foto bukti">
-              <i class="ph-bold ph-camera"></i> Foto
+            ${ast.foto_asset ? `<img src="${ast.foto_asset}" class="w-7 h-7 rounded object-cover border border-slate-200 shrink-0 cursor-pointer" onclick="Swal.fire({imageUrl: '${ast.foto_asset}', imageAlt: 'Foto Aset', showConfirmButton: false})" title="Klik lihat foto">` : ''}
+            <!-- Tombol Kamera HP Langsung -->
+            <label class="px-2 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs" title="Ambil Foto Langsung dari Kamera HP">
+              <i class="ph-bold ph-camera text-xs"></i> Foto
+              <input type="file" accept="image/*" capture="environment" onchange="uploadAssetPhoto(${idx}, event)" class="hidden">
+            </label>
+            <!-- Tombol Galeri File -->
+            <label class="p-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] flex items-center cursor-pointer transition" title="Pilih dari Galeri / File">
+              <i class="ph-bold ph-image text-xs"></i>
               <input type="file" accept="image/*" onchange="uploadAssetPhoto(${idx}, event)" class="hidden">
             </label>
           </div>
@@ -2127,36 +2211,316 @@
     renderWorkOrdersKanban();
   }
 
-  function renderPenghuniTable() {
-    const searchEl = document.getElementById('search-penghuni');
-    const query = (searchEl ? searchEl.value : '').toLowerCase();
-    const tbody = document.getElementById('table-penghuni-body');
-    if (!tbody) return;
+  // ==========================================
+  // AVAILABILITY & PENGHUNI HUNIAN CONTROLLER
+  // ==========================================
+  let penghuniSortCol = 'kode_gedung';
+  let penghuniSortAsc = true;
 
-    const filtered = appState.penghuni.filter(p =>
-      !query ||
-      String(p.nama_penghuni || '').toLowerCase().includes(query) ||
-      String(p.nik || '').toLowerCase().includes(query) ||
-      String(p.kode_gedung || '').toLowerCase().includes(query)
-    );
+  function initPenghuniFilters() {
+    const bldgSelect = document.getElementById('filter-penghuni-bldg');
+    if (!bldgSelect) return;
 
-    tbody.innerHTML = filtered.map(p => `
-      <tr>
-        <td class="font-mono font-bold">${escapeHtml(p.nik)}</td>
-        <td class="font-bold">${escapeHtml(p.nama_penghuni)}</td>
-        <td>${escapeHtml(p.departemen)}</td>
-        <td class="font-mono">${escapeHtml(p.kode_gedung)}</td>
-        <td>${escapeHtml(p.nama_ruangan)}</td>
-        <td>${escapeHtml(p.nomor_kasur)}</td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300">${escapeHtml(p.status_hunian)}</span></td>
-        <td class="num-tabular">${escapeHtml(p.no_kontak)}</td>
-      </tr>
-    `).join('');
+    const currentVal = bldgSelect.value;
+    const bldgs = Array.from(new Set(appState.penghuni.map(p => p.kode_gedung).filter(Boolean))).sort();
+    bldgSelect.innerHTML = '<option value="">Semua Gedung / LH (' + bldgs.length + ')</option>' +
+      bldgs.map(b => `<option value="${escapeHtml(b)}" ${b === currentVal ? 'selected' : ''}>${escapeHtml(b)}</option>`).join('');
+
+    onPenghuniBldgFilterChange();
   }
 
-  // ==========================================
-  // TRANSAKSI REGISTRASI, MUTASI & WORK ORDER
-  // ==========================================
+  function onPenghuniBldgFilterChange() {
+    const bldg = document.getElementById('filter-penghuni-bldg') ? document.getElementById('filter-penghuni-bldg').value : '';
+    const roomSelect = document.getElementById('filter-penghuni-room');
+    if (!roomSelect) return;
+
+    let rooms = [];
+    if (bldg) {
+      rooms = Array.from(new Set(appState.penghuni.filter(p => p.kode_gedung === bldg).map(p => p.nama_ruangan).filter(Boolean))).sort();
+    } else {
+      rooms = Array.from(new Set(appState.penghuni.map(p => p.nama_ruangan).filter(Boolean))).sort();
+    }
+
+    roomSelect.innerHTML = '<option value="">Semua Ruangan / Kamar (' + rooms.length + ')</option>' +
+      rooms.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
+
+    renderPenghuniTable();
+  }
+
+  function sortPenghuni(col) {
+    if (penghuniSortCol === col) {
+      penghuniSortAsc = !penghuniSortAsc;
+    } else {
+      penghuniSortCol = col;
+      penghuniSortAsc = true;
+    }
+
+    // Update indicator icons
+    ['kode_gedung', 'nama_ruangan', 'nomor_kasur', 'nik', 'nama_penghuni', 'departemen', 'status_hunian'].forEach(c => {
+      const icon = document.getElementById('sort-icon-' + c);
+      if (icon) {
+        if (c === col) {
+          icon.innerText = penghuniSortAsc ? '▲' : '▼';
+          icon.className = 'text-[10px] ml-0.5 text-indigo-600 font-extrabold';
+        } else {
+          icon.innerText = '↕';
+          icon.className = 'text-[10px] ml-0.5 text-slate-300';
+        }
+      }
+    });
+
+    renderPenghuniTable();
+  }
+
+  function renderPenghuniTable() {
+    const searchEl = document.getElementById('search-penghuni');
+    const query = (searchEl ? searchEl.value : '').toLowerCase().trim();
+    const bldgFilter = document.getElementById('filter-penghuni-bldg') ? document.getElementById('filter-penghuni-bldg').value : '';
+    const roomFilter = document.getElementById('filter-penghuni-room') ? document.getElementById('filter-penghuni-room').value : '';
+    const statusFilter = document.getElementById('filter-penghuni-status') ? document.getElementById('filter-penghuni-status').value : '';
+    const tbody = document.getElementById('table-penghuni-body');
+    const badge = document.getElementById('penghuni-count-badge');
+    if (!tbody) return;
+
+    let filtered = appState.penghuni.filter(p => {
+      const matchQuery = !query ||
+        String(p.nama_penghuni || '').toLowerCase().includes(query) ||
+        String(p.nik || '').toLowerCase().includes(query) ||
+        String(p.kode_gedung || '').toLowerCase().includes(query) ||
+        String(p.nama_ruangan || '').toLowerCase().includes(query) ||
+        String(p.departemen || '').toLowerCase().includes(query) ||
+        String(p.no_kontak || '').toLowerCase().includes(query);
+
+      const matchBldg = !bldgFilter || p.kode_gedung === bldgFilter;
+      const matchRoom = !roomFilter || p.nama_ruangan === roomFilter;
+      const matchStatus = !statusFilter || p.status_hunian === statusFilter;
+
+      return matchQuery && matchBldg && matchRoom && matchStatus;
+    });
+
+    // Sorting
+    filtered.sort((a, b) => {
+      let valA = String(a[penghuniSortCol] || '').toLowerCase();
+      let valB = String(b[penghuniSortCol] || '').toLowerCase();
+      if (valA < valB) return penghuniSortAsc ? -1 : 1;
+      if (valA > valB) return penghuniSortAsc ? 1 : -1;
+      return 0;
+    });
+
+    if (badge) {
+      badge.innerText = filtered.length + ' Penghuni / Slot';
+    }
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="9" class="text-center py-10 text-slate-400">
+            <i class="ph-bold ph-bed text-2xl mb-1 block text-slate-300"></i>
+            Tidak ada data penghuni yang cocok dengan filter atau pencarian Anda.
+          </td>
+        </tr>
+      `;
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(p => {
+      const isVacant = String(p.status_hunian || '').toLowerCase() === 'vacant' || !p.nama_penghuni || p.nama_penghuni === '-';
+      return `
+        <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+          <!-- 1. GEDUNG / LH -->
+          <td class="py-2.5 px-3 font-mono font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
+            ${escapeHtml(p.kode_gedung)}
+          </td>
+          <!-- 2. RUANGAN / KAMAR -->
+          <td class="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">
+            ${escapeHtml(p.nama_ruangan)}
+          </td>
+          <!-- 3. NO. RANJANG / BED -->
+          <td class="py-2.5 px-3 whitespace-nowrap">
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
+              🛏️ ${escapeHtml(p.nomor_kasur || 'Bed 1')}
+            </span>
+          </td>
+          <!-- 4. NIK -->
+          <td class="py-2.5 px-3 font-mono text-slate-600 dark:text-slate-300 whitespace-nowrap">
+            ${isVacant ? '<span class="text-slate-300">-</span>' : escapeHtml(p.nik)}
+          </td>
+          <!-- 5. NAMA PENGHUNI -->
+          <td class="py-2.5 px-3 whitespace-nowrap">
+            ${isVacant 
+              ? '<span class="text-amber-600 dark:text-amber-400 italic font-semibold">Vacant (Belum Ada Penghuni)</span>'
+              : `<strong class="text-slate-900 dark:text-white font-bold">${escapeHtml(p.nama_penghuni)}</strong>`}
+          </td>
+          <!-- 6. DEPARTEMEN -->
+          <td class="py-2.5 px-3 whitespace-nowrap">
+            ${isVacant ? '<span class="text-slate-300">-</span>' : `<span class="text-slate-600 dark:text-slate-300">${escapeHtml(p.departemen || '-')}</span>`}
+          </td>
+          <!-- 7. STATUS HUNIAN -->
+          <td class="py-2.5 px-3 whitespace-nowrap">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isVacant ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'}">
+              ${isVacant ? 'Vacant' : 'Aktif Terisi'}
+            </span>
+          </td>
+          <!-- 8. KONTAK -->
+          <td class="py-2.5 px-3 num-tabular whitespace-nowrap text-slate-600 dark:text-slate-300">
+            ${isVacant ? '<span class="text-slate-300">-</span>' : escapeHtml(p.no_kontak || '-')}
+          </td>
+          <!-- 9. AKSI EDIT PENGHUNI -->
+          <td class="py-2.5 px-2 text-center whitespace-nowrap">
+            <button onclick="editPenghuni('${p.id || p.nik}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition shadow-2xs" title="Edit atau tetapkan penghuni">
+              <i class="ph-bold ph-pencil-simple text-xs"></i> ${isVacant ? 'Isi' : 'Edit'}
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function editPenghuni(idOrNik) {
+    const item = appState.penghuni.find(p => String(p.id) === String(idOrNik) || String(p.nik) === String(idOrNik));
+    if (!item) return;
+
+    Swal.fire({
+      title: 'Edit Data Penghuni Hunian',
+      html: `
+        <div class="space-y-3 text-left text-xs">
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold mb-1">Gedung / LH:</label>
+              <input type="text" id="swal-p-bldg" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.kode_gedung)}" readonly>
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">Ruangan / Kamar:</label>
+              <input type="text" id="swal-p-room" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nama_ruangan)}" readonly>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold mb-1">No. Ranjang / Kasur:</label>
+              <input type="text" id="swal-p-bed" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nomor_kasur || 'Bed 1')}">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">Status Hunian:</label>
+              <select id="swal-p-status" class="swal2-select !h-8 !text-xs !w-full !m-0">
+                <option value="Aktif" ${item.status_hunian === 'Aktif' ? 'selected' : ''}>Aktif (Terisi)</option>
+                <option value="Vacant" ${item.status_hunian === 'Vacant' ? 'selected' : ''}>Vacant (Kosong)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Nama Penghuni:</label>
+            <input type="text" id="swal-p-name" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nama_penghuni || '')}" placeholder="Nama lengkap karyawan...">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold mb-1">NIK Karyawan:</label>
+              <input type="text" id="swal-p-nik" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nik || '')}" placeholder="PNS-AGR-...">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">Departemen:</label>
+              <input type="text" id="swal-p-dept" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.departemen || '')}" placeholder="Agronomi / HRGA / Mill">
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">No. Kontak / WhatsApp:</label>
+            <input type="text" id="swal-p-kontak" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.no_kontak || '')}" placeholder="0813-xxxx-xxxx">
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Simpan Perubahan',
+      cancelButtonText: 'Batal',
+      preConfirm: () => ({
+        nama_penghuni: document.getElementById('swal-p-name').value.trim(),
+        nik: document.getElementById('swal-p-nik').value.trim(),
+        departemen: document.getElementById('swal-p-dept').value.trim(),
+        nomor_kasur: document.getElementById('swal-p-bed').value.trim(),
+        status_hunian: document.getElementById('swal-p-status').value,
+        no_kontak: document.getElementById('swal-p-kontak').value.trim()
+      })
+    }).then(res => {
+      if (res.isConfirmed) {
+        Object.assign(item, res.value);
+        renderPenghuniTable();
+        callBackendPost('save_penghuni_update', item);
+        Swal.fire('Tersimpan', 'Data penghuni ' + (item.nama_penghuni || 'kamar') + ' berhasil diperbarui.', 'success');
+      }
+    });
+  }
+
+  function promptAddPenghuni() {
+    const bldgs = Array.from(new Set(appState.rooms.map(r => r.kode_gedung).filter(Boolean))).sort();
+    const bldgOpts = bldgs.map(b => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join('');
+
+    Swal.fire({
+      title: 'Tambah Penghuni Kamar Baru',
+      html: `
+        <div class="space-y-3 text-left text-xs">
+          <div>
+            <label class="block font-semibold mb-1">Pilih Gedung / LH:</label>
+            <select id="swal-add-bldg" class="swal2-select !h-8 !text-xs !w-full !m-0">
+              ${bldgOpts}
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Nama Ruangan / Kamar:</label>
+            <input type="text" id="swal-add-room" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="KAMAR NO.1">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold mb-1">Nama Penghuni:</label>
+              <input type="text" id="swal-add-name" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="Nama karyawan">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">NIK:</label>
+              <input type="text" id="swal-add-nik" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="PNS-...">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold mb-1">Departemen:</label>
+              <input type="text" id="swal-add-dept" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="HRGA / Agronomi">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">No. Ranjang:</label>
+              <input type="text" id="swal-add-bed" class="swal2-input !h-8 !text-xs !w-full !m-0" value="Bed A (Bawah)">
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">No. Kontak / HP:</label>
+            <input type="text" id="swal-add-kontak" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="0813-xxxx-xxxx">
+          </div>
+        </div>
+      `,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonText: 'Tambahkan Penghuni',
+      cancelButtonText: 'Batal',
+      preConfirm: () => ({
+        kode_gedung: document.getElementById('swal-add-bldg').value,
+        nama_ruangan: document.getElementById('swal-add-room').value.trim(),
+        nama_penghuni: document.getElementById('swal-add-name').value.trim(),
+        nik: document.getElementById('swal-add-nik').value.trim() || ('PNS-' + Date.now().toString().slice(-6)),
+        departemen: document.getElementById('swal-add-dept').value.trim() || 'HRGA',
+        nomor_kasur: document.getElementById('swal-add-bed').value.trim() || 'Bed 1',
+        no_kontak: document.getElementById('swal-add-kontak').value.trim(),
+        status_hunian: 'Aktif'
+      })
+    }).then(res => {
+      if (res.isConfirmed && res.value.nama_penghuni && res.value.nama_ruangan) {
+        const newP = Object.assign({ id: Date.now().toString() }, res.value);
+        appState.penghuni.unshift(newP);
+        const badge = document.getElementById('nav-badge-penghuni');
+        if (badge) badge.innerText = appState.penghuni.length;
+        initPenghuniFilters();
+        renderPenghuniTable();
+        callBackendPost('save_penghuni_update', newP);
+        Swal.fire('Berhasil', 'Penghuni baru ' + newP.nama_penghuni + ' berhasil ditambahkan ke ' + newP.kode_gedung + '.', 'success');
+      }
+    });
+  }
+
   function loadRegRooms() {
     const gEl = document.getElementById('reg-gedung');
     const rSelect = document.getElementById('reg-ruang');
