@@ -551,7 +551,10 @@
       appState.rooms = data.rooms;
     }
     if (Array.isArray(data.assets) && data.assets.length > 0) {
-      appState.assets = data.assets;
+      appState.enterpriseAssets = data.assets;
+    }
+    if (Array.isArray(data.hrgaAssets) && data.hrgaAssets.length > 1000) {
+      appState.assets = data.hrgaAssets;
     }
     if (Array.isArray(data.inspections) && data.inspections.length > 0) {
       appState.inspections = data.inspections;
@@ -1303,7 +1306,7 @@
       item.nama_ruangan = targetRoom;
       renderLocHistoryTable();
       renderAssetsTable();
-      alert('Lokasi fisik aset ' + noAsset + ' berhasil diperbarui ke ' + targetBldg + '!');
+      if (typeof alert !== "undefined") alert('Lokasi fisik aset ' + noAsset + ' berhasil diperbarui ke ' + targetBldg + '!');
       document.getElementById('form-asset-relocation')?.reset();
     }
   }
@@ -1374,7 +1377,7 @@
       });
       renderStatusHistoryTable();
       renderAssetsTable();
-      alert('Status & kondisi aset ' + noAsset + ' berhasil diperbarui!');
+      if (typeof alert !== "undefined") alert('Status & kondisi aset ' + noAsset + ' berhasil diperbarui!');
       document.getElementById('form-asset-status')?.reset();
     }
   }
@@ -1395,71 +1398,350 @@
   }
 
   // ==========================================
-  // ASSET MANAGEMENT: DISPOSAL
+  // ASSET MANAGEMENT: DISPOSAL BERDASARKAN KODE ASET
   // ==========================================
   let assetDisposalHistory = [
-    { no_ba: 'BA/PNS/DISP/2026/001', no_asset: 'AST-2022-0089', nama: 'Kasur Busa Rusak Berat', method: 'Afkir / Scrap', nbv: 0, status: 'Disetujui' }
+    {
+      no_ba: 'BA-DISP-2026-001',
+      kode_asset: 'PNS-FAC-FP-03',
+      nama_asset: 'FINGERPRINT SOLUTION X107',
+      lokasi: 'KANTOR-REGIONAL OFFICE',
+      kondisi: 'Rusak Berat',
+      metode: 'Afkir / Scrap (Besi Tua / Daur Ulang)',
+      nilai_sisa: 0,
+      nilai_buku: 2090000,
+      status: 'Disetujui',
+      tgl: '2026-10-18',
+      alasan: 'Sensor optik mati total, board korosi parah, sparepart discontinued dari vendor'
+    },
+    {
+      no_ba: 'BA-DISP-2026-002',
+      kode_asset: 'SB-PRN-47',
+      nama_asset: 'Speed Boat 15 Pk',
+      lokasi: 'CAMP PRN BLOK 0',
+      kondisi: 'Rusak Berat',
+      metode: 'Pemusnahan (Rusak Berat / Total Loss)',
+      nilai_sisa: 0,
+      nilai_buku: 0,
+      status: 'Menunggu Review GM',
+      tgl: '2026-10-24',
+      alasan: 'Lambung fiber retak parah kemasukan air asin dan mesin terbakar'
+    },
+    {
+      no_ba: 'BA-DISP-2026-003',
+      kode_asset: 'AST-2024-0014',
+      nama_asset: 'Lemari Pakaian 2 Pintu Metal',
+      lokasi: 'PNS-FAC-LH 01 / Kamar 1',
+      kondisi: 'Rusak Berat',
+      metode: 'Afkir / Scrap (Besi Tua / Daur Ulang)',
+      nilai_sisa: 50000,
+      nilai_buku: 2400000,
+      status: 'Pending GM',
+      tgl: '2026-10-29',
+      alasan: 'Pintu roboh, engsel lepas, dan rangka berkarat rapuh dimakan rayap'
+    }
   ];
 
+  let selectedDisposalAsset = null;
+  let dispSearchQuery = '';
+
   function initAssetDisposalView() {
-    const select = document.getElementById('disp-select-asset');
-    if (select && select.options.length <= 1) {
-      (appState.assets || []).slice(0, 100).forEach(a => {
-        const opt = document.createElement('option');
-        opt.value = a.no_asset;
-        opt.textContent = `${a.no_asset} - ${a.nama_asset}`;
-        select.appendChild(opt);
+    // Load custom disposal history from localStorage if available
+    try {
+      const saved = localStorage.getItem('pns_disposal_history');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          assetDisposalHistory = parsed;
+        }
+      }
+    } catch (e) {}
+
+    // Populate Datalist with authentic Kode Aset
+    const datalist = document.getElementById('disp-asset-datalist');
+    if (datalist) {
+      const allSource = [
+        ...(appState.assets || []),
+        ...(appState.enterpriseAssets || [])
+      ];
+
+      const seenCodes = new Set();
+      const optionsHtml = [];
+      
+      allSource.forEach(a => {
+        const code = String(a.no_asset || '').trim();
+        if (code && code !== 'CO' && code !== '-' && !seenCodes.has(code)) {
+          seenCodes.add(code);
+          const name = a.nama_asset || a.kategori_asset || 'Aset';
+          const bldg = a.kode_gedung || '';
+          optionsHtml.push(`<option value="${escapeHtml(code)}">${escapeHtml(code)} &bull; ${escapeHtml(name)} (${escapeHtml(bldg)})</option>`);
+        }
       });
+
+      datalist.innerHTML = optionsHtml.slice(0, 1500).join('');
     }
+
+    // Generate auto BA Number
+    generateNextBaNumber();
     renderDispHistoryTable();
   }
 
-  function onDispAssetSelected() {
-    const noAsset = document.getElementById('disp-select-asset')?.value;
-    const item = (appState.assets || []).find(a => a.no_asset === noAsset);
-    const currName = document.getElementById('disp-curr-name');
-    const currNbv = document.getElementById('disp-curr-nbv');
-    if (item) {
-      if (currName) currName.innerText = item.nama_asset || '-';
-      if (currNbv) currNbv.innerText = 'Rp ' + Number(item.total_harga_perolehan || 0).toLocaleString('id-ID');
+  function generateNextBaNumber() {
+    const baInput = document.getElementById('disp-no-ba');
+    if (!baInput) return;
+    const year = new Date().getFullYear();
+    const count = assetDisposalHistory.length + 1;
+    baInput.value = `BA-DISP-${year}-${('000' + count).slice(-3)}`;
+  }
+
+  function onDispAssetCodeInput(kode) {
+    const cleanCode = String(kode || '').trim();
+    const allSource = [
+      ...(appState.assets || []),
+      ...(appState.enterpriseAssets || [])
+    ];
+
+    selectedDisposalAsset = allSource.find(a => String(a.no_asset || '').trim().toLowerCase() === cleanCode.toLowerCase());
+
+    const cardKode = document.getElementById('disp-card-kode');
+    const cardNama = document.getElementById('disp-card-nama');
+    const cardLokasi = document.getElementById('disp-card-lokasi');
+    const cardKondisi = document.getElementById('disp-card-kondisi');
+    const cardNbv = document.getElementById('disp-card-nbv');
+    const badgeStatus = document.getElementById('disp-detail-status-badge');
+
+    if (selectedDisposalAsset) {
+      let name = selectedDisposalAsset.nama_asset || selectedDisposalAsset.kategori_asset || '-';
+      if (name.toLowerCase().includes('non-val') && selectedDisposalAsset.kategori_asset) {
+        name = selectedDisposalAsset.kategori_asset;
+      }
+      const bldg = selectedDisposalAsset.kode_gedung || '-';
+      const room = selectedDisposalAsset.nama_ruangan || '-';
+      const cond = selectedDisposalAsset.kondisi || 'Rusak Berat';
+      const val = Number(selectedDisposalAsset.total_harga_perolehan || selectedDisposalAsset.nilai_buku || 0);
+
+      if (cardKode) cardKode.innerText = selectedDisposalAsset.no_asset;
+      if (cardNama) cardNama.innerText = name;
+      if (cardLokasi) cardLokasi.innerText = `${bldg} / ${room}`;
+      if (cardKondisi) cardKondisi.innerText = cond;
+      if (cardNbv) cardNbv.innerText = 'Rp ' + val.toLocaleString('id-ID');
+      if (badgeStatus) {
+        badgeStatus.className = 'px-2 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800';
+        badgeStatus.innerText = 'Aset Teridentifikasi ✓';
+      }
+    } else {
+      if (cardKode) cardKode.innerText = cleanCode || '-';
+      if (cardNama) cardNama.innerText = cleanCode ? 'Aset khusus / tidak di katalog' : '-';
+      if (cardLokasi) cardLokasi.innerText = '-';
+      if (cardKondisi) cardKondisi.innerText = '-';
+      if (cardNbv) cardNbv.innerText = '-';
+      if (badgeStatus) {
+        badgeStatus.className = 'px-2 py-0.5 rounded text-[9px] font-bold bg-slate-200 text-slate-700';
+        badgeStatus.innerText = cleanCode ? 'Manual Input' : 'Belum Dipilih';
+      }
     }
   }
 
   function submitAssetDisposal(evt) {
     if (evt) evt.preventDefault();
-    const noAsset = document.getElementById('disp-select-asset')?.value;
+    const kode = document.getElementById('disp-input-kode')?.value.trim();
+    const noBa = document.getElementById('disp-no-ba')?.value.trim();
     const method = document.getElementById('disp-method')?.value;
-    const noBa = document.getElementById('disp-no-ba')?.value;
-    const item = (appState.assets || []).find(a => a.no_asset === noAsset);
+    const nilaiSisa = parseFloat(document.getElementById('disp-nilai-sisa')?.value) || 0;
+    const justifikasi = document.getElementById('disp-justifikasi')?.value.trim();
 
-    if (item) {
-      assetDisposalHistory.unshift({
-        no_ba: noBa,
-        no_asset: noAsset,
-        nama: item.nama_asset,
-        method: method,
-        nbv: item.total_harga_perolehan || 0,
-        status: 'Menunggu Review GM'
-      });
-      renderDispHistoryTable();
-      alert('Pengajuan Berita Acara Disposal ' + noBa + ' berhasil dicatat!');
-      document.getElementById('form-asset-disposal')?.reset();
+    if (!kode || !noBa) {
+      if (typeof alert !== "undefined") alert('Harap isi Kode Aset dan Nomor Berita Acara.');
+      return;
     }
+
+    let namaAsset = selectedDisposalAsset ? (selectedDisposalAsset.nama_asset || selectedDisposalAsset.kategori_asset) : 'Aset Fisik (' + kode + ')';
+    if (namaAsset.toLowerCase().includes('non-val') && selectedDisposalAsset && selectedDisposalAsset.kategori_asset) {
+      namaAsset = selectedDisposalAsset.kategori_asset;
+    }
+
+    const lokasi = selectedDisposalAsset ? `${selectedDisposalAsset.kode_gedung || ''} / ${selectedDisposalAsset.nama_ruangan || ''}` : 'Lokasi Operasional';
+    const nilaiBuku = selectedDisposalAsset ? Number(selectedDisposalAsset.total_harga_perolehan || 0) : 0;
+
+    const newRecord = {
+      no_ba: noBa,
+      kode_asset: kode,
+      nama_asset: namaAsset,
+      lokasi: lokasi,
+      kondisi: selectedDisposalAsset ? (selectedDisposalAsset.kondisi || 'Rusak Berat') : 'Rusak Berat',
+      metode: method,
+      nilai_sisa: nilaiSisa,
+      nilai_buku: nilaiBuku,
+      status: 'Menunggu Review GM',
+      tgl: new Date().toISOString().slice(0, 10),
+      alasan: justifikasi
+    };
+
+    assetDisposalHistory.unshift(newRecord);
+    try {
+      localStorage.setItem('pns_disposal_history', JSON.stringify(assetDisposalHistory));
+    } catch(e) {}
+
+    renderDispHistoryTable();
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: 'success',
+        title: 'Berita Acara Diterbitkan',
+        html: `<b>${escapeHtml(noBa)}</b> berhasil didaftarkan untuk Kode Aset: <b>${escapeHtml(kode)}</b>.<br><span class="text-xs text-slate-500">Status: Menunggu Tanda Tangan General Manager.</span>`,
+        confirmButtonColor: '#e11d48'
+      });
+    } else {
+      if (typeof alert !== "undefined") alert(`Berita Acara ${noBa} berhasil diterbitkan untuk Kode Aset ${kode}!`);
+    }
+
+    // Reset Form & Generate Next BA
+    document.getElementById('form-asset-disposal')?.reset();
+    selectedDisposalAsset = null;
+    onDispAssetCodeInput('');
+    generateNextBaNumber();
+  }
+
+  function onSearchDisposalBa(query) {
+    dispSearchQuery = (query || '').toLowerCase();
+    renderDispHistoryTable();
   }
 
   function renderDispHistoryTable() {
     const tbody = document.getElementById('table-disp-history-body');
     if (!tbody) return;
-    tbody.innerHTML = assetDisposalHistory.map(h => `
-      <tr class="hover:bg-slate-50">
-        <td class="py-2 px-3 font-mono text-[11px] font-bold text-rose-600">${escapeHtml(h.no_ba)}</td>
-        <td class="py-2 px-3 font-mono text-[11px] font-bold text-slate-800">${escapeHtml(h.no_asset)}</td>
-        <td class="py-2 px-3 font-semibold text-slate-800">${escapeHtml(h.nama)}</td>
-        <td class="py-2 px-3 text-slate-600">${escapeHtml(h.method)}</td>
-        <td class="py-2 px-3 text-right font-mono text-slate-800">Rp ${Number(h.nbv).toLocaleString('id-ID')}</td>
-        <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">${escapeHtml(h.status)}</span></td>
-      </tr>
-    `).join('');
+
+    const filtered = assetDisposalHistory.filter(h => {
+      if (!dispSearchQuery) return true;
+      return (
+        String(h.no_ba || '').toLowerCase().includes(dispSearchQuery) ||
+        String(h.kode_asset || '').toLowerCase().includes(dispSearchQuery) ||
+        String(h.nama_asset || '').toLowerCase().includes(dispSearchQuery) ||
+        String(h.lokasi || '').toLowerCase().includes(dispSearchQuery) ||
+        String(h.metode || '').toLowerCase().includes(dispSearchQuery)
+      );
+    });
+
+    if (filtered.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-slate-400">Tidak ada arsip Berita Acara yang cocok dengan pencarian.</td></tr>';
+      return;
+    }
+
+    tbody.innerHTML = filtered.map(h => {
+      let statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">Pending GM</span>';
+      if (h.status === 'Disetujui' || h.status === 'Approved') {
+        statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">Disetujui GM</span>';
+      } else if (h.status === 'Selesai' || h.status === 'Done') {
+        statusBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">Selesai (Diarsip)</span>';
+      }
+
+      return `
+        <tr class="hover:bg-slate-50 transition-colors">
+          <td class="py-2.5 px-3 font-mono text-[11px] font-bold text-rose-600">${escapeHtml(h.no_ba)}</td>
+          <td class="py-2.5 px-3 font-mono text-[11px] font-black text-sky-700 bg-sky-50/50 rounded">${escapeHtml(h.kode_asset)}</td>
+          <td class="py-2.5 px-3">
+            <span class="font-bold text-slate-900 block">${escapeHtml(h.nama_asset)}</span>
+            <span class="text-[10px] text-slate-400 block font-normal">${escapeHtml(h.alasan || '-')}</span>
+          </td>
+          <td class="py-2.5 px-3 text-slate-600 text-[11px]">${escapeHtml(h.lokasi || '-')}</td>
+          <td class="py-2.5 px-3 text-slate-700 font-medium">${escapeHtml(h.metode)}</td>
+          <td class="py-2.5 px-3 text-right font-mono text-slate-800 font-bold">Rp ${Number(h.nilai_sisa || 0).toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-3 text-center">${statusBadge}</td>
+          <td class="py-2.5 px-3 text-center">
+            <button type="button" onclick="printDisposalBa('${escapeHtml(h.no_ba)}')" class="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-bold rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition cursor-pointer shadow-2xs" title="Cetak Berita Acara">
+              <i class="ph-bold ph-printer text-xs text-rose-600"></i> Cetak BA
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
+  }
+
+  function printDisposalBa(noBa) {
+    const item = assetDisposalHistory.find(h => h.no_ba === noBa);
+    if (!item) return;
+
+    const printWindow = window.open('', '_blank', 'width=850,height=900');
+    if (!printWindow) return;
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Berita Acara Penghapusan Aset - ${item.no_ba}</title>
+        <style>
+          body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; font-size: 13px; }
+          .header { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; }
+          .company { font-size: 18px; font-weight: 900; letter-spacing: 0.5px; }
+          .sub-company { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+          .title { text-align: center; font-size: 16px; font-weight: 800; text-transform: uppercase; margin: 25px 0 5px 0; text-decoration: underline; }
+          .ba-num { text-align: center; font-family: monospace; font-size: 13px; font-weight: 700; color: #475569; margin-bottom: 25px; }
+          table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 12px; }
+          table th, table td { border: 1px solid #cbd5e1; padding: 8px 12px; text-align: left; }
+          table th { background: #f8fafc; font-weight: 700; }
+          .sign-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 50px; text-align: center; }
+          .sign-box { border-top: 1px solid #94a3b8; padding-top: 8px; margin-top: 60px; font-weight: 700; font-size: 12px; }
+          @media print { body { padding: 10px; } }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="company">PT PRATAMA NUSANTARA SAKTI</div>
+          <div class="sub-company">Asset Management &amp; Facility Operations Enterprise</div>
+        </div>
+
+        <div class="title">BERITA ACARA PENGHAPUSAN / DISPOSAL ASET</div>
+        <div class="ba-num">Nomor: ${item.no_ba}</div>
+
+        <p>Pada hari ini tanggal <b>${item.tgl}</b>, telah dilakukan pemeriksaan fisik dan verifikasi kelayakan teknis terhadap aktiva tetap perusahaan sebagai berikut:</p>
+
+        <table>
+          <tr><th style="width: 30%;">Kode Aset (No Aset)</th><td style="font-family: monospace; font-weight: 800; font-size: 13px;">${item.kode_asset}</td></tr>
+          <tr><th>Nama Barang / Deskripsi</th><td style="font-weight: 700;">${item.nama_asset}</td></tr>
+          <tr><th>Lokasi Fisik / Gedung</th><td>${item.lokasi}</td></tr>
+          <tr><th>Kondisi Fisik Terakhir</th><td style="color: #e11d48; font-weight: 700;">${item.kondisi}</td></tr>
+          <tr><th>Metode Penghapusan</th><td>${item.metode}</td></tr>
+          <tr><th>Nilai Buku Tercatat</th><td>Rp ${Number(item.nilai_buku || 0).toLocaleString('id-ID')}</td></tr>
+          <tr><th>Taksiran Nilai Sisa / Realisasi</th><td>Rp ${Number(item.nilai_sisa || 0).toLocaleString('id-ID')}</td></tr>
+          <tr><th>Alasan / Justifikasi Teknis</th><td>${item.alasan}</td></tr>
+        </table>
+
+        <p>Berdasarkan pertimbangan teknis di atas, maka aktiva tersebut dinyatakan <b>Dihapuskan dari Daftar Inventaris Aktiva Tetap Perusahaan</b>.</p>
+
+        <div class="sign-grid">
+          <div>
+            <div>Dibuat Oleh:</div>
+            <div class="sign-box">Miftahul Khoiry<br><span style="font-weight:normal; font-size:10px; color:#64748b;">PIC Asset Management</span></div>
+          </div>
+          <div>
+            <div>Diperiksa Oleh:</div>
+            <div class="sign-box">Rizal Dwi<br><span style="font-weight:normal; font-size:10px; color:#64748b;">Manager General Affairs</span></div>
+          </div>
+          <div>
+            <div>Disetujui Oleh:</div>
+            <div class="sign-box">General Manager<br><span style="font-weight:normal; font-size:10px; color:#64748b;">PT Pratama Nusantara Sakti</span></div>
+          </div>
+        </div>
+
+        <script>
+          window.onload = function() { window.print(); }
+        </script>
+      </body>
+      </html>
+    `);
+    printWindow.document.close();
+  }
+
+  function exportDisposalArchiveCsv() {
+    let csv = 'No BA;Kode Aset;Nama Barang;Lokasi;Metode;Nilai Sisa;Status;Tanggal;Alasan\n';
+    assetDisposalHistory.forEach(h => {
+      csv += `"${h.no_ba}";"${h.kode_asset}";"${h.nama_asset}";"${h.lokasi}";"${h.metode}";${h.nilai_sisa};"${h.status}";"${h.tgl}";"${h.alasan}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'Arsip_Berita_Acara_Disposal_PNS.csv';
+    link.click();
   }
 
 // ==========================================
@@ -1601,6 +1883,12 @@
   }
 
   function renderAssetsTable() {
+    // Prevent 200 items overwrite bug: ensure full 15,886 room facility items are loaded
+    if (!appState.assets || appState.assets.length < 500) {
+      if (typeof window !== 'undefined' && window.PNS_MASTER_DATA && Array.isArray(window.PNS_MASTER_DATA.hrgaAssets)) {
+        appState.assets = window.PNS_MASTER_DATA.hrgaAssets;
+      }
+    }
     const tbody = document.getElementById('table-assets-body');
     if (!tbody) return;
 
@@ -1656,24 +1944,40 @@
     }
 
     tbody.innerHTML = paginated.map(a => {
+      let noAsset = String(a.no_asset || '-').trim();
+      let namaAsset = String(a.nama_asset || '-').trim();
+      let kategori = String(a.kategori_asset || '-').trim();
+
+      // Clean up generic raw SAP labels: put real description as asset name
+      if (namaAsset.toLowerCase().includes('non-val') && kategori.length > 3) {
+        namaAsset = kategori;
+        kategori = 'Inventaris Fasilitas';
+      }
+      if (noAsset === 'CO' || !noAsset || noAsset === '-') {
+        const hashStr = String(namaAsset + (a.nama_ruangan || '') + (a.kode_gedung || ''));
+        let hash = 0;
+        for (let i = 0; i < hashStr.length; i++) hash = ((hash << 5) - hash) + hashStr.charCodeAt(i);
+        noAsset = 'NVA-FAC-' + String(Math.abs(hash) % 100000).padStart(5, '0');
+      }
+
       const kondisi = a.kondisi || 'Baik';
-      let kondisiClass = 'bg-emerald-100 text-emerald-800  ';
-      if (kondisi.toLowerCase().includes('rusak berat')) {
-        kondisiClass = 'bg-rose-100 text-rose-800  ';
+      let kondisiClass = 'bg-emerald-50 text-emerald-700 border border-emerald-200';
+      if (kondisi.toLowerCase().includes('rusak berat') || kondisi.toLowerCase().includes('hilang')) {
+        kondisiClass = 'bg-rose-50 text-rose-700 border border-rose-200';
       } else if (kondisi.toLowerCase().includes('rusak ringan')) {
-        kondisiClass = 'bg-amber-100 text-amber-800  ';
+        kondisiClass = 'bg-amber-50 text-amber-700 border border-amber-200';
       }
 
       return `
-        <tr class="hover:bg-slate-50 :bg-slate-800/50 transition">
-          <td class="py-2 px-3 font-mono font-bold text-sky-600">${escapeHtml(a.no_asset)}</td>
-          <td class="py-2 px-3 font-semibold text-slate-900">${escapeHtml(a.nama_asset)}</td>
-          <td class="py-2 px-3 font-mono text-slate-500">${escapeHtml(a.kode_gedung)}</td>
-          <td class="py-2 px-3">${escapeHtml(a.nama_ruangan)}</td>
-          <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100">${escapeHtml(a.kategori_asset || '-')}</span></td>
-          <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${kondisiClass}">${escapeHtml(kondisi)}</span></td>
-          <td class="py-2 px-3 text-right font-mono num-tabular">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</td>
-          <td class="py-2 px-3 text-slate-500 font-mono">${escapeHtml(a.tanggal_perolehan || '-')}</td>
+        <tr class="hover:bg-slate-50 transition">
+          <td class="py-2.5 px-3 font-mono font-bold text-sky-600">${escapeHtml(noAsset)}</td>
+          <td class="py-2.5 px-3 font-semibold text-slate-900">${escapeHtml(namaAsset)}</td>
+          <td class="py-2.5 px-3 font-mono text-slate-600 font-medium">${escapeHtml(a.kode_gedung)}</td>
+          <td class="py-2.5 px-3 text-slate-700">${escapeHtml(a.nama_ruangan)}</td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">${escapeHtml(kategori)}</span></td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${kondisiClass}">${escapeHtml(kondisi)}</span></td>
+          <td class="py-2.5 px-3 text-right font-mono num-tabular font-medium text-slate-800">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-3 text-slate-500 font-mono text-[11px]">${escapeHtml(a.tanggal_perolehan || '-')}</td>
         </tr>
       `;
     }).join('');
@@ -4686,8 +4990,12 @@
     window.onStatusAssetSelected = onStatusAssetSelected;
     window.submitAssetStatus = submitAssetStatus;
     window.initAssetDisposalView = initAssetDisposalView;
-    window.onDispAssetSelected = onDispAssetSelected;
+    window.onDispAssetCodeInput = onDispAssetCodeInput;
+    window.onDispAssetSelected = onDispAssetCodeInput;
+    window.onSearchDisposalBa = onSearchDisposalBa;
     window.submitAssetDisposal = submitAssetDisposal;
+    window.printDisposalBa = printDisposalBa;
+    window.exportDisposalArchiveCsv = exportDisposalArchiveCsv;
 
     // Master Catalog & Portfolio (34K+)
     window.renderAllAssetsTable = renderAllAssetsTable;
