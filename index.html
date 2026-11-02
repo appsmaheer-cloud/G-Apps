@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="theme-color" content="#0F172A">
+  <meta name="theme-color" content="#FFFFFF">
   <title>PNS Asset Management Enterprise — PT Pratama Nusantara Sakti</title>
   <link id="app-favicon" rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230284C7'/%3E%3Ctext x='16' y='21' font-family='sans-serif' font-size='13' font-weight='bold' fill='white' text-anchor='middle'%3EPNS%3C/text%3E%3C/svg%3E">
 
@@ -16,7 +16,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      darkMode: 'class',
+      
       theme: {
         extend: {
           fontFamily: {
@@ -34,10 +34,10 @@
   <!-- Modular CSS Included from CSS.html -->
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="text-slate-800 dark:text-slate-100 min-h-screen flex flex-col transition-colors duration-150">
+<body class="text-slate-800 bg-slate-50 h-screen overflow-hidden flex flex-col font-sans antialiased">
 
   <!-- TOP HEADER -->
-  <header class="sticky top-0 z-40 bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-800 px-4 py-2.5 flex items-center justify-between">
+  <header class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0 shadow-2xs z-40">
     <div class="flex items-center gap-3">
       <button id="btn-toggle-sidebar" aria-label="Buka atau tutup navigasi samping" class="lg:hidden p-1.5 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300">
         <i class="ph-bold ph-list text-lg" aria-hidden="true"></i>
@@ -79,11 +79,7 @@
         <span id="sync-text">Sheets Synced</span>
       </div>
 
-      <!-- Theme Switcher -->
-      <button id="btn-theme-toggle" aria-label="Ganti tema tampilan terang atau gelap" class="p-2 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition">
-        <i class="ph-bold ph-moon dark:hidden text-base" aria-hidden="true"></i>
-        <i class="ph-bold ph-sun hidden dark:block text-base text-amber-400" aria-hidden="true"></i>
-      </button>
+      
 
       <!-- User Profile Badge -->
       <div class="flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-slate-700">
@@ -99,12 +95,12 @@
   </header>
 
   <!-- MAIN APP CONTAINER (SIDEBAR + CONTENT) -->
-  <div class="flex-1 flex overflow-hidden">
+  <div class="flex-1 flex overflow-hidden min-h-0">
 
     <!-- SIDEBAR NAVIGATION (3 PILAR OPERASIONAL) -->
         <!-- SIDEBAR NAVIGATION (HRGA ASSET, ALL ASSET & MAINTENANCE) -->
         <!-- SIDEBAR NAVIGATION: ASSET MANAGEMENT & FACILITY MANAGEMENT (HRGA) -->
-    <aside id="app-sidebar" class="w-64 bg-white dark:bg-[#0F172A] border-r border-slate-200 dark:border-slate-800 flex flex-col shrink-0 transition-transform duration-200 overflow-y-auto scrollbar-thin absolute lg:static z-30 inset-y-0 left-0 -translate-x-full lg:translate-x-0">
+    <aside id="app-sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full overflow-y-auto scrollbar-thin z-30 fixed lg:static inset-y-0 left-0 -translate-x-full lg:translate-x-0 transition-transform duration-200 shadow-sm lg:shadow-none">
       <div class="p-4 border-b border-slate-100 dark:border-slate-800/80 flex items-center gap-3 bg-slate-50/70 dark:bg-slate-900/50">
         <div class="w-8 h-8 rounded-lg bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-1 flex items-center justify-center shadow-xs shrink-0">
           <img data-pns-logo alt="Logo PNS" width="24" height="24" class="w-full h-full object-contain">
@@ -213,7 +209,7 @@
     </aside>
 
     <!-- CONTENT AREA -->
-    <main class="flex-1 overflow-y-auto scrollbar-thin p-4 sm:p-6 space-y-6">
+    <main class="flex-1 h-full overflow-y-auto scrollbar-thin p-4 sm:p-6 space-y-6 bg-slate-50/70">
 
       <!-- ======================================================== -->
       <!-- VIEW: EXECUTIVE DASHBOARD -->

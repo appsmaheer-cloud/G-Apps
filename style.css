@@ -15,19 +15,7 @@
     --selection-text: #0F172A;
   }
 
-  html.dark {
-    /* Layer 2: Semantic Tokens (Dark Mode) */
-    --bg-canvas: #0B1120;
-    --bg-surface: #0F172A;
-    --bg-subtle: #1E293B;
-    --border-subtle: #1E293B;
-    --border-hover: #334155;
-    --text-primary: #F8FAFC;
-    --text-secondary: #CBD5E1;
-    --text-muted: #94A3B8;
-    --selection-bg: rgba(56, 189, 248, 0.25);
-    --selection-text: #F8FAFC;
-  }
+  
 
   ::selection {
     background-color: var(--selection-bg);
