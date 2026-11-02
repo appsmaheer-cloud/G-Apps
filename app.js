@@ -1245,50 +1245,70 @@
   }
 
   function getDefaultRoomFacilityAssets(kodeGedung, namaRuangan) {
-  var rName = namaRuangan || 'Kamar';
-  var rUpper = String(rName).toUpperCase();
+    var rName = namaRuangan || 'Ruangan';
+    var rUpper = String(rName).toUpperCase();
 
-  // 1. Standar Pantry / Dapur Hunian & Mess
-  if (rUpper.indexOf('PANTRY') !== -1 || rUpper.indexOf('DAPUR') !== -1) {
+    // 1. Standar Pantry / Dapur
+    if (rUpper.indexOf('PANTRY') !== -1 || rUpper.indexOf('DAPUR') !== -1) {
+      return [
+        { no_asset: 'PNS-FAC-KK-25', nama_asset: 'KULKAS 2 PINTU SHARP SJ-237ND', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 3150000 },
+        { no_asset: 'PNS-FAC-DPS-40', nama_asset: 'DISPENSER AIR POLYTRON PWC776 HOT & COLD', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 2150000 },
+        { no_asset: 'N-700-712-0001-9723', nama_asset: 'KOMPOR GAS 2 TUNGKU RINNAI RI-522C', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Peralatan', total_harga_perolehan: 300000 },
+        { no_asset: 'N-700-712-0001-1868', nama_asset: 'TABUNG GAS LPG 12 KG PERTAMINA', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Peralatan', total_harga_perolehan: 490000 },
+        { no_asset: 'N-700-712-0001-5086', nama_asset: 'MEJA MAKAN PANTRY KAYU 120 X 60 CM', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 725000 },
+        { no_asset: 'N-700-712-0001-2291', nama_asset: 'KURSI LIPAT CHITOSE TYPE YAMATO HAA', qty: '4 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1220000 },
+        { no_asset: 'NVA-LMP-01', nama_asset: 'LAMPU LED PLAFON PANTRY 12W PHILIPS', qty: '2 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Standar', total_harga_perolehan: 0 },
+        { no_asset: 'NVA-KST-01', nama_asset: 'STOP KONTAK & SAKLAR LISTRIK PANASONIC', qty: '3 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Standar', total_harga_perolehan: 0 },
+        { no_asset: 'NVA-TS-01', nama_asset: 'TEMPAT SAMPAH INJAK 20L LION STAR', qty: '1 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Standar', total_harga_perolehan: 0 }
+      ];
+    }
+
+    // 2. Standar Kantin / Ruang Makan
+    if (rUpper.indexOf('MAKAN') !== -1 || rUpper.indexOf('KANTIN') !== -1 || rUpper.indexOf('PENYAJIAN') !== -1) {
+      return [
+        { no_asset: 'N-700-712-0001-5086', nama_asset: 'MEJA MAKAN KANTIN STAINLESS / KAYU PANJANG 180 CM', qty: '4 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 4800000 },
+        { no_asset: 'N-700-712-0001-2291', nama_asset: 'KURSI MAKAN PLASTIK / BESI CHITOSE', qty: '16 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 3200000 },
+        { no_asset: 'PNS-FAC-AC-107', nama_asset: 'AC SPLIT / KIPAS ANGIN DINDING TORNADO 18 INCH', qty: '2 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 1750000 },
+        { no_asset: 'PNS-FAC-DPS-40', nama_asset: 'DISPENSER AIR MINUM KANTIN HOT & COLD', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 2150000 },
+        { no_asset: 'NVA-LMP-KTN', nama_asset: 'LAMPU LED PLAFON RUANG MAKAN 18W PHILIPS', qty: '4 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Standar', total_harga_perolehan: 0 },
+        { no_asset: 'NVA-WAS-01', nama_asset: 'WASTAFEL CUCI TANGAN + KRAN AIR STAINLESS', qty: '2 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Standar', total_harga_perolehan: 0 },
+        { no_asset: 'NVA-TS-KTN', nama_asset: 'TEMPAT SAMPAH INJAK KAPASITAS BESAR 45L', qty: '2 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Standar', total_harga_perolehan: 0 }
+      ];
+    }
+
+    // 3. Standar Kantor / Ruang Kerja / Ruang Meeting
+    if (rUpper.indexOf('KANTOR') !== -1 || rUpper.indexOf('OFFICE') !== -1 || rUpper.indexOf('MEETING') !== -1 || rUpper.indexOf('KERJA') !== -1 || rUpper.indexOf('PETUGAS') !== -1) {
+      return [
+        { no_asset: 'N-700-712-0001-5111', nama_asset: 'MEJA KERJA STAFF MODERA 120 X 70 CM', qty: '2 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 2400000 },
+        { no_asset: 'N-700-712-0001-1278', nama_asset: 'KURSI KERJA STAFF HIDROLIK INDACHI', qty: '2 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1700000 },
+        { no_asset: 'PNS-FAC-AC-75', nama_asset: 'AC SPLIT 1 PK SHARP ECO INVERTER', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 4650000 },
+        { no_asset: 'NVA-LMP-OFF', nama_asset: 'LAMPU LED TUBE RUANG KERJA 16W PHILIPS', qty: '2 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Standar', total_harga_perolehan: 0 },
+        { no_asset: 'NVA-KST-OFF', nama_asset: 'STOP KONTAK LISTRIK & LAN JARINGAN', qty: '4 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Standar', total_harga_perolehan: 0 },
+        { no_asset: 'NVA-TS-OFF', nama_asset: 'TEMPAT SAMPAH KERANJANG KERTAS 10L', qty: '2 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Standar', total_harga_perolehan: 0 }
+      ];
+    }
+
+    // 4. Standar Fasilitas Kamar Hunian Mess & Longhouse (Valuable + Non-Valuable Lengkap)
     return [
-      { no_asset: 'PNS-FAC-KK-25', nama_asset: 'KULKAS 2 PINTU SHARP SJ-237ND', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 3150000 },
-      { no_asset: 'PNS-FAC-DPS-40', nama_asset: 'DISPENSER AIR POLYTRON PWC776 HOT & COLD', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 2150000 },
-      { no_asset: 'N-700-712-0001-9723', nama_asset: 'KOMPOR GAS 2 TUNGKU RINNAI RI-522C', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Peralatan', total_harga_perolehan: 300000 },
-      { no_asset: 'N-700-712-0001-1868', nama_asset: 'TABUNG GAS LPG 12 KG PERTAMINA', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Peralatan', total_harga_perolehan: 490000 },
-      { no_asset: 'N-700-712-0001-5086', nama_asset: 'MEJA MAKAN PANTRY KAYU 120 X 60 CM', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 725000 },
-      { no_asset: 'N-700-712-0001-2291', nama_asset: 'KURSI LIPAT CHITOSE TYPE YAMATO HAA', qty: '4 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Furniture', total_harga_perolehan: 1220000 },
-      { no_asset: 'NVA-LMP-01', nama_asset: 'LAMPU LED PLAFON PANTRY 12W PHILIPS', qty: '2 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Mess', total_harga_perolehan: 0 },
-      { no_asset: 'NVA-KST-01', nama_asset: 'STOP KONTAK & SAKLAR LISTRIK PANASONIC', qty: '3 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Mess', total_harga_perolehan: 0 },
-      { no_asset: 'NVA-TS-01', nama_asset: 'TEMPAT SAMPAH INJAK 20L LION STAR', qty: '1 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 0 }
+      { no_asset: 'N-700-712-0001-9704', nama_asset: 'SPRINGBED 100 X 200 X 25 ROMANCE FEELING LOVELY (BED A)', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'MESS & HUNIAN', total_harga_perolehan: 3218600 },
+      { no_asset: 'N-700-712-0001-9705', nama_asset: 'SPRINGBED 100 X 200 X 25 ROMANCE FEELING LOVELY (BED B)', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'MESS & HUNIAN', total_harga_perolehan: 3218600 },
+      { no_asset: 'N-700-712-0001-10497', nama_asset: 'LEMARI PAKAIAN 2 PINTU LC - NATHAN 800X420X1900MM', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'MESS & HUNIAN', total_harga_perolehan: 2600000 },
+      { no_asset: 'PNS-FAC-AC-75', nama_asset: 'AC SPLIT 1 PK SHARP THAILAND ECO INVERTER', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 4650000 },
+      { no_asset: 'N-700-712-0001-1278', nama_asset: 'KURSI LIPAT MERK CHITOSE TYPE YAMATO HAA', qty: '2 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'MESS & HUNIAN', total_harga_perolehan: 610000 },
+      { no_asset: 'N-700-712-0001-5111', nama_asset: 'MEJA KERJA / BELAJAR KAMAR 120 X 60 CM', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'MESS & HUNIAN', total_harga_perolehan: 725000 },
+      { no_asset: 'NVA-LMP-KAMAR', nama_asset: 'LAMPU LED PLAFON UTAMA KAMAR 10W PHILIPS', qty: '1 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Mess', total_harga_perolehan: 0 },
+      { no_asset: 'NVA-KST-KAMAR', nama_asset: 'STOP KONTAK MEJA & SAKLAR LAMPU PANASONIC', qty: '2 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Mess', total_harga_perolehan: 0 },
+      { no_asset: 'N-700-712-0001-4417', nama_asset: 'BANTAL DACRON KEPALA 48X71 CM ROMANCE', qty: '2 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 190000 },
+      { no_asset: 'N-700-712-0001-3918', nama_asset: 'GULING DACRON 37X89 CM ROMANCE', qty: '2 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 210000 },
+      { no_asset: 'N-700-712-0001-2923', nama_asset: 'SPREI TEMPAT TIDUR 100X200 CM STAR POLKADOT', qty: '2 Set', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 180000 },
+      { no_asset: 'N-700-712-0001-5186', nama_asset: 'SELIMUT HANDUK TEBAL 160X200 CM MERK HONEY', qty: '2 Helai', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 240000 },
+      { no_asset: 'N-700-712-0001-2100', nama_asset: 'GORDEN JENDELA UKURAN 130 X 160 CM', qty: '1 Pasang', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 220000 },
+      { no_asset: 'NVA-TS-02', nama_asset: 'TEMPAT SAMPAH KAMAR BASKET 10L LION STAR', qty: '1 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 0 },
+      { no_asset: 'NVA-GNT-01', nama_asset: 'GANTUNGAN BAJU / KAPSTOK DINDING 6 HOOK STAINLESS', qty: '1 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Mess', total_harga_perolehan: 0 },
+      { no_asset: 'NVA-CRM-01', nama_asset: 'CERMIN DINDING WASTAFEL / RIAS 40 X 60 CM', qty: '1 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Mess', total_harga_perolehan: 0 },
+      { no_asset: 'N-700-712-0001-5429', nama_asset: 'PENGKI + SAPU LANTAI NAGATA', qty: '1 Set', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 65000 }
     ];
   }
-
-  // 2. Standar Fasilitas Kamar Hunian Mess & Longhouse (Valuable + Non-Valuable Lengkap)
-  return [
-    // --- ASSET VALUABLE TERDAFTAR (FURNITUR & ELEKTRONIK) ---
-    { no_asset: 'N-700-712-0001-9704', nama_asset: 'SPRINGBED 100 X 200 X 25 ROMANCE FEELING LOVELY (BED A)', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'MESS & HUNIAN', total_harga_perolehan: 3218600 },
-    { no_asset: 'N-700-712-0001-9705', nama_asset: 'SPRINGBED 100 X 200 X 25 ROMANCE FEELING LOVELY (BED B)', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'MESS & HUNIAN', total_harga_perolehan: 3218600 },
-    { no_asset: 'N-700-712-0001-10497', nama_asset: 'LEMARI PAKAIAN 2 PINTU LC - NATHAN 800X420X1900MM', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'MESS & HUNIAN', total_harga_perolehan: 2600000 },
-    { no_asset: 'PNS-FAC-AC-75', nama_asset: 'AC SPLIT 1 PK SHARP THAILAND ECO INVERTER', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'Elektronik', total_harga_perolehan: 4650000 },
-    { no_asset: 'N-700-712-0001-1278', nama_asset: 'KURSI LIPAT MERK CHITOSE TYPE YAMATO HAA', qty: '2 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'MESS & HUNIAN', total_harga_perolehan: 610000 },
-    { no_asset: 'N-700-712-0001-5111', nama_asset: 'MEJA KERJA / BELAJAR KAMAR 120 X 60 CM', qty: '1 Unit', jenis_aset: 'Valuable', kondisi: 'Baik', kategori_asset: 'MESS & HUNIAN', total_harga_perolehan: 725000 },
-
-    // --- FASILITAS NON-VALUABLE & PERLENGKAPAN KAMAR MESS ---
-    { no_asset: 'NVA-LMP-KAMAR', nama_asset: 'LAMPU LED PLAFON UTAMA KAMAR 10W PHILIPS', qty: '1 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Mess', total_harga_perolehan: 0 },
-    { no_asset: 'NVA-KST-KAMAR', nama_asset: 'STOP KONTAK MEJA & SAKLAR LAMPU PANASONIC', qty: '2 Titik', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Mess', total_harga_perolehan: 0 },
-    { no_asset: 'N-700-712-0001-4417', nama_asset: 'BANTAL DACRON KEPALA 48X71 CM ROMANCE', qty: '2 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 190000 },
-    { no_asset: 'N-700-712-0001-3918', nama_asset: 'GULING DACRON 37X89 CM ROMANCE', qty: '2 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 210000 },
-    { no_asset: 'N-700-712-0001-2923', nama_asset: 'SPREI TEMPAT TIDUR 100X200 CM STAR POLKADOT', qty: '2 Set', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 180000 },
-    { no_asset: 'N-700-712-0001-5186', nama_asset: 'SELIMUT HANDUK TEBAL 160X200 CM MERK HONEY', qty: '2 Helai', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 240000 },
-    { no_asset: 'N-700-712-0001-2100', nama_asset: 'GORDEN JENDELA UKURAN 130 X 160 CM', qty: '1 Pasang', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 220000 },
-    { no_asset: 'N-700-712-0001-3319', nama_asset: 'TIANG & REL GORDEN ALUMUNIUM 120 CM', qty: '1 Set', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 110000 },
-    { no_asset: 'N-700-712-0001-1657', nama_asset: 'KERANJANG PAKAIAN KOTOR 20L LION STAR + TUTUP', qty: '1 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 75000 },
-    { no_asset: 'NVA-TS-02', nama_asset: 'TEMPAT SAMPAH KAMAR BASKET 10L LION STAR', qty: '1 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 0 },
-    { no_asset: 'NVA-GNT-01', nama_asset: 'GANTUNGAN BAJU / KAPSTOK DINDING 6 HOOK STAINLESS', qty: '1 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Mess', total_harga_perolehan: 0 },
-    { no_asset: 'NVA-CRM-01', nama_asset: 'CERMIN DINDING WASTAFEL / RIAS 40 X 60 CM', qty: '1 Unit', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Fasilitas Mess', total_harga_perolehan: 0 },
-    { no_asset: 'N-700-712-0001-5429', nama_asset: 'PENGKI + SAPU LANTAI NAGATA', qty: '1 Set', jenis_aset: 'Non-Valuable', kondisi: 'Baik', kategori_asset: 'Perlengkapan', total_harga_perolehan: 65000 }
-  ];
-}
 
   // ==========================================
   // OCCUPANTS & ROOM ASSETS CONTROLLER (HRGA)
@@ -1417,20 +1437,40 @@
       }
     }
 
-    // 1. Ambil aset terdaftar di database untuk gedung & ruangan ini
+    // 1. Ambil aset asli & valid terdaftar di database untuk gedung & ruangan ini
     let matchedAssets = [];
     const bUpper = String(bCode).trim().toUpperCase();
     const rUpper = String(rName).trim().toUpperCase();
 
-    if (appState.assets && appState.assets.length > 0) {
-      matchedAssets = appState.assets.filter(a => {
-        const ab = String(a.kode_gedung || a.nama_gedung || '').trim().toUpperCase();
-        const ar = String(a.nama_ruangan || a.ruangan || '').trim().toUpperCase();
-        return (ab === bUpper || ab.includes(bUpper) || bUpper.includes(ab)) && 
-               (ar === rUpper || ar.includes(rUpper) || rUpper.includes(ar)) &&
-               isFacilityAssetItem(a);
-      });
+    // Gabungkan pool data master HRGA dan appState.assets untuk memastikan seluruh 15.778 aset tercover
+    const rawAssetPool = [
+      ...(Array.isArray(appState.assets) ? appState.assets : []),
+      ...(Array.isArray(appState.enterpriseAssets) ? appState.enterpriseAssets : []),
+      ...((typeof window !== 'undefined' && window.PNS_MASTER_DATA && Array.isArray(window.PNS_MASTER_DATA.hrgaAssets)) ? window.PNS_MASTER_DATA.hrgaAssets : [])
+    ];
+
+    const seenAssetNos = new Set();
+    const completeAssetPool = [];
+    for (let i = 0; i < rawAssetPool.length; i++) {
+      const item = rawAssetPool[i];
+      const no = String(item.no_asset || item.kode_asset || item.kode_unit || '').trim();
+      if (!no || !seenAssetNos.has(no)) {
+        if (no) seenAssetNos.add(no);
+        completeAssetPool.push(item);
+      }
     }
+
+    matchedAssets = completeAssetPool.filter(a => {
+      const ab = String(a.kode_gedung || a.nama_gedung || '').trim().toUpperCase();
+      const ar = String(a.nama_ruangan || a.ruangan || '').trim().toUpperCase();
+
+      const bMatch = (ab === bUpper || ab.includes(bUpper) || bUpper.includes(ab) ||
+        ab.replace(/[^A-Z0-9]/g, '') === bUpper.replace(/[^A-Z0-9]/g, ''));
+      const rMatch = (ar === rUpper || ar.includes(rUpper) || rUpper.includes(ar) ||
+        ar.replace(/[^A-Z0-9]/g, '') === rUpper.replace(/[^A-Z0-9]/g, ''));
+
+      return bMatch && rMatch && isFacilityAssetItem(a);
+    });
 
     let checklist = [];
     if (matchedAssets.length > 0) {
