@@ -136,32 +136,261 @@
     ],
     workOrders: [
       {
-        wo_id: 1,
-        no_wo: 'WO-0384',
-        tipe_wo: 'Korektif',
-        prioritas: 'Tinggi',
-        judul_pekerjaan: 'Penggantian keran wastafel bocor',
-        kode_gedung: 'PNS-GH-01',
-        lokasi_detail: 'Kamar Tamu 01',
-        teknisi_nama: 'Slamet Riyadi',
-        sla_target: 'SLA 1 Hari',
-        status: 'Dikerjakan',
-        biaya_estimasi: 120000
+            "wo_id": "1",
+            "no_wo": "WO-0384",
+            "tipe_wo": "Korektif",
+            "prioritas": "Rendah",
+            "judul_pekerjaan": "Lampu koridor mati",
+            "deskripsi": "Penggantian lampu LED koridor yang putus",
+            "kode_gedung": "PNS-OFFICE-01",
+            "lokasi_detail": "Gedung B, Lantai 3",
+            "teknisi_nama": null,
+            "teknisi_inisial": null,
+            "sla_target": "SLA 2 hari",
+            "status": "Baru",
+            "is_overdue": "0",
+            "biaya_estimasi": "75000.00",
+            "created_at": "2026-10-14 10:39:37"
       },
       {
-        wo_id: 2,
-        no_wo: 'WO-0385',
-        tipe_wo: 'Preventif',
-        prioritas: 'Sedang',
-        judul_pekerjaan: 'Pembersihan filter AC berkala',
-        kode_gedung: 'PNS-FAC-LH 01',
-        lokasi_detail: 'Seluruh Kamar Longhouse',
-        teknisi_nama: 'Budi Santoso',
-        sla_target: 'SLA 3 Hari',
-        status: 'Baru',
-        biaya_estimasi: 350000
+            "wo_id": "2",
+            "no_wo": "WO-0383",
+            "tipe_wo": "Korektif",
+            "prioritas": "Tinggi",
+            "judul_pekerjaan": "Kebocoran pipa toilet",
+            "deskripsi": "Pipa air bersih bocor di toilet pria lantai 1",
+            "kode_gedung": "PNS-FAC-OFFICE-01",
+            "lokasi_detail": "Gedung A, Lantai 1",
+            "teknisi_nama": null,
+            "teknisi_inisial": null,
+            "sla_target": "SLA 6 jam",
+            "status": "Baru",
+            "is_overdue": "0",
+            "biaya_estimasi": "250000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "3",
+            "no_wo": "WO-0382",
+            "tipe_wo": "Korektif",
+            "prioritas": "Sedang",
+            "judul_pekerjaan": "Pintu otomatis lobi macet",
+            "deskripsi": "Sensor pintu utama tidak mendeteksi pergerakan",
+            "kode_gedung": "PNS-FAC-OFFICE-01",
+            "lokasi_detail": "Gedung A, Lobi",
+            "teknisi_nama": null,
+            "teknisi_inisial": null,
+            "sla_target": "SLA 1 hari",
+            "status": "Baru",
+            "is_overdue": "0",
+            "biaya_estimasi": "350000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "4",
+            "no_wo": "WO-0385",
+            "tipe_wo": "Preventif",
+            "prioritas": "Rendah",
+            "judul_pekerjaan": "Pembersihan filter exhaust fan",
+            "deskripsi": "Perawatan rutin exhaust toilet dan pantry",
+            "kode_gedung": "PNS-FAC-LH 01",
+            "lokasi_detail": "Longhouse 01 KM 18",
+            "teknisi_nama": null,
+            "teknisi_inisial": null,
+            "sla_target": "SLA 3 hari",
+            "status": "Baru",
+            "is_overdue": "0",
+            "biaya_estimasi": "100000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "5",
+            "no_wo": "WO-0380",
+            "tipe_wo": "Preventif",
+            "prioritas": "Tinggi",
+            "judul_pekerjaan": "Servis rutin lift penumpang 2",
+            "deskripsi": "Pengecekan sling, rem darurat, dan pelumasan rel",
+            "kode_gedung": "PNS-FAC-OFFICE-01",
+            "lokasi_detail": "Gedung A, Lift 2",
+            "teknisi_nama": "Hendra",
+            "teknisi_inisial": "HN",
+            "sla_target": "SLA 1 hari",
+            "status": "Ditugaskan",
+            "is_overdue": "0",
+            "biaya_estimasi": "1200000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "6",
+            "no_wo": "WO-0379",
+            "tipe_wo": "Preventif",
+            "prioritas": "Sedang",
+            "judul_pekerjaan": "Ganti filter AHU",
+            "deskripsi": "Penggantian filter hepa sistem pendingin sentral",
+            "kode_gedung": "PNS-OFFICE-01",
+            "lokasi_detail": "Gedung B, Lantai 2",
+            "teknisi_nama": "Sari",
+            "teknisi_inisial": "SR",
+            "sla_target": "SLA 3 hari",
+            "status": "Ditugaskan",
+            "is_overdue": "0",
+            "biaya_estimasi": "450000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "7",
+            "no_wo": "WO-0377",
+            "tipe_wo": "Korektif",
+            "prioritas": "Rendah",
+            "judul_pekerjaan": "Cat ulang dinding unit A-0803",
+            "deskripsi": "Pengecatan ulang pasca kebocoran atap yang sudah diperbaiki",
+            "kode_gedung": "PNS-GH-01-3",
+            "lokasi_detail": "Guest House 10, Kamar 3",
+            "teknisi_nama": "Joko",
+            "teknisi_inisial": "JK",
+            "sla_target": "SLA 5 hari",
+            "status": "Ditugaskan",
+            "is_overdue": "0",
+            "biaya_estimasi": "600000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "8",
+            "no_wo": "WO-0378",
+            "tipe_wo": "Korektif",
+            "prioritas": "Sedang",
+            "judul_pekerjaan": "Perbaikan engsel pintu loker",
+            "deskripsi": "3 unit pintu loker besi longgar di kamar operator",
+            "kode_gedung": "PNS-FAC-LH 02",
+            "lokasi_detail": "Longhouse 02, Kamar 1",
+            "teknisi_nama": "Teguh",
+            "teknisi_inisial": "TG",
+            "sla_target": "SLA 2 hari",
+            "status": "Ditugaskan",
+            "is_overdue": "0",
+            "biaya_estimasi": "150000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "9",
+            "no_wo": "WO-0381",
+            "tipe_wo": "Korektif",
+            "prioritas": "Tinggi",
+            "judul_pekerjaan": "AC sentral lantai 3 tidak dingin",
+            "deskripsi": "Tekanan freon drop dan motor kompresor overheat",
+            "kode_gedung": "PNS-FAC-OFFICE-01",
+            "lokasi_detail": "Gedung A, Lantai 3",
+            "teknisi_nama": "Hendra",
+            "teknisi_inisial": "HN",
+            "sla_target": "Lewat SLA",
+            "status": "Dikerjakan",
+            "is_overdue": "1",
+            "biaya_estimasi": "850000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "10",
+            "no_wo": "WO-0376",
+            "tipe_wo": "Korektif",
+            "prioritas": "Tinggi",
+            "judul_pekerjaan": "Perbaikan genset utama",
+            "deskripsi": "Penggantian AVR dan pengecekan fuel injector",
+            "kode_gedung": "PNS-FAC-OFFICE-01",
+            "lokasi_detail": "Gedung A, Basement",
+            "teknisi_nama": "Teguh",
+            "teknisi_inisial": "TG",
+            "sla_target": "SLA 4 jam",
+            "status": "Dikerjakan",
+            "is_overdue": "0",
+            "biaya_estimasi": "3200000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "11",
+            "no_wo": "WO-0374",
+            "tipe_wo": "Korektif",
+            "prioritas": "Rendah",
+            "judul_pekerjaan": "Ganti keran wastafel",
+            "deskripsi": "Keran air bocor menetes terus-menerus",
+            "kode_gedung": "PNS-FAC-SPV 01",
+            "lokasi_detail": "Longhouse SPV 01, Pantry",
+            "teknisi_nama": "Joko",
+            "teknisi_inisial": "JK",
+            "sla_target": "SLA 2 hari",
+            "status": "Dikerjakan",
+            "is_overdue": "0",
+            "biaya_estimasi": "180000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "12",
+            "no_wo": "WO-0375",
+            "tipe_wo": "Preventif",
+            "prioritas": "Sedang",
+            "judul_pekerjaan": "Inspeksi panel distribusi listrik",
+            "deskripsi": "Thermovisi titik sambungan kabel dan kencangkan baut MCB",
+            "kode_gedung": "PNS-FAC-LH 03",
+            "lokasi_detail": "Longhouse 03, Ruang Panel",
+            "teknisi_nama": "Hendra",
+            "teknisi_inisial": "HN",
+            "sla_target": "SLA 1 hari",
+            "status": "Dikerjakan",
+            "is_overdue": "0",
+            "biaya_estimasi": "300000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "13",
+            "no_wo": "WO-0371",
+            "tipe_wo": "Preventif",
+            "prioritas": "Sedang",
+            "judul_pekerjaan": "Penggantian APAR kedaluwarsa",
+            "deskripsi": "Pengisian ulang 14 tabung bubuk kimia ABC 6kg",
+            "kode_gedung": "PNS-OFFICE-01",
+            "lokasi_detail": "Gedung B, Semua lantai",
+            "teknisi_nama": "Sari",
+            "teknisi_inisial": "SR",
+            "sla_target": "Tepat waktu",
+            "status": "Selesai",
+            "is_overdue": "0",
+            "biaya_estimasi": "1400000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "14",
+            "no_wo": "WO-0370",
+            "tipe_wo": "Preventif",
+            "prioritas": "Sedang",
+            "judul_pekerjaan": "Pembersihan tangki air rooftop",
+            "deskripsi": "Pengurasan dan disinfeksi toren penampung 5000 liter",
+            "kode_gedung": "PNS-FAC-OFFICE-01",
+            "lokasi_detail": "Gedung A, Rooftop",
+            "teknisi_nama": "Teguh",
+            "teknisi_inisial": "TG",
+            "sla_target": "Tepat waktu",
+            "status": "Selesai",
+            "is_overdue": "0",
+            "biaya_estimasi": "500000.00",
+            "created_at": "2026-10-14 10:39:37"
+      },
+      {
+            "wo_id": "15",
+            "no_wo": "WO-0369",
+            "tipe_wo": "Preventif",
+            "prioritas": "Tinggi",
+            "judul_pekerjaan": "Kalibrasi panel listrik utama",
+            "deskripsi": "Pengujian relay proteksi arus lebih dan grounding",
+            "kode_gedung": "PNS-FAC-OFFICE-01",
+            "lokasi_detail": "Gedung A, Ruang Panel",
+            "teknisi_nama": "Hendra",
+            "teknisi_inisial": "HN",
+            "sla_target": "Tepat waktu",
+            "status": "Selesai",
+            "is_overdue": "0",
+            "biaya_estimasi": "1800000.00",
+            "created_at": "2026-10-14 10:39:37"
       }
-    ],
+],
     penghuni: [
       { nik: 'PNS-AGR-01', nama_penghuni: 'Ahmad Suhendra', departemen: 'Agronomi', kode_gedung: 'PNS-FAC-LH 01', nama_ruangan: 'KAMAR NO.1', nomor_kasur: 'Bed A', status_hunian: 'Aktif', no_kontak: '0822-1476-369' },
       { nik: 'PNS-AGR-02', nama_penghuni: 'Bambang Triatmojo', departemen: 'Factory', kode_gedung: 'PNS-FAC-LH 01', nama_ruangan: 'KAMAR NO.1', nomor_kasur: 'Bed B', status_hunian: 'Aktif', no_kontak: '0813-8821-445' },
@@ -280,7 +509,7 @@
     renderRoomsTable();
     renderAssetsTable();
     renderHistoryTable();
-    renderWorkOrdersTable();
+    renderWorkOrdersKanban(); renderAllAssetsTable();
     renderPenghuniTable();
     renderPortfolioAllTable();
     renderValidasiTable();
@@ -333,7 +562,7 @@
     renderRoomsTable();
     renderAssetsTable();
     renderHistoryTable();
-    renderWorkOrdersTable();
+    renderWorkOrdersKanban(); renderAllAssetsTable();
     renderPenghuniTable();
     renderPortfolioAllTable();
     renderValidasiTable();
@@ -414,6 +643,31 @@
   // ==========================================
   // NAVIGATION & THEME CONTROLLER
   // ==========================================
+    function syncTopPills(viewId) {
+    const pillHrga = document.getElementById('top-pill-hrga');
+    const pillAll = document.getElementById('top-pill-all');
+    const pillWo = document.getElementById('top-pill-wo');
+
+    const resetPill = (el) => {
+      if (el) el.className = 'top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 dark:text-slate-200 hover:bg-white dark:hover:bg-slate-700 shadow-2xs cursor-pointer';
+    };
+    const activePill = (el) => {
+      if (el) el.className = 'top-nav-pill active px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-xs cursor-pointer ring-1 ring-slate-200 dark:ring-slate-600';
+    };
+
+    resetPill(pillHrga);
+    resetPill(pillAll);
+    resetPill(pillWo);
+
+    if (viewId === 'view-wo') {
+      activePill(pillWo);
+    } else if (viewId === 'view-portfolio-all' || viewId === 'view-portfolio' || viewId === 'view-dashboard') {
+      activePill(pillAll);
+    } else {
+      activePill(pillHrga);
+    }
+  }
+
   function navTo(viewId, btnEl) {
     document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
     const target = document.getElementById(viewId);
@@ -427,9 +681,12 @@
       if (matched) matched.classList.add('active');
     }
     appState.currentView = viewId;
+    syncTopPills(viewId);
 
-    if (viewId === 'view-portfolio-all') {
-      renderPortfolioAllTable();
+    if (viewId === 'view-wo') {
+      renderWorkOrdersKanban();
+    } else if (viewId === 'view-portfolio-all') {
+      renderAllAssetsTable();
     } else if (viewId === 'view-validasi') {
       renderValidasiTable();
     }
@@ -1352,22 +1609,359 @@
   // ==========================================
   // WORK ORDERS & PENGHUNI TABLES
   // ==========================================
-  function renderWorkOrdersTable() {
+    // ==========================================
+  // WORK ORDER KANBAN & MAINTENANCE (ENTERPRISE)
+  // ==========================================
+  let currentWoViewMode = 'kanban';
+
+  function switchWoViewMode(mode) {
+    currentWoViewMode = mode;
+    const kanbanEl = document.getElementById('wo-container-kanban');
+    const tableEl = document.getElementById('wo-container-table');
+    const btnKanban = document.getElementById('btn-wo-view-kanban');
+    const btnTable = document.getElementById('btn-wo-view-table');
+
+    if (mode === 'kanban') {
+      if (kanbanEl) kanbanEl.classList.remove('hidden');
+      if (tableEl) tableEl.classList.add('hidden');
+      if (btnKanban) {
+        btnKanban.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs transition cursor-pointer';
+      }
+      if (btnTable) {
+        btnTable.className = 'px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 transition cursor-pointer';
+      }
+    } else {
+      if (kanbanEl) kanbanEl.classList.add('hidden');
+      if (tableEl) tableEl.classList.remove('hidden');
+      if (btnTable) {
+        btnTable.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white dark:bg-slate-700 text-slate-900 dark:text-white shadow-2xs transition cursor-pointer';
+      }
+      if (btnKanban) {
+        btnKanban.className = 'px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-400 hover:text-slate-900 transition cursor-pointer';
+      }
+    }
+  }
+
+  function renderWorkOrdersKanban() {
+    const bldgSelect = document.getElementById('filter-wo-gedung');
+    if (bldgSelect && bldgSelect.options.length <= 1) {
+      const bldgSet = new Set(appState.workOrders.map(w => w.kode_gedung).filter(Boolean));
+      appState.buildings.forEach(b => bldgSet.add(b.kode_gedung));
+      [...bldgSet].sort().forEach(code => {
+        const opt = document.createElement('option');
+        opt.value = code;
+        opt.textContent = code;
+        bldgSelect.appendChild(opt);
+      });
+    }
+
+    const filterBldg = (document.getElementById('filter-wo-gedung')?.value || 'ALL');
+    const filterPrio = (document.getElementById('filter-wo-prioritas')?.value || 'ALL');
+    const filterTech = (document.getElementById('filter-wo-teknisi')?.value || 'ALL');
+    const query = (document.getElementById('filter-wo-search')?.value || '').toLowerCase();
+
+    const filtered = appState.workOrders.filter(w => {
+      const matchBldg = (filterBldg === 'ALL' || w.kode_gedung === filterBldg);
+      const matchPrio = (filterPrio === 'ALL' || w.prioritas === filterPrio);
+      const matchTech = (filterTech === 'ALL' || String(w.teknisi_nama || '').toLowerCase().includes(filterTech.toLowerCase()));
+      const matchQuery = !query ||
+        String(w.no_wo || '').toLowerCase().includes(query) ||
+        String(w.judul_pekerjaan || '').toLowerCase().includes(query) ||
+        String(w.kode_gedung || '').toLowerCase().includes(query) ||
+        String(w.lokasi_detail || '').toLowerCase().includes(query);
+      return matchBldg && matchPrio && matchTech && matchQuery;
+    });
+
+    // Update KPI badges
+    const counts = { 'Baru': 0, 'Ditugaskan': 0, 'Dikerjakan': 0, 'Selesai': 0 };
+    filtered.forEach(w => {
+      const s = (w.status === 'Menunggu Sparepart') ? 'Dikerjakan' : (w.status || 'Baru');
+      if (counts.hasOwnProperty(s)) counts[s]++;
+      else counts['Baru']++;
+    });
+
+    const setVal = (id, v) => { const el = document.getElementById(id); if (el) el.innerText = v; };
+    setVal('wo-kpi-total', filtered.length);
+    setVal('wo-kpi-baru', counts['Baru']);
+    setVal('wo-kpi-ditugaskan', counts['Ditugaskan']);
+    setVal('wo-kpi-dikerjakan', counts['Dikerjakan']);
+    setVal('wo-kpi-selesai', counts['Selesai']);
+
+    setVal('badge-count-Baru', counts['Baru']);
+    setVal('badge-count-Ditugaskan', counts['Ditugaskan']);
+    setVal('badge-count-Dikerjakan', counts['Dikerjakan']);
+    setVal('badge-count-Selesai', counts['Selesai']);
+    setVal('sidebar-wo-count', appState.workOrders.length);
+
+    // Reset columns
+    ['Baru', 'Ditugaskan', 'Dikerjakan', 'Selesai'].forEach(st => {
+      const col = document.getElementById(`col-${st}`);
+      if (col) col.innerHTML = '';
+    });
+
+    // Populate columns
+    filtered.forEach(w => {
+      const st = (w.status === 'Menunggu Sparepart') ? 'Dikerjakan' : (w.status || 'Baru');
+      const col = document.getElementById(`col-${st}`) || document.getElementById('col-Baru');
+      if (col) {
+        col.appendChild(createKanbanCard(w));
+      }
+    });
+
+    ['Baru', 'Ditugaskan', 'Dikerjakan', 'Selesai'].forEach(st => {
+      const col = document.getElementById(`col-${st}`);
+      if (col && col.children.length === 0) {
+        col.innerHTML = '<div class="py-8 text-center text-xs text-slate-400 font-medium">Tidak ada tiket di tahap ini</div>';
+      }
+    });
+
+    // Also populate Table
     const tbody = document.getElementById('table-wo-body');
-    if (!tbody) return;
-    tbody.innerHTML = appState.workOrders.map(w => `
-      <tr>
-        <td class="font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(w.no_wo)}</td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800">${escapeHtml(w.tipe_wo)}</span></td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${w.prioritas === 'Tinggi' ? 'bg-rose-100 text-rose-800' : 'bg-sky-100 text-sky-800'}">${escapeHtml(w.prioritas)}</span></td>
-        <td class="font-bold">${escapeHtml(w.judul_pekerjaan)}</td>
-        <td>${escapeHtml(w.kode_gedung)} &bull; ${escapeHtml(w.lokasi_detail)}</td>
-        <td>${escapeHtml(w.teknisi_nama)}</td>
-        <td>${escapeHtml(w.sla_target)}</td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${w.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-amber-100 text-amber-800'}">${escapeHtml(w.status)}</span></td>
-        <td class="font-mono num-tabular">Rp ${Number(w.biaya_estimasi || 0).toLocaleString('id-ID')}</td>
-      </tr>
-    `).join('');
+    if (tbody) {
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="10" class="py-6 text-center text-slate-400">Tidak ada tiket work order yang sesuai filter</td></tr>';
+      } else {
+        tbody.innerHTML = filtered.map(w => {
+          const prioClass = w.prioritas === 'Tinggi' ? 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300' :
+            (w.prioritas === 'Sedang' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' : 'bg-slate-100 text-slate-700 dark:bg-slate-800');
+          const statusClass = w.status === 'Selesai' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300' :
+            (w.status === 'Dikerjakan' ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300' :
+            (w.status === 'Ditugaskan' ? 'bg-indigo-100 text-indigo-800 dark:bg-indigo-950 dark:text-indigo-300' : 'bg-sky-100 text-sky-800 dark:bg-sky-950 dark:text-sky-300'));
+          return `
+            <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+              <td class="py-2 px-3 font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(w.no_wo)}</td>
+              <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800">${escapeHtml(w.tipe_wo || 'Korektif')}</span></td>
+              <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${prioClass}">${escapeHtml(w.prioritas || 'Sedang')}</span></td>
+              <td class="py-2 px-3 font-bold text-slate-800 dark:text-slate-200">${escapeHtml(w.judul_pekerjaan)}</td>
+              <td class="py-2 px-3">${escapeHtml(w.kode_gedung)} &bull; ${escapeHtml(w.lokasi_detail || '-')}</td>
+              <td class="py-2 px-3">${escapeHtml(w.teknisi_nama || 'Belum Ditugaskan')}</td>
+              <td class="py-2 px-3">${escapeHtml(w.sla_target || 'SLA 2 Hari')}</td>
+              <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${statusClass}">${escapeHtml(w.status || 'Baru')}</span></td>
+              <td class="py-2 px-3 font-mono num-tabular">Rp ${Number(w.biaya_estimasi || 0).toLocaleString('id-ID')}</td>
+              <td class="py-2 px-3 text-center">
+                <button onclick="moveStatusPrompt('${w.wo_id || w.no_wo}', '${w.status || 'Baru'}')" class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-sky-600 hover:text-white text-xs font-semibold transition cursor-pointer">
+                  Ubah Status
+                </button>
+              </td>
+            </tr>
+          `;
+        }).join('');
+      }
+    }
+  }
+
+  function createKanbanCard(w) {
+    const card = document.createElement('div');
+    card.className = 'clean-card p-3 space-y-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700/80 rounded-xl hover:shadow-md transition cursor-pointer hover:-translate-y-0.5';
+
+    let prioBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">Sedang</span>`;
+    if (w.prioritas === 'Tinggi') {
+      prioBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">Tinggi</span>`;
+    } else if (w.prioritas === 'Rendah') {
+      prioBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">Rendah</span>`;
+    }
+
+    let slaBadge = `<span class="text-[10px] text-slate-400">${escapeHtml(w.sla_target || 'SLA 2 Hari')}</span>`;
+    if (w.is_overdue === '1' || (w.sla_target && w.sla_target.includes('Lewat'))) {
+      slaBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-100 text-rose-700 dark:bg-rose-950 dark:text-rose-300">Lewat SLA</span>`;
+    } else if (w.status === 'Selesai') {
+      slaBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-100 text-emerald-700 dark:bg-emerald-950 dark:text-emerald-300">Tepat Waktu</span>`;
+    }
+
+    const techName = w.teknisi_nama || 'Belum Ditugaskan';
+    const inisial = w.teknisi_inisial || (techName !== 'Belum Ditugaskan' ? techName.substring(0, 2).toUpperCase() : '?');
+
+    card.innerHTML = `
+      <div class="flex items-center justify-between">
+        <span class="font-mono text-[10.5px] font-bold text-sky-600 dark:text-sky-400">${escapeHtml(w.no_wo)}</span>
+        <div class="flex items-center gap-1">
+          <span class="px-1.5 py-0.2 rounded text-[9px] font-semibold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">${escapeHtml(w.tipe_wo || 'Korektif')}</span>
+          ${prioBadge}
+        </div>
+      </div>
+      <h4 class="text-xs font-bold text-slate-900 dark:text-white leading-snug line-clamp-2">${escapeHtml(w.judul_pekerjaan)}</h4>
+      <p class="text-[11px] text-slate-500 dark:text-slate-400 flex items-center gap-1 truncate">
+        <i class="ph-bold ph-map-pin text-slate-400 shrink-0"></i>
+        <span class="truncate">${escapeHtml(w.kode_gedung)}${w.lokasi_detail ? ' &bull; ' + escapeHtml(w.lokasi_detail) : ''}</span>
+      </p>
+      <div class="pt-2 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+        <div class="flex items-center gap-1.5 min-w-0">
+          <span class="w-5 h-5 rounded-full bg-indigo-600 text-white font-bold text-[9px] flex items-center justify-center shrink-0">${inisial}</span>
+          <span class="text-[10.5px] font-medium text-slate-700 dark:text-slate-300 truncate">${escapeHtml(techName)}</span>
+        </div>
+        ${slaBadge}
+      </div>
+    `;
+
+    card.onclick = () => moveStatusPrompt(w.wo_id || w.no_wo, w.status || 'Baru');
+    return card;
+  }
+
+  function moveStatusPrompt(woId, currentStatus) {
+    if (typeof Swal === 'undefined') return;
+    Swal.fire({
+      title: 'Perbarui Status Work Order',
+      text: 'Pindahkan tahapan pekerjaan pemeliharaan:',
+      input: 'select',
+      inputOptions: {
+        'Baru': 'Baru (Menunggu Plot Teknisi)',
+        'Ditugaskan': 'Ditugaskan (Teknisi Siap)',
+        'Dikerjakan': 'Dikerjakan (Sedang Berjalan)',
+        'Selesai': 'Selesai (Pekerjaan Tuntas)'
+      },
+      inputValue: currentStatus,
+      showCancelButton: true,
+      confirmButtonText: 'Perbarui Status',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#0284c7'
+    }).then(res => {
+      if (res.isConfirmed && res.value) {
+        const item = appState.workOrders.find(w => String(w.wo_id) === String(woId) || String(w.no_wo) === String(woId));
+        if (item) {
+          item.status = res.value;
+          callBackendPost('save_work_order_status', { wo_id: item.wo_id, no_wo: item.no_wo, status: res.value }, () => {});
+        }
+        renderWorkOrdersKanban();
+        Swal.fire({
+          icon: 'success',
+          title: 'Status Diperbarui',
+          text: `Work order dipindahkan ke tahapan: ${res.value}`,
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
+  }
+
+  function promptCreateWo() {
+    if (typeof Swal === 'undefined') return;
+    const bldgOptions = appState.buildings.map(b => `<option value="${escapeHtml(b.kode_gedung)}">${escapeHtml(b.kode_gedung)} - ${escapeHtml(b.nama_gedung)}</option>`).join('');
+
+    Swal.fire({
+      title: 'Buat Tiket Work Order Baru',
+      html: `
+        <div class="space-y-3 text-left text-xs">
+          <div>
+            <label class="block font-bold mb-1 text-slate-700">Judul Pekerjaan / Masalah:</label>
+            <input type="text" id="swal-wo-judul" class="swal2-input !h-9 !text-xs !w-full !m-0" placeholder="Contoh: AC Mati, Pipa Toilet Bocor, Kunci Rusak">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold mb-1 text-slate-700">Tipe Pekerjaan:</label>
+              <select id="swal-wo-tipe" class="swal2-select !h-9 !text-xs !w-full !m-0">
+                <option value="Korektif" selected>Korektif (Perbaikan Kerusakan)</option>
+                <option value="Preventif">Preventif (Perawatan Rutin)</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-700">Prioritas:</label>
+              <select id="swal-wo-prio" class="swal2-select !h-9 !text-xs !w-full !m-0">
+                <option value="Tinggi">Tinggi (Mendesak)</option>
+                <option value="Sedang" selected>Sedang (Normal)</option>
+                <option value="Rendah">Rendah (Berkala)</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold mb-1 text-slate-700">Gedung / Lokasi:</label>
+            <select id="swal-wo-gedung" class="swal2-select !h-9 !text-xs !w-full !m-0">
+              <option value="">-- Pilih Gedung Terdaftar --</option>
+              ${bldgOptions}
+            </select>
+          </div>
+          <div>
+            <label class="block font-bold mb-1 text-slate-700">Detail Lokasi / Ruangan:</label>
+            <input type="text" id="swal-wo-lokasi" class="swal2-input !h-9 !text-xs !w-full !m-0" placeholder="Contoh: Lantai 2, Kamar No.3, Pantry">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold mb-1 text-slate-700">Teknisi Ditugaskan:</label>
+              <select id="swal-wo-tech" class="swal2-select !h-9 !text-xs !w-full !m-0">
+                <option value="Hendra">Hendra (Workshop GS)</option>
+                <option value="Anton">Anton (ME &amp; Listrik)</option>
+                <option value="Supri">Supri (Sipil &amp; Sanitasi)</option>
+                <option value="Budi Santoso">Budi Santoso (HVAC AC)</option>
+                <option value="Tim Workshop" selected>Tim Workshop Sentral</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold mb-1 text-slate-700">Target SLA:</label>
+              <select id="swal-wo-sla" class="swal2-select !h-9 !text-xs !w-full !m-0">
+                <option value="SLA 6 jam">SLA 6 Jam</option>
+                <option value="SLA 1 hari" selected>SLA 1 Hari</option>
+                <option value="SLA 2 hari">SLA 2 Hari</option>
+                <option value="SLA 3 hari">SLA 3 Hari</option>
+              </select>
+            </div>
+          </div>
+          <div>
+            <label class="block font-bold mb-1 text-slate-700">Estimasi Biaya Perbaikan (Rp):</label>
+            <input type="number" id="swal-wo-biaya" class="swal2-input !h-9 !text-xs !w-full !m-0" value="150000" step="50000">
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Terbitkan Work Order',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#059669',
+      preConfirm: () => {
+        const judul = document.getElementById('swal-wo-judul').value.trim();
+        if (!judul) {
+          Swal.showValidationMessage('Judul pekerjaan wajib diisi!');
+          return false;
+        }
+        return {
+          judul: judul,
+          tipe: document.getElementById('swal-wo-tipe').value,
+          prioritas: document.getElementById('swal-wo-prio').value,
+          gedung: document.getElementById('swal-wo-gedung').value || 'PNS-SITE',
+          lokasi: document.getElementById('swal-wo-lokasi').value.trim() || 'Fasilitas Umum',
+          teknisi: document.getElementById('swal-wo-tech').value,
+          sla: document.getElementById('swal-wo-sla').value,
+          biaya: parseFloat(document.getElementById('swal-wo-biaya').value) || 150000
+        };
+      }
+    }).then(res => {
+      if (res.isConfirmed && res.value) {
+        const v = res.value;
+        const newNo = 'WO-' + ('0000' + (385 + appState.workOrders.length + 1)).slice(-4);
+        const newWo = {
+          wo_id: appState.workOrders.length + 1,
+          no_wo: newNo,
+          tipe_wo: v.tipe,
+          prioritas: v.prioritas,
+          judul_pekerjaan: v.judul,
+          kode_gedung: v.gedung,
+          lokasi_detail: v.lokasi,
+          teknisi_nama: v.teknisi,
+          teknisi_inisial: v.teknisi.substring(0, 2).toUpperCase(),
+          sla_target: v.sla,
+          status: 'Baru',
+          is_overdue: '0',
+          biaya_estimasi: v.biaya,
+          created_at: new Date().toISOString()
+        };
+
+        appState.workOrders.unshift(newWo);
+        renderWorkOrdersKanban();
+
+        callBackendPost('save_work_order', newWo, saved => {
+          if (saved && saved.no_wo) newWo.no_wo = saved.no_wo;
+          renderWorkOrdersKanban();
+        });
+
+        Swal.fire({
+          icon: 'success',
+          title: 'Work Order Diterbitkan',
+          text: `Nomor Tiket: ${newWo.no_wo} untuk lokasi ${newWo.kode_gedung}`,
+          confirmButtonColor: '#059669'
+        });
+      }
+    });
+  }
+
+  function renderWorkOrdersTable() {
+    renderWorkOrdersKanban();
   }
 
   function renderPenghuniTable() {
@@ -1540,7 +2134,7 @@
         callBackendPost('save_work_order', newWo, saved => {
           if (saved && saved.no_wo) newWo.no_wo = saved.no_wo;
           appState.workOrders.unshift(newWo);
-          renderWorkOrdersTable();
+          renderWorkOrdersKanban(); renderAllAssetsTable();
           Swal.fire('Tiket Diterbitkan', `Nomor Tiket: ${newWo.no_wo}`, 'success');
         });
       }
@@ -1569,53 +2163,222 @@
     renderPortfolioAllTable();
   }
 
-  function renderPortfolioAllTable() {
-    const tbody = document.getElementById('table-portfolio-all-body');
-    if (!tbody) return;
+    // ==========================================
+  // ALL ASSET CATALOG (COPY PERSIS VERSI PHP VIEW-ASSET-3)
+  // ==========================================
+  let assetTypeFilter = 'ALL';
+  let assetKatFilter = 'ALL';
+  let assetKondisiFilter = 'ALL';
+  let assetSearchQuery = '';
+  let assetCurrentPage = 1;
+  const ASSETS_PER_PAGE = 15;
 
-    const search = (document.getElementById('search-portfolio-all')?.value || '').toLowerCase();
-    const catFilter = appState.portfolioCatFilter || '';
+  function onAssetFilterChange() {
+    assetTypeFilter = document.getElementById('slicer-asset-type-cat')?.value || 'ALL';
+    assetKatFilter = document.getElementById('slicer-asset-kat')?.value || 'ALL';
+    assetKondisiFilter = document.getElementById('slicer-asset-kondisi')?.value || 'ALL';
+    assetCurrentPage = 1;
+    renderAllAssetsTable();
+  }
 
+  function onAssetSearch(query) {
+    assetSearchQuery = query || '';
+    assetCurrentPage = 1;
+    renderAllAssetsTable();
+  }
+
+  function changeAssetPage(delta) {
+    assetCurrentPage = Math.max(1, assetCurrentPage + delta);
+    renderAllAssetsTable();
+  }
+
+  function exportAssetCatalogCsv() {
+    const list = getFilteredAllAssets();
+    let csv = 'No Aset,Nama Aset,Kategori,Departemen,Lokasi,Kondisi,Nilai Perolehan,Nilai Buku\n';
+    list.forEach(a => {
+      csv += `"${a.no_asset}","${(a.nama_asset||'').replace(/"/g, '""')}","${a.kategori_asset||''}","${a.departemen||''}","${a.lokasi_site||''}","${a.kondisi||''}","${a.total_harga_perolehan||0}","${a.nilai_buku||0}"\n`;
+    });
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `PNS_All_Asset_Catalog_${new Date().toISOString().slice(0,10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+
+  function getFilteredAllAssets() {
     const sourceData = (appState.enterpriseAssets && appState.enterpriseAssets.length > 0)
       ? appState.enterpriseAssets
       : ENTERPRISE_PORTFOLIO_SAMPLE;
 
-    const filtered = sourceData.filter(a => {
-      const matchCat = !catFilter || String(a.kategori_asset || '').toUpperCase().includes(catFilter);
-      const matchQuery = !search ||
-        String(a.no_asset || '').toLowerCase().includes(search) ||
-        String(a.nama_asset || '').toLowerCase().includes(search) ||
-        String(a.lokasi_site || a.kode_gedung || '').toLowerCase().includes(search);
-      return matchCat && matchQuery;
+    return sourceData.filter(a => {
+      // Slicer Tipe
+      let matchType = true;
+      const val = Number(a.total_harga_perolehan || a.nilai_buku || 0);
+      if (assetTypeFilter === 'valuable') matchType = (val > 0);
+      else if (assetTypeFilter === 'non_valuable') matchType = (val === 0);
+
+      // Slicer Kategori
+      let matchKat = true;
+      if (assetKatFilter !== 'ALL') {
+        matchKat = String(a.kategori_asset || '').toUpperCase().includes(assetKatFilter.toUpperCase());
+      }
+
+      // Slicer Kondisi
+      let matchKondisi = true;
+      if (assetKondisiFilter !== 'ALL') {
+        matchKondisi = String(a.kondisi || '').toLowerCase().includes(assetKondisiFilter.toLowerCase());
+      }
+
+      // Search Query
+      let matchQuery = true;
+      if (assetSearchQuery.trim()) {
+        const q = assetSearchQuery.toLowerCase();
+        matchQuery = String(a.no_asset || '').toLowerCase().includes(q) ||
+          String(a.nama_asset || '').toLowerCase().includes(q) ||
+          String(a.kategori_asset || '').toLowerCase().includes(q) ||
+          String(a.lokasi_site || a.kode_gedung || '').toLowerCase().includes(q);
+      }
+
+      return matchType && matchKat && matchKondisi && matchQuery;
+    });
+  }
+
+  function renderAllAssetsTable() {
+    const tbody = document.getElementById('table-all-assets-body');
+    if (!tbody) return;
+
+    // Populate Kategori dropdown dynamically if empty
+    const katSelect = document.getElementById('slicer-asset-kat');
+    if (katSelect && katSelect.options.length <= 1) {
+      const source = (appState.enterpriseAssets && appState.enterpriseAssets.length > 0)
+        ? appState.enterpriseAssets : ENTERPRISE_PORTFOLIO_SAMPLE;
+      const kats = [...new Set(source.map(a => a.kategori_asset).filter(Boolean))].sort();
+      katSelect.innerHTML = '<option value="ALL">Semua Kategori</option>';
+      kats.forEach(k => {
+        const opt = document.createElement('option');
+        opt.value = k;
+        opt.textContent = k;
+        katSelect.appendChild(opt);
+      });
+    }
+
+    const filtered = getFilteredAllAssets();
+
+    // Calculate metrics for KPI cards
+    const totalCount = filtered.length;
+    let totalPerolehan = 0;
+    let totalPenyusutan = 0;
+    let totalBuku = 0;
+    let goodCount = 0;
+
+    filtered.forEach(a => {
+      const perolehan = Number(a.total_harga_perolehan || 0);
+      const buku = Number(a.nilai_buku || (perolehan * 0.65));
+      const susut = Math.max(0, perolehan - buku);
+      totalPerolehan += perolehan;
+      totalPenyusutan += susut;
+      totalBuku += buku;
+      if ((a.kondisi || '').toLowerCase().includes('baik') || (a.kondisi || '').toLowerCase().includes('good')) {
+        goodCount++;
+      }
     });
 
-    const infoEl = document.getElementById('portfolio-all-count-info');
-    if (infoEl) infoEl.innerText = `Menampilkan ${Math.min(filtered.length, 100)} dari ${filtered.length} aset terdaftar`;
+    const pctGood = totalCount > 0 ? ((goodCount / totalCount) * 100).toFixed(0) : 0;
 
-    if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="7" class="text-center py-6 text-slate-400">Tidak ada aset enterprise yang cocok dengan filter.</td></tr>`;
+    const setEl = (id, text) => { const el = document.getElementById(id); if (el) el.innerText = text; };
+    setEl('pbi-asset-filtered-count', totalCount.toLocaleString('id-ID'));
+    setEl('pbi-asset-total-count', `${totalCount.toLocaleString('id-ID')} Unit`);
+    setEl('pbi-asset-nilai-perolehan', totalPerolehan > 1000000000 ? `Rp ${(totalPerolehan / 1000000000).toFixed(1)} M` : `Rp ${(totalPerolehan / 1000000).toFixed(0)} Jt`);
+    setEl('pbi-asset-nilai-penyusutan', totalPenyusutan > 1000000000 ? `Rp ${(totalPenyusutan / 1000000000).toFixed(1)} M` : `Rp ${(totalPenyusutan / 1000000).toFixed(0)} Jt`);
+    setEl('pbi-asset-nilai-buku', totalBuku > 1000000000 ? `Rp ${(totalBuku / 1000000000).toFixed(1)} M` : `Rp ${(totalBuku / 1000000).toFixed(0)} Jt`);
+    setEl('pbi-asset-good-count', `${goodCount.toLocaleString('id-ID')} (${pctGood}%)`);
+
+    // Pagination
+    const totalPages = Math.max(1, Math.ceil(filtered.length / ASSETS_PER_PAGE));
+    if (assetCurrentPage > totalPages) assetCurrentPage = totalPages;
+    const startIndex = (assetCurrentPage - 1) * ASSETS_PER_PAGE;
+    const paginated = filtered.slice(startIndex, startIndex + ASSETS_PER_PAGE);
+
+    setEl('all-asset-paging-info', `(Menampilkan ${startIndex + 1} - ${Math.min(startIndex + ASSETS_PER_PAGE, filtered.length)} dari ${filtered.length} aset)`);
+    setEl('all-asset-page-indicator', `Hal ${assetCurrentPage} / ${totalPages}`);
+
+    const prevBtn = document.getElementById('btn-asset-prev');
+    const nextBtn = document.getElementById('btn-asset-next');
+    if (prevBtn) prevBtn.disabled = (assetCurrentPage <= 1);
+    if (nextBtn) nextBtn.disabled = (assetCurrentPage >= totalPages);
+
+    if (paginated.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="9" class="py-8 text-center text-slate-400">Tidak ada aset yang sesuai kriteria pencarian</td></tr>';
       return;
     }
 
-    tbody.innerHTML = filtered.slice(0, 100).map(a => `
-      <tr>
-        <td class="font-mono font-bold text-sky-600 dark:text-sky-400">${escapeHtml(a.no_asset)}</td>
-        <td>
-          <div class="font-semibold text-slate-900 dark:text-white">${escapeHtml(a.nama_asset)}</div>
-          <div class="text-[10px] text-slate-400 font-mono">${escapeHtml(a.kode_gedung || '-')}</div>
-        </td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300">${escapeHtml(a.kategori_asset || 'ASSET')}</span></td>
-        <td>${escapeHtml(a.lokasi_site || 'Site Operasional')}</td>
-        <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${a.kondisi === 'Baik' ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/60 dark:text-emerald-300' : 'bg-rose-100 text-rose-800'}">${escapeHtml(a.kondisi || 'Baik')}</span></td>
-        <td class="font-mono num-tabular">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</td>
-        <td class="num-tabular">${escapeHtml(a.tanggal_perolehan || '-')}</td>
-      </tr>
-    `).join('');
+    tbody.innerHTML = paginated.map(a => {
+      const perolehan = Number(a.total_harga_perolehan || 0);
+      const buku = Number(a.nilai_buku || (perolehan * 0.65));
+      const kondisi = a.kondisi || 'Baik';
+      let kondisiBadge = 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300';
+      if (kondisi.toLowerCase().includes('rusak') || kondisi.toLowerCase().includes('broken')) {
+        kondisiBadge = 'bg-rose-100 text-rose-800 dark:bg-rose-950 dark:text-rose-300';
+      } else if (kondisi.toLowerCase().includes('repair') || kondisi.toLowerCase().includes('perbaikan')) {
+        kondisiBadge = 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300';
+      }
+
+      return `
+        <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/50 transition">
+          <td class="py-2.5 px-3 font-mono font-bold text-sky-600 dark:text-sky-400 whitespace-nowrap">${escapeHtml(a.no_asset)}</td>
+          <td class="py-2.5 px-3 font-bold text-slate-800 dark:text-slate-100 max-w-[240px]">
+            <div class="truncate">${escapeHtml(a.nama_asset)}</div>
+            <div class="text-[10px] text-slate-400 font-normal">Tgl Perolehan: ${escapeHtml(a.tanggal_perolehan || '-')}</div>
+          </td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 dark:bg-slate-800">${escapeHtml(a.kategori_asset || '-')}</span></td>
+          <td class="py-2.5 px-3 text-slate-600 dark:text-slate-300">${escapeHtml(a.departemen || a.pic || 'Operasional')}</td>
+          <td class="py-2.5 px-3 text-slate-600 dark:text-slate-300">${escapeHtml(a.lokasi_site || a.kode_gedung || 'Sentral')}</td>
+          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${kondisiBadge}">${escapeHtml(kondisi)}</span></td>
+          <td class="py-2.5 px-3 text-right font-mono num-tabular">Rp ${perolehan.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-600 dark:text-emerald-400 num-tabular">Rp ${buku.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-3 text-center">
+            <button onclick="showAssetDetailModal('${escapeHtml(a.no_asset)}')" class="px-2 py-1 rounded bg-slate-100 dark:bg-slate-800 hover:bg-sky-600 hover:text-white text-xs font-semibold transition cursor-pointer">
+              Detail
+            </button>
+          </td>
+        </tr>
+      `;
+    }).join('');
   }
 
-  // ==========================================
-  // VIEW: REPORT ASSET [VALIDASI & OPNAME ASET]
-  // ==========================================
+  function showAssetDetailModal(noAsset) {
+    const sourceData = (appState.enterpriseAssets && appState.enterpriseAssets.length > 0)
+      ? appState.enterpriseAssets : ENTERPRISE_PORTFOLIO_SAMPLE;
+    const a = sourceData.find(x => x.no_asset === noAsset);
+    if (!a || typeof Swal === 'undefined') return;
+
+    Swal.fire({
+      title: `<span class="text-base font-bold">${escapeHtml(a.no_asset)}</span>`,
+      html: `
+        <div class="text-left text-xs space-y-2 p-2 bg-slate-50 dark:bg-slate-800/80 rounded-xl">
+          <div><span class="text-slate-400">Nama Aset:</span> <b class="text-slate-900 dark:text-white block">${escapeHtml(a.nama_asset)}</b></div>
+          <div class="grid grid-cols-2 gap-2 pt-1 border-t border-slate-200 dark:border-slate-700">
+            <div><span class="text-slate-400">Kategori:</span> <span class="font-semibold block">${escapeHtml(a.kategori_asset || '-')}</span></div>
+            <div><span class="text-slate-400">Kondisi:</span> <span class="font-semibold block">${escapeHtml(a.kondisi || 'Baik')}</span></div>
+            <div><span class="text-slate-400">Lokasi / Site:</span> <span class="font-semibold block">${escapeHtml(a.lokasi_site || a.kode_gedung || '-')}</span></div>
+            <div><span class="text-slate-400">Departemen:</span> <span class="font-semibold block">${escapeHtml(a.departemen || 'Operasional')}</span></div>
+            <div><span class="text-slate-400">Harga Perolehan:</span> <span class="font-mono font-bold text-sky-600 block">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</span></div>
+            <div><span class="text-slate-400">Nilai Buku:</span> <span class="font-mono font-bold text-emerald-600 block">Rp ${Number(a.nilai_buku || (Number(a.total_harga_perolehan || 0) * 0.65)).toLocaleString('id-ID')}</span></div>
+          </div>
+        </div>
+      `,
+      confirmButtonText: 'Tutup',
+      confirmButtonColor: '#0284c7'
+    });
+  }
+
+  function renderPortfolioAllTable() {
+    renderAllAssetsTable();
+  }
+
   function renderValidasiTable() {
     const tbody = document.getElementById('table-validasi-body');
     if (!tbody) return;
