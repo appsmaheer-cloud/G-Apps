@@ -2443,7 +2443,7 @@
       if (res.isConfirmed) {
         Object.assign(item, res.value);
         renderPenghuniTable();
-        callBackendPost('save_penghuni_update', item);
+        callBackendPost('save_penghuni', item);
         Swal.fire('Tersimpan', 'Data penghuni ' + (item.nama_penghuni || 'kamar') + ' berhasil diperbarui.', 'success');
       }
     });
@@ -2515,7 +2515,7 @@
         if (badge) badge.innerText = appState.penghuni.length;
         initPenghuniFilters();
         renderPenghuniTable();
-        callBackendPost('save_penghuni_update', newP);
+        callBackendPost('save_penghuni', newP);
         Swal.fire('Berhasil', 'Penghuni baru ' + newP.nama_penghuni + ' berhasil ditambahkan ke ' + newP.kode_gedung + '.', 'success');
       }
     });
