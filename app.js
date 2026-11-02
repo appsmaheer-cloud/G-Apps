@@ -1496,11 +1496,10 @@
         <td class="py-2.5 px-3">
           <div class="flex items-center gap-1.5">
             ${ast.foto_asset ? `<img src="${ast.foto_asset}" class="w-7 h-7 rounded object-cover border border-slate-200 shrink-0 cursor-pointer" onclick="Swal.fire({imageUrl: '${ast.foto_asset}', imageAlt: 'Foto Aset', showConfirmButton: false})" title="Klik lihat foto">` : ''}
-            <!-- Tombol Kamera HP Langsung -->
-            <label class="px-2 py-1 rounded bg-sky-600 hover:bg-sky-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs" title="Ambil Foto Langsung dari Kamera HP">
-              <i class="ph-bold ph-camera text-xs"></i> Foto
-              <input type="file" accept="image/*" capture="environment" onchange="uploadAssetPhoto(${idx}, event)" class="hidden">
-            </label>
+            <!-- Tombol Ambil Foto Langsung dari HP (Live Camera) -->
+            <button type="button" onclick="openLiveCameraModal(${idx})" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs" title="Buka Kamera HP Langsung">
+              <i class="ph-bold ph-camera text-xs"></i> Kamera
+            </button>
             <!-- Tombol Galeri File -->
             <label class="p-1 rounded bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 text-slate-600 dark:text-slate-300 text-[10px] flex items-center cursor-pointer transition" title="Pilih dari Galeri / File">
               <i class="ph-bold ph-image text-xs"></i>
@@ -2255,19 +2254,57 @@
       penghuniSortAsc = true;
     }
 
-    // Update indicator icons
+    // Update indicator icons with clean unicode arrows (▲ / ▼ / ↕)
     ['kode_gedung', 'nama_ruangan', 'nomor_kasur', 'nik', 'nama_penghuni', 'departemen', 'status_hunian'].forEach(c => {
       const icon = document.getElementById('sort-icon-' + c);
       if (icon) {
         if (c === col) {
-          icon.innerText = penghuniSortAsc ? '▲' : '▼';
-          icon.className = 'text-[10px] ml-0.5 text-indigo-600 font-extrabold';
+          icon.innerHTML = penghuniSortAsc ? '&#9650;' : '&#9660;';
+          icon.className = 'text-xs ml-0.5 text-indigo-600 font-extrabold';
         } else {
-          icon.innerText = '↕';
-          icon.className = 'text-[10px] ml-0.5 text-slate-300';
+          icon.innerHTML = '&#8597;';
+          icon.className = 'text-xs ml-0.5 text-slate-400';
         }
       }
     });
+
+    renderPenghuniTable();
+  }
+
+  function initPenghuniFilters() {
+    const bldgSelect = document.getElementById('filter-penghuni-bldg');
+    if (!bldgSelect) return;
+
+    const currentVal = bldgSelect.value;
+    // Extract unique buildings from both rooms and penghuni
+    const bldgsFromPenghuni = (appState.penghuni || []).map(p => p.kode_gedung).filter(Boolean);
+    const bldgsFromRooms = (appState.rooms || []).map(r => r.kode_gedung).filter(Boolean);
+    const allBldgs = Array.from(new Set([...bldgsFromPenghuni, ...bldgsFromRooms])).sort();
+
+    bldgSelect.innerHTML = '<option value="">Semua Gedung / LH (' + allBldgs.length + ')</option>' +
+      allBldgs.map(b => `<option value="${escapeHtml(b)}" ${b === currentVal ? 'selected' : ''}>${escapeHtml(b)}</option>`).join('');
+
+    onPenghuniBldgFilterChange();
+  }
+
+  function onPenghuniBldgFilterChange() {
+    const bldg = document.getElementById('filter-penghuni-bldg') ? document.getElementById('filter-penghuni-bldg').value : '';
+    const roomSelect = document.getElementById('filter-penghuni-room');
+    if (!roomSelect) return;
+
+    let rooms = [];
+    if (bldg) {
+      const r1 = (appState.penghuni || []).filter(p => p.kode_gedung === bldg).map(p => p.nama_ruangan);
+      const r2 = (appState.rooms || []).filter(r => r.kode_gedung === bldg).map(r => r.nama_ruangan);
+      rooms = Array.from(new Set([...r1, ...r2].filter(Boolean))).sort();
+    } else {
+      const r1 = (appState.penghuni || []).map(p => p.nama_ruangan);
+      const r2 = (appState.rooms || []).map(r => r.nama_ruangan);
+      rooms = Array.from(new Set([...r1, ...r2].filter(Boolean))).sort();
+    }
+
+    roomSelect.innerHTML = '<option value="">Semua Kamar (' + rooms.length + ')</option>' +
+      rooms.map(r => `<option value="${escapeHtml(r)}">${escapeHtml(r)}</option>`).join('');
 
     renderPenghuniTable();
   }
@@ -2279,15 +2316,18 @@
     const roomFilter = document.getElementById('filter-penghuni-room') ? document.getElementById('filter-penghuni-room').value : '';
     const statusFilter = document.getElementById('filter-penghuni-status') ? document.getElementById('filter-penghuni-status').value : '';
     const tbody = document.getElementById('table-penghuni-body');
-    const badge = document.getElementById('penghuni-count-badge');
     if (!tbody) return;
 
-    let filtered = appState.penghuni.filter(p => {
+    let rawList = appState.penghuni || [];
+
+    // Filter by user input
+    let filtered = rawList.filter(p => {
       const matchQuery = !query ||
         String(p.nama_penghuni || '').toLowerCase().includes(query) ||
         String(p.nik || '').toLowerCase().includes(query) ||
         String(p.kode_gedung || '').toLowerCase().includes(query) ||
         String(p.nama_ruangan || '').toLowerCase().includes(query) ||
+        String(p.nomor_kasur || '').toLowerCase().includes(query) ||
         String(p.departemen || '').toLowerCase().includes(query) ||
         String(p.no_kontak || '').toLowerCase().includes(query);
 
@@ -2307,16 +2347,25 @@
       return 0;
     });
 
-    if (badge) {
-      badge.innerText = filtered.length + ' Penghuni / Slot';
-    }
+    // Update Counter Badges
+    const totalCount = rawList.length;
+    const terisiCount = rawList.filter(p => p.status_hunian === 'Aktif' && p.nama_penghuni && p.nama_penghuni !== '-').length;
+    const vacantCount = totalCount - terisiCount;
+
+    const bTotal = document.getElementById('badge-total-slots');
+    const bTerisi = document.getElementById('badge-terisi-slots');
+    const bVacant = document.getElementById('badge-vacant-slots');
+    if (bTotal) bTotal.innerText = 'Total: ' + totalCount + ' Bed';
+    if (bTerisi) bTerisi.innerText = 'Terisi: ' + terisiCount;
+    if (bVacant) bVacant.innerText = 'Vacant: ' + vacantCount;
 
     if (filtered.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="9" class="text-center py-10 text-slate-400">
-            <i class="ph-bold ph-bed text-2xl mb-1 block text-slate-300"></i>
-            Tidak ada data penghuni yang cocok dengan filter atau pencarian Anda.
+          <td colspan="9" class="text-center py-12 text-slate-400">
+            <i class="ph-bold ph-bed text-3xl mb-2 block text-slate-300"></i>
+            <span class="font-bold text-slate-600 block">Tidak ada kamar atau penghuni yang cocok</span>
+            <span class="text-[11px] text-slate-400">Coba ganti filter pencarian atau pilih gedung/LH lain.</span>
           </td>
         </tr>
       `;
@@ -2325,50 +2374,54 @@
 
     tbody.innerHTML = filtered.map(p => {
       const isVacant = String(p.status_hunian || '').toLowerCase() === 'vacant' || !p.nama_penghuni || p.nama_penghuni === '-';
+      const bedLabel = p.nomor_kasur || 'Bed 1';
       return `
-        <tr class="hover:bg-slate-50/80 dark:hover:bg-slate-800/40 transition">
+        <tr class="hover:bg-slate-50/90 transition border-b border-slate-100 ${isVacant ? 'bg-amber-50/20' : ''}">
           <!-- 1. GEDUNG / LH -->
-          <td class="py-2.5 px-3 font-mono font-bold text-indigo-600 dark:text-indigo-400 whitespace-nowrap">
-            ${escapeHtml(p.kode_gedung)}
+          <td class="py-2.5 px-3.5 font-mono font-bold text-indigo-700 whitespace-nowrap">
+            <span class="inline-flex items-center gap-1.5">
+              <i class="ph-bold ph-buildings text-indigo-400"></i>
+              ${escapeHtml(p.kode_gedung)}
+            </span>
           </td>
           <!-- 2. RUANGAN / KAMAR -->
-          <td class="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-200 whitespace-nowrap">
+          <td class="py-2.5 px-3 font-semibold text-slate-800 whitespace-nowrap">
             ${escapeHtml(p.nama_ruangan)}
           </td>
           <!-- 3. NO. RANJANG / BED -->
           <td class="py-2.5 px-3 whitespace-nowrap">
-            <span class="px-2 py-0.5 rounded text-[11px] font-bold bg-slate-100 text-slate-700 dark:bg-slate-800 dark:text-slate-300 border border-slate-200 dark:border-slate-700">
-              🛏️ ${escapeHtml(p.nomor_kasur || 'Bed 1')}
+            <span class="px-2 py-0.5 rounded text-[11px] font-bold ${isVacant ? 'bg-amber-100 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-700 border border-slate-200'}">
+              <i class="ph-bold ph-bed text-xs mr-0.5"></i> ${escapeHtml(bedLabel)}
             </span>
           </td>
           <!-- 4. NIK -->
-          <td class="py-2.5 px-3 font-mono text-slate-600 dark:text-slate-300 whitespace-nowrap">
-            ${isVacant ? '<span class="text-slate-300">-</span>' : escapeHtml(p.nik)}
+          <td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
+            ${isVacant ? '<span class="text-slate-300 font-bold">-</span>' : escapeHtml(p.nik)}
           </td>
           <!-- 5. NAMA PENGHUNI -->
-          <td class="py-2.5 px-3 whitespace-nowrap">
+          <td class="py-2.5 px-3.5 whitespace-nowrap">
             ${isVacant 
-              ? '<span class="text-amber-600 dark:text-amber-400 italic font-semibold">Vacant (Belum Ada Penghuni)</span>'
-              : `<strong class="text-slate-900 dark:text-white font-bold">${escapeHtml(p.nama_penghuni)}</strong>`}
+              ? '<span class="text-amber-700 italic font-semibold flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Vacant (Belum Ada Penghuni)</span>'
+              : `<strong class="text-slate-900 font-bold">${escapeHtml(p.nama_penghuni)}</strong>`}
           </td>
           <!-- 6. DEPARTEMEN -->
           <td class="py-2.5 px-3 whitespace-nowrap">
-            ${isVacant ? '<span class="text-slate-300">-</span>' : `<span class="text-slate-600 dark:text-slate-300">${escapeHtml(p.departemen || '-')}</span>`}
+            ${isVacant ? '<span class="text-slate-300">-</span>' : `<span class="text-slate-600 font-medium">${escapeHtml(p.departemen || '-')}</span>`}
           </td>
           <!-- 7. STATUS HUNIAN -->
           <td class="py-2.5 px-3 whitespace-nowrap">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isVacant ? 'bg-amber-100 text-amber-800 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800' : 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800'}">
+            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isVacant ? 'bg-amber-100 text-amber-800 border border-amber-300/80' : 'bg-emerald-100 text-emerald-800 border border-emerald-300/80'}">
               ${isVacant ? 'Vacant' : 'Aktif Terisi'}
             </span>
           </td>
           <!-- 8. KONTAK -->
-          <td class="py-2.5 px-3 num-tabular whitespace-nowrap text-slate-600 dark:text-slate-300">
+          <td class="py-2.5 px-3 num-tabular whitespace-nowrap text-slate-600 font-mono text-[11px]">
             ${isVacant ? '<span class="text-slate-300">-</span>' : escapeHtml(p.no_kontak || '-')}
           </td>
-          <!-- 9. AKSI EDIT PENGHUNI -->
-          <td class="py-2.5 px-2 text-center whitespace-nowrap">
-            <button onclick="editPenghuni('${p.id || p.nik}')" class="px-2.5 py-1 rounded-lg text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 dark:bg-indigo-950/60 dark:hover:bg-indigo-900 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 transition shadow-2xs" title="Edit atau tetapkan penghuni">
-              <i class="ph-bold ph-pencil-simple text-xs"></i> ${isVacant ? 'Isi' : 'Edit'}
+          <!-- 9. AKSI EDIT / ISI PENGHUNI -->
+          <td class="py-2.5 px-3 text-center whitespace-nowrap">
+            <button onclick="editPenghuni('${p.id || p.nik}')" class="px-3 py-1 rounded-lg text-xs font-bold ${isVacant ? 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs' : 'bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200'} transition cursor-pointer" title="Edit atau tetapkan penghuni">
+              <i class="ph-bold ${isVacant ? 'ph-user-plus' : 'ph-pencil-simple'} text-xs"></i> ${isVacant ? '+ Isi' : 'Edit'}
             </button>
           </td>
         </tr>
@@ -2377,31 +2430,33 @@
   }
 
   function editPenghuni(idOrNik) {
-    const item = appState.penghuni.find(p => String(p.id) === String(idOrNik) || String(p.nik) === String(idOrNik));
+    const item = (appState.penghuni || []).find(p => String(p.id) === String(idOrNik) || String(p.nik) === String(idOrNik));
     if (!item) return;
 
     Swal.fire({
-      title: 'Edit Data Penghuni Hunian',
+      title: 'Tetapkan / Edit Data Penghuni Hunian',
       html: `
         <div class="space-y-3 text-left text-xs">
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block font-semibold mb-1">Gedung / LH:</label>
-              <input type="text" id="swal-p-bldg" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.kode_gedung)}" readonly>
-            </div>
-            <div>
-              <label class="block font-semibold mb-1">Ruangan / Kamar:</label>
-              <input type="text" id="swal-p-room" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nama_ruangan)}" readonly>
+          <div class="p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block">Gedung / LH</span>
+                <span class="font-bold text-indigo-700 text-sm">${escapeHtml(item.kode_gedung)}</span>
+              </div>
+              <div>
+                <span class="text-[10px] uppercase font-bold text-slate-400 block">Ruangan / Kamar</span>
+                <span class="font-bold text-slate-900 text-sm">${escapeHtml(item.nama_ruangan)}</span>
+              </div>
             </div>
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block font-semibold mb-1">No. Ranjang / Kasur:</label>
+              <label class="block font-semibold mb-1">No. Ranjang / Slot:</label>
               <input type="text" id="swal-p-bed" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nomor_kasur || 'Bed 1')}">
             </div>
             <div>
               <label class="block font-semibold mb-1">Status Hunian:</label>
-              <select id="swal-p-status" class="swal2-select !h-8 !text-xs !w-full !m-0">
+              <select id="swal-p-status" class="swal2-select !h-8 !text-xs !w-full !m-0" onchange="toggleSwalVacant(this.value)">
                 <option value="Aktif" ${item.status_hunian === 'Aktif' ? 'selected' : ''}>Aktif (Terisi)</option>
                 <option value="Vacant" ${item.status_hunian === 'Vacant' ? 'selected' : ''}>Vacant (Kosong)</option>
               </select>
@@ -2409,42 +2464,62 @@
           </div>
           <div>
             <label class="block font-semibold mb-1">Nama Penghuni:</label>
-            <input type="text" id="swal-p-name" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nama_penghuni || '')}" placeholder="Nama lengkap karyawan...">
+            <input type="text" id="swal-p-name" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nama_penghuni && item.nama_penghuni !== '-' ? item.nama_penghuni : '')}" placeholder="Nama lengkap karyawan...">
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
               <label class="block font-semibold mb-1">NIK Karyawan:</label>
-              <input type="text" id="swal-p-nik" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nik || '')}" placeholder="PNS-AGR-...">
+              <input type="text" id="swal-p-nik" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.nik && item.nik !== '-' ? item.nik : '')}" placeholder="PNS-AGR-...">
             </div>
             <div>
               <label class="block font-semibold mb-1">Departemen:</label>
-              <input type="text" id="swal-p-dept" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.departemen || '')}" placeholder="Agronomi / HRGA / Mill">
+              <input type="text" id="swal-p-dept" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.departemen && item.departemen !== '-' ? item.departemen : '')}" placeholder="Agronomi / HRGA / Pabrik">
             </div>
           </div>
           <div>
             <label class="block font-semibold mb-1">No. Kontak / WhatsApp:</label>
-            <input type="text" id="swal-p-kontak" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.no_kontak || '')}" placeholder="0813-xxxx-xxxx">
+            <input type="text" id="swal-p-kontak" class="swal2-input !h-8 !text-xs !w-full !m-0" value="${escapeHtml(item.no_kontak && item.no_kontak !== '-' ? item.no_kontak : '')}" placeholder="0813-xxxx-xxxx">
           </div>
         </div>
       `,
       focusConfirm: false,
       showCancelButton: true,
-      confirmButtonText: 'Simpan Perubahan',
+      confirmButtonText: 'Simpan ke Google Sheets',
       cancelButtonText: 'Batal',
-      preConfirm: () => ({
-        nama_penghuni: document.getElementById('swal-p-name').value.trim(),
-        nik: document.getElementById('swal-p-nik').value.trim(),
-        departemen: document.getElementById('swal-p-dept').value.trim(),
-        nomor_kasur: document.getElementById('swal-p-bed').value.trim(),
-        status_hunian: document.getElementById('swal-p-status').value,
-        no_kontak: document.getElementById('swal-p-kontak').value.trim()
-      })
+      preConfirm: () => {
+        const status = document.getElementById('swal-p-status').value;
+        const name = document.getElementById('swal-p-name').value.trim();
+        const nik = document.getElementById('swal-p-nik').value.trim();
+        const dept = document.getElementById('swal-p-dept').value.trim();
+        const bed = document.getElementById('swal-p-bed').value.trim();
+        const kontak = document.getElementById('swal-p-kontak').value.trim();
+
+        if (status === 'Aktif' && !name) {
+          Swal.showValidationMessage('Nama penghuni wajib diisi jika status Aktif Terisi');
+          return false;
+        }
+
+        return {
+          nama_penghuni: status === 'Vacant' ? '-' : name,
+          nik: status === 'Vacant' ? '-' : (nik || '-'),
+          departemen: status === 'Vacant' ? '-' : (dept || '-'),
+          nomor_kasur: bed || 'Bed 1',
+          status_hunian: status,
+          no_kontak: status === 'Vacant' ? '-' : (kontak || '-')
+        };
+      }
     }).then(res => {
       if (res.isConfirmed) {
         Object.assign(item, res.value);
         renderPenghuniTable();
         callBackendPost('save_penghuni', item);
-        Swal.fire('Tersimpan', 'Data penghuni ' + (item.nama_penghuni || 'kamar') + ' berhasil diperbarui.', 'success');
+        Swal.fire({
+          icon: 'success',
+          title: 'Tersimpan',
+          text: 'Data kamar ' + item.nama_ruangan + ' (' + (item.nomor_kasur || 'Bed') + ') berhasil disimpan.',
+          timer: 1500,
+          showConfirmButton: false
+        });
       }
     });
   }
@@ -2459,7 +2534,7 @@
         <div class="space-y-3 text-left text-xs">
           <div>
             <label class="block font-semibold mb-1">Pilih Gedung / LH:</label>
-            <select id="swal-add-bldg" class="swal2-select !h-8 !text-xs !w-full !m-0">
+            <select id="swal-add-bldg" class="swal2-select !h-8 !text-xs !w-full !m-0" onchange="updateSwalAddRooms(this.value)">
               ${bldgOpts}
             </select>
           </div>
@@ -2469,26 +2544,33 @@
           </div>
           <div class="grid grid-cols-2 gap-2">
             <div>
-              <label class="block font-semibold mb-1">Nama Penghuni:</label>
-              <input type="text" id="swal-add-name" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="Nama karyawan">
+              <label class="block font-semibold mb-1">No. Ranjang / Bed:</label>
+              <input type="text" id="swal-add-bed" class="swal2-input !h-8 !text-xs !w-full !m-0" value="Bed 1">
             </div>
             <div>
-              <label class="block font-semibold mb-1">NIK:</label>
-              <input type="text" id="swal-add-nik" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="PNS-...">
-            </div>
-          </div>
-          <div class="grid grid-cols-2 gap-2">
-            <div>
-              <label class="block font-semibold mb-1">Departemen:</label>
-              <input type="text" id="swal-add-dept" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="HRGA / Agronomi">
-            </div>
-            <div>
-              <label class="block font-semibold mb-1">No. Ranjang:</label>
-              <input type="text" id="swal-add-bed" class="swal2-input !h-8 !text-xs !w-full !m-0" value="Bed A (Bawah)">
+              <label class="block font-semibold mb-1">Status:</label>
+              <select id="swal-add-status" class="swal2-select !h-8 !text-xs !w-full !m-0">
+                <option value="Aktif">Aktif (Terisi)</option>
+                <option value="Vacant">Vacant (Kosong)</option>
+              </select>
             </div>
           </div>
           <div>
-            <label class="block font-semibold mb-1">No. Kontak / HP:</label>
+            <label class="block font-semibold mb-1">Nama Penghuni:</label>
+            <input type="text" id="swal-add-name" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="Nama lengkap karyawan...">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-semibold mb-1">NIK:</label>
+              <input type="text" id="swal-add-nik" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="PNS-AGR-...">
+            </div>
+            <div>
+              <label class="block font-semibold mb-1">Departemen:</label>
+              <input type="text" id="swal-add-dept" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="Agronomi / HRGA / Pabrik">
+            </div>
+          </div>
+          <div>
+            <label class="block font-semibold mb-1">Kontak WhatsApp:</label>
             <input type="text" id="swal-add-kontak" class="swal2-input !h-8 !text-xs !w-full !m-0" placeholder="0813-xxxx-xxxx">
           </div>
         </div>
@@ -2499,17 +2581,19 @@
       cancelButtonText: 'Batal',
       preConfirm: () => ({
         kode_gedung: document.getElementById('swal-add-bldg').value,
-        nama_ruangan: document.getElementById('swal-add-room').value.trim(),
-        nama_penghuni: document.getElementById('swal-add-name').value.trim(),
-        nik: document.getElementById('swal-add-nik').value.trim() || ('PNS-' + Date.now().toString().slice(-6)),
-        departemen: document.getElementById('swal-add-dept').value.trim() || 'HRGA',
+        nama_ruangan: document.getElementById('swal-add-room').value.trim() || 'KAMAR NO.1',
         nomor_kasur: document.getElementById('swal-add-bed').value.trim() || 'Bed 1',
-        no_kontak: document.getElementById('swal-add-kontak').value.trim(),
-        status_hunian: 'Aktif'
+        status_hunian: document.getElementById('swal-add-status').value,
+        nama_penghuni: document.getElementById('swal-add-name').value.trim() || '-',
+        nik: document.getElementById('swal-add-nik').value.trim() || 'PNS-' + Date.now().toString().slice(-4),
+        departemen: document.getElementById('swal-add-dept').value.trim() || '-',
+        no_kontak: document.getElementById('swal-add-kontak').value.trim() || '-'
       })
     }).then(res => {
-      if (res.isConfirmed && res.value.nama_penghuni && res.value.nama_ruangan) {
-        const newP = Object.assign({ id: Date.now().toString() }, res.value);
+      if (res.isConfirmed) {
+        const newP = res.value;
+        newP.id = 'P' + Date.now();
+        if (!appState.penghuni) appState.penghuni = [];
         appState.penghuni.unshift(newP);
         const badge = document.getElementById('nav-badge-penghuni');
         if (badge) badge.innerText = appState.penghuni.length;
@@ -3071,3 +3155,201 @@
     link.download = `PNS_Validasi_Opname_Aset_${new Date().toISOString().slice(0, 10)}.csv`;
     link.click();
   }
+  // ========================================================
+  // LIVE WEBRTC CAMERA ENGINE (HP & DESKTOP LANGSUNG)
+  // ========================================================
+  let cameraMediaStream = null;
+  let currentCameraFacing = 'environment'; // default rear camera on HP
+  let activeCameraAssetIdx = -1;
+  let capturedPhotoBase64 = null;
+
+  function openLiveCameraModal(assetIdx) {
+    activeCameraAssetIdx = assetIdx;
+    capturedPhotoBase64 = null;
+
+    const modal = document.getElementById('modal-camera');
+    const video = document.getElementById('camera-video');
+    const preview = document.getElementById('camera-preview-img');
+    const overlay = document.getElementById('camera-overlay');
+    const shutterGroup = document.getElementById('camera-shutter-group');
+    const reviewGroup = document.getElementById('camera-review-group');
+    const titleEl = document.getElementById('camera-asset-title');
+
+    if (modal) modal.classList.remove('hidden');
+    if (preview) preview.classList.add('hidden');
+    if (video) video.classList.remove('hidden');
+    if (overlay) overlay.classList.remove('hidden');
+    if (shutterGroup) shutterGroup.classList.remove('hidden');
+    if (reviewGroup) reviewGroup.classList.add('hidden');
+
+    if (titleEl && appState.currentInspAssets && appState.currentInspAssets[assetIdx]) {
+      const ast = appState.currentInspAssets[assetIdx];
+      titleEl.innerText = (ast.no_asset || 'ASET') + ' - ' + (ast.nama_asset || '');
+    }
+
+    startCameraStream();
+  }
+
+  function startCameraStream() {
+    stopCameraStream();
+    const video = document.getElementById('camera-video');
+    if (!video) return;
+
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      // Fallback for older browsers: trigger file input with capture="environment"
+      triggerNativeCameraFallback();
+      return;
+    }
+
+    const constraints = {
+      video: {
+        facingMode: { ideal: currentCameraFacing },
+        width: { ideal: 1280 },
+        height: { ideal: 720 }
+      },
+      audio: false
+    };
+
+    navigator.mediaDevices.getUserMedia(constraints)
+      .then(stream => {
+        cameraMediaStream = stream;
+        video.srcObject = stream;
+        video.play().catch(e => console.warn('Video play error:', e));
+      })
+      .catch(err => {
+        console.warn('getUserMedia failed, trying basic constraints:', err);
+        navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+          .then(stream => {
+            cameraMediaStream = stream;
+            video.srcObject = stream;
+            video.play();
+          })
+          .catch(e => {
+            console.error('All camera attempts failed:', e);
+            triggerNativeCameraFallback();
+          });
+      });
+  }
+
+  function triggerNativeCameraFallback() {
+    closeCameraModal();
+    const fallbackInput = document.getElementById('fallback-camera-file');
+    if (fallbackInput) {
+      fallbackInput.click();
+    }
+  }
+
+  function flipCamera() {
+    currentCameraFacing = currentCameraFacing === 'environment' ? 'user' : 'environment';
+    startCameraStream();
+  }
+
+  function captureLivePhoto() {
+    const video = document.getElementById('camera-video');
+    const canvas = document.getElementById('camera-canvas');
+    const preview = document.getElementById('camera-preview-img');
+    const overlay = document.getElementById('camera-overlay');
+    const shutterGroup = document.getElementById('camera-shutter-group');
+    const reviewGroup = document.getElementById('camera-review-group');
+
+    if (!video || !canvas) return;
+
+    const w = video.videoWidth || 640;
+    const h = video.videoHeight || 480;
+
+    // Scale down if image is too large to keep fast sync (~80-120KB)
+    const maxDimension = 1024;
+    let targetW = w;
+    let targetH = h;
+    if (targetW > maxDimension || targetH > maxDimension) {
+      if (targetW > targetH) {
+        targetH = Math.round((targetH * maxDimension) / targetW);
+        targetW = maxDimension;
+      } else {
+        targetW = Math.round((targetW * maxDimension) / targetH);
+        targetH = maxDimension;
+      }
+    }
+
+    canvas.width = targetW;
+    canvas.height = targetH;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(video, 0, 0, targetW, targetH);
+
+    capturedPhotoBase64 = canvas.toDataURL('image/jpeg', 0.72);
+
+    if (preview) {
+      preview.src = capturedPhotoBase64;
+      preview.classList.remove('hidden');
+    }
+    if (video) video.classList.add('hidden');
+    if (overlay) overlay.classList.add('hidden');
+    if (shutterGroup) shutterGroup.classList.add('hidden');
+    if (reviewGroup) reviewGroup.classList.remove('hidden');
+  }
+
+  function retakeLivePhoto() {
+    capturedPhotoBase64 = null;
+    const video = document.getElementById('camera-video');
+    const preview = document.getElementById('camera-preview-img');
+    const overlay = document.getElementById('camera-overlay');
+    const shutterGroup = document.getElementById('camera-shutter-group');
+    const reviewGroup = document.getElementById('camera-review-group');
+
+    if (preview) preview.classList.add('hidden');
+    if (video) video.classList.remove('hidden');
+    if (overlay) overlay.classList.remove('hidden');
+    if (shutterGroup) shutterGroup.classList.remove('hidden');
+    if (reviewGroup) reviewGroup.classList.add('hidden');
+  }
+
+  function saveLivePhoto() {
+    if (!capturedPhotoBase64 || activeCameraAssetIdx < 0) {
+      closeCameraModal();
+      return;
+    }
+
+    if (appState.currentInspAssets && appState.currentInspAssets[activeCameraAssetIdx]) {
+      appState.currentInspAssets[activeCameraAssetIdx].foto_asset = capturedPhotoBase64;
+      loadRoomAssetsChecklist(appState.currentInspAssets);
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'success',
+          title: 'Foto Tersimpan',
+          text: 'Foto aset berhasil diambil dan dimasukkan ke checklist audit.',
+          timer: 1200,
+          showConfirmButton: false
+        });
+      }
+    }
+
+    closeCameraModal();
+  }
+
+  function closeCameraModal() {
+    stopCameraStream();
+    const modal = document.getElementById('modal-camera');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function stopCameraStream() {
+    if (cameraMediaStream) {
+      cameraMediaStream.getTracks().forEach(track => track.stop());
+      cameraMediaStream = null;
+    }
+  }
+
+  function uploadAssetPhotoFromInput(evt) {
+    const file = evt.target.files && evt.target.files[0];
+    if (!file || activeCameraAssetIdx < 0) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      if (appState.currentInspAssets && appState.currentInspAssets[activeCameraAssetIdx]) {
+        appState.currentInspAssets[activeCameraAssetIdx].foto_asset = e.target.result;
+        loadRoomAssetsChecklist(appState.currentInspAssets);
+      }
+    };
+    reader.readAsDataURL(file);
+    closeCameraModal();
+  }
+    
