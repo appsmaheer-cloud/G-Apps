@@ -1137,41 +1137,99 @@
     loadMutRooms();
   }
 
-  function getRoomsForBuilding(bCode) {
+  function getRoomsForBuilding(bCode, bSite, bId) {
     if (!bCode) return [];
-    const bldg = appState.buildings.find(b => b.kode_gedung === bCode);
-    const bId = bldg ? bldg.gedung_id : '';
-    return appState.rooms.filter(r => r.kode_gedung === bCode || (bId && r.gedung_id === bId));
+    const bUpper = String(bCode || '').trim().toUpperCase();
+    const sUpper = String(bSite || '').trim().toUpperCase();
+    const seenNames = new Set();
+    const res = [];
+
+    // Filter appState.rooms strictly for this building
+    (appState.rooms || []).forEach(r => {
+      const rb = String(r.kode_gedung || '').trim().toUpperCase();
+      const rId = String(r.gedung_id || '').trim();
+      const rName = String(r.nama_ruangan || '').trim();
+      if (!rName) return;
+
+      // Exact building code match or gedung_id match
+      const matchesBldg = (rb === bUpper) || (bId && rId === String(bId));
+      if (!matchesBldg) return;
+
+      // Cross-site room leakage prevention:
+      // If building is in Central Office (CO), exclude any room containing MESS FR, PABRIK, FACTORY
+      if (sUpper.includes('CENTRAL') && (rName.toUpperCase().includes('MESS FR') || rName.toUpperCase().includes('PABRIK KM18') || rName.toUpperCase().includes('FACTORY KM 18'))) {
+        return;
+      }
+      // If building is in Factory (FR), exclude any room containing CENTRAL
+      if (sUpper.includes('FACTORY') && rName.toUpperCase().includes('CENTRAL KM 17')) {
+        return;
+      }
+
+      // Deduplicate room names per building (prevents duplicate DAPUR, RUANG MAKAN, etc.)
+      const normKey = rName.toUpperCase();
+      if (seenNames.has(normKey)) return;
+      seenNames.add(normKey);
+
+      res.push(r);
+    });
+
+    return res;
   }
 
   function onInspGedungChange() {
-    const bCode = document.getElementById('insp-gedung').value;
+    const gSelect = document.getElementById('insp-gedung');
     const rSelect = document.getElementById('insp-ruangan');
     const infoBox = document.getElementById('insp-gedung-info');
+
+    if (!gSelect || !rSelect) return;
+
+    const bCode = gSelect.value;
+    const selectedOpt = gSelect.options[gSelect.selectedIndex];
+    const bSite = selectedOpt ? selectedOpt.getAttribute('data-site') : '';
+    const bId = selectedOpt ? selectedOpt.getAttribute('data-id') : '';
 
     if (!bCode) {
       rSelect.innerHTML = '<option value="">-- Pilih Gedung Terlebih Dahulu --</option>';
       rSelect.disabled = true;
-      infoBox.classList.add('hidden');
+      if (infoBox) infoBox.classList.add('hidden');
+      onInspRuanganChange();
       return;
     }
 
-    const bldg = appState.buildings.find(b => b.kode_gedung === bCode);
-    if (bldg) {
+    const bldg = (appState.buildings || []).find(b => 
+      (b.kode_gedung === bCode && (!bSite || b.lokasi_site === bSite)) ||
+      (bId && String(b.gedung_id) === String(bId))
+    ) || (appState.buildings || []).find(b => b.kode_gedung === bCode);
+
+    if (bldg && infoBox) {
       infoBox.classList.remove('hidden');
       infoBox.innerHTML = `<strong>${escapeHtml(bldg.nama_gedung)}</strong> &bull; Site: ${escapeHtml(bldg.lokasi_site)} &bull; PIC: <strong>${escapeHtml(bldg.penanggungjawab || '-')}</strong> &bull; Ruangan: ${bldg.total_ruangan || 0}`;
-      document.getElementById('insp-pic').value = bldg.penanggungjawab || '';
+      const picInput = document.getElementById('insp-pic');
+      if (picInput) picInput.value = bldg.penanggungjawab || '';
     }
 
-    const matchingRooms = getRoomsForBuilding(bCode);
-    const roomOpts = matchingRooms.map(r =>
-      `<option value="${escapeHtml(r.nama_ruangan)}">${escapeHtml(r.nama_ruangan)} (${escapeHtml(r.tipe_ruangan || 'Kamar')} - ${r.total_asset || 0} Aset)</option>`
-    ).join('');
+    // Ambil HANYA ruangan di dalam gedung tersebut (bebas bocor dan deduplikasi)
+    const matchingRooms = getRoomsForBuilding(bCode, bSite, bId);
 
-    rSelect.innerHTML = '<option value="">-- Pilih Ruangan / Kamar --</option>' + roomOpts;
-    rSelect.disabled = false;
+    if (matchingRooms.length > 0) {
+      const roomOpts = matchingRooms.map(r =>
+        `<option value="${escapeHtml(r.nama_ruangan)}">${escapeHtml(r.nama_ruangan)} (${escapeHtml(r.tipe_ruangan || 'Ruangan')} - ${r.total_asset || 0} Aset)</option>`
+      ).join('');
+
+      rSelect.innerHTML = roomOpts;
+      rSelect.disabled = false;
+
+      // LANGSUNG MENGIKUTI: Otomatis pilih ruangan pertama dan langsung muat checklist fisiknya!
+      rSelect.selectedIndex = 0;
+      onInspRuanganChange();
+    } else {
+      // Jika gedung belum punya list detail kamar di database
+      rSelect.innerHTML = '<option value="Area Utama">Area Utama (1 Ruangan)</option>';
+      rSelect.disabled = false;
+      rSelect.selectedIndex = 0;
+      onInspRuanganChange();
+    }
   }
-
 
   // Helper: Pastikan hanya aset fasilitas/perabotan ruangan yang dimuat (BUKAN aset tanah/gedung Mess Karyawan/Longhouse)
   function isFacilityAssetItem(a) {
@@ -2609,7 +2667,7 @@
     const gEl = document.getElementById('reg-gedung');
     const rSelect = document.getElementById('reg-ruang');
     if (!gEl || !rSelect) return;
-    const rooms = getRoomsForBuilding(gEl.value);
+    const opt = gEl.options[gEl.selectedIndex]; const rooms = getRoomsForBuilding(gEl.value, opt ? opt.getAttribute('data-site') : '', opt ? opt.getAttribute('data-id') : '');
     rSelect.innerHTML = rooms.length > 0
       ? rooms.map(r => `<option value="${escapeHtml(r.nama_ruangan)}">${escapeHtml(r.nama_ruangan)}</option>`).join('')
       : '<option value="Area Utama">Area Utama</option>';
@@ -2619,7 +2677,7 @@
     const gEl = document.getElementById('mut-ke-gedung');
     const rSelect = document.getElementById('mut-ke-ruang');
     if (!gEl || !rSelect) return;
-    const rooms = getRoomsForBuilding(gEl.value);
+    const opt = gEl.options[gEl.selectedIndex]; const rooms = getRoomsForBuilding(gEl.value, opt ? opt.getAttribute('data-site') : '', opt ? opt.getAttribute('data-id') : '');
     rSelect.innerHTML = rooms.length > 0
       ? rooms.map(r => `<option value="${escapeHtml(r.nama_ruangan)}">${escapeHtml(r.nama_ruangan)}</option>`).join('')
       : '<option value="Area Utama">Area Utama</option>';
