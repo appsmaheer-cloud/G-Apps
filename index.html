@@ -489,13 +489,15 @@
             <div class="flex items-center bg-slate-50 rounded-xl px-2.5 py-1.5 border border-slate-200 shrink-0 shadow-2xs">
               <span class="text-[10px] font-extrabold text-slate-400 uppercase mr-1.5">Kategori:</span>
               <select id="slicer-asset-kat" onchange="onAssetFilterChange()" class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer max-w-[150px] truncate">
-                <option value="ALL">Semua Kategori</option>
-                <option value="HEAVY EQUIPMENT">Heavy Equipment</option>
-                <option value="VEHICLE">Kendaraan &amp; Fleet</option>
-                <option value="PABRIK">Mesin Pabrik</option>
-                <option value="PERTANIAN">Peralatan Pertanian</option>
-                <option value="FASILITAS">Bangunan &amp; Gedung</option>
-                <option value="IT">IT &amp; Elektronik</option>
+                <option value="ALL">Semua Kelompok Aset (34.266)</option>
+                <option value="INVENTARIS DAN PERALATAN">Inventaris &amp; Peralatan (22.696)</option>
+                <option value="INFRASTRUKTUR">Infrastruktur (4.755)</option>
+                <option value="MESIN PABRIK">Mesin Pabrik (2.206)</option>
+                <option value="MESIN DAN INSTALASI">Mesin &amp; Instalasi (1.825)</option>
+                <option value="KENDARAAN DAN TRANSPORTASI">Kendaraan &amp; Transportasi (1.416)</option>
+                <option value="BANGUNAN">Bangunan Fisik (819)</option>
+                <option value="ALAT/IMPLEMENT PERTANIAN">Alat Pertanian (415)</option>
+                <option value="ALAT BERAT">Alat Berat (134)</option>
               </select>
             </div>
 
@@ -1899,13 +1901,13 @@
             <!-- Quick Counters -->
             <div class="flex items-center gap-2 text-xs">
               <span id="badge-total-slots" class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold border border-slate-200">
-                Total: 409 Bed
+                Total: 409 Penghuni
               </span>
               <span id="badge-terisi-slots" class="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
-                Terisi: 395
+                Aktif: 409 Orang
               </span>
-              <span id="badge-vacant-slots" class="px-2.5 py-0.5 rounded-md bg-amber-50 text-amber-700 font-bold border border-amber-200">
-                Vacant: 14
+              <span id="badge-vacant-slots" class="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-200">
+                28 Mess / LH
               </span>
             </div>
           </div>
@@ -2131,6 +2133,7 @@
   <!-- Modular JS Included from JS.html -->
   <script src="config.js"></script>
   <script src="pns_data_master.js"></script>
+  <script src="pns_all_assets_catalog.js"></script>
   <script src="app.js"></script>
 
 
