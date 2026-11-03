@@ -642,15 +642,15 @@
       <div id="view-portfolio" class="page-view hidden space-y-5">
                     
                     <!-- Top Action & Multi-Select Slicer Bar -->
-                    <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs shrink-0 gap-3">
+                    <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white rounded-2xl border border-slate-200/90 shadow-xs shrink-0 gap-3">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="text-[10.5px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 shrink-0">
+                            <span class="text-[10.5px] font-black uppercase tracking-wider text-emerald-600 flex items-center gap-1.5 shrink-0">
                                 <i class="ph-bold ph-chart-pie-slice"></i> Overview Master Aset:
                             </span>
                             <button type="button" onclick="window.pns.switchView('view-trx-asset-register')" class="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
                                 <i class="ph-bold ph-plus-circle"></i> + Register Aset
                             </button>
-                            <button type="button" onclick="window.pns.switchView('view-trx-asset-mutation')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg text-xs font-bold transition flex items-center gap-1.5 border border-slate-200/80 dark:border-slate-700 cursor-pointer">
+                            <button type="button" onclick="window.pns.switchView('view-trx-asset-mutation')" class="px-2.5 py-1 bg-slate-100 hover:bg-slate-200:bg-slate-700 text-slate-700 rounded-lg text-xs font-bold transition flex items-center gap-1.5 border border-slate-200/80 cursor-pointer">
                                 <i class="ph-bold ph-arrows-left-right text-emerald-500"></i> Mutasi
                             </button>
                         </div>
@@ -660,17 +660,17 @@
                             <!-- Physical Environment Slicer (In-Building vs Outdoor) -->
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider pl-1 mb-0.5">Fisik Lokasi</span>
-                                <div class="inline-flex p-0.5 rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 shadow-2xs">
+                                <div class="inline-flex p-0.5 rounded-xl bg-slate-100 border border-slate-200/90 shadow-2xs">
                                     <button type="button" id="btn-asset-env-all" onclick="window.setAssetEnvFilter('ALL')" class="px-2.5 py-1 text-xs font-black rounded-lg bg-cyan-600 text-white shadow-2xs transition cursor-pointer">Semua</button>
-                                    <button type="button" id="btn-asset-env-in_building" onclick="window.setAssetEnvFilter('IN_BUILDING')" class="px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer flex items-center gap-1"><i class="ph-bold ph-buildings"></i> Gedung</button>
-                                    <button type="button" id="btn-asset-env-outdoor" onclick="window.setAssetEnvFilter('OUTDOOR')" class="px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer flex items-center gap-1"><i class="ph-bold ph-tree"></i> Lapangan</button>
+                                    <button type="button" id="btn-asset-env-in_building" onclick="window.setAssetEnvFilter('IN_BUILDING')" class="px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer flex items-center gap-1"><i class="ph-bold ph-buildings"></i> Gedung</button>
+                                    <button type="button" id="btn-asset-env-outdoor" onclick="window.setAssetEnvFilter('OUTDOOR')" class="px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer flex items-center gap-1"><i class="ph-bold ph-tree"></i> Lapangan</button>
                                 </div>
                             </div>
 
                             <!-- Type Assets Slicer -->
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider pl-1 mb-0.5">Type Assets</span>
-                                <select id="slicer-asset-type" onchange="window.pns.applyPbiFilters()" class="text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-xl px-2.5 py-1 font-bold text-slate-700 dark:text-slate-300 focus:outline-none shadow-2xs">
+                                <select id="slicer-asset-type" onchange="window.pns.applyPbiFilters()" class="text-xs bg-slate-50 border border-slate-200/90 rounded-xl px-2.5 py-1 font-bold text-slate-700 focus:outline-none shadow-2xs">
                                     <option value="">All Types</option>
                                     <option value="valuable">Valuable Assets</option>
                                     <option value="non_valuable">Non-Valuable Assets</option>
@@ -680,7 +680,7 @@
                             <!-- Group Assets Slicer -->
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider pl-1 mb-0.5">Group Assets</span>
-                                <select id="slicer-asset-group" onchange="window.pns.applyPbiFilters()" class="text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-xl px-2.5 py-1 font-bold text-slate-700 dark:text-slate-300 focus:outline-none shadow-2xs">
+                                <select id="slicer-asset-group" onchange="window.pns.applyPbiFilters()" class="text-xs bg-slate-50 border border-slate-200/90 rounded-xl px-2.5 py-1 font-bold text-slate-700 focus:outline-none shadow-2xs">
                                     <option value="">All Groups</option>
                                     <option value="BANGUNAN">Bangunan</option>
                                     <option value="INFRASTRUKTUR">Infrastruktur</option>
@@ -695,7 +695,7 @@
                             <!-- Department Slicer -->
                             <div class="flex flex-col">
                                 <span class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider pl-1 mb-0.5">Department</span>
-                                <select id="slicer-asset-dept" onchange="window.pns.applyPbiFilters()" class="text-xs bg-slate-50 dark:bg-slate-800 border border-slate-200/90 dark:border-slate-700 rounded-xl px-2.5 py-1 font-bold text-slate-700 dark:text-slate-300 focus:outline-none shadow-2xs">
+                                <select id="slicer-asset-dept" onchange="window.pns.applyPbiFilters()" class="text-xs bg-slate-50 border border-slate-200/90 rounded-xl px-2.5 py-1 font-bold text-slate-700 focus:outline-none shadow-2xs">
                                     <option value="">All Departments</option>
                                     <option value="BUSINESS SUPPORT">BUSINESS SUPPORT</option>
                                     <option value="FINANCIAL & INFORMATION SYSTEM">FINANCIAL & INFORMATION SYSTEM</option>
@@ -716,25 +716,25 @@
                         <div class="pns-card p-4 flex flex-col justify-between shadow-xs">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-2.5">
-                                    <div class="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-600 text-lg shadow-2xs">
+                                    <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600 text-lg shadow-2xs">
                                         <i class="ph-bold ph-folder-open"></i>
                                     </div>
                                     <div>
                                         <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400 block">Total Assets</span>
-                                        <span class="text-2xl font-black text-slate-900 dark:text-white tracking-tight" id="pbi-asset1-total-assets">34,266</span>
+                                        <span class="text-2xl font-black text-slate-900 tracking-tight" id="pbi-asset1-total-assets">34,266</span>
                                     </div>
                                 </div>
-                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 border border-slate-200/60 dark:border-slate-700/60">Portfolio</span>
+                                <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-100 text-slate-600 border border-slate-200/60">Portfolio</span>
                             </div>
-                            <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-mono">
+                            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-mono">
                                 <div class="flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                    <span class="font-extrabold text-emerald-600 dark:text-emerald-400" id="pbi-asset1-active-count">10,897</span>
+                                    <span class="font-extrabold text-emerald-600" id="pbi-asset1-active-count">10,897</span>
                                     <span class="text-slate-400 text-[11px]">Active</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-rose-500"></span>
-                                    <span class="font-extrabold text-rose-600 dark:text-rose-400" id="pbi-asset1-nonactive-count">5,016</span>
+                                    <span class="font-extrabold text-rose-600" id="pbi-asset1-nonactive-count">5,016</span>
                                     <span class="text-slate-400 text-[11px]">Non Active</span>
                                 </div>
                             </div>
@@ -744,27 +744,27 @@
                         <div class="pns-card p-4 flex flex-col justify-between shadow-xs">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-2.5">
-                                    <div class="w-10 h-10 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-600 text-lg shadow-2xs">
+                                    <div class="w-10 h-10 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 text-lg shadow-2xs">
                                         <i class="ph-bold ph-heartbeat"></i>
                                     </div>
                                     <div>
-                                        <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-emerald-600 dark:text-emerald-400 block">GOOD ASSETS</span>
-                                        <span class="text-2xl font-black text-slate-900 dark:text-white tracking-tight" id="pbi-asset1-good-count">27,872</span>
+                                        <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-emerald-600 block">GOOD ASSETS</span>
+                                        <span class="text-2xl font-black text-slate-900 tracking-tight" id="pbi-asset1-good-count">27,872</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block">Asset Good</span>
                                     </div>
                                 </div>
-                                <div class="flex flex-col items-center justify-center w-14 h-14 rounded-full border-4 border-emerald-500 bg-emerald-50/50 dark:bg-emerald-950/40 shrink-0">
-                                    <span class="text-[11px] font-black text-emerald-700 dark:text-emerald-300" id="pbi-asset1-good-pct">81.34%</span>
+                                <div class="flex flex-col items-center justify-center w-14 h-14 rounded-full border-4 border-emerald-500 bg-emerald-50/50 shrink-0">
+                                    <span class="text-[11px] font-black text-emerald-700" id="pbi-asset1-good-pct">81.34%</span>
                                     <span class="text-[8px] font-extrabold uppercase text-emerald-600">Good</span>
                                 </div>
                             </div>
-                            <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-mono">
+                            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-mono">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase">Lifetime:</span>
                                 <div class="flex items-center gap-3">
-                                    <span class="text-rose-600 dark:text-rose-400 font-bold flex items-center gap-0.5">
+                                    <span class="text-rose-600 font-bold flex items-center gap-0.5">
                                         <b id="pbi-asset1-good-lifetime-diatas">16,975</b> <i class="ph-bold ph-arrow-up text-rose-500 text-[10px]"></i>
                                     </span>
-                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5">
+                                    <span class="text-emerald-600 font-bold flex items-center gap-0.5">
                                         <b id="pbi-asset1-good-lifetime-dibawah">10,897</b> <i class="ph-bold ph-arrow-down text-emerald-500 text-[10px]"></i>
                                     </span>
                                 </div>
@@ -775,27 +775,27 @@
                         <div class="pns-card p-4 flex flex-col justify-between shadow-xs">
                             <div class="flex items-start justify-between">
                                 <div class="flex items-center gap-2.5">
-                                    <div class="w-10 h-10 rounded-lg bg-amber-50 dark:bg-amber-950/50 flex items-center justify-center text-amber-500 text-lg shadow-2xs">
+                                    <div class="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-500 text-lg shadow-2xs">
                                         <i class="ph-bold ph-warning-octagon"></i>
                                     </div>
                                     <div>
                                         <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-amber-500 block">CRITICAL ASSETS</span>
-                                        <span class="text-2xl font-black text-slate-900 dark:text-white tracking-tight" id="pbi-asset1-crit-count">6,155</span>
+                                        <span class="text-2xl font-black text-slate-900 tracking-tight" id="pbi-asset1-crit-count">6,155</span>
                                         <span class="text-[10px] text-slate-400 font-semibold block">Asset Critical</span>
                                     </div>
                                 </div>
-                                <div class="flex flex-col items-center justify-center w-14 h-14 rounded-full border-4 border-amber-500 bg-amber-50/50 dark:bg-amber-950/40 shrink-0">
-                                    <span class="text-[11px] font-black text-amber-700 dark:text-amber-300" id="pbi-asset1-crit-pct">17.96%</span>
+                                <div class="flex flex-col items-center justify-center w-14 h-14 rounded-full border-4 border-amber-500 bg-amber-50/50 shrink-0">
+                                    <span class="text-[11px] font-black text-amber-700" id="pbi-asset1-crit-pct">17.96%</span>
                                     <span class="text-[8px] font-extrabold uppercase text-amber-600">Critical</span>
                                 </div>
                             </div>
-                            <div class="mt-3 pt-2.5 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs font-mono">
+                            <div class="mt-3 pt-2.5 border-t border-slate-100 flex items-center justify-between text-xs font-mono">
                                 <span class="text-[10px] font-bold text-slate-400 uppercase">Lifetime:</span>
                                 <div class="flex items-center gap-3">
-                                    <span class="text-emerald-600 dark:text-emerald-400 font-bold flex items-center gap-0.5">
+                                    <span class="text-emerald-600 font-bold flex items-center gap-0.5">
                                         <b id="pbi-asset1-crit-lifetime-dibawah">1,283</b> <i class="ph-bold ph-arrow-down text-emerald-500 text-[10px]"></i>
                                     </span>
-                                    <span class="text-rose-600 dark:text-rose-400 font-bold flex items-center gap-0.5">
+                                    <span class="text-rose-600 font-bold flex items-center gap-0.5">
                                         <b id="pbi-asset1-crit-lifetime-diatas">4,872</b> <i class="ph-bold ph-arrow-up text-rose-500 text-[10px]"></i>
                                     </span>
                                 </div>
@@ -807,21 +807,21 @@
                             <div>
                                 <div class="flex items-start justify-between">
                                     <div class="flex items-center gap-2.5">
-                                        <div class="w-10 h-10 rounded-lg bg-cyan-50 dark:bg-cyan-950/50 flex items-center justify-center text-cyan-600 text-lg shadow-2xs">
+                                        <div class="w-10 h-10 rounded-lg bg-cyan-50 flex items-center justify-center text-cyan-600 text-lg shadow-2xs">
                                             <i class="ph-bold ph-buildings"></i>
                                         </div>
                                         <div>
-                                            <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-cyan-600 dark:text-cyan-400 block">Value Assets</span>
-                                            <span class="text-2xl font-black text-slate-900 dark:text-white tracking-tight" id="pbi-asset1-value-assets">1,120,266M</span>
+                                            <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-cyan-600 block">Value Assets</span>
+                                            <span class="text-2xl font-black text-slate-900 tracking-tight" id="pbi-asset1-value-assets">1,120,266M</span>
                                         </div>
                                     </div>
                                     <div class="text-right">
                                         <span class="text-[10px] text-slate-400 block font-semibold">Vs Book Value</span>
-                                        <b class="text-sm font-black text-slate-800 dark:text-slate-200 font-mono" id="pbi-asset1-book-ratio">61%</b>
+                                        <b class="text-sm font-black text-slate-800 font-mono" id="pbi-asset1-book-ratio">61%</b>
                                     </div>
                                 </div>
                             </div>
-                            <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800 text-[10px] space-y-1 text-slate-500 font-mono">
+                            <div class="mt-2.5 pt-2 border-t border-slate-100 text-[10px] space-y-1 text-slate-500 font-mono">
                                 <div class="flex items-center justify-between truncate">
                                     <span>Top Acq:</span>
                                     <span class="font-bold text-emerald-600 truncate ml-1" id="pbi-asset1-top-acq-info">MID ROAD Rp 212,990,229,302 (80.71%)</span>
@@ -843,20 +843,20 @@
                             
                             <!-- Overview Asset By Table Card -->
                             <div class="pns-card p-4 flex flex-col min-h-[320px] shadow-xs">
-                                <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+                                <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
                                     <div class="flex items-center gap-2">
-                                        <span class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Overview Asset By</span>
+                                        <span class="text-xs sm:text-sm font-bold text-slate-900">Overview Asset By</span>
                                     </div>
-                                    <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+                                    <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200/60">
                                         <button type="button" onclick="window.pns.setAssetOverviewDim('location')" id="btn-asset-dim-location" class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-amber-500 text-white shadow-2xs transition cursor-pointer">Location</button>
-                                        <button type="button" onclick="window.pns.setAssetOverviewDim('group')" id="btn-asset-dim-group" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">Group</button>
-                                        <button type="button" onclick="window.pns.setAssetOverviewDim('building_status')" id="btn-asset-dim-building_status" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer flex items-center gap-1"><i class="ph-bold ph-buildings"></i> Gedung/Lap</button>
-                                        <button type="button" onclick="window.pns.setAssetOverviewDim('name')" id="btn-asset-dim-name" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">Name</button>
+                                        <button type="button" onclick="window.pns.setAssetOverviewDim('group')" id="btn-asset-dim-group" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer">Group</button>
+                                        <button type="button" onclick="window.pns.setAssetOverviewDim('building_status')" id="btn-asset-dim-building_status" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer flex items-center gap-1"><i class="ph-bold ph-buildings"></i> Gedung/Lap</button>
+                                        <button type="button" onclick="window.pns.setAssetOverviewDim('name')" id="btn-asset-dim-name" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer">Name</button>
                                     </div>
                                 </div>
                                 <div class="flex-1 overflow-auto scrollbar-thin mt-2 max-h-[260px]">
                                     <table class="w-full text-left border-collapse font-sans text-xs">
-                                        <thead class="sticky top-0 bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                                        <thead class="sticky top-0 bg-slate-50/95 backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200">
                                             <tr>
                                                 <th class="px-3 py-2" id="th-asset-overview-dim">Location</th>
                                                 <th class="px-2.5 py-2 text-right">Total Asset</th>
@@ -875,13 +875,13 @@
                                 
                                 <!-- Mini Donut: Composition Asset by Type -->
                                 <div class="md:col-span-5 pns-card p-3.5 flex flex-col min-h-[220px] shadow-xs">
-                                    <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200 pb-1.5 border-b border-slate-100 dark:border-slate-800 shrink-0">Composition Asset by Type</span>
+                                    <span class="text-[11px] font-bold text-slate-800 pb-1.5 border-b border-slate-100 shrink-0">Composition Asset by Type</span>
                                     <div class="flex-1 w-full min-h-[160px]" id="chart-pbi-asset1-type-donut"></div>
                                 </div>
 
                                 <!-- Condition Progress Bars -->
                                 <div class="md:col-span-7 pns-card p-3.5 flex flex-col justify-between min-h-[220px] shadow-xs">
-                                    <span class="text-[11px] font-bold text-slate-800 dark:text-slate-200 pb-1.5 border-b border-slate-100 dark:border-slate-800 shrink-0">Condition Breakdown</span>
+                                    <span class="text-[11px] font-bold text-slate-800 pb-1.5 border-b border-slate-100 shrink-0">Condition Breakdown</span>
                                     <div class="flex-1 flex flex-col justify-around py-1.5 space-y-2" id="container-pbi-asset1-condition-bars">
                                         <!-- Will be populated dynamically -->
                                     </div>
@@ -893,20 +893,20 @@
 
                         <!-- Right Column (Performance Asset By Section/Category/Name) -->
                         <div class="xl:col-span-6 pns-card p-4 flex flex-col min-h-[550px] shadow-xs">
-                            <div class="flex items-center justify-between pb-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
                                 <div class="flex items-center gap-2">
-                                    <span class="text-xs sm:text-sm font-bold text-slate-900 dark:text-white">Performance Asset By</span>
+                                    <span class="text-xs sm:text-sm font-bold text-slate-900">Performance Asset By</span>
                                 </div>
-                                <div class="flex items-center gap-1 bg-slate-100 dark:bg-slate-800 p-0.5 rounded-xl border border-slate-200/60 dark:border-slate-700/60">
+                                <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200/60">
                                     <button type="button" onclick="window.pns.setAssetPerfDim('section')" id="btn-asset-perf-section" class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-600 text-white shadow-2xs transition cursor-pointer">Section</button>
-                                    <button type="button" onclick="window.pns.setAssetPerfDim('category')" id="btn-asset-perf-category" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">Category</button>
-                                    <button type="button" onclick="window.pns.setAssetPerfDim('building_status')" id="btn-asset-perf-building_status" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer flex items-center gap-1"><i class="ph-bold ph-buildings"></i> Gedung/Lap</button>
-                                    <button type="button" onclick="window.pns.setAssetPerfDim('name')" id="btn-asset-perf-name" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer">Name</button>
+                                    <button type="button" onclick="window.pns.setAssetPerfDim('category')" id="btn-asset-perf-category" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer">Category</button>
+                                    <button type="button" onclick="window.pns.setAssetPerfDim('building_status')" id="btn-asset-perf-building_status" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer flex items-center gap-1"><i class="ph-bold ph-buildings"></i> Gedung/Lap</button>
+                                    <button type="button" onclick="window.pns.setAssetPerfDim('name')" id="btn-asset-perf-name" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer">Name</button>
                                 </div>
                             </div>
                             <div class="flex-1 overflow-auto scrollbar-thin mt-2 max-h-[500px]">
                                 <table class="w-full text-left border-collapse font-sans text-xs">
-                                    <thead class="sticky top-0 bg-slate-50/95 dark:bg-slate-800/95 backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500 dark:text-slate-400 border-b border-slate-200 dark:border-slate-700">
+                                    <thead class="sticky top-0 bg-slate-50/95 backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200">
                                         <tr>
                                             <th class="px-3 py-2" id="th-asset-perf-dim">Section</th>
                                             <th class="px-2.5 py-2 text-right">Total Asset</th>
@@ -933,14 +933,14 @@
       <div id="view-asset-sebaran" class="page-view hidden space-y-5">
                     
                     <!-- Top Action Bar -->
-                    <div class="flex items-center justify-between px-4 py-2.5 bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800 shadow-xs shrink-0 gap-3">
+                    <div class="flex items-center justify-between px-4 py-2.5 bg-white rounded-2xl border border-slate-200/90 shadow-xs shrink-0 gap-3">
                         <div class="flex items-center gap-2">
-                            <span class="text-[10.5px] font-black uppercase tracking-wider text-emerald-600 dark:text-emerald-400 flex items-center gap-1.5 shrink-0">
+                            <span class="text-[10.5px] font-black uppercase tracking-wider text-emerald-600 flex items-center gap-1.5 shrink-0">
                                 <i class="ph-bold ph-buildings"></i> Lokasi Kantor Operasional:
                             </span>
                         </div>
 
-                        <div class="text-[11px] font-mono font-bold text-slate-600 dark:text-slate-400 bg-slate-50 dark:bg-slate-800/80 px-3.5 py-1.5 rounded-xl border border-slate-200/90 dark:border-slate-700/80 shrink-0 shadow-2xs">
+                        <div class="text-[11px] font-mono font-bold text-slate-600 bg-slate-50 px-3.5 py-1.5 rounded-xl border border-slate-200/90 shrink-0 shadow-2xs">
                             8 Lokasi Kantor Operasional
                         </div>
                     </div>

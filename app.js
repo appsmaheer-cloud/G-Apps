@@ -517,7 +517,10 @@
     renderRoomsTable();
     renderAssetsTable();
     renderHistoryTable();
-    renderWorkOrdersKanban(); renderAllAssetsTable();
+    renderWorkOrdersKanban();
+    renderAllAssetsTable();
+    renderPortfolioComposition();
+    renderAssetSebaran();
     renderPenghuniTable();
     renderPortfolioAllTable();
     renderValidasiTable();
@@ -573,7 +576,10 @@
     renderRoomsTable();
     renderAssetsTable();
     renderHistoryTable();
-    renderWorkOrdersKanban(); renderAllAssetsTable();
+    renderWorkOrdersKanban();
+    renderAllAssetsTable();
+    renderPortfolioComposition();
+    renderAssetSebaran();
     renderPenghuniTable();
     renderPortfolioAllTable();
     renderValidasiTable();
@@ -797,18 +803,15 @@
   }
 
   function initTheme() {
-    const toggleBtn = document.getElementById('btn-theme-toggle');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => {
-        
-        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
-      });
+    document.documentElement.classList.remove('dark');
+    document.documentElement.classList.add('light');
+    if (document.body) {
+      document.body.classList.remove('dark');
+      document.body.classList.add('light');
     }
-    if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
-      
-    } else {
-      
-    }
+    try {
+      localStorage.setItem('theme', 'light');
+    } catch (e) {}
   }
 
   // ==========================================
@@ -1149,6 +1152,7 @@
   // ==========================================
   // KOMPOSISI PORTOFOLIO ASET (POWER BI PARITY HALAMAN 9 & 10)
   // ==========================================
+  // =========================================================================
   // =========================================================================
   // PNS ENTERPRISE POWER BI ASSET ENGINE (100% PARITAS PHP & PBIX)
   // =========================================================================
@@ -1681,21 +1685,21 @@
         totalMaintSum += r.maintenanceCost;
         totalGoodSum += r.goodCount;
         return `
-          <tr onclick="window.drillToOfficeAssets('${r.label}')" class="hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 transition text-xs border-b border-slate-100 dark:border-slate-800 cursor-pointer group" title="Klik untuk lihat aset di ${r.label}">
-            <td class="px-3 py-2 font-bold text-slate-800 dark:text-slate-200 uppercase">
+          <tr onclick="window.drillToOfficeAssets('${r.label}')" class="hover:bg-emerald-50/60:bg-emerald-950/30 transition text-xs border-b border-slate-100 cursor-pointer group" title="Klik untuk lihat aset di ${r.label}">
+            <td class="px-3 py-2 font-bold text-slate-800 uppercase">
               <div class="flex items-center gap-1.5">
                 <span>${r.label}</span>
                 <i class="ph-bold ph-arrow-up-right text-[10px] text-emerald-600 opacity-0 group-hover:opacity-100 transition"></i>
               </div>
             </td>
-            <td class="px-3 py-2 text-right font-mono font-bold text-slate-700 dark:text-slate-300">${formatNum(r.totalAsset)}</td>
+            <td class="px-3 py-2 text-right font-mono font-bold text-slate-700">${formatNum(r.totalAsset)}</td>
             <td class="px-3 py-2 text-center">
-              <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-black ${r.goodPct >= 80 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300'}">
+              <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-black ${r.goodPct >= 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
                 ${r.goodPct.toFixed(2)}%
               </span>
             </td>
-            <td class="px-3 py-2 text-right font-mono font-semibold text-slate-800 dark:text-slate-200">${formatRp(r.acquisition)}</td>
-            <td class="px-3 py-2 text-right font-mono font-semibold text-amber-600 dark:text-amber-400">${formatRp(r.maintenanceCost)}</td>
+            <td class="px-3 py-2 text-right font-mono font-semibold text-slate-800">${formatRp(r.acquisition)}</td>
+            <td class="px-3 py-2 text-right font-mono font-semibold text-amber-600">${formatRp(r.maintenanceCost)}</td>
           </tr>
         `;
       }).join('');
@@ -1716,10 +1720,10 @@
         totalAssetPerf += r.totalAsset;
         const fmtPct = p => p > 0 ? `${p.toFixed(2)}%` : '-';
         return `
-          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition text-xs border-b border-slate-100 dark:border-slate-800">
-            <td class="px-3 py-2 font-bold text-slate-800 dark:text-slate-200">${r.label}</td>
-            <td class="px-3 py-2 text-right font-mono font-bold text-slate-700 dark:text-slate-300">${formatNum(r.totalAsset)}</td>
-            <td class="px-3 py-2 text-center"><span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">${fmtPct(r.goodPct)}</span></td>
+          <tr class="hover:bg-slate-50:bg-slate-800/40 transition text-xs border-b border-slate-100">
+            <td class="px-3 py-2 font-bold text-slate-800">${r.label}</td>
+            <td class="px-3 py-2 text-right font-mono font-bold text-slate-700">${formatNum(r.totalAsset)}</td>
+            <td class="px-3 py-2 text-center"><span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-50 text-emerald-700">${fmtPct(r.goodPct)}</span></td>
             <td class="px-3 py-2 text-center text-amber-600 font-mono">${fmtPct(r.repairPct)}</td>
             <td class="px-3 py-2 text-center text-rose-600 font-mono">${fmtPct(r.brokenPct)}</td>
             <td class="px-3 py-2 text-center text-slate-500 font-mono">${fmtPct(r.lostPct)}</td>
@@ -1770,15 +1774,15 @@
       condContainer.innerHTML = condBars.map(c => `
         <div class="space-y-1">
           <div class="flex items-center justify-between text-xs">
-            <span class="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+            <span class="font-bold text-slate-700 flex items-center gap-1.5">
               <span class="w-2 h-2 rounded-full ${c.color}"></span>
               ${c.label}
             </span>
-            <span class="font-mono text-slate-600 dark:text-slate-400 font-medium">
+            <span class="font-mono text-slate-600 font-medium">
               ${formatNum(c.count)} <span class="text-[10px] text-slate-400">(${c.pct.toFixed(2)}%)</span>
             </span>
           </div>
-          <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+          <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
             <div class="${c.color} h-1.5 rounded-full" style="width: ${Math.min(100, Math.max(1, c.pct))}%"></div>
           </div>
         </div>
@@ -1836,70 +1840,70 @@
     container.innerHTML = officeData.map(o => {
       const topKelompok = o.kelompokBreakdown.slice(0, 8);
       return `
-        <div class="pns-card p-4 flex flex-col justify-between shadow-xs transition bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800">
+        <div class="pns-card p-4 flex flex-col justify-between shadow-xs transition bg-white rounded-2xl border border-slate-200/90">
           <div>
             <!-- Card Header -->
-            <div class="flex items-start justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
+            <div class="flex items-start justify-between pb-2.5 border-b border-slate-100">
               <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 text-base border border-emerald-100 dark:border-emerald-900/40">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 text-base border border-emerald-100">
                   <i class="ph-bold ${o.icon || 'ph-buildings'}"></i>
                 </div>
                 <div>
-                  <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wide">${o.label}</h3>
+                  <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide">${o.label}</h3>
                   <span class="text-[9.5px] text-slate-400 font-medium block">${o.desc}</span>
                 </div>
               </div>
-              <div class="px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800 flex flex-col items-center justify-center text-center bg-emerald-50/80 dark:bg-emerald-950/40 shrink-0 min-w-[50px]">
-                <span class="text-[10px] font-black text-emerald-700 dark:text-emerald-300 leading-tight">${o.goodPct.toFixed(1)}%</span>
-                <span class="text-[7.5px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">GOOD</span>
+              <div class="px-2 py-0.5 rounded-md border border-emerald-200 flex flex-col items-center justify-center text-center bg-emerald-50/80 shrink-0 min-w-[50px]">
+                <span class="text-[10px] font-black text-emerald-700 leading-tight">${o.goodPct.toFixed(1)}%</span>
+                <span class="text-[7.5px] font-bold text-emerald-600 uppercase tracking-tighter">GOOD</span>
               </div>
             </div>
 
             <!-- Total Assets & Lifetime Indicators -->
-            <div class="flex items-center justify-between my-2 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+            <div class="flex items-center justify-between my-2 px-2.5 py-1.5 bg-slate-50 rounded-xl border border-slate-100">
               <div>
                 <span class="text-[8.5px] font-extrabold uppercase text-slate-400 block tracking-wider">TOTAL ASSETS</span>
-                <span class="text-base font-black text-slate-900 dark:text-white tracking-tight">${formatNum(o.totalAsset)}</span>
+                <span class="text-base font-black text-slate-900 tracking-tight">${formatNum(o.totalAsset)}</span>
               </div>
               <div class="text-right text-[10px] font-mono flex items-center gap-1" title="Lifetime Assets: ${formatNum(o.lifetimeUp)} Diatas Standar | ${formatNum(o.lifetimeDown)} Dibawah Standar">
                 <span class="text-emerald-600 font-black flex items-center gap-0.5"><i class="ph-bold ph-arrow-up text-[9px]"></i> ${formatNum(o.lifetimeUp)}</span>
-                <span class="text-slate-300 dark:text-slate-600 font-normal">|</span>
+                <span class="text-slate-300 font-normal">|</span>
                 <span class="text-rose-500 font-black flex items-center gap-0.5"><i class="ph-bold ph-arrow-down text-[9px]"></i> ${formatNum(o.lifetimeDown)}</span>
               </div>
             </div>
 
             <!-- In-Building vs Outdoor Breakdown Pill -->
             <div class="grid grid-cols-2 gap-1.5 my-1.5">
-              <div class="px-2 py-0.5 bg-blue-50/70 dark:bg-blue-950/40 rounded-lg border border-blue-100 dark:border-blue-900/30 flex items-center justify-between text-[9.5px]">
-                <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-1"><i class="ph-bold ph-buildings text-blue-500 text-[10px]"></i> In-Building:</span>
-                <span class="font-mono font-bold text-blue-700 dark:text-blue-300">${formatNum(o.inBuildingCount)}</span>
+              <div class="px-2 py-0.5 bg-blue-50/70 rounded-lg border border-blue-100 flex items-center justify-between text-[9.5px]">
+                <span class="text-slate-600 font-medium flex items-center gap-1"><i class="ph-bold ph-buildings text-blue-500 text-[10px]"></i> In-Building:</span>
+                <span class="font-mono font-bold text-blue-700">${formatNum(o.inBuildingCount)}</span>
               </div>
-              <div class="px-2 py-0.5 bg-amber-50/70 dark:bg-amber-950/40 rounded-lg border border-amber-100 dark:border-amber-900/30 flex items-center justify-between text-[9.5px]">
-                <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-1"><i class="ph-bold ph-tree text-amber-500 text-[10px]"></i> Outdoor:</span>
-                <span class="font-mono font-bold text-amber-700 dark:text-amber-300">${formatNum(o.outdoorCount)}</span>
+              <div class="px-2 py-0.5 bg-amber-50/70 rounded-lg border border-amber-100 flex items-center justify-between text-[9.5px]">
+                <span class="text-slate-600 font-medium flex items-center gap-1"><i class="ph-bold ph-tree text-amber-500 text-[10px]"></i> Outdoor:</span>
+                <span class="font-mono font-bold text-amber-700">${formatNum(o.outdoorCount)}</span>
               </div>
             </div>
 
             <!-- Financials Mini Bar -->
-            <div class="grid grid-cols-3 gap-1 py-1 px-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-100 dark:border-slate-800 text-[8.5px] font-mono text-center mb-2">
+            <div class="grid grid-cols-3 gap-1 py-1 px-1.5 bg-slate-50 rounded-lg border border-slate-100 text-[8.5px] font-mono text-center mb-2">
               <div>
                 <span class="text-slate-400 block text-[7.5px] uppercase font-sans">Acquisition</span>
-                <span class="font-bold text-slate-800 dark:text-slate-200 truncate block">${formatRp(o.acquisition)}</span>
+                <span class="font-bold text-slate-800 truncate block">${formatRp(o.acquisition)}</span>
               </div>
               <div>
                 <span class="text-slate-400 block text-[7.5px] uppercase font-sans">Book Value</span>
-                <span class="font-bold text-emerald-600 dark:text-emerald-400 truncate block">${formatRp(o.bookValue)}</span>
+                <span class="font-bold text-emerald-600 truncate block">${formatRp(o.bookValue)}</span>
               </div>
               <div>
                 <span class="text-slate-400 block text-[7.5px] uppercase font-sans">Maintenance</span>
-                <span class="font-bold text-amber-600 dark:text-amber-400 truncate block">${formatRp(o.maintenanceCost)}</span>
+                <span class="font-bold text-amber-600 truncate block">${formatRp(o.maintenanceCost)}</span>
               </div>
             </div>
 
             <!-- Mini Asset Matrix Table -->
-            <div class="border border-slate-100 dark:border-slate-800 rounded-lg overflow-hidden">
+            <div class="border border-slate-100 rounded-lg overflow-hidden">
               <table class="w-full text-[9px] text-left">
-                <thead class="bg-slate-100/70 dark:bg-slate-800/80 text-[8px] font-black uppercase text-slate-500 tracking-wider">
+                <thead class="bg-slate-100/70 text-[8px] font-black uppercase text-slate-500 tracking-wider">
                   <tr>
                     <th class="px-1.5 py-1">Asset</th>
                     <th class="px-1 py-1 text-center text-emerald-600">Good</th>
@@ -1908,10 +1912,10 @@
                     <th class="px-1 py-1 text-center text-slate-500">Lost</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                <tbody class="divide-y divide-slate-100 font-mono">
                   ${topKelompok.map(k => `
-                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30">
-                      <td class="px-1.5 py-0.5 font-sans font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px]">${k.name}</td>
+                    <tr class="hover:bg-slate-50/60:bg-slate-800/30">
+                      <td class="px-1.5 py-0.5 font-sans font-bold text-slate-700 truncate max-w-[120px]">${k.name}</td>
                       <td class="px-1 py-0.5 text-center font-bold text-emerald-600">${k.goodPct > 0 ? k.goodPct.toFixed(0) + '%' : '-'}</td>
                       <td class="px-1 py-0.5 text-center text-amber-500">${k.repairPct > 0 ? k.repairPct.toFixed(0) + '%' : '-'}</td>
                       <td class="px-1 py-0.5 text-center text-rose-500">${k.brokenPct > 0 ? k.brokenPct.toFixed(0) + '%' : '-'}</td>
@@ -1924,8 +1928,8 @@
           </div>
 
           <!-- Bottom Action Button -->
-          <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
-            <button onclick="window.drillToOfficeAssets('${o.label}')" class="w-full py-1 text-[10px] font-black rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition flex items-center justify-center gap-1 cursor-pointer">
+          <div class="mt-2.5 pt-2 border-t border-slate-100">
+            <button onclick="window.drillToOfficeAssets('${o.label}')" class="w-full py-1 text-[10px] font-black rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100:bg-emerald-900/60 transition flex items-center justify-center gap-1 cursor-pointer">
               <span>Detail ${o.label} (${formatNum(o.totalAsset)} Aset)</span>
               <i class="ph-bold ph-arrow-right text-[11px]"></i>
             </button>
@@ -1946,7 +1950,7 @@
         if (e === env.toLowerCase()) {
           btn.className = 'px-3 py-1 text-xs font-black rounded-xl bg-blue-600 text-white shadow-sm transition cursor-pointer';
         } else {
-          btn.className = 'px-3 py-1 text-xs font-bold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer';
+          btn.className = 'px-3 py-1 text-xs font-bold rounded-xl text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer';
         }
       }
     });
@@ -1961,7 +1965,7 @@
         if (d === dim) {
           btn.className = 'px-2.5 py-1 text-[10px] font-bold rounded-lg bg-amber-500 text-white shadow-2xs transition cursor-pointer';
         } else {
-          btn.className = 'px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer';
+          btn.className = 'px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer';
         }
       }
     });
@@ -1976,7 +1980,7 @@
         if (d === dim) {
           btn.className = 'px-2.5 py-1 text-[10px] font-bold rounded-lg bg-amber-500 text-white shadow-2xs transition cursor-pointer';
         } else {
-          btn.className = 'px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer';
+          btn.className = 'px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer';
         }
       }
     });
