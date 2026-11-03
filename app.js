@@ -710,6 +710,8 @@
         renderWorkOrdersKanban();
       } else if (viewId === 'view-portfolio-all') {
         renderAllAssetsTable();
+      } else if (viewId === 'view-portfolio') {
+        renderPortfolioComposition();
       } else if (viewId === 'view-validasi') {
         renderValidasiTable();
       } else if (viewId === 'view-penghuni') {
@@ -1141,6 +1143,70 @@
   // ==========================================
   // ASSET MANAGEMENT: SEBARAN KANTOR & SITE
   // ==========================================
+  
+  // ==========================================
+  // KOMPOSISI PORTOFOLIO ASET (POWER BI PARITY HALAMAN 9 & 10)
+  // ==========================================
+  function renderPortfolioComposition() {
+    const tbody = document.getElementById('table-portfolio-composition-body');
+    if (!tbody) return;
+
+    // 8 Kelompok Asset Sesuai Halaman 9 VRA_Project May.pdf & Extracted PBIX
+    const rows = [
+      { name: 'KENDARAAN DAN TRANSPORTASI', total: 1416, good: '32.06%', repair: '0.07%', disposal: '1.69%', broken: '59.96%', lost: '6.21%' },
+      { name: 'ALAT BERAT', total: 134, good: '52.24%', repair: '4.48%', disposal: '0.00%', broken: '41.04%', lost: '2.24%' },
+      { name: 'ALAT/IMPLEMENT PERTANIAN', total: 415, good: '51.81%', repair: '32.05%', disposal: '0.00%', broken: '16.14%', lost: '0.00%' },
+      { name: 'MESIN DAN INSTALASI', total: 1825, good: '64.88%', repair: '0.99%', disposal: '0.77%', broken: '21.42%', lost: '11.95%' },
+      { name: 'BANGUNAN', total: 819, good: '73.50%', repair: '0.12%', disposal: '6.11%', broken: '9.65%', lost: '10.62%' },
+      { name: 'INVENTARIS DAN PERALATAN', total: 22696, good: '82.21%', repair: '0.22%', disposal: '0.30%', broken: '8.53%', lost: '8.73%' },
+      { name: 'MESIN PABRIK', total: 2206, good: '92.20%', repair: '0.23%', disposal: '0.00%', broken: '7.57%', lost: '0.00%' },
+      { name: 'INFRASTRUKTUR', total: 4755, good: '97.90%', repair: '0.00%', disposal: '0.00%', broken: '1.11%', lost: '0.99%' }
+    ];
+
+    tbody.innerHTML = rows.map(r => `
+      <tr class="hover:bg-slate-50 transition border-b border-slate-100">
+        <td class="py-2.5 px-3 font-bold text-slate-800 font-sans">${r.name}</td>
+        <td class="py-2.5 px-3 text-right font-bold text-slate-900">${r.total.toLocaleString('id-ID')}</td>
+        <td class="py-2.5 px-3 text-right font-bold text-emerald-600">${r.good}</td>
+        <td class="py-2.5 px-3 text-right text-amber-600 font-medium">${r.repair}</td>
+        <td class="py-2.5 px-3 text-right text-rose-600 font-medium">${r.disposal}</td>
+        <td class="py-2.5 px-3 text-right text-rose-700 font-medium">${r.broken}</td>
+        <td class="py-2.5 px-3 text-right text-purple-600 font-medium">${r.lost}</td>
+        <td class="py-2.5 px-3 text-right font-bold text-slate-800">100.00%</td>
+      </tr>
+    `).join('') + `
+      <tr class="bg-slate-100/90 font-black border-t-2 border-slate-300">
+        <td class="py-3 px-3 font-black text-slate-900 font-sans uppercase">TOTAL (34.266 ASET)</td>
+        <td class="py-3 px-3 text-right font-black text-slate-900">34.266</td>
+        <td class="py-3 px-3 text-right font-black text-emerald-700">81.34%</td>
+        <td class="py-3 px-3 text-right font-black text-amber-700">0.24%</td>
+        <td class="py-3 px-3 text-right font-black text-rose-700">0.46%</td>
+        <td class="py-3 px-3 text-right font-black text-rose-800">10.69%</td>
+        <td class="py-3 px-3 text-right font-black text-purple-700">7.27%</td>
+        <td class="py-3 px-3 text-right font-black text-slate-900">100.00%</td>
+      </tr>
+    `;
+  }
+
+  function exportPortfolioCompositionCsv() {
+    const csv = 'Kelompok Asset;Total Asset;% Good;% Repair;% Disposal;% Broken;% Lost;% Total\n' +
+      'KENDARAAN DAN TRANSPORTASI;1416;32.06%;0.07%;1.69%;59.96%;6.21%;100.00%\n' +
+      'ALAT BERAT;134;52.24%;4.48%;0.00%;41.04%;2.24%;100.00%\n' +
+      'ALAT/IMPLEMENT PERTANIAN;415;51.81%;32.05%;0.00%;16.14%;0.00%;100.00%\n' +
+      'MESIN DAN INSTALASI;1825;64.88%;0.99%;0.77%;21.42%;11.95%;100.00%\n' +
+      'BANGUNAN;819;73.50%;0.12%;6.11%;9.65%;10.62%;100.00%\n' +
+      'INVENTARIS DAN PERALATAN;22696;82.21%;0.22%;0.30%;8.53%;8.73%;100.00%\n' +
+      'MESIN PABRIK;2206;92.20%;0.23%;0.00%;7.57%;0.00%;100.00%\n' +
+      'INFRASTRUKTUR;4755;97.90%;0.00%;0.00%;1.11%;0.99%;100.00%\n' +
+      'TOTAL;34266;81.34%;0.24%;0.46%;10.69%;7.27%;100.00%\n';
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `Laporan_Komposisi_Portofolio_PNS_${Date.now()}.csv`;
+    link.click();
+  }
+
   function renderAssetSebaran() {
     const container = document.getElementById('asset-sebaran-grid');
     if (!container) return;
@@ -5094,7 +5160,9 @@
     window.updateFacilitiesKpi = updateFacilitiesKpi;
 
     // Asset Management Submodules
-    window.renderAssetSebaran = renderAssetSebaran;
+    window.renderPortfolioComposition = renderPortfolioComposition;
+  window.exportPortfolioCompositionCsv = exportPortfolioCompositionCsv;
+  window.renderAssetSebaran = renderAssetSebaran;
     window.renderAssetDepreciation = renderAssetDepreciation;
     window.exportDepreciationCsv = exportDepreciationCsv;
     window.initAssetLocationView = initAssetLocationView;
