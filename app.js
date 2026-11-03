@@ -77,6 +77,7 @@
     const bldgs = (appState && appState.buildings) ? appState.buildings : [];
     const rooms = (appState && appState.rooms) ? appState.rooms : [];
     const penghuni = (appState && appState.penghuni) ? appState.penghuni : [];
+    const hunianPhotos = (appState && appState.hunianPhotos) ? appState.hunianPhotos : {};
 
     // Filter buildings that are mess/longhouse/hunian
     const hunianBldgs = bldgs.filter(b => {
@@ -96,45 +97,77 @@
       const capacity = roomCount * 4;
       const occPct = capacity > 0 ? Math.min(100, Math.round((residentCount / capacity) * 100)) : 0;
       const isFull = residentCount >= capacity;
+      const photos = hunianPhotos[code] || [];
+      const hasPhotos = photos.length > 0;
+      const thumbUrl = hasPhotos ? photos[0].url : '';
 
       return `
-        <button type="button" onclick="filterPenghuniByHouse('${code}')" class="hunian-house-card group text-left p-3.5 rounded-2xl bg-white border border-slate-200/90 hover:border-indigo-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between shadow-2xs cursor-pointer relative overflow-hidden" data-house-code="${code}">
+        <div onclick="filterPenghuniByHouse('${code}')" class="hunian-house-card group text-left p-3.5 rounded-2xl bg-white border border-slate-200/90 hover:border-indigo-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between shadow-2xs cursor-pointer relative overflow-hidden" data-house-code="${code}">
           <!-- Roof Banner / House Shape Top -->
           <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-indigo-500 via-sky-500 to-indigo-600 group-hover:h-2 transition-all"></div>
           
           <div>
-            <div class="flex items-start justify-between gap-2 mb-2 mt-1">
-              <div class="w-9 h-9 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 group-hover:text-white text-indigo-600 flex items-center justify-center font-bold text-lg transition-colors shadow-2xs">
-                <i class="ph-bold ph-house-line"></i>
+            <!-- PHOTO PREVIEW BANNER -->
+            ${hasPhotos ? `
+              <div class="relative w-full h-24 rounded-xl overflow-hidden mb-2.5 border border-slate-100 shadow-2xs group/img bg-slate-900">
+                <img src="${thumbUrl}" alt="Foto ${escapeHtml(b.nama_bangunan)}" class="w-full h-full object-cover group-hover/img:scale-105 transition duration-300">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+                <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[9px] font-bold flex items-center gap-1">
+                  <i class="ph-bold ph-camera"></i> ${photos.length} Foto
+                </span>
+                <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full text-[9px] font-black ${isFull ? 'bg-amber-500/90 text-white' : 'bg-emerald-500/90 text-white'} backdrop-blur-xs">
+                  ${isFull ? 'Penuh' : 'Tersedia'}
+                </span>
               </div>
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${isFull ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
-                ${isFull ? 'Penuh' : 'Tersedia'}
-              </span>
-            </div>
+            ` : `
+              <div class="relative w-full h-16 rounded-xl bg-gradient-to-br from-slate-50 to-indigo-50/60 border border-dashed border-slate-200/90 mb-2.5 flex items-center justify-between px-3 group/ph hover:border-indigo-300 transition">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-lg bg-indigo-100/70 text-indigo-600 flex items-center justify-center font-bold text-base shadow-2xs">
+                    <i class="ph-bold ph-house-line"></i>
+                  </div>
+                  <div>
+                    <span class="text-[10px] font-bold text-slate-600 block">Belum ada foto</span>
+                    <span class="text-[9px] text-indigo-600 font-semibold flex items-center gap-0.5"><i class="ph-bold ph-camera-plus"></i> Tambah foto</span>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded-full text-[9px] font-black ${isFull ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+                  ${isFull ? 'Penuh' : 'Tersedia'}
+                </span>
+              </div>
+            `}
             
-            <span class="font-extrabold text-xs text-slate-900 group-hover:text-indigo-600 transition-colors block truncate" title="${b.nama_bangunan}">
-              ${b.nama_bangunan || code}
+            <span class="font-extrabold text-xs text-slate-900 group-hover:text-indigo-600 transition-colors block truncate" title="${escapeHtml(b.nama_bangunan)}">
+              ${escapeHtml(b.nama_bangunan || code)}
             </span>
-            <span class="text-[10px] font-medium text-slate-400 block truncate mb-2">
-              ${b.lokasi || b.kode_site || 'Central'} &bull; ${code}
+            <span class="text-[10px] font-medium text-slate-400 block truncate mb-1">
+              ${escapeHtml(b.lokasi || b.kode_site || 'Central')} &bull; ${escapeHtml(code)}
             </span>
           </div>
 
-          <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1.5">
-            <div class="flex items-center justify-between">
-              <span class="text-slate-500 text-[10px] uppercase font-bold">Kamar / Ranjang:</span>
-              <span class="font-mono font-bold text-slate-800">${roomCount} Kmr &bull; ${capacity} Rjg</span>
+          <div>
+            <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1.5">
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 text-[10px] uppercase font-bold">Kamar / Ranjang:</span>
+                <span class="font-mono font-bold text-slate-800">${roomCount} Kmr &bull; ${capacity} Rjg</span>
+              </div>
+              <div class="flex items-center justify-between">
+                <span class="text-slate-500 text-[10px] uppercase font-bold">Terisi:</span>
+                <span class="font-mono font-bold text-indigo-600">${residentCount} Org (${occPct}%)</span>
+              </div>
+              <!-- Occupancy bar -->
+              <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+                <div class="${isFull ? 'bg-amber-500' : 'bg-emerald-500'} h-1.5 rounded-full" style="width: ${Math.max(4, occPct)}%"></div>
+              </div>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-slate-500 text-[10px] uppercase font-bold">Terisi:</span>
-              <span class="font-mono font-bold text-indigo-600">${residentCount} Org (${occPct}%)</span>
-            </div>
-            <!-- Occupancy bar -->
-            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-              <div class="${isFull ? 'bg-amber-500' : 'bg-emerald-500'} h-1.5 rounded-full" style="width: ${Math.max(4, occPct)}%"></div>
+
+            <!-- ACTION BUTTON: LENGKAPI / KELOLA FOTO HUNIAN -->
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center gap-1.5">
+              <button type="button" onclick="event.stopPropagation(); openHunianPhotoModal('${code}', '${escapeHtml(b.nama_bangunan || code)}')" class="w-full py-1.5 px-2 rounded-lg bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold text-[10px] transition-all flex items-center justify-center gap-1.5 border border-indigo-100 shadow-2xs cursor-pointer" title="Lengkapi / Kelola Foto Hunian">
+                <i class="ph-bold ph-camera text-xs"></i> ${hasPhotos ? 'Kelola Foto (' + photos.length + ')' : '📷 Lengkapi Foto'}
+              </button>
             </div>
           </div>
-        </button>
+        </div>
       `;
     }).join('');
   }
@@ -400,6 +433,52 @@ const PNS_SECTION_TO_DEPT = {
         'Estate 3 (E3)': 95
       }
     },
+    hunianPhotos: (function() {
+      try {
+        const cached = localStorage.getItem('PNS_HUNIAN_PHOTOS');
+        if (cached) return JSON.parse(cached);
+      } catch (e) {}
+      return {
+        'PNS-GH-01': [
+          {
+            id: 'p_gh01_1',
+            url: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
+            category: 'Tampak Depan / Eksterior',
+            caption: 'Tampak Depan Guest House 10 Central Office',
+            uploader: 'Miftahul Khoiry',
+            created_at: '2026-10-20 09:30:00'
+          },
+          {
+            id: 'p_gh01_2',
+            url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
+            category: 'Kamar Tidur / Bed',
+            caption: 'Kamar Tidur Utama Guest House 10 - Ranjang & Meja Rapi',
+            uploader: 'Miftahul Khoiry',
+            created_at: '2026-10-20 09:45:00'
+          }
+        ],
+        'PNS-GM-01': [
+          {
+            id: 'p_gm01_1',
+            url: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80',
+            category: 'Tampak Depan / Eksterior',
+            caption: 'Mess Manager Central Office - Bangunan Utama',
+            uploader: 'Admin GS',
+            created_at: '2026-10-22 14:15:00'
+          }
+        ],
+        'PNS-LH-01-01': [
+          {
+            id: 'p_lh01_1',
+            url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
+            category: 'Tampak Depan / Eksterior',
+            caption: 'Longhouse Staff / Operator Blok 01',
+            uploader: 'Miftahul Khoiry',
+            created_at: '2026-10-25 11:00:00'
+          }
+        ]
+      };
+    })(),
     buildings: REAL_BUILDINGS,
     rooms: REAL_ROOMS,
     assets: REAL_ASSETS,
@@ -5279,10 +5358,18 @@ const PNS_SECTION_TO_DEPT = {
           <td class="py-2.5 px-3 font-mono font-bold text-slate-700 whitespace-nowrap">
             ${escapeHtml(p.nik || '-')}
           </td>
-          <!-- 6. NAMA PENGHUNI -->
-          <td class="py-2.5 px-3.5 whitespace-nowrap">
-            <div class="font-bold text-slate-900">${escapeHtml(p.nama_penghuni || '-')}</div>
-            <div class="text-[10px] text-slate-500">${escapeHtml(p.jabatan || 'Karyawan')}</div>
+          <!-- 6. NAMA PENGHUNI DENGAN FOTO -->
+          <td class="py-2 px-3.5 whitespace-nowrap">
+            <div class="flex items-center gap-2.5">
+              <div class="relative w-8 h-8 rounded-full overflow-hidden bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 font-bold text-xs shrink-0 cursor-pointer shadow-2xs hover:scale-105 transition" onclick="openPenghuniPhotoAction('${pIdEscaped}')" title="Klik untuk lihat / lengkapi foto">
+                ${p.foto ? `<img src="${escapeHtml(p.foto)}" alt="${escapeHtml(p.nama_penghuni)}" class="w-full h-full object-cover">` : `<i class="ph-bold ph-user text-sm"></i>`}
+                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-slate-900/80 text-white flex items-center justify-center text-[7px]"><i class="ph-bold ph-camera"></i></span>
+              </div>
+              <div>
+                <div class="font-bold text-slate-900">${escapeHtml(p.nama_penghuni || '-')}</div>
+                <div class="text-[10px] text-slate-500">${escapeHtml(p.jabatan || 'Karyawan')}</div>
+              </div>
+            </div>
           </td>
           <!-- 7. DEPARTEMEN -->
           <td class="py-2.5 px-3 whitespace-nowrap">
@@ -6395,6 +6482,10 @@ const PNS_SECTION_TO_DEPT = {
   let cameraMediaStream = null;
   let currentCameraFacing = 'environment'; // default rear camera on HP
   let activeCameraAssetIdx = -1;
+  let cameraTarget = { type: 'inspection', idx: -1 };
+  let activeHunianCode = '';
+  let activeHunianName = '';
+  let pendingHunianPhotoBase64 = null;
   let capturedPhotoBase64 = null;
 
   function openLiveCameraModal(assetIdx) {
@@ -6538,12 +6629,24 @@ const PNS_SECTION_TO_DEPT = {
   }
 
   function saveLivePhoto() {
-    if (!capturedPhotoBase64 || activeCameraAssetIdx < 0) {
+    if (!capturedPhotoBase64) {
       closeCameraModal();
       return;
     }
 
-    if (appState.currentInspAssets && appState.currentInspAssets[activeCameraAssetIdx]) {
+    if (cameraTarget && cameraTarget.type === 'hunian') {
+      saveHunianPhotoDirect(cameraTarget.code, capturedPhotoBase64, cameraTarget.category, cameraTarget.caption);
+      closeCameraModal();
+      return;
+    }
+
+    if (cameraTarget && cameraTarget.type === 'penghuni') {
+      savePenghuniPhotoDirect(cameraTarget.id, capturedPhotoBase64);
+      closeCameraModal();
+      return;
+    }
+
+    if (activeCameraAssetIdx >= 0 && appState.currentInspAssets && appState.currentInspAssets[activeCameraAssetIdx]) {
       appState.currentInspAssets[activeCameraAssetIdx].foto_asset = capturedPhotoBase64;
       loadRoomAssetsChecklist(appState.currentInspAssets);
       if (typeof Swal !== 'undefined') {
@@ -6744,3 +6847,303 @@ window.setInspectionMode = setInspectionMode;
 window.renderInspectionUnitTable = renderInspectionUnitTable;
 window.updateSingleAssetCond = updateSingleAssetCond;
 window.updateSingleAssetNote = updateSingleAssetNote;
+
+
+  /* ==========================================================================
+     FITUR DOKUMENTASI FOTO HUNIAN & MESS KARYAWAN PT PNS
+     ========================================================================== */
+
+  function compressImage(base64Data, maxDim, quality, callback) {
+    const img = new Image();
+    img.onload = function() {
+      const canvas = document.createElement('canvas');
+      let w = img.width;
+      let h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) {
+          h = Math.round((h * maxDim) / w);
+          w = maxDim;
+        } else {
+          w = Math.round((w * maxDim) / h);
+          h = maxDim;
+        }
+      }
+      canvas.width = w;
+      canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', quality || 0.75));
+    };
+    img.onerror = function() {
+      callback(base64Data);
+    };
+    img.src = base64Data;
+  }
+
+  function openHunianPhotoModal(code, name) {
+    activeHunianCode = code;
+    activeHunianName = name || code;
+    
+    const bldgs = (appState && appState.buildings) ? appState.buildings : [];
+    const bldg = bldgs.find(b => b.kode_gedung === code) || {};
+    const codeEl = document.getElementById('hunian-modal-bldg-code');
+    const nameEl = document.getElementById('hunian-modal-bldg-name');
+    const locEl = document.getElementById('hunian-modal-bldg-location');
+    
+    if (codeEl) codeEl.innerText = code;
+    if (nameEl) nameEl.innerText = activeHunianName;
+    if (locEl) locEl.innerText = `${bldg.lokasi || bldg.kode_site || 'Central'} • ${bldg.total_ruangan || '10'} Kamar • ${bldg.penanggungjawab || 'Petugas Hunian'}`;
+
+    cancelPendingHunianPhoto();
+    renderHunianPhotoGrid();
+
+    const modal = document.getElementById('modal-hunian-photos');
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closeHunianPhotoModal() {
+    const modal = document.getElementById('modal-hunian-photos');
+    if (modal) modal.classList.add('hidden');
+    cancelPendingHunianPhoto();
+  }
+
+  function renderHunianPhotoGrid() {
+    const grid = document.getElementById('hunian-photo-grid');
+    const countEl = document.getElementById('hunian-photo-count');
+    if (!grid) return;
+
+    const photos = (appState.hunianPhotos && appState.hunianPhotos[activeHunianCode]) ? appState.hunianPhotos[activeHunianCode] : [];
+    if (countEl) countEl.innerText = photos.length;
+
+    if (photos.length === 0) {
+      grid.innerHTML = `
+        <div class="col-span-2 sm:col-span-3 py-8 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
+          <i class="ph-bold ph-camera-slash text-3xl mb-1.5 text-slate-300 block"></i>
+          <span class="font-bold text-slate-600 block text-xs">Belum ada foto dokumentasi</span>
+          <span class="text-[11px] text-slate-400">Gunakan tombol "Buka Kamera HP" atau "Unggah File" di atas untuk melengkapi foto fasilitas.</span>
+        </div>
+      `;
+      return;
+    }
+
+    grid.innerHTML = photos.map(p => `
+      <div class="group relative rounded-xl overflow-hidden border border-slate-200 bg-white shadow-2xs hover:shadow-md transition">
+        <div class="h-32 w-full bg-slate-900 cursor-pointer overflow-hidden relative" onclick="openPhotoViewer('${escapeHtml(p.url)}', '${escapeHtml(p.caption || p.category)}', '${escapeHtml(p.uploader || '')} &bull; ${escapeHtml(p.created_at || '')}')">
+          <img src="${p.url}" alt="${escapeHtml(p.caption || 'Foto Hunian')}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1">
+            <i class="ph-bold ph-magnifying-glass-plus text-base"></i> Perbesar
+          </div>
+        </div>
+        <div class="p-2 space-y-1">
+          <div class="flex items-center justify-between gap-1">
+            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 truncate">
+              ${escapeHtml(p.category || 'Dokumentasi')}
+            </span>
+            <button type="button" onclick="deleteHunianPhoto('${activeHunianCode}', '${p.id}')" class="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 text-xs cursor-pointer" title="Hapus Foto">
+              <i class="ph-bold ph-trash"></i>
+            </button>
+          </div>
+          <div class="text-[11px] font-bold text-slate-800 truncate" title="${escapeHtml(p.caption || '')}">
+            ${escapeHtml(p.caption || 'Dokumentasi Fasilitas')}
+          </div>
+          <div class="text-[9px] text-slate-400 truncate">
+            ${escapeHtml(p.created_at || '')}
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function triggerHunianCamera() {
+    cameraTarget = {
+      type: 'hunian',
+      code: activeHunianCode,
+      name: activeHunianName,
+      category: document.getElementById('hunian-pending-category') ? document.getElementById('hunian-pending-category').value : 'Tampak Depan / Eksterior',
+      caption: document.getElementById('hunian-pending-caption') ? document.getElementById('hunian-pending-caption').value : ''
+    };
+    openLiveCameraModal(-1);
+    const titleEl = document.getElementById('camera-asset-title');
+    if (titleEl) titleEl.innerText = `Foto Hunian: ${activeHunianName} (${activeHunianCode})`;
+  }
+
+  function handleHunianFileUpload(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      compressImage(e.target.result, 1280, 0.78, function(compressedBase64) {
+        pendingHunianPhotoBase64 = compressedBase64;
+        const box = document.getElementById('hunian-pending-photo-box');
+        const img = document.getElementById('hunian-pending-img');
+        if (box) box.classList.remove('hidden');
+        if (img) img.src = compressedBase64;
+      });
+    };
+    reader.readAsDataURL(file);
+    event.target.value = '';
+  }
+
+  function cancelPendingHunianPhoto() {
+    pendingHunianPhotoBase64 = null;
+    const box = document.getElementById('hunian-pending-photo-box');
+    if (box) box.classList.add('hidden');
+    const input = document.getElementById('hunian-file-input');
+    if (input) input.value = '';
+  }
+
+  function confirmSaveHunianPhoto() {
+    if (!pendingHunianPhotoBase64) {
+      if (typeof Swal !== 'undefined') Swal.fire('Foto Belum Dipilih', 'Silakan ambil foto dengan kamera atau unggah file foto terlebih dahulu.', 'warning');
+      return;
+    }
+
+    const catEl = document.getElementById('hunian-pending-category');
+    const capEl = document.getElementById('hunian-pending-caption');
+    const category = catEl ? catEl.value : 'Tampak Depan / Eksterior';
+    const caption = capEl ? capEl.value.trim() : '';
+
+    saveHunianPhotoDirect(activeHunianCode, pendingHunianPhotoBase64, category, caption);
+    cancelPendingHunianPhoto();
+  }
+
+  function saveHunianPhotoDirect(code, photoUrl, category, caption) {
+    if (!appState.hunianPhotos) appState.hunianPhotos = {};
+    if (!appState.hunianPhotos[code]) appState.hunianPhotos[code] = [];
+
+    const nowStr = new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' });
+    const newPhoto = {
+      id: 'hp_' + Date.now(),
+      url: photoUrl,
+      category: category || 'Dokumentasi',
+      caption: caption || `Foto fasilitas ${code}`,
+      uploader: 'Miftahul Khoiry',
+      created_at: nowStr
+    };
+
+    appState.hunianPhotos[code].unshift(newPhoto);
+    try {
+      localStorage.setItem('PNS_HUNIAN_PHOTOS', JSON.stringify(appState.hunianPhotos));
+    } catch (e) {
+      console.warn('localStorage capacity exceeded:', e);
+    }
+
+    renderHunianPhotoGrid();
+    renderHunianHouseCards();
+
+    callBackendPost('save_hunian_photo', {
+      kode_gedung: code,
+      kategori: newPhoto.category,
+      caption: newPhoto.caption,
+      foto_url: newPhoto.url,
+      uploader: newPhoto.uploader
+    }, function() {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'success',
+          title: 'Foto Tersimpan!',
+          text: 'Foto fasilitas hunian berhasil disimpan ke sistem & Google Sheets.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    }, function() {
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'info',
+          title: 'Tersimpan Lokal',
+          text: 'Foto tersimpan di browser Anda.',
+          timer: 1500,
+          showConfirmButton: false
+        });
+      }
+    });
+  }
+
+  function deleteHunianPhoto(code, photoId) {
+    if (!confirm('Apakah Anda yakin ingin menghapus foto dokumentasi ini?')) return;
+    if (!appState.hunianPhotos || !appState.hunianPhotos[code]) return;
+
+    appState.hunianPhotos[code] = appState.hunianPhotos[code].filter(p => p.id !== photoId);
+    try {
+      localStorage.setItem('PNS_HUNIAN_PHOTOS', JSON.stringify(appState.hunianPhotos));
+    } catch (e) {}
+
+    renderHunianPhotoGrid();
+    renderHunianHouseCards();
+  }
+
+  function openPhotoViewer(url, caption, meta) {
+    const modal = document.getElementById('modal-photo-viewer');
+    const img = document.getElementById('photo-viewer-img');
+    const capEl = document.getElementById('photo-viewer-caption');
+    const metaEl = document.getElementById('photo-viewer-meta');
+
+    if (img) img.src = url;
+    if (capEl) capEl.innerText = caption || 'Foto Dokumentasi';
+    if (metaEl) metaEl.innerHTML = meta || '';
+    if (modal) modal.classList.remove('hidden');
+  }
+
+  function closePhotoViewer() {
+    const modal = document.getElementById('modal-photo-viewer');
+    if (modal) modal.classList.add('hidden');
+  }
+
+  function openPenghuniPhotoAction(id) {
+    const sourceData = (appState.penghuni && appState.penghuni.length > 0)
+      ? appState.penghuni
+      : (window.PNS_MASTER_DATA && window.PNS_MASTER_DATA.penghuni ? window.PNS_MASTER_DATA.penghuni : []);
+    const p = sourceData.find(item => String(item.id) === String(id));
+    if (!p) return;
+
+    if (p.foto) {
+      openPhotoViewer(p.foto, p.nama_penghuni + ' (' + (p.nik || '') + ')', p.kode_gedung + ' &bull; ' + p.nama_ruangan + ' &bull; Bed: ' + (p.nomor_kasur || '1'));
+    } else {
+      editPenghuni(id);
+    }
+  }
+
+  function savePenghuniPhotoDirect(id, photoUrl) {
+    const sourceData = (appState.penghuni && appState.penghuni.length > 0)
+      ? appState.penghuni
+      : (window.PNS_MASTER_DATA && window.PNS_MASTER_DATA.penghuni ? window.PNS_MASTER_DATA.penghuni : []);
+    const p = sourceData.find(item => String(item.id) === String(id));
+    if (p) {
+      p.foto = photoUrl;
+      renderPenghuniTable();
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          icon: 'success',
+          title: 'Foto Tersimpan',
+          text: 'Foto penghuni berhasil disimpan.',
+          timer: 1200,
+          showConfirmButton: false
+        });
+      }
+    }
+  }
+
+  window.openHunianPhotoModal = openHunianPhotoModal;
+  window.closeHunianPhotoModal = closeHunianPhotoModal;
+  window.triggerHunianCamera = triggerHunianCamera;
+  window.handleHunianFileUpload = handleHunianFileUpload;
+  window.cancelPendingHunianPhoto = cancelPendingHunianPhoto;
+  window.confirmSaveHunianPhoto = confirmSaveHunianPhoto;
+  window.deleteHunianPhoto = deleteHunianPhoto;
+  window.openPhotoViewer = openPhotoViewer;
+  window.closePhotoViewer = closePhotoViewer;
+  window.openPenghuniPhotoAction = openPenghuniPhotoAction;
+
+  function triggerPenghuniCamera(penghuniId) {
+    cameraTarget = {
+      type: 'penghuni',
+      id: penghuniId
+    };
+    if (typeof Swal !== 'undefined') Swal.close();
+    openLiveCameraModal(-1);
+    const titleEl = document.getElementById('camera-asset-title');
+    if (titleEl) titleEl.innerText = 'Foto Penghuni / Kamar Mess';
+  }
+  window.triggerPenghuniCamera = triggerPenghuniCamera;
