@@ -685,6 +685,10 @@
     }
   }
 
+  function switchView(viewId, btnEl) {
+    return navTo(viewId, btnEl);
+  }
+
   function navTo(viewId, btnEl) {
     if (viewId === 'view-asset-3') viewId = 'view-portfolio-all';
     if (viewId === 'view-asset-1') viewId = 'view-portfolio';
@@ -1004,20 +1008,65 @@
     renderBuildingsTable(currentFilteredBuildings);
   }
 
+  function setBldgSiteFilter(site = '', btnEl) {
+    appState.currentBldgFilterSite = site;
+    document.querySelectorAll('.bldg-site-pill').forEach(b => {
+      b.classList.remove('active', 'bg-slate-900', 'text-white');
+      b.classList.add('bg-slate-100', 'text-slate-600');
+    });
+    if (!btnEl && site) {
+      btnEl = document.querySelector(`.bldg-site-pill[onclick*="${site}"]`);
+    } else if (!btnEl && !site) {
+      btnEl = document.querySelector('.bldg-site-pill');
+    }
+    if (btnEl) {
+      btnEl.classList.remove('bg-slate-100', 'text-slate-600');
+      btnEl.classList.add('active', 'bg-slate-900', 'text-white');
+    }
+    filterBuildings();
+  }
+
   function filterBuildings() {
+    if (!appState.buildings || appState.buildings.length === 0) {
+      if (typeof window !== 'undefined' && window.PNS_MASTER_DATA && Array.isArray(window.PNS_MASTER_DATA.buildings)) {
+        appState.buildings = window.PNS_MASTER_DATA.buildings;
+      }
+    }
     const searchInput = document.getElementById('search-bldg');
-    const query = (searchInput ? searchInput.value : '').toLowerCase();
+    const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+    const selSite = appState.currentBldgFilterSite || '';
+
     currentFilteredBuildings = (appState.buildings || []).filter(b => {
       if (!isGenuineBuilding(b)) return false;
-      const matchSite = !appState.currentBldgFilterSite || b.lokasi_site === appState.currentBldgFilterSite;
+      const bSite = String(b.lokasi_site || '');
+      const bKode = String(b.kode_gedung || '');
+      
+      let matchSite = true;
+      if (selSite) {
+        if (selSite.includes('Central')) {
+          matchSite = bSite.includes('Central') || bSite === 'Site Operasional' || bKode.startsWith('CO') || bKode.includes('CAMP') || bKode.includes('KANTOR');
+        } else if (selSite.includes('Pabrik') || selSite.includes('Factory')) {
+          matchSite = bSite.includes('Pabrik') || bSite.includes('Factory') || bKode.includes('FR') || bKode.includes('PABRIK');
+        } else if (selSite.includes('Estate 1')) {
+          matchSite = bSite.includes('Estate 1') || bKode.includes('E1');
+        } else if (selSite.includes('Estate 2')) {
+          matchSite = bSite.includes('Estate 2') || bKode.includes('E2');
+        } else if (selSite.includes('Estate 3')) {
+          matchSite = bSite.includes('Estate 3') || bKode.includes('E3');
+        } else {
+          matchSite = (bSite === selSite || bSite.includes(selSite));
+        }
+      }
+
       const matchQuery = !query ||
-        String(b.kode_gedung || '').toLowerCase().includes(query) ||
+        bKode.toLowerCase().includes(query) ||
         String(b.nama_gedung || '').toLowerCase().includes(query) ||
         String(b.penanggungjawab || '').toLowerCase().includes(query);
       return matchSite && matchQuery;
     });
 
     buildingCurrentPage = 1;
+    if (typeof window !== 'undefined') window.currentFilteredBuildings = currentFilteredBuildings;
     renderBuildingsTable(currentFilteredBuildings);
     renderBuildingsCards(currentFilteredBuildings);
   }
@@ -1626,17 +1675,24 @@
     }
 
     // Filter slicers dropdown
-    const typeVal = document.getElementById('slicer-asset-type')?.value || 'ALL';
-    const groupVal = document.getElementById('slicer-asset-group')?.value || 'ALL';
-    const deptVal = document.getElementById('slicer-asset-dept')?.value || 'ALL';
+    const typeVal = (document.getElementById('slicer-asset-type')?.value || '').trim();
+    const groupVal = (document.getElementById('slicer-asset-group')?.value || '').trim();
+    const deptVal = (document.getElementById('slicer-asset-dept')?.value || '').trim();
 
-    if (typeVal !== 'ALL') {
-      filtered = filtered.filter(a => (a.kategori_asset || '').toUpperCase() === typeVal.toUpperCase());
+    if (typeVal && typeVal !== 'ALL') {
+      const tLow = typeVal.toLowerCase();
+      if (tLow === 'valuable') {
+        filtered = filtered.filter(a => (Number(a.total_harga_perolehan || 0) > 0 || (a.jenis_aset || '').toLowerCase() === 'valuable'));
+      } else if (tLow === 'non_valuable' || tLow === 'non-valuable') {
+        filtered = filtered.filter(a => (Number(a.total_harga_perolehan || 0) === 0 || (a.jenis_aset || '').toLowerCase().includes('non-valuable')));
+      } else {
+        filtered = filtered.filter(a => (a.kategori_asset || '').toUpperCase() === typeVal.toUpperCase());
+      }
     }
-    if (groupVal !== 'ALL') {
-      filtered = filtered.filter(a => (a.kelompok_asset || '').toUpperCase() === groupVal.toUpperCase());
+    if (groupVal && groupVal !== 'ALL') {
+      filtered = filtered.filter(a => (a.kelompok_asset || '').toUpperCase().includes(groupVal.toUpperCase()));
     }
-    if (deptVal !== 'ALL') {
+    if (deptVal && deptVal !== 'ALL') {
       filtered = filtered.filter(a => (a.department || '').toUpperCase() === deptVal.toUpperCase());
     }
 
@@ -2016,6 +2072,8 @@
 
   // Expose on window and window.pns
   window.pns = window.pns || {};
+  window.getAllNormalizedAssets = window.pns.getAllNormalizedAssets = getAllNormalizedAssets;
+  window.initAppMasterData = window.pns.initAppMasterData = initAppMasterData;
   window.pns.renderAsset1 = window.renderAsset1 = renderAsset1;
   window.pns.renderAsset2 = window.renderAsset2 = renderAsset2;
   window.pns.renderPortfolioComposition = window.renderPortfolioComposition = renderPortfolioComposition;
@@ -2723,34 +2781,6 @@
 // ==========================================
   // MASTER GEDUNG
   // ==========================================
-  function setBldgSiteFilter(site, btnEl) {
-    appState.currentBldgFilterSite = site;
-    document.querySelectorAll('.bldg-site-pill').forEach(b => {
-      b.classList.remove('active', 'bg-slate-900', 'text-white', '', '');
-      b.classList.add('bg-slate-100', 'text-slate-600', '', '');
-    });
-    if (btnEl) {
-      btnEl.classList.remove('bg-slate-100', 'text-slate-600', '', '');
-      btnEl.classList.add('active', 'bg-slate-900', 'text-white', '', '');
-    }
-    filterBuildings();
-  }
-
-  function filterBuildings() {
-    const searchInput = document.getElementById('search-bldg');
-    const query = (searchInput ? searchInput.value : '').toLowerCase();
-    const filtered = (appState.buildings || []).filter(b => {
-      if (!isGenuineBuilding(b)) return false;
-      const matchSite = !appState.currentBldgFilterSite || b.lokasi_site === appState.currentBldgFilterSite;
-      const matchQuery = !query ||
-        String(b.kode_gedung || '').toLowerCase().includes(query) ||
-        String(b.nama_gedung || '').toLowerCase().includes(query) ||
-        String(b.penanggungjawab || '').toLowerCase().includes(query);
-      return matchSite && matchQuery;
-    });
-    renderBuildingsCards(filtered);
-  }
-
   function renderBuildingsCards(list) {
     const data = list || appState.buildings;
     const container = document.getElementById('bldg-cards-container');
@@ -5594,6 +5624,7 @@
     if (prevBtn) prevBtn.disabled = (assetCurrentPage <= 1);
     if (nextBtn) nextBtn.disabled = (assetCurrentPage >= totalPages);
     if (pageInd) pageInd.innerText = `Hal ${assetCurrentPage} / ${totalPages}`;
+    if (typeof window !== "undefined") window.assetCurrentPage = assetCurrentPage;
     if (pagingInfo) {
       pagingInfo.innerText = filteredCount > 0
         ? `(Menampilkan ${(startIdx + 1).toLocaleString('id-ID')} - ${endIdx.toLocaleString('id-ID')} dari ${filteredCount.toLocaleString('id-ID')} unit)`
@@ -6291,3 +6322,30 @@
     window.submitMutasiAsset = submitMutasiAsset;
     window.getDefaultRoomFacilityAssets = getDefaultRoomFacilityAssets;
   }
+
+
+  // Global Bridge
+  window.pns = window.pns || {};
+  [
+    'navTo', 'switchView', 'setBldgSiteFilter', 'filterBuildings', 'changeBuildingPage', 'setBuildingViewMode',
+    'setAssetEnvFilter', 'setAssetOverviewDim', 'setAssetPerfDim', 'applyPbiFilters', 'initAsset1Slicers',
+    'changeAssetPage', 'setAssetBarDim', 'onAssetFilterChange', 'onAssetSearch', 'exportAssetCatalogCsv', 'drillToAssetDetail',
+    'changeFacilityPage', 'onFacilityFilterChange', 'onFacilitySearch', 'renderAssetsTable',
+    'onInspGedungChange', 'onInspRuanganChange', 'setInspBldgCategory',
+    'editPenghuni', 'setPenghuniPage', 'sortPenghuni', 'promptAddPenghuni', 'onSearchPenghuni', 'onPenghuniBldgFilterChange', 'renderPenghuniTable',
+    'initAssetLocationView', 'onLocAssetSelected', 'onLocTargetBldgChange', 'submitAssetLocation',
+    'initAssetStatusView', 'onStatusAssetSelected', 'submitAssetStatus',
+    'initAssetDisposalView', 'onDispAssetCodeInput', 'submitAssetDisposal', 'onSearchDisposalBa', 'exportDisposalArchiveCsv',
+    'renderAssetDepreciation', 'exportDepreciationCsv',
+    'renderPortfolioComposition', 'renderAssetSebaran', 'renderAllAssetsTable', 'renderAsset1', 'renderAsset2',
+    'renderBuildingsTable', 'renderBuildingsCards', 'renderRoomsTable', 'renderWorkOrdersKanban',
+    'openModalTambahOpname', 'closeModalTambahOpname', 'submitTambahOpname', 'renderValidasiTable', 'exportValidasiCsv',
+    'promptCreateWo', 'switchWoViewMode', 'submitRegisterAsset', 'submitMutasiAsset'
+  ].forEach(fnName => {
+    try {
+      const fn = eval(fnName);
+      if (typeof fn === 'function') {
+        window[fnName] = window.pns[fnName] = fn;
+      }
+    } catch(e) {}
+  });
