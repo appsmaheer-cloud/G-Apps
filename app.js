@@ -2203,6 +2203,11 @@
     link.click();
   }
 
+  let assetRelocHistory = [
+    { tgl: '2026-10-28', no_asset: 'AST-2024-0001', nama: 'Kasur Busa Single Super', dari: 'HRGA / 712-0001', ke: 'CO-MESS-01 / RM-02', pic: 'Miftahul Khoiry' },
+    { tgl: '2026-10-25', no_asset: 'AST-2024-0042', nama: 'AC Split Panasonic 1 PK', dari: 'GUDANG-MARUNDA', ke: 'CO-OFFICE-01 / RM-101', pic: 'Admin Lapangan' }
+  ];
+
   function initAssetLocationView() {
     const select = document.getElementById('loc-select-asset');
     const targetBldg = document.getElementById('loc-target-bldg');
