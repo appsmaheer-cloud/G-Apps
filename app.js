@@ -5233,7 +5233,7 @@ const PNS_SECTION_TO_DEPT = {
     const tbody = document.getElementById('table-penghuni-body');
     if (!tbody) return;
 
-    // Gunakan data penghuni karyawan ASLI PT PNS (409 items nyata)
+    // Gunakan data penghuni kamar & slot ranjang lengkap PT PNS (1.506 slot: Aktif & Vacant)
     const sourceData = (appState.penghuni && appState.penghuni.length > 0)
       ? appState.penghuni
       : (window.PNS_MASTER_DATA && window.PNS_MASTER_DATA.penghuni ? window.PNS_MASTER_DATA.penghuni : []);
@@ -5252,7 +5252,7 @@ const PNS_SECTION_TO_DEPT = {
 
       const matchBldg = !bldgFilter || p.kode_gedung === bldgFilter;
       const matchRoom = !roomFilter || p.nama_ruangan === roomFilter;
-      const matchStatus = !statusFilter || (statusFilter === 'Aktif' ? (p.status_hunian === 'Aktif' || !p.status_hunian) : p.status_hunian === statusFilter);
+      const matchStatus = !statusFilter || p.status_hunian === statusFilter;
 
       return matchQuery && matchBldg && matchRoom && matchStatus;
     });
@@ -5266,17 +5266,17 @@ const PNS_SECTION_TO_DEPT = {
       return 0;
     });
 
-    // Badges Counters
+    // Badges Counters: Total, Aktif, Vacant
     const totalCount = sourceData.length;
-    const terisiCount = sourceData.filter(p => p.status_hunian === 'Aktif' || !p.status_hunian).length;
-    const uniqueLh = new Set(sourceData.map(p => p.kode_gedung).filter(Boolean)).size;
+    const terisiCount = sourceData.filter(p => p.status_hunian === 'Aktif').length;
+    const vacantCount = sourceData.filter(p => p.status_hunian === 'Vacant').length;
 
     const bTotal = document.getElementById('badge-total-slots');
     const bTerisi = document.getElementById('badge-terisi-slots');
     const bVacant = document.getElementById('badge-vacant-slots');
-    if (bTotal) bTotal.innerText = 'Total: ' + totalCount.toLocaleString('id-ID') + ' Penghuni';
-    if (bTerisi) bTerisi.innerText = 'Aktif: ' + terisiCount.toLocaleString('id-ID') + ' Orang';
-    if (bVacant) bVacant.innerText = uniqueLh + ' Mess / LH';
+    if (bTotal) bTotal.innerText = 'Total: ' + totalCount.toLocaleString('id-ID') + ' Slot Kasur';
+    if (bTerisi) bTerisi.innerText = 'Aktif: ' + terisiCount.toLocaleString('id-ID') + ' Terisi';
+    if (bVacant) bVacant.innerText = 'Vacant: ' + vacantCount.toLocaleString('id-ID') + ' Kosong';
 
     // Pagination
     const totalPages = Math.ceil(filtered.length / penghuniPageSize) || 1;
@@ -5291,9 +5291,9 @@ const PNS_SECTION_TO_DEPT = {
     const pageControls = document.getElementById('penghuni-page-controls');
     if (pageInfo) {
       if (filtered.length === 0) {
-        pageInfo.innerText = 'Tidak ada penghuni yang cocok';
+        pageInfo.innerText = 'Tidak ada slot ranjang/penghuni yang cocok';
       } else {
-        pageInfo.innerText = `Menampilkan ${(startIdx + 1).toLocaleString('id-ID')} - ${endIdx.toLocaleString('id-ID')} dari ${filtered.length.toLocaleString('id-ID')} Penghuni Terdaftar`;
+        pageInfo.innerText = `Menampilkan ${(startIdx + 1).toLocaleString('id-ID')} - ${endIdx.toLocaleString('id-ID')} dari ${filtered.length.toLocaleString('id-ID')} Slot Kasur Terdaftar`;
       }
     }
     if (pageControls) {
@@ -5316,20 +5316,22 @@ const PNS_SECTION_TO_DEPT = {
       tbody.innerHTML = `
         <tr>
           <td colspan="9" class="text-center py-12 text-slate-500">
-            <i class="ph-bold ph-user-circle text-3xl mb-2 block text-slate-400"></i>
-            <span class="font-bold text-slate-700 block">Tidak ada data penghuni yang cocok</span>
-            <span class="text-[11px] text-slate-400">Coba ubah kata kunci pencarian atau reset filter gedung/kamar.</span>
+            <i class="ph-bold ph-bed text-3xl mb-2 block text-slate-400"></i>
+            <span class="font-bold text-slate-700 block">Tidak ada slot kasur yang cocok</span>
+            <span class="text-[11px] text-slate-400">Coba ubah kata kunci pencarian atau reset filter gedung/kamar/status.</span>
           </td>
         </tr>
       `;
       return;
     }
 
-    // Sequence: Gedung | Ruangan | No. Bed | NIK | Nama Penghuni | Departemen | Status | Kontak | Aksi
+    // Sequence: Gedung | Ruangan | No. Bed | Status | NIK | Nama Penghuni | Departemen | Kontak | Aksi
     tbody.innerHTML = pagedItems.map((p, idx) => {
       const pIdEscaped = escapeHtml(String(p.id || idx));
+      const isVacant = p.status_hunian === 'Vacant' || !p.nama_penghuni;
+
       return `
-        <tr class="hover:bg-slate-50/90 transition border-b border-slate-100">
+        <tr class="hover:bg-slate-50/90 transition border-b border-slate-100 ${isVacant ? 'bg-amber-50/20' : ''}">
           <!-- 1. GEDUNG / LH -->
           <td class="py-2.5 px-3.5 font-mono font-bold text-indigo-700 whitespace-nowrap">
             <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-indigo-50 border border-indigo-100 text-[11px]">
@@ -5344,38 +5346,60 @@ const PNS_SECTION_TO_DEPT = {
           </td>
           <!-- 3. NO. BED -->
           <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600 whitespace-nowrap">
-            <span class="px-2 py-0.5 rounded bg-slate-100 border border-slate-200 text-slate-700 font-semibold">
-              <i class="ph-bold ph-bed text-indigo-500 mr-1"></i>${escapeHtml(p.nomor_kasur || 'Bed Standard')}
+            <span class="px-2 py-0.5 rounded ${isVacant ? 'bg-amber-50 border border-amber-200 text-amber-900 font-bold' : 'bg-slate-100 border border-slate-200 text-slate-700 font-semibold'}">
+              <i class="ph-bold ph-bed ${isVacant ? 'text-amber-600' : 'text-indigo-500'} mr-1"></i>${escapeHtml(p.nomor_kasur || 'Bed Standard')}
             </span>
           </td>
           <!-- 4. STATUS -->
           <td class="py-2.5 px-3 whitespace-nowrap">
-            <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> ${escapeHtml(p.status_hunian || 'Aktif')}
-            </span>
+            ${isVacant ? `
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200 inline-flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Vacant (Kosong)
+              </span>
+            ` : `
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif (Terisi)
+              </span>
+            `}
           </td>
           <!-- 5. NIK -->
           <td class="py-2.5 px-3 font-mono font-bold text-slate-700 whitespace-nowrap">
-            ${escapeHtml(p.nik || '-')}
+            ${p.nik ? escapeHtml(p.nik) : '<span class="text-slate-400 font-normal italic text-[11px]">- Kosong -</span>'}
           </td>
           <!-- 6. NAMA PENGHUNI DENGAN FOTO -->
           <td class="py-2 px-3.5 whitespace-nowrap">
-            <div class="flex items-center gap-2.5">
-              <div class="relative w-8 h-8 rounded-full overflow-hidden bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 font-bold text-xs shrink-0 cursor-pointer shadow-2xs hover:scale-105 transition" onclick="openPenghuniPhotoAction('${pIdEscaped}')" title="Klik untuk lihat / lengkapi foto">
-                ${p.foto ? `<img src="${escapeHtml(p.foto)}" alt="${escapeHtml(p.nama_penghuni)}" class="w-full h-full object-cover">` : `<i class="ph-bold ph-user text-sm"></i>`}
-                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-slate-900/80 text-white flex items-center justify-center text-[7px]"><i class="ph-bold ph-camera"></i></span>
+            ${isVacant ? `
+              <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 font-bold text-xs shrink-0 cursor-pointer shadow-2xs hover:bg-indigo-50 hover:text-indigo-600 transition" onclick="editPenghuni('${pIdEscaped}')" title="Klik untuk isi penghuni">
+                  <i class="ph-bold ph-user-plus text-sm"></i>
+                </div>
+                <div>
+                  <div class="font-bold text-slate-400 italic text-[11px]">-- Belum Ada Penghuni --</div>
+                  <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="text-[10px] text-indigo-600 font-bold hover:underline inline-flex items-center gap-0.5 cursor-pointer">
+                    <i class="ph-bold ph-plus"></i> Isi Nama Penghuni
+                  </button>
+                </div>
               </div>
-              <div>
-                <div class="font-bold text-slate-900">${escapeHtml(p.nama_penghuni || '-')}</div>
-                <div class="text-[10px] text-slate-500">${escapeHtml(p.jabatan || 'Karyawan')}</div>
+            ` : `
+              <div class="flex items-center gap-2.5">
+                <div class="relative w-8 h-8 rounded-full overflow-hidden bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 font-bold text-xs shrink-0 cursor-pointer shadow-2xs hover:scale-105 transition" onclick="openPenghuniPhotoAction('${pIdEscaped}')" title="Klik untuk lihat / lengkapi foto">
+                  ${p.foto ? `<img src="${escapeHtml(p.foto)}" alt="${escapeHtml(p.nama_penghuni)}" class="w-full h-full object-cover">` : `<i class="ph-bold ph-user text-sm"></i>`}
+                  <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-slate-900/80 text-white flex items-center justify-center text-[7px]"><i class="ph-bold ph-camera"></i></span>
+                </div>
+                <div>
+                  <div class="font-bold text-slate-900">${escapeHtml(p.nama_penghuni || '-')}</div>
+                  <div class="text-[10px] text-slate-500">${escapeHtml(p.jabatan || 'Karyawan')}</div>
+                </div>
               </div>
-            </div>
+            `}
           </td>
           <!-- 7. DEPARTEMEN -->
           <td class="py-2.5 px-3 whitespace-nowrap">
-            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[11px]">
-              <i class="ph-bold ph-briefcase text-slate-400"></i> ${escapeHtml(p.departemen || '-')}
-            </span>
+            ${p.departemen ? `
+              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[11px]">
+                <i class="ph-bold ph-briefcase text-slate-400"></i> ${escapeHtml(p.departemen)}
+              </span>
+            ` : '<span class="text-slate-400 text-[11px] italic">- Siap Diisi -</span>'}
           </td>
           <!-- 8. KONTAK -->
           <td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
@@ -5383,9 +5407,15 @@ const PNS_SECTION_TO_DEPT = {
           </td>
           <!-- 9. AKSI -->
           <td class="py-2.5 px-3 text-center whitespace-nowrap">
-            <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 transition cursor-pointer" title="Edit Data Penghuni">
-              <i class="ph-bold ph-note-pencil mr-1"></i> Edit
-            </button>
+            ${isVacant ? `
+              <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-3 py-1 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1" title="Isi Penghuni">
+                <i class="ph-bold ph-user-plus"></i> Isi
+              </button>
+            ` : `
+              <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 transition cursor-pointer inline-flex items-center gap-1" title="Edit Data Penghuni">
+                <i class="ph-bold ph-note-pencil"></i> Edit
+              </button>
+            `}
           </td>
         </tr>
       `;
@@ -5399,50 +5429,64 @@ const PNS_SECTION_TO_DEPT = {
     
     const p = sourceData.find(item => String(item.id) === String(id));
     if (!p) {
-      if (typeof Swal !== 'undefined') Swal.fire('Data Tidak Ditemukan', 'Data penghuni tidak dapat ditemukan.', 'error');
+      if (typeof Swal !== 'undefined') Swal.fire('Data Tidak Ditemukan', 'Data slot ranjang tidak dapat ditemukan.', 'error');
       return;
     }
 
     if (typeof Swal === 'undefined') return;
 
+    const isVacant = p.status_hunian === 'Vacant' || !p.nama_penghuni;
+    const modalTitle = isVacant ? 'Isi Penghuni Baru (Kamar Vacant)' : 'Update Data Penghuni Mess';
+
     Swal.fire({
-      title: 'Update Data Penghuni Mess',
+      title: modalTitle,
       html: `
         <div class="text-left text-xs space-y-3">
           <div class="bg-indigo-50 p-2.5 rounded-lg border border-indigo-200">
-            <div class="font-bold text-indigo-900">${escapeHtml(p.kode_gedung)} &bull; ${escapeHtml(p.nama_ruangan)} &bull; ${escapeHtml(p.nomor_kasur || 'Bed A')}</div>
+            <div class="font-bold text-indigo-900">${escapeHtml(p.kode_gedung)} &bull; ${escapeHtml(p.nama_ruangan)} &bull; ${escapeHtml(p.nomor_kasur || 'Bed 1')}</div>
+            <div class="text-[10px] text-indigo-600 font-medium">${isVacant ? 'Status Saat Ini: Vacant (Kosong - Siap Diisi Rekan Lapangan)' : 'Status Saat Ini: Aktif (Terisi)'}</div>
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">NIK Karyawan:</label>
-            <input type="text" id="swal-nik" value="${escapeHtml(p.nik || '')}" class="w-full px-3 py-1.5 border rounded-lg font-mono">
+            <input type="text" id="swal-nik" value="${escapeHtml(p.nik || '')}" placeholder="Contoh: PNS-AGR-0101-01" class="w-full px-3 py-1.5 border rounded-lg font-mono">
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">Nama Lengkap Penghuni:</label>
-            <input type="text" id="swal-nama" value="${escapeHtml(p.nama_penghuni || '')}" class="w-full px-3 py-1.5 border rounded-lg">
+            <input type="text" id="swal-nama" value="${escapeHtml(p.nama_penghuni || '')}" placeholder="Masukkan nama lengkap karyawan" class="w-full px-3 py-1.5 border rounded-lg">
           </div>
           <div>
-            <label class="block font-bold text-slate-700 mb-1">Departemen & Jabatan:</label>
+            <label class="block font-bold text-slate-700 mb-1">Departemen &amp; Jabatan:</label>
             <div class="grid grid-cols-2 gap-2">
-              <input type="text" id="swal-dept" value="${escapeHtml(p.departemen || '')}" placeholder="Departemen" class="px-3 py-1.5 border rounded-lg">
-              <input type="text" id="swal-jabatan" value="${escapeHtml(p.jabatan || '')}" placeholder="Jabatan" class="px-3 py-1.5 border rounded-lg">
+              <input type="text" id="swal-dept" value="${escapeHtml(p.departemen || '')}" placeholder="Departemen (misal: Agronomi)" class="px-3 py-1.5 border rounded-lg">
+              <input type="text" id="swal-jabatan" value="${escapeHtml(p.jabatan || '')}" placeholder="Jabatan (misal: Mandor)" class="px-3 py-1.5 border rounded-lg">
             </div>
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">Nomor Kontak / WhatsApp:</label>
-            <input type="text" id="swal-kontak" value="${escapeHtml(p.no_kontak || '')}" class="w-full px-3 py-1.5 border rounded-lg font-mono">
+            <input type="text" id="swal-kontak" value="${escapeHtml(p.no_kontak && p.no_kontak !== '-' ? p.no_kontak : '')}" placeholder="Contoh: 0812-3456-7890" class="w-full px-3 py-1.5 border rounded-lg font-mono">
           </div>
           <div>
             <label class="block font-bold text-slate-700 mb-1">Status Hunian:</label>
             <select id="swal-status" class="w-full px-3 py-1.5 border rounded-lg font-semibold">
-              <option value="Aktif" ${p.status_hunian === 'Aktif' ? 'selected' : ''}>Aktif (Menempati Kamar)</option>
-              <option value="Check-Out" ${p.status_hunian === 'Check-Out' ? 'selected' : ''}>Check-Out (Keluar Mess)</option>
-              <option value="Pindah" ${p.status_hunian === 'Pindah' ? 'selected' : ''}>Pindah Kamar</option>
+              <option value="Aktif" ${(!isVacant || p.status_hunian === 'Aktif') ? 'selected' : ''}>Aktif (Menempati Kamar)</option>
+              <option value="Vacant" ${(isVacant && p.status_hunian !== 'Aktif') ? 'selected' : ''}>Vacant (Kosong)</option>
+              <option value="Check-Out">Check-Out (Keluar Mess)</option>
+              <option value="Pindah">Pindah Kamar</option>
             </select>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Foto Penghuni / Kamar (Opsional):</label>
+            <div class="flex items-center gap-2">
+              <input type="text" id="swal-foto" value="${escapeHtml(p.foto || '')}" placeholder="URL foto atau ambil dari kamera" class="flex-1 px-3 py-1.5 border rounded-lg text-xs font-mono">
+              <button type="button" onclick="triggerPenghuniCamera('${escapeHtml(p.id)}')" class="px-2.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center gap-1 cursor-pointer" title="Buka Kamera">
+                <i class="ph-bold ph-camera"></i>
+              </button>
+            </div>
           </div>
         </div>
       `,
       showCancelButton: true,
-      confirmButtonText: 'Simpan Perubahan',
+      confirmButtonText: isVacant ? 'Simpan Penghuni' : 'Simpan Perubahan',
       cancelButtonText: 'Batal',
       confirmButtonColor: '#4f46e5',
       focusConfirm: false,
@@ -5452,13 +5496,18 @@ const PNS_SECTION_TO_DEPT = {
         const dept = document.getElementById('swal-dept').value.trim();
         const jabatan = document.getElementById('swal-jabatan').value.trim();
         const kontak = document.getElementById('swal-kontak').value.trim();
-        const status = document.getElementById('swal-status').value;
+        let status = document.getElementById('swal-status').value;
+        const foto = document.getElementById('swal-foto') ? document.getElementById('swal-foto').value.trim() : '';
 
-        if (!nama) {
-          Swal.showValidationMessage('Nama penghuni wajib diisi!');
+        // Auto set to Aktif if name is entered
+        if (nama && status === 'Vacant') {
+          status = 'Aktif';
+        }
+        if (!nama && status === 'Aktif') {
+          Swal.showValidationMessage('Nama penghuni wajib diisi jika status Aktif!');
           return false;
         }
-        return { nik, nama, dept, jabatan, kontak, status };
+        return { nik, nama, dept, jabatan, kontak, status, foto };
       }
     }).then(res => {
       if (res.isConfirmed && res.value) {
@@ -5466,8 +5515,10 @@ const PNS_SECTION_TO_DEPT = {
         p.nama_penghuni = res.value.nama;
         p.departemen = res.value.dept;
         p.jabatan = res.value.jabatan;
-        p.no_kontak = res.value.kontak;
+        p.no_kontak = res.value.kontak || '-';
         p.status_hunian = res.value.status;
+        p.foto = res.value.foto;
+        p.updated_at = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
         renderPenghuniTable();
 
@@ -5481,7 +5532,8 @@ const PNS_SECTION_TO_DEPT = {
           nama_ruangan: p.nama_ruangan,
           nomor_kasur: p.nomor_kasur,
           status_hunian: p.status_hunian,
-          no_kontak: p.no_kontak
+          no_kontak: p.no_kontak,
+          foto: p.foto
         }, () => {
           Swal.fire({ icon: 'success', title: 'Tersimpan', text: 'Data penghuni berhasil diupdate ke sistem & Google Sheets.', timer: 1400, showConfirmButton: false });
         }, () => {
