@@ -918,7 +918,7 @@
                 <div class="num-tabular text-sm font-bold text-sky-600">${countRooms.toLocaleString('id-ID')} Ruang</div>
               </div>
             </div>
-            <button onclick="openSiteBuildings('${s.name}')" class="w-full py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-900 hover:text-white :bg-sky-500 :text-slate-950 transition">
+            <button type="button" onclick="openSiteBuildings('${s.name}')" class="w-full py-2 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-slate-900 hover:text-white :bg-sky-500 :text-slate-950 transition">
               Buka Daftar Gedung ${s.code}
             </button>
           </div>
@@ -1929,7 +1929,7 @@
 
           <!-- Bottom Action Button -->
           <div class="mt-2.5 pt-2 border-t border-slate-100">
-            <button onclick="window.drillToOfficeAssets('${o.label}')" class="w-full py-1 text-[10px] font-black rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100:bg-emerald-900/60 transition flex items-center justify-center gap-1 cursor-pointer">
+            <button type="button" onclick="window.drillToOfficeAssets('${o.label}')" class="w-full py-1 text-[10px] font-black rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100:bg-emerald-900/60 transition flex items-center justify-center gap-1 cursor-pointer">
               <span>Detail ${o.label} (${formatNum(o.totalAsset)} Aset)</span>
               <i class="ph-bold ph-arrow-right text-[11px]"></i>
             </button>
@@ -2780,7 +2780,7 @@
             <span class="text-slate-500">&bull;</span>
             <span class="text-teal-600">${b.total_asset || 0} Aset</span>
           </div>
-          <button onclick="startInspectionForBldg('${escapeHtml(b.kode_gedung)}')" class="px-2.5 py-1 text-[11px] font-bold rounded bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 transition">
+          <button type="button" onclick="startInspectionForBldg('${escapeHtml(b.kode_gedung)}')" class="px-2.5 py-1 text-[11px] font-bold rounded bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 transition">
             Audit
           </button>
         </div>
@@ -2823,7 +2823,7 @@
         <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${r.kondisi_terakhir === 'Baik' ? 'bg-emerald-100 text-emerald-800 ' : 'bg-amber-100 text-amber-800'}">${escapeHtml(r.kondisi_terakhir || 'Baik')}</span></td>
         <td><span class="px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700">${escapeHtml(r.status_hunian || 'Tersedia')}</span></td>
         <td>
-          <button onclick="startInspectionForRoom('${escapeHtml(r.kode_gedung)}', '${escapeHtml(r.nama_ruangan)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800 hover:bg-emerald-600 hover:text-white transition">
+          <button type="button" onclick="startInspectionForRoom('${escapeHtml(r.kode_gedung)}', '${escapeHtml(r.nama_ruangan)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800 hover:bg-emerald-600 hover:text-white transition">
             Audit Kamar
           </button>
         </td>
@@ -4244,7 +4244,7 @@
         <td><span class="px-2 py-0.5 rounded text-[10px] font-bold ${item.kondisi_ruangan === 'Aman' ? 'bg-emerald-100 text-emerald-800 ' : 'bg-rose-100 text-rose-800'}">${escapeHtml(item.kondisi_ruangan)}</span></td>
         <td class="num-tabular">${item.total_asset_diperiksa} item</td>
         <td>
-          <button onclick="viewInspectionDetail('${escapeHtml(item.no_inspeksi)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-100 hover:bg-slate-200 :bg-slate-700">
+          <button type="button" onclick="viewInspectionDetail('${escapeHtml(item.no_inspeksi)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-slate-100 hover:bg-slate-200 :bg-slate-700">
             Detail / Resume
           </button>
         </td>
@@ -4425,7 +4425,7 @@
               <td class="py-2 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${statusClass}">${escapeHtml(w.status || 'Baru')}</span></td>
               <td class="py-2 px-3 font-mono num-tabular">Rp ${Number(w.biaya_estimasi || 0).toLocaleString('id-ID')}</td>
               <td class="py-2 px-3 text-center">
-                <button onclick="moveStatusPrompt('${w.wo_id || w.no_wo}', '${w.status || 'Baru'}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-sky-600 hover:text-white text-xs font-semibold transition cursor-pointer">
+                <button type="button" onclick="moveStatusPrompt('${w.wo_id || w.no_wo}', '${w.status || 'Baru'}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-sky-600 hover:text-white text-xs font-semibold transition cursor-pointer">
                   Ubah Status
                 </button>
               </td>
@@ -4805,11 +4805,11 @@
         pageControls.innerHTML = '';
       } else {
         pageControls.innerHTML = `
-          <button onclick="setPenghuniPage(${penghuniCurrentPage - 1})" ${penghuniCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-semibold cursor-pointer">
+          <button type="button" onclick="setPenghuniPage(${penghuniCurrentPage - 1})" ${penghuniCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-semibold cursor-pointer">
             &laquo; Prev
           </button>
           <span class="px-2 font-bold text-slate-700">Halaman ${penghuniCurrentPage} / ${totalPages}</span>
-          <button onclick="setPenghuniPage(${penghuniCurrentPage + 1})" ${penghuniCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-semibold cursor-pointer">
+          <button type="button" onclick="setPenghuniPage(${penghuniCurrentPage + 1})" ${penghuniCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-semibold cursor-pointer">
             Next &raquo;
           </button>
         `;
@@ -4879,7 +4879,7 @@
           </td>
           <!-- 9. AKSI -->
           <td class="py-2.5 px-3 text-center whitespace-nowrap">
-            <button onclick="editPenghuni('${pIdEscaped}')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 transition cursor-pointer" title="Edit Data Penghuni">
+            <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 transition cursor-pointer" title="Edit Data Penghuni">
               <i class="ph-bold ph-note-pencil mr-1"></i> Edit
             </button>
           </td>
@@ -5858,7 +5858,7 @@
           <td>${escapeHtml(v.auditor)}</td>
           <td class="text-xs text-slate-500 max-w-xs truncate">${escapeHtml(v.catatan || '-')}</td>
           <td class="text-right">
-            <button onclick="verifikasiOpname('${escapeHtml(v.opname_id)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition">
+            <button type="button" onclick="verifikasiOpname('${escapeHtml(v.opname_id)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition">
               Detail / Sync
             </button>
           </td>
