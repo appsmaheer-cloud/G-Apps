@@ -1511,6 +1511,65 @@ const PNS_SECTION_TO_DEPT = {
     renderBuildingsCards(currentFilteredBuildings);
   }
 
+  
+  function getCategoryBadgeMeta(kategori) {
+    const cat = (kategori || '').toUpperCase();
+    if (cat.includes('HUNIAN') || cat.includes('MESS') || cat.includes('LONGHOUSE') || cat.includes('GUEST') || cat.includes('BARAK')) {
+      return {
+        badge: 'bg-indigo-50 text-indigo-700 border-indigo-200',
+        rowBorder: 'border-l-4 border-l-indigo-500',
+        icon: '<i class="ph-bold ph-bed text-indigo-600"></i>'
+      };
+    }
+    if (cat.includes('KANTOR')) {
+      return {
+        badge: 'bg-sky-50 text-sky-700 border-sky-200',
+        rowBorder: 'border-l-4 border-l-sky-500',
+        icon: '<i class="ph-bold ph-briefcase text-sky-600"></i>'
+      };
+    }
+    if (cat.includes('GUDANG') || cat.includes('STORE')) {
+      return {
+        badge: 'bg-amber-50 text-amber-800 border-amber-200',
+        rowBorder: 'border-l-4 border-l-amber-500',
+        icon: '<i class="ph-bold ph-package text-amber-600"></i>'
+      };
+    }
+    if (cat.includes('KLINIK') || cat.includes('MEDIS')) {
+      return {
+        badge: 'bg-rose-50 text-rose-700 border-rose-200',
+        rowBorder: 'border-l-4 border-l-rose-500',
+        icon: '<i class="ph-bold ph-first-aid text-rose-600"></i>'
+      };
+    }
+    if (cat.includes('KANTIN') || cat.includes('DINING')) {
+      return {
+        badge: 'bg-teal-50 text-teal-700 border-teal-200',
+        rowBorder: 'border-l-4 border-l-teal-500',
+        icon: '<i class="ph-bold ph-fork-knife text-teal-600"></i>'
+      };
+    }
+    if (cat.includes('LAUNDRY')) {
+      return {
+        badge: 'bg-cyan-50 text-cyan-700 border-cyan-200',
+        rowBorder: 'border-l-4 border-l-cyan-500',
+        icon: '<i class="ph-bold ph-t-shirt text-cyan-600"></i>'
+      };
+    }
+    if (cat.includes('WORKSHOP') || cat.includes('BENGKEL')) {
+      return {
+        badge: 'bg-purple-50 text-purple-700 border-purple-200',
+        rowBorder: 'border-l-4 border-l-purple-500',
+        icon: '<i class="ph-bold ph-wrench text-purple-600"></i>'
+      };
+    }
+    return {
+      badge: 'bg-slate-100 text-slate-700 border-slate-200',
+      rowBorder: 'border-l-4 border-l-slate-400',
+      icon: '<i class="ph-bold ph-buildings text-slate-500"></i>'
+    };
+  }
+
   function renderBuildingsTable(list) {
     const data = (list && list.length > 0) ? list : (currentFilteredBuildings && currentFilteredBuildings.length > 0) ? currentFilteredBuildings : (appState.buildings || []);
     currentFilteredBuildings = data;
@@ -1553,34 +1612,56 @@ const PNS_SECTION_TO_DEPT = {
     tbody.innerHTML = paginated.map(b => {
       const siteDotColor = b.lokasi_site.includes('Central') ? 'bg-sky-500' :
                            b.lokasi_site.includes('Factory') ? 'bg-amber-500' : 'bg-emerald-500';
+
+      const catMeta = getCategoryBadgeMeta(b.kategori);
+      const cleanBldgName = (b.nama_gedung || b.nama_bangunan || b.kode_gedung || '').trim();
+
       return `
-        <tr class="hover:bg-slate-50 transition-colors">
-          <td class="font-bold text-slate-900 font-mono text-[11px] py-2.5 px-3">${escapeHtml(b.kode_gedung)}</td>
-          <td class="py-2.5 px-3">
-            <span class="font-bold text-slate-900 block text-xs">${escapeHtml(b.nama_gedung)}</span>
-            <span class="text-[10px] text-slate-400 block font-medium">${escapeHtml(b.sub_kategori || '-')}</span>
+        <tr class="hover:bg-slate-50/90 transition border-b border-slate-100 ${catMeta.rowBorder}">
+          <!-- 1. GABUNGAN NAMA & KODE GEDUNG (STACKED DENGAN WRAP TEXT) -->
+          <td class="py-3 px-3.5 whitespace-normal break-words max-w-[260px]">
+            <div class="font-extrabold text-xs text-slate-900 leading-snug">${escapeHtml(cleanBldgName)}</div>
+            <div class="inline-flex items-center gap-1.5 mt-1 font-mono text-[10px] font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+              <i class="ph-bold ph-buildings text-indigo-500"></i> ${escapeHtml(b.kode_gedung)}
+            </div>
           </td>
-          <td class="text-xs text-slate-600 font-medium py-2.5 px-3">${escapeHtml(b.kategori || 'GEDUNG')}</td>
-          <td class="py-2.5 px-3">
+          <!-- 2. KATEGORI & FUNGSI (WARNA CONDITIONAL) -->
+          <td class="py-3 px-3 whitespace-nowrap">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-wider border ${catMeta.badge}">
+              ${catMeta.icon} ${escapeHtml(b.kategori || 'FASILITAS')}
+            </span>
+            <span class="text-[10px] text-slate-400 block font-medium mt-0.5">${escapeHtml(b.sub_kategori || '-')}</span>
+          </td>
+          <!-- 3. LOKASI / SITE -->
+          <td class="py-3 px-3 whitespace-nowrap">
             <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-semibold bg-slate-100 text-slate-700">
               <span class="w-1.5 h-1.5 rounded-full ${siteDotColor}"></span>
               ${escapeHtml(b.lokasi_site)}
             </span>
           </td>
-          <td class="py-2.5 px-3">
+          <!-- 4. PIC -->
+          <td class="py-3 px-3 whitespace-nowrap">
             <span class="text-xs font-semibold text-slate-800 block">${escapeHtml(b.penanggungjawab || 'Tim GS')}</span>
             <span class="text-[10px] text-slate-400 block">PIC Operasional</span>
           </td>
-          <td class="text-xs font-semibold text-slate-700 py-2.5 px-3">${b.total_ruangan || 0} Ruangan</td>
-          <td class="py-2.5 px-3">
+          <!-- 5. RUANGAN -->
+          <td class="py-3 px-3 text-xs font-semibold text-slate-700 whitespace-nowrap">
+            <span class="inline-flex items-center gap-1"><i class="ph-bold ph-door text-slate-400"></i> ${b.total_ruangan || 0} Ruangan</span>
+          </td>
+          <!-- 6. ASET -->
+          <td class="py-3 px-3 whitespace-nowrap">
             <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-100">
               <i class="ph-bold ph-cube text-xs"></i> ${Number(b.total_asset || 0).toLocaleString('id-ID')} unit
             </span>
           </td>
-          <td class="py-2.5 px-3">
-            <span class="px-2 py-0.5 text-[10px] font-bold rounded bg-emerald-100 text-emerald-800">AKTIF</span>
+          <!-- 7. STATUS OPERASIONAL -->
+          <td class="py-3 px-3 whitespace-nowrap">
+            <span class="px-2.5 py-0.5 text-[10px] font-black rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 uppercase tracking-wider inline-flex items-center gap-1">
+              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> AKTIF
+            </span>
           </td>
-          <td class="py-2.5 px-3 text-center">
+          <!-- 8. AKSI -->
+          <td class="py-3 px-3 text-center whitespace-nowrap">
             <button type="button" onclick="startInspectionForBldg('${escapeHtml(b.kode_gedung)}')" class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200 transition cursor-pointer">
               <i class="ph-bold ph-clipboard-text"></i> Audit
             </button>
