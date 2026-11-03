@@ -864,8 +864,68 @@ const PNS_SECTION_TO_DEPT = {
     if (Array.isArray(data.workOrders) && data.workOrders.length > 0) {
       appState.workOrders = data.workOrders;
     }
-    if (Array.isArray(data.penghuni) && data.penghuni.length >= 100) {
-      appState.penghuni = data.penghuni;
+    if (Array.isArray(data.penghuni) && data.penghuni.length > 0) {
+      const existingKeys = new Set((appState.penghuni || []).map(p => String(p.nik || '') + '|' + String(p.nama_penghuni || '')));
+      data.penghuni.forEach(p => {
+        const k = String(p.nik || '') + '|' + String(p.nama_penghuni || '');
+        if (!existingKeys.has(k)) {
+          appState.penghuni.unshift(p);
+          existingKeys.add(k);
+        }
+      });
+    }
+    if (Array.isArray(data.registeredAssets) && data.registeredAssets.length > 0) {
+      const catalog = Array.isArray(window.PNS_ALL_ASSETS_CATALOG) ? window.PNS_ALL_ASSETS_CATALOG : (appState.enterpriseAssets || []);
+      const existingAssetCodes = new Set(catalog.map(a => String(a.kode_unit || a.no_asset || '').trim()));
+      data.registeredAssets.forEach(ra => {
+        const code = String(ra.no_asset || ra.kode_unit || '').trim();
+        if (code && !existingAssetCodes.has(code)) {
+          const newEntry = {
+            asset_id: ra.asset_id || (catalog.length + 1),
+            kode_unit: code,
+            no_asset: code,
+            nama_asset: ra.nama_asset || '-',
+            kelompok_asset: ra.kelompok_asset || 'INVENTARIS DAN PERALATAN',
+            kategori_asset: ra.kategori_asset || 'INVENTARIS PERUMAHAN',
+            location: ra.lokasi_code || 'CO',
+            lokasi_code: ra.lokasi_code || 'CO',
+            kondisi: ra.kondisi || 'Good Condition',
+            standar_umur: Number(ra.umur_ekonomis) || 5,
+            umur_asset: 0,
+            total_harga_perolehan: parseFloat(ra.harga_perolehan || 0),
+            nilai_buku: parseFloat(ra.harga_perolehan || 0),
+            status_pemakaian: 'Aktif / Digunakan',
+            status_verifikasi: ra.status_verifikasi || 'Valid',
+            kode_section: ra.kode_section || 'HRGA',
+            penanggungjawab_section: ra.kode_section || 'HRGA',
+            pic_nama: ra.pic || ''
+          };
+          catalog.unshift(newEntry);
+          existingAssetCodes.add(code);
+        }
+      });
+    }
+    if (Array.isArray(data.mutations) && data.mutations.length > 0) {
+      const catalog = Array.isArray(window.PNS_ALL_ASSETS_CATALOG) ? window.PNS_ALL_ASSETS_CATALOG : (appState.enterpriseAssets || []);
+      const codeMap = new Map();
+      catalog.forEach(a => {
+        const c = String(a.kode_unit || a.no_asset || '').trim();
+        if (c) codeMap.set(c, a);
+      });
+      data.mutations.slice().reverse().forEach(m => {
+        const c = String(m.no_asset || '').trim();
+        const target = codeMap.get(c);
+        if (target) {
+          if (m.lokasi_tujuan) {
+            target.location = m.lokasi_tujuan;
+            target.lokasi_code = m.lokasi_tujuan;
+          }
+          if (m.section_tujuan) {
+            target.kode_section = m.section_tujuan;
+            target.penanggungjawab_section = m.section_tujuan;
+          }
+        }
+      });
     }
 
     initInspectionFormDropdowns();
