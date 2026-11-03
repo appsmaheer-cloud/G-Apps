@@ -843,7 +843,7 @@
                                         <button type="button" onclick="window.pns.setAssetOverviewDim('name')" id="btn-asset-dim-name" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-slate-200:bg-slate-700 transition cursor-pointer">Name</button>
                                     </div>
                                 </div>
-                                <div class="flex-1 overflow-auto scrollbar-thin mt-2 max-h-[260px]">
+                                <div class="flex-1 overflow-x-auto overflow-y-visible mt-2 min-h-[280px]">
                                     <table class="w-full text-left border-collapse font-sans text-xs">
                                         <thead class="sticky top-0 bg-slate-50/95 backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200">
                                             <tr>
@@ -859,20 +859,48 @@
                                 </div>
                             </div>
 
-                            <!-- Under Table Visuals: Donut & Condition Bars -->
+                            <!-- Under Table Visuals: Donut & Condition Bars (Modern Corporate Power BI Styling) -->
                             <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5">
                                 
                                 <!-- Mini Donut: Composition Asset by Type -->
-                                <div class="md:col-span-5 pns-card p-3.5 flex flex-col min-h-[220px] shadow-xs">
-                                    <span class="text-[11px] font-bold text-slate-800 pb-1.5 border-b border-slate-100 shrink-0">Composition Asset by Type</span>
-                                    <div class="flex-1 w-full min-h-[160px]" id="chart-pbi-asset1-type-donut"></div>
+                                <div class="md:col-span-5 pns-card p-4 flex flex-col justify-between shadow-xs bg-white rounded-2xl border border-slate-200/90">
+                                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                                        <span class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                                            <i class="ph-bold ph-chart-donut text-emerald-600"></i> Composition Asset by Type
+                                        </span>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">Aktif</span>
+                                    </div>
+                                    <div class="flex-1 w-full flex items-center justify-center py-2" id="chart-pbi-asset1-type-donut"></div>
+                                    <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-100 text-[11px] font-semibold">
+                                        <div class="flex items-center gap-2 p-1.5 rounded-lg bg-emerald-50/80 border border-emerald-100">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0"></span>
+                                            <div class="truncate">
+                                                <span class="text-[9px] uppercase font-bold text-slate-400 block">Valuable</span>
+                                                <span class="font-bold text-slate-800" id="stat-valuable-donut">31.779 (92.7%)</span>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-center gap-2 p-1.5 rounded-lg bg-amber-50/80 border border-amber-100">
+                                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0"></span>
+                                            <div class="truncate">
+                                                <span class="text-[9px] uppercase font-bold text-slate-400 block">Non-Valuable</span>
+                                                <span class="font-bold text-slate-800" id="stat-nonvaluable-donut">2.496 (7.3%)</span>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <!-- Condition Progress Bars -->
-                                <div class="md:col-span-7 pns-card p-3.5 flex flex-col justify-between min-h-[220px] shadow-xs">
-                                    <span class="text-[11px] font-bold text-slate-800 pb-1.5 border-b border-slate-100 shrink-0">Condition Breakdown</span>
-                                    <div class="flex-1 flex flex-col justify-around py-1.5 space-y-2" id="container-pbi-asset1-condition-bars">
-                                        <!-- Will be populated dynamically -->
+                                <div class="md:col-span-7 pns-card p-4 flex flex-col justify-between shadow-xs bg-white rounded-2xl border border-slate-200/90">
+                                    <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                                        <span class="text-xs font-black uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                                            <i class="ph-bold ph-chart-bar-horizontal text-cyan-600"></i> Condition Breakdown
+                                        </span>
+                                        <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-cyan-50 text-cyan-700 border border-cyan-100">
+                                            5 Klasifikasi Fisik
+                                        </span>
+                                    </div>
+                                    <div class="flex-1 flex flex-col justify-around py-2 space-y-2.5" id="container-pbi-asset1-condition-bars">
+                                        <!-- Will be populated dynamically with modern progress cards -->
                                     </div>
                                 </div>
 
@@ -2308,6 +2336,19 @@
             <button type="button" onclick="syncAllFromBackend(true)" class="px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 flex items-center gap-1.5 transition shadow-2xs cursor-pointer">
               <i class="ph-bold ph-arrows-clockwise text-indigo-500"></i> Refresh Data
             </button>
+          </div>
+        </div>
+
+        <!-- FASILITAS HUNIAN / LONGHOUSE BUTTON CARDS -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+              <i class="ph-bold ph-buildings text-indigo-600"></i> Blok Hunian, Mess &amp; Longhouse Karyawan
+            </span>
+            <span class="text-[11px] text-slate-400 font-medium">Klik card untuk filter kamar &amp; penghuni</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3" id="hunian-house-cards-grid">
+            <!-- Populated dynamically via renderHunianHouseCards() -->
           </div>
         </div>
 

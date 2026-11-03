@@ -1,4 +1,269 @@
 
+  let currentInspectionMode = 'group';
+  function setInspectionMode(mode) {
+    currentInspectionMode = mode;
+    const btnGroup = document.getElementById('btn-insp-mode-group');
+    const btnUnit = document.getElementById('btn-insp-mode-unit');
+    const groupCont = document.getElementById('insp-field-mode-container');
+    const unitCont = document.getElementById('insp-unit-mode-container');
+
+    if (mode === 'unit') {
+      if (btnGroup) btnGroup.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition cursor-pointer';
+      if (btnUnit) btnUnit.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-emerald-600 shadow-2xs transition cursor-pointer';
+      if (groupCont) groupCont.classList.add('hidden');
+      if (unitCont) {
+        unitCont.classList.remove('hidden');
+        renderInspectionUnitTable();
+      }
+    } else {
+      if (btnGroup) btnGroup.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-white bg-emerald-600 shadow-2xs transition cursor-pointer';
+      if (btnUnit) btnUnit.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 transition cursor-pointer';
+      if (groupCont) groupCont.classList.remove('hidden');
+      if (unitCont) unitCont.classList.add('hidden');
+    }
+  }
+
+  function renderInspectionUnitTable() {
+    const tbody = document.getElementById('insp-unit-table-body');
+    if (!tbody) return;
+    const assets = appState.currentInspAssets || [];
+    if (assets.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-6 text-slate-400">Pilih gedung dan ruangan terlebih dahulu.</td></tr>';
+      return;
+    }
+    tbody.innerHTML = assets.map((a, idx) => `
+      <tr class="hover:bg-slate-50 transition border-b border-slate-100 text-xs">
+        <td class="px-3 py-2.5 font-mono font-bold text-slate-900">${escapeHtml(a.no_asset || a.kode_unit)}</td>
+        <td class="px-3 py-2.5 font-bold text-slate-800">${escapeHtml(a.nama_asset)}</td>
+        <td class="px-3 py-2.5 text-slate-500">${escapeHtml(a.kategori || a.sub_kategori || '-')}</td>
+        <td class="px-3 py-2.5">
+          <select onchange="updateSingleAssetCond(${idx}, this.value)" class="px-2 py-1 rounded-lg border border-slate-200 bg-white font-bold text-xs focus:ring-1 focus:ring-emerald-500">
+            <option value="Baik" ${(a.kondisi_inspeksi === 'Baik' || !a.kondisi_inspeksi) ? 'selected' : ''}>✅ Baik</option>
+            <option value="Rusak Ringan" ${a.kondisi_inspeksi === 'Rusak Ringan' ? 'selected' : ''}>⚠️ Rusak Ringan</option>
+            <option value="Rusak Berat" ${a.kondisi_inspeksi === 'Rusak Berat' ? 'selected' : ''}>❌ Rusak Berat</option>
+            <option value="Hilang" ${a.kondisi_inspeksi === 'Hilang' ? 'selected' : ''}>❓ Hilang</option>
+          </select>
+        </td>
+        <td class="px-3 py-2.5">
+          <input type="text" value="${escapeHtml(a.catatan || '')}" onchange="updateSingleAssetNote(${idx}, this.value)" placeholder="Keterangan temuan fisik..." class="w-full px-2 py-1 rounded-lg border border-slate-200 bg-white text-xs">
+        </td>
+        <td class="px-3 py-2.5 text-center">
+          <button type="button" onclick="drillToAssetDetail('${a.no_asset || a.kode_unit}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-[11px]" title="Detail Lengkap Aset">
+            <i class="ph-bold ph-eye"></i> Detail
+          </button>
+        </td>
+      </tr>
+    `).join('');
+  }
+
+  function updateSingleAssetCond(idx, val) {
+    if (appState.currentInspAssets && appState.currentInspAssets[idx]) {
+      appState.currentInspAssets[idx].kondisi_inspeksi = val;
+      renderInspectionVisualCards();
+    }
+  }
+
+  function updateSingleAssetNote(idx, val) {
+    if (appState.currentInspAssets && appState.currentInspAssets[idx]) {
+      appState.currentInspAssets[idx].catatan = val;
+    }
+  }
+  
+
+  function renderHunianHouseCards() {
+    const grid = document.getElementById('hunian-house-cards-grid');
+    if (!grid) return;
+
+    const bldgs = (appState && appState.buildings) ? appState.buildings : [];
+    const rooms = (appState && appState.rooms) ? appState.rooms : [];
+    const penghuni = (appState && appState.penghuni) ? appState.penghuni : [];
+
+    // Filter buildings that are mess/longhouse/hunian
+    const hunianBldgs = bldgs.filter(b => {
+      const cat = (b.kategori_fungsi || b.kategori || '').toUpperCase();
+      const n = (b.nama_bangunan || b.kode_gedung || '').toUpperCase();
+      return cat.includes('HUNIAN') || n.includes('MESS') || n.includes('LONG HOUSE') || n.includes('BARAK') || n.includes('LH');
+    });
+
+    const activeBldgs = hunianBldgs.length > 0 ? hunianBldgs : bldgs.slice(0, 18);
+
+    grid.innerHTML = activeBldgs.map(b => {
+      const code = b.kode_gedung;
+      const bRooms = rooms.filter(r => r.kode_gedung === code);
+      const bPenghuni = penghuni.filter(p => p.kode_gedung === code);
+      const roomCount = bRooms.length || 10;
+      const residentCount = bPenghuni.length;
+      const capacity = roomCount * 4;
+      const occPct = capacity > 0 ? Math.min(100, Math.round((residentCount / capacity) * 100)) : 0;
+      const isFull = residentCount >= capacity;
+
+      return `
+        <button type="button" onclick="filterPenghuniByHouse('${code}')" class="hunian-house-card group text-left p-3.5 rounded-2xl bg-white border border-slate-200/90 hover:border-indigo-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between shadow-2xs cursor-pointer relative overflow-hidden" data-house-code="${code}">
+          <!-- Roof Banner / House Shape Top -->
+          <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-indigo-500 via-sky-500 to-indigo-600 group-hover:h-2 transition-all"></div>
+          
+          <div>
+            <div class="flex items-start justify-between gap-2 mb-2 mt-1">
+              <div class="w-9 h-9 rounded-xl bg-indigo-50 group-hover:bg-indigo-600 group-hover:text-white text-indigo-600 flex items-center justify-center font-bold text-lg transition-colors shadow-2xs">
+                <i class="ph-bold ph-house-line"></i>
+              </div>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-black ${isFull ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
+                ${isFull ? 'Penuh' : 'Tersedia'}
+              </span>
+            </div>
+            
+            <span class="font-extrabold text-xs text-slate-900 group-hover:text-indigo-600 transition-colors block truncate" title="${b.nama_bangunan}">
+              ${b.nama_bangunan || code}
+            </span>
+            <span class="text-[10px] font-medium text-slate-400 block truncate mb-2">
+              ${b.lokasi || b.kode_site || 'Central'} &bull; ${code}
+            </span>
+          </div>
+
+          <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1.5">
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500 text-[10px] uppercase font-bold">Kamar / Ranjang:</span>
+              <span class="font-mono font-bold text-slate-800">${roomCount} Kmr &bull; ${capacity} Rjg</span>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-slate-500 text-[10px] uppercase font-bold">Terisi:</span>
+              <span class="font-mono font-bold text-indigo-600">${residentCount} Org (${occPct}%)</span>
+            </div>
+            <!-- Occupancy bar -->
+            <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
+              <div class="${isFull ? 'bg-amber-500' : 'bg-emerald-500'} h-1.5 rounded-full" style="width: ${Math.max(4, occPct)}%"></div>
+            </div>
+          </div>
+        </button>
+      `;
+    }).join('');
+  }
+
+  function filterPenghuniByHouse(code) {
+    if (!code) return;
+    const searchInput = document.getElementById('search-penghuni');
+    if (searchInput) {
+      searchInput.value = code;
+      if (typeof onSearchPenghuni === 'function') onSearchPenghuni();
+    }
+    const filterBldg = document.getElementById('filter-penghuni-bldg');
+    if (filterBldg) {
+      filterBldg.value = code;
+      if (typeof onFilterPenghuniChange === 'function') onFilterPenghuniChange();
+    }
+  }
+  
+const PNS_SECTION_TO_DEPT = {
+  "Accounting": "FINANCIAL & INFORMATION SYSTEM",
+  "ACC": "FINANCIAL & INFORMATION SYSTEM",
+  "Agronomy": "RESEARCH & DEVELOPMENT",
+  "AGR": "RESEARCH & DEVELOPMENT",
+  "BCID": "HRGA",
+  "BCI": "HRGA",
+  "Budget": "FINANCIAL & INFORMATION SYSTEM",
+  "BUD": "FINANCIAL & INFORMATION SYSTEM",
+  "BUSINESS SUPPORT": "BUSINESS SUPPORT",
+  "Compensation Benefit & Personal Admin": "HRGA",
+  "CAB": "HRGA",
+  "Community Development": "BUSINESS SUPPORT",
+  "CDR": "BUSINESS SUPPORT",
+  "COMPENSATION & BENEFIT": "HRGA",
+  "Civil": "BUSINESS SUPPORT",
+  "CVL": "BUSINESS SUPPORT",
+  "Administration": "BUSINESS SUPPORT",
+  "FAA": "BUSINESS SUPPORT",
+  "Finance, Accounting & Asset": "FINANCIAL & INFORMATION SYSTEM",
+  "FAS": "FINANCIAL & INFORMATION SYSTEM",
+  "Engineering": "WORKSHOP & ENGINERING",
+  "FEE": "WORKSHOP & ENGINERING",
+  "Electrical & Instrument": "WORKSHOP & ENGINERING",
+  "FEI": "WORKSHOP & ENGINERING",
+  "Finish Good Warehouse": "BUSINESS SUPPORT",
+  "FGW": "BUSINESS SUPPORT",
+  "Factory HSE": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "FHS": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "Finance": "FINANCIAL & INFORMATION SYSTEM",
+  "FIN": "FINANCIAL & INFORMATION SYSTEM",
+  "FINANCIAL & INFORMATION SYSTEM": "FINANCIAL & INFORMATION SYSTEM",
+  "Information Technology": "FINANCIAL & INFORMATION SYSTEM",
+  "FIT": "FINANCIAL & INFORMATION SYSTEM",
+  "Mill & Cane Yard": "PRODUCTION",
+  "FMB": "PRODUCTION",
+  "Maintenance Planner": "WORKSHOP & ENGINERING",
+  "FMP": "WORKSHOP & ENGINERING",
+  "Process": "PRODUCTION",
+  "FPP": "PRODUCTION",
+  "QC & Lab": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "FQQ": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "Assessement Center": "HRGA",
+  "HAC": "HRGA",
+  "Harvesting": "HARVESTING",
+  "HAR": "HARVESTING",
+  "Cane Supply": "HARVESTING",
+  "HCS": "HARVESTING",
+  "General Services": "HRGA",
+  "HGS": "HRGA",
+  "HRGA": "HRGA",
+  "HRO": "HRGA",
+  "HUMAN RESOURCE DEVELOPMENT & GENERAL SERVICES": "HRGA",
+  "IR & HR Program": "HRGA",
+  "IHR": "HRGA",
+  "KOPERASI": "KOPERASI",
+  "KOPERASI PTM": "KOPERASI",
+  "Legal": "BUSINESS SUPPORT",
+  "LEG": "BUSINESS SUPPORT",
+  "Logistic & Warehouse": "BUSINESS SUPPORT",
+  "LOW": "BUSINESS SUPPORT",
+  "Medical": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "MED": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "Maintenance 1": "PLANTATION",
+  "MT1": "PLANTATION",
+  "Maintenance 2": "PLANTATION",
+  "MT2": "PLANTATION",
+  "Maintenance 3": "PLANTATION",
+  "MT3": "PLANTATION",
+  "Organization Development & Performance Management": "HRGA",
+  "OAD": "HRGA",
+  "OPERATION": "PLANTATION",
+  "OPERATION SUPPORT": "HRGA",
+  "People Development": "HRGA",
+  "PED": "HRGA",
+  "Plantation HSE": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "PHS": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "Planting & Mechanical": "PLANTATION",
+  "PLA": "PLANTATION",
+  "PLANTATION": "PLANTATION",
+  "Plasma": "BUSINESS SUPPORT",
+  "PLS": "BUSINESS SUPPORT",
+  "Procurement, Purchasing & Logistic": "PROCUREMENT, PUCHASING & LOGISTIC",
+  "PRO": "PROCUREMENT, PUCHASING & LOGISTIC",
+  "PROCUREMENT & PURCHASING": "PROCUREMENT & PURCHASING",
+  "PROC": "PROCUREMENT & PURCHASING",
+  "PRODUCTION": "PRODUCTION",
+  "Protection": "RESEARCH & DEVELOPMENT",
+  "PTC": "RESEARCH & DEVELOPMENT",
+  "QUALITY HEALTH & SAFETY ENVIRONMENT": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "Talent Acquisition & Monitoring": "HRGA",
+  "REC": "HRGA",
+  "RESEARCH & DEVELOPMENT": "RESEARCH & DEVELOPMENT",
+  "Planning, Inventory & QA": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "SAI": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "SALES & MARKETING": "SALES & MARKETING",
+  "Security": "BUSINESS SUPPORT",
+  "SEC": "BUSINESS SUPPORT",
+  "Sales Marketing & Warehouse": "SALES & MARKETING",
+  "SNM": "SALES & MARKETING",
+  "Tax": "FINANCIAL & INFORMATION SYSTEM",
+  "TAX": "FINANCIAL & INFORMATION SYSTEM",
+  "Water Management & Infrastructure": "BUSINESS SUPPORT",
+  "WMI": "BUSINESS SUPPORT",
+  "WORKSHOP & ENGINERING": "WORKSHOP & ENGINERING",
+  "Workshop and Engineering": "WORKSHOP & ENGINERING",
+  "WOS": "WORKSHOP & ENGINERING",
+  "Health & Safety Environment": "QUALITY HEALTH & SAFETY ENVIRONMENT",
+  "Civil & Building": "BUSINESS SUPPORT"
+};
+
   function initRoleAccessState() {
     try {
       const params = (typeof window !== 'undefined' && window.location) ? new URLSearchParams(window.location.search) : null;
@@ -1812,7 +2077,7 @@
         totalAssetPerf += r.totalAsset;
         const fmtPct = p => p > 0 ? `${p.toFixed(2)}%` : '-';
         return `
-          <tr class="hover:bg-slate-50:bg-slate-800/40 transition text-xs border-b border-slate-100">
+          <tr onclick="window.drillToDimension('section', '${r.label}')" class="hover:bg-emerald-50/70 transition text-xs border-b border-slate-100 cursor-pointer group" title="Klik untuk lihat aset di seksi ${r.label}">
             <td class="px-3 py-2 font-bold text-slate-800">${r.label}</td>
             <td class="px-3 py-2 text-right font-mono font-bold text-slate-700">${formatNum(r.totalAsset)}</td>
             <td class="px-3 py-2 text-center"><span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-50 text-emerald-700">${fmtPct(r.goodPct)}</span></td>
@@ -1864,21 +2129,27 @@
     const condContainer = document.getElementById('container-pbi-asset1-condition-bars');
     if (condContainer) {
       condContainer.innerHTML = condBars.map(c => `
-        <div class="space-y-1">
-          <div class="flex items-center justify-between text-xs">
-            <span class="font-bold text-slate-700 flex items-center gap-1.5">
-              <span class="w-2 h-2 rounded-full ${c.color}"></span>
+        <div onclick="window.drillToDimension('kondisi', '${c.label}')" class="p-2 rounded-xl bg-slate-50/70 hover:bg-slate-100/90 border border-slate-200/60 transition cursor-pointer group" title="Klik untuk lihat aset dengan kondisi ${c.label}">
+          <div class="flex items-center justify-between text-xs mb-1.5">
+            <span class="font-bold text-slate-800 flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full ${c.color} shadow-2xs group-hover:scale-125 transition-transform"></span>
               ${c.label}
             </span>
-            <span class="font-mono text-slate-600 font-medium">
-              ${formatNum(c.count)} <span class="text-[10px] text-slate-400">(${c.pct.toFixed(2)}%)</span>
+            <span class="font-mono text-slate-700 font-bold px-2 py-0.5 rounded-md bg-white border border-slate-200/80 shadow-2xs">
+              ${formatNum(c.count)} <span class="text-[10px] text-slate-400 font-normal">(${c.pct.toFixed(2)}%)</span>
             </span>
           </div>
-          <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-            <div class="${c.color} h-1.5 rounded-full" style="width: ${Math.min(100, Math.max(1, c.pct))}%"></div>
+          <div class="w-full bg-slate-200/80 rounded-full h-2.5 overflow-hidden p-0.5">
+            <div class="${c.color} h-1.5 rounded-full transition-all duration-500 shadow-2xs" style="width: ${Math.min(100, Math.max(1.5, c.pct))}%"></div>
           </div>
         </div>
       `).join('');
+
+      const statValuable = document.getElementById('stat-valuable-donut');
+      if (statValuable) statValuable.innerText = `${formatNum(valCount)} (${compType.valuable.pct.toFixed(1)}%)`;
+      const statNonValuable = document.getElementById('stat-nonvaluable-donut');
+      if (statNonValuable) statNonValuable.innerText = `${formatNum(nonValCount)} (${compType.nonValuable.pct.toFixed(1)}%)`;
+
     }
   }
 
@@ -2087,14 +2358,31 @@
     if (!locName) return;
     navTo('view-portfolio-all');
     setTimeout(() => {
-      const searchBox = document.getElementById('search-asset-all-input');
+      const searchBox = document.getElementById('slicer-asset-search');
       if (searchBox) {
         searchBox.value = locName;
-        if (typeof applyAllAssetFilters === 'function') {
-          applyAllAssetFilters();
-        }
+        if (typeof onAssetSearch === 'function') onAssetSearch(locName);
+        else if (window.pns && typeof window.pns.onAssetSearch === 'function') window.pns.onAssetSearch(locName);
       }
-    }, 100);
+      if (typeof window.setAssetSiteFilter === 'function') {
+        window.setAssetSiteFilter(locName);
+      }
+      if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
+    }, 60);
+  }
+
+  function drillToDimension(dim, val) {
+    if (!val) return;
+    navTo('view-portfolio-all');
+    setTimeout(() => {
+      const searchBox = document.getElementById('slicer-asset-search');
+      if (searchBox) {
+        searchBox.value = val;
+        if (typeof onAssetSearch === 'function') onAssetSearch(val);
+        else if (window.pns && typeof window.pns.onAssetSearch === 'function') window.pns.onAssetSearch(val);
+      }
+      if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
+    }, 60);
   }
 
   // Bridge functions
@@ -2140,6 +2428,7 @@
   window.pns.setAssetPerfDim = window.setAssetPerfDim = setAssetPerfDim;
   window.pns.applyPbiFilters = window.applyPbiFilters = applyPbiFilters;
   window.pns.drillToOfficeAssets = window.drillToOfficeAssets = drillToOfficeAssets;
+  window.drillToDimension = drillToDimension;
   window.pns.switchView = window.switchView = function(viewId) {
     if (viewId === 'view-asset-1') viewId = 'view-portfolio';
     if (viewId === 'view-asset-2') viewId = 'view-asset-sebaran';
@@ -4795,6 +5084,8 @@
   }
 
   function renderPenghuniTable() {
+    renderHunianHouseCards();
+
     const searchEl = document.getElementById('search-penghuni');
     const query = (searchEl ? searchEl.value : '').toLowerCase().trim();
     const bldgFilter = document.getElementById('filter-penghuni-bldg') ? document.getElementById('filter-penghuni-bldg').value : '';
@@ -6385,3 +6676,11 @@
       }
     } catch(e) {}
   });
+
+window.filterPenghuniByHouse = filterPenghuniByHouse;
+window.renderHunianHouseCards = renderHunianHouseCards;
+
+window.setInspectionMode = setInspectionMode;
+window.renderInspectionUnitTable = renderInspectionUnitTable;
+window.updateSingleAssetCond = updateSingleAssetCond;
+window.updateSingleAssetNote = updateSingleAssetNote;
