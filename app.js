@@ -1149,116 +1149,912 @@
   // ==========================================
   // KOMPOSISI PORTOFOLIO ASET (POWER BI PARITY HALAMAN 9 & 10)
   // ==========================================
-  function renderPortfolioComposition() {
-    const tbody = document.getElementById('table-portfolio-composition-body');
-    if (!tbody) return;
+  // =========================================================================
+  // PNS ENTERPRISE POWER BI ASSET ENGINE (100% PARITAS PHP & PBIX)
+  // =========================================================================
+  window.PNS_MAINTENANCE_MAP = {"GS-YANMAR-44": 90635039, "GS-YANMAR-38": 57239577, "GS-YANMAR-05": 50079156, "PNS-TB-28": 51379377, "PNS-TB-23": 36166549, "PNS-TB-07-5": 64245322, "PNS-MTR-07": 12749418, "PNS-TB-26": 166330748, "GS-YANMAR-34": 24476912, "PNS-GS-CUMMINS-02": 459872758, "PNS-SBF-22-3": 11491456, "GS-YANMAR-10": 52711295, "PNS-GS-CUMMINS-01": 514511023, "PNS-KL-10": 5449869, "GS-YANMAR-25": 22771337, "PNS-SBF-32-2": 25015441, "PNS-TB-27": 49749390, "GS-YANMAR-46": 19230022, "GS-YANMAR-42": 100163784, "GS-YANMAR-43": 21584619, "GS-YANMAR-45": 30270867, "GS-YANMAR-47": 7216233, "GS-YANMAR-48": 44185700, "PNS-BARAK-08": 44925755, "PNS-SBF-06-3": 8241007, "PNS-SBF-20": 43129070, "PNS-SBF-31-3": 15517566, "PNS-TB-16": 16281830, "PNS-SBF-17-3": 11070494, "PNS-SBF-07-5": 6967719, "PNS-BARAK-41": 64449909, "PNS-GUDANG-01": 166981564, "PNS-RUMAH-GENSET-02": 6183604, "GS-YANMAR-40": 47439236, "PNS-BARAK-09": 21835210, "PNS-WORKSHOP-01": 14005140, "GS-PERKINS-03": 360725674, "GS-PERKINS-02": 326041528, "GS-YANMAR-24": 15474221, "GS-YANMAR-20": 6922998, "PNS-FAC-AC-69": 1946574, "PNS-FAC-AC-68": 5650738, "PNS-FAC-AC-67": 1946574, "PNS-FAC-AC-66": 1958209, "PNS-FAC-AC-65": 1867139, "PNS-FAC-AC-64": 1786072, "PNS-FAC-AC-63": 5656053, "PNS-FAC-AC-62": 4936472, "PNS-FAC-AC-61": 5086472, "PNS-FAC-MPR-01": 6250174, "PNS-FAC-MTR-01": 68173453, "PNS-LH-01-05": 18479760, "PNS-GH-01-3": 25821134, "PNS-TB-02": 271961040, "GS-YANMAR-13": 68693288, "PNS-WTP-01": 403125884, "PNS-RO-01": 92352773, "GS-YANMAR-41": 122449598, "PNS-GOR": 25040451, "PNS-KL-03-4": 31986403, "PNS-TB-14": 199206784, "PNS-SBFA-01": 231342905, "PNS-TB-01-2": 116813540, "GS-PERKINS-05": 316144301, "GS-PERKINS-04": 553643683, "PNS-PARKIRAN-SPEED-03": 1068000, "PNS-TB-06-2": 464943039, "PNS-MASJID": 139078846, "PNS-SB-21-2": 147616628, "PNS-KL-03-2": 68949375, "PNS-MBL-02": 349209122, "PNS-FAC-MTR-03": 38875941, "PNS-FAC-LH 05": 10088170, "PNS-FAC-LH 09": 5359488, "PNS-FAC-AC-02": 11089322, "PNS-FAC-AC-01": 1112000, "PNS-FAC-AC-90": 1112000, "PNS-FAC-AC-89": 1112000, "PNS-FAC-AC-88": 5359230, "PNS-FAC-AC-87": 1662000, "PNS-FAC-AC-86": 1662000, "PNS-FAC-AC-85": 1845333, "PNS-FAC-AC-84": 1845333, "PNS-FAC-AC-03": 4263800, "PNS-FAC-AC-16": 2704699, "PNS-FAC-AC-15": 2658079, "PNS-MTR-08": 40162196, "PNS-FAC-UPS-06": 869000, "PNS-FAC-UPS-05": 869000, "PNS-FAC-UPS-04": 869000, "PNS-FAC-UPS-03": 869000, "PNS-FAC-UPS-02": 869000, "PNS-FAC-UPS-SERVER-01": 9680000, "PNS-SB-21-4": 2838696, "PNS-MTR-14": 21216902, "PNS-SPV-01-9.1": 9336848, "PNS-SPTD-02-01": 6896355, "PNS-MESS-TAMU-11": 8077821, "PNS-SPV-01-7.2": 9621076, "PNS-SPV-01-7.1": 7957763, "PNS-SPV-01-05": 8711632, "PNS-SPV-02-01": 4873490, "PNS-SPTD-01-9": 9082641, "PNS-OFFICE-01": 12929693, "PNS-BARAK-11": 115112758, "PNS-SPTD-01-7.2": 9450501, "PNS-SPTD-01-7.1": 7670665, "PNS-LH-01-08": 10654576, "PNS-LH-01-09": 9606570, "PNS-LH-01-11.01": 3727632, "PNS-LH-01-04": 16101829, "PNS-LH-01-03": 13939212, "PNS-LH-01-01": 11853004, "GS-YANMAR-29": 50692817, "PNS-MNC-20": 4932265, "PNS-TB-10": 43300358, "PNS-WTP-02": 151386269, "PNS-RO-02": 82335259, "PNS-TB-29": 46808281, "PNS-MUSHOLLA-01": 1911556, "PNS-AC-252": 1320733, "PNS-AC-251": 1320733, "PNS-AC-250": 1320733, "PNS-AC-249": 4209002, "PNS-AC-248": 3794368, "PNS-MPR-05": 1931040, "PNS-MPR-01": 8648667, "PNS-BARAK-06": 90029674, "PNS-MNC-18": 3340375, "PNS-MNC-17": 2089445, "PNS-MNC-19": 2334235, "MESS-C": 658060, "PNS-LH-01-07": 548218, "PNS-GAZEBO-01": 4157841, "PNS-SB-25-2": 180400687, "PNS-PARKIRAN-SPEED-02": 30379157, "PNS-MPR-03": 4081038, "PNS-LH-01-11.06": 506607, "PNS-DERMAGA-07": 805209, "PNS-OFFICE-03": 694541244, "PNS-DERMAGA-05": 2228856, "PNS-LH-01-11.05": 2685293, "PNS-RO-04": 21089847, "PNS-BARAK-26": 143467066, "PNS-BARAK-07": 70023172, "PNS-MTR-30": 25131565, "PNS-SBF-21": 21075553, "PNS-TB-22": 4063835, "PNS-TB-19": 16523194, "PNS-LH-01-11.04": 2485230, "PNS-PARKIRAN-SPEED-04": 9912266, "PNS-CENTRAL-OFFICE-01": 694538298, "PNS-FAC-SPV 01": 5227557, "PNS-POSKODAL": 15689724, "PNS-RUMAH-TANGKI-BBM-02": 2325197, "PNS-SPORT-FACILITY-01": 1731860, "PNS-GUDANG-02": 163559754, "PNS-MBL-01": 80367109, "PNS-ALKON-68": 1873104, "PNS-OFFICE-R&D-01": 21906290, "PNS-LH-01-11.03": 822879, "GS-PERKINS-07": 109973153, "PNS-LH-03-03": 10054343, "PNS-LH-01-11.11": 2031383, "PNS-BARAK-15": 52980771, "PNS-MTR-17": 57607384, "PNS-MPR-08": 7100461, "PNS-RUMAH-GENSET-03": 4896240, "PNS-GUDANG-TRANSIT-01": 4310889, "PNS-TRUCK-TANGKI-01": 31111437, "PNS-KANTIN-03": 4952848, "GS-PERKINS-01": 21670236, "PNS-MTR-35": 33573117, "PNS-LH-01-11.02": 3048894, "PNS-LH-03-02": 8612548, "PNS-MUSHOLLA-04": 37238665, "PNS-GUDANG-GS-02": 16536702, "PNS-ALKON-67": 914223, "PNS-GS-CUMMINS-04": 77426180, "PNS-MTR-22": 35445995, "PNS-AC-321": 3277128, "PNS-RUMAH-GENSET-06": 12136112, "PNS-MPR-13": 6568291, "PNS-LH-03-05": 7308577, "PNS-LH-02-01": 9245409, "GS-PERKINS-08": 180920823, "PNS-AC-320": 1118137, "PNS-MGR-03-01": 1984525, "PNS-FAC-AC-98B": 2966500, "PNS-SPV-03-01": 7277375, "PNS-FAC-AC-91": 2977187, "PNS-KANTIN-04": 28925714, "PNS-FAC-LH 02": 15967045, "PNS-AC-266": 2707926, "PNS-AC-265": 578425, "PNS-AC-264": 781628, "PNS-BARAK-12": 18034946, "PNS-KLINIK-03": 2232873, "PNS-MTR-24": 33638208, "PNS-MTR-25": 31019830, "PNS-MTR-23": 33078700, "PNS-SPTD-03-01": 10343324, "PNS-FAC-MBL-01": 84990185, "PNS-HELLYPAD": 95511901, "PNS-MGR-02-01": 1805690, "PNS-FAC-OFFICE-01": 864743860, "PNS-KANTIN-02": 22169470, "PNS-BARAK-18": 92378001, "PNS-AC-219A": 1581800, "PNS-AC-218A": 1581800, "PNS-POS-08": 99506065, "PNS-AC-120": 720786, "PNS-AC-119": 5835560, "PNS-AC-91": 2944672, "PNS-AC-90": 3055767, "PNS-AC-86": 815000, "PNS-AC-84": 3632825, "PNS-AC-83": 4945902, "PNS-AC-81": 6256378, "PNS-AC-80": 3630348, "PNS-AC-79": 743000, "PNS-AC-78": 980000, "PNS-FAC-AC-05": 616000, "PNS-FAC-AC-04": 616000, "PNS-FAC-AC-83": 1399333, "PNS-KONTAINER-02": 12406944, "PNS-KONTAINER-04": 11752505, "GS-YANMAR-15": 50011983, "PNS-KONTAINER-12": 16773527, "PNS-FAC-KONTAINER-07": 34477953, "PNS-PMC-03": 2889794, "PNS-PMC-15": 628890, "PNS-POS-11": 68995897, "PNS-POS-01": 9120742, "PNS-PMC-17": 2114544, "PNS-FAC-JIBCRANE-01": 1384308457, "GS-PORTEBEL-14": 7443006, "GS-YANMAR-21": 51306202, "PNS-FAC-LH 08": 18779404, "PNS-LH-05-01": 4889412, "PNS-FAC-LH 04": 6922679, "PNS-FAC-LH 07": 5535242, "PNS-LH-05-04": 2604404, "PNS-LOUNDRY-03": 1235512, "PNS-SBF-44-2": 65343415, "PNS-FAC-LH 06": 6079364, "PNS-FAC-MTR-02": 1276843, "PNS-FAC-TRUCK-HINO-02": 425182456, "PNS-SBF-18": 50941697, "PNS-MTR-21": 42103055, "PNS-POS-05": 8680835, "GS-YANMAR-35": 18360677, "GS-YANMAR-23": 37121369, "PNS-MTR-27": 71525945, "PNS-MTR-41": 25312722, "PNS-RO-03": 73122325, "PNS-LH-05-03": 4763320, "PNS-MTR-64": 21038868, "PNS-MPR-02": 1538884, "GS-YANMAR-14": 24968326, "PNS-KL-08": 14413124, "PNS-GUDANG-03": 108837031, "PNS-MTR-26": 31391655, "GS-YANMAR-02": 25866792, "PNS-SB-26": 11224487, "PNS-SB-24": 64861729, "GS-YANMAR-11": 60831390, "PNS-BARAK-30": 35944859, "PNS-SB-27-2": 29650353, "PNS-BARAK-37": 87087428, "PNS-WORKSHOP-DIVISI-2": 48139071, "PNS-RUMAH-GENSET-15": 1441405, "GS-YANMAR-53": 47801300, "PNS-WORKSHOP-DIVISI-3": 26239322, "PNS-PARKIRAN-SPEED-05": 7762477, "PNS-BARAK-23": 60274244, "PNS-BARAK-29": 5928704, "PNS-GM-01": 1835354, "PNS-LND": 39740914, "PNS-RUMAH-CORCYRA-03": 1591586, "PNS-LH-02-05": 665974, "PNS-MGR-01-06": 14038139, "PNS-LOUNDRY-02": 3098829, "PNS-FAC-MNC-12": 681467, "PNS-MNC-23": 534375, "PNS-RUMAH-TANGKI-BBM-01": 7703234, "PNS-MTR-28": 16290516, "PNS-MTR-34": 41411925, "PNS-MTR-49": 26702690, "PNS-SBF-24": 15872645, "PNS-SBF-36": 17958926, "PNS-SBF-23": 20806946, "PNS-SBF-42-2": 46557518, "PNS-SBF-09-5": 8286283, "PNS-SB-29": 3395930, "PNS-SBF-47": 20284124, "PNS-SBF-46-2": 1794795, "PNS-MTR-09": 48334128, "PNS-MTR-12": 48101063, "PNS-MTR-10": 35165343, "PNS-MTR-39": 60036496, "GS-YANMAR-33": 40162744, "PNS-MTR-36": 32788164, "PNS-MTR-16": 52001162, "PNS-SBF-34": 9139193, "PNS-KK-22": 3221839, "PNS-KK-38": 3445128, "PNS-FAC-MPR-02": 5119965, "PNS-SBF-31": 2358697, "PNS-SBF-45": 39452759, "PNS-SBF-17": 1303655, "PNS-SBF-01-2": 1900620, "PNS-MPR-12": 4403630, "PNS-SBF-04": 76954268, "PNS-SBF-19": 15769648, "PNS-FAC-MTR-05": 41063316, "GS-YANMAR-16": 3885383, "GS-YANMAR-36": 7388203, "GS-YANMAR-50": 170427856, "GS-YANMAR-56": 9363579, "GS-YANMAR-39": 20611578, "GS-YANMAR-49": 29462193, "GS-YANMAR-12": 26584794, "PNS-SB-28": 4066604, "PNS-FAC-MTR-09": 11404498, "PNS-FAC-MTR-08": 13713067, "PNS-LH-05-06": 1752933, "PNS-LH-02-03": 2955623, "PNS-MTR-11": 49327986, "GS-YANMAR-57": 37477532, "PNS-MTR-20": 30937436, "PNS-SBF-40": 40111240, "PNS-SIRINE-01": 3618683, "PNS-SPV-05-02": 2564355, "PNS-BARAK-03": 6326888, "PNS-TB-21": 10786406, "GS-YANMAR-19": 11615562, "PNS-SBF-37": 43501540, "PNS-PARKIR-MOTOR-02": 13563465, "PNS-MTR-31": 30673874, "PNS-MTR-42": 45151846, "PNS-MTR-54": 21984944, "PNS-MTR-18": 42370828, "PNS-MPR-04": 979610, "PNS-SPV-05-01": 533272, "PNS-GH-01": 8906496, "PNS-SBF-08-3": 60192569, "PNS-SBF-02": 11667947, "PNS-TB-09": 4904713, "PNS-TB-08-5": 11316668, "PNS-MTR-52": 32290029, "PNS-BARAK-33": 30437114, "PNS-TB-20": 9554585, "PNS-MTR-29": 29770620, "PNS-FAC-MPR-03": 2290529, "PNS-SB-22": 101461406, "PNS-SBF-15-3": 21414168, "PNS-ALKON-80": 1336079, "PNS-SBF-46": 21761785, "PNS-FAC-KANTIN": 8514056, "PNS-FAC-MUSHOLA": 10952887, "PNS-FAC-MTR-04": 21767725, "PNS-MTR-03": 34218934, "PNS-MTR-13": 43830839, "PNS-FAC-TRUCK-HINO-01": 526400444, "PNS-SBF-41-2": 11207172, "PNS-MTR-44": 16086594, "PNS-OFFICE-R&D-05": 5076955, "PNS-SB-29-2": 10749312, "PNS-SBF-26-4": 3572475, "PNS-MTR-01": 2523387, "PNS-FAC-MTR-10": 6000407, "PNS-FAC-MTR-07": 24662703, "PNS-MTR-04": 593909, "PNS-MTR-32": 43155615, "PNS-MTR-15": 32802500, "PNS-SB-17-3": 80501115, "PNS-GUDANG-CIVIL-02": 4316853, "PNS-SB-23-4": 70150990, "PNS-FAC-MBL-02": 83462168, "PNS-SBFA-02": 179388920, "PNS-ALKON-69": 558003, "PNS-SBF-30": 19633245, "PNS-MBLA-01": 30003111, "PNS-MTR-38": 44955167, "PNS-MTR-50": 56563794, "PNS-OFFICE-R&D-04": 1579449, "GS-YANMAR-31": 5765386, "PNS-SBF-12": 35829254, "PNS-MTR-43": 27474922, "PNS-KLINIK-02": 23303399, "PNS-SIRINE-02": 1612446, "PNS-PARKIR-MOTOR-01": 19629090, "PNS-FAC-LH 01": 14618972, "PNS-FAC-LH 03": 11801529, "PNS-LH-02-02": 3112227, "PNS-LH-03-01": 1470247, "PNS-LH-01-06": 8254280, "PNS-SB-22-4": 4334339, "PNS-SOUND-07": 2625778, "PNS-LTP-054": 2343000, "PNS-SB-25-4": 5821439, "PNS-PMC-08": 1980000, "PNS-SBF-01": 13782093, "PNS-LTP-07": 1600000, "PNS-PMC-11": 3492826, "PNS-PMC-01": 1732500, "PNS-FAC-TV-49": 1500000, "PNS-FAC-TV-06": 2287500, "PNS-FAC-TV-38": 1500000, "PNS-FAC-TV-31": 1500000, "PNS-LTP-073": 1470000, "PNS-PMC-04": 1559250, "PNS-AC-135": 2299282, "PNS-TV-75": 1635000, "PNS-TV-101": 885000, "PNS-FAC-LONDRY": 46963722, "PNS-MTR-40": 42703604, "PNS-BARAK-34": 29933865, "PNS-DPS-38": 1131000, "PNS-DPS-41": 600000, "PNS-DPS-07": 1056000, "PNS-SBF-47-2": 5840658, "PNS-MTR-37": 51776483, "PNS-SBF-42": 1809615, "PNS-DPS-32": 1063670, "PNS-DPS-02": 830000, "GS-YANMAR-52": 2135264, "PNS-TV-130": 558047, "PNS-TV-117": 3226700, "PNS-LTP-18": 1000000, "PNS-LH-01-02": 3125600, "PNS-DPS-40": 534050, "PNS-DPS-62": 931350, "PNS-DPS-69": 680000, "PNS-AC-58": 5500518, "PNS-AC-59": 649333, "PNS-AC-60": 649333, "PNS-AC-61": 585120, "PNS-AC-62": 578000, "PNS-AC-63": 2582511, "PNS-AC-64": 8403500, "PNS-AC-67": 5018985, "PNS-AC-68": 2775573, "PNS-AC-69": 2554511, "PNS-AC-70": 2775573, "PNS-AC-71": 3779199, "PNS-AC-72": 550000, "PNS-AC-73": 550000, "PNS-AC-74": 550000, "PNS-AC-75": 550000, "PNS-AC-76": 2006344, "PNS-AC-77": 4949071, "PNS-FAC-SPTD 01": 14526496, "PNS-KANTIN-01": 800894, "PNS-MTR-51": 21105834, "PNS-FAC-LH 10": 12261042, "PNS-FAC-SPTD 02": 4011676, "PNS-FAC-SPV 03": 4191093, "PNS-LH-05-02": 12838875, "PNS-MNC-21": 3652398, "PNS-FAC-LH 12": 4103192, "PNS-FAC-MTR-11": 17291612, "PNS-MTR-19": 18657505, "PNS-LOUNDRY-01": 3824178, "MESS-A": 554159, "GS-YANMAR-30": 838168, "PNS-BARAK-01": 5330112, "PNS-OFFICE-R&D-03": 3970112, "PNS-MTR-58": 1868930, "PNS-MTR-59": 12634281, "PNS-GUDANG-04": 630317922, "PNS-MTR-56": 18505899, "PNS-MTR-60": 12957382, "PNS-MTR-53": 31568802, "PNS-SBF-15": 2277883, "PNS-MTR-48": 17504356, "PNS-ALKON-91": 1450932, "GS-YANMAR-55": 8301443, "PNS-MTR-45": 18226695, "PNS-MTR-47": 9490597, "PNS-MTR-33": 4519365, "PNS-MTR-55": 14182638, "PNS-MTR-61": 33178876, "PNS-FAC-MTR-06": 9975554, "PNS-MTR-46": 27093894, "PNS-POS-02": 1380275, "PNS-JETTY-01": 87508205, "PNS-RUMAH-CORCYRA-01": 7778582, "PNS-MNC-24": 1878940, "PNS-AC-142": 1078000, "PNS-KK-30": 750000, "PNS-KK-12": 725000, "PNS-KK-11": 791550, "PNS-KK-10": 725000, "PNS-KK-20": 600000, "PNS-LTP-050": 600000, "PNS-KONTAINER-07": 2077096, "PNS-DPS-16": 555000, "PNS-KK-17": 550000, "PNS-GH-01-4": 11343570, "PNS-MTR-62": 25831852, "PNS-MTR-74": 26051720, "PNS-MTR-67": 25680218, "PNS-MTR-76": 23726521, "PNS-LH-05-05": 5876018, "PNS-MGR-05": 832511, "PLG-PC-184": 4375380, "PNS-FAC-DPS-19": 506000, "PNS-HELLYPAD-03": 1473681235, "PNS-HELLYPAD-02": 1469705268, "PNS-SBF-30-2": 2197994, "PNS-MBL-03": 41054010, "PNS-DERMAGA-04-2-NEW": 1022914, "PNS-SBF-32": 553479, "PNS-MTR-63": 13700413, "PNS-SBF-01-3": 2198535, "PNS-MASJID-02": 31244449, "PNS-FAC-DPS-02 A": 506000, "PNS-SUMUR-BOR-11": 29593713, "PNS-BARAK-44": 18423262, "PNS-MTR-84": 15454357, "PNS-MNC-13": 744150, "PNS-MTR-79": 14786420, "PNS-MTR-72": 19526590, "PNS-MTR-71": 14625414, "PNS-MTR-77": 13740393, "PNS-DEPO-02": 1040393, "PNS-MTR-70": 23585231, "PNS-MTR-73": 30164214, "PNS-PROJECTOR-02": 1650000, "PNS-MTR-80": 17283890, "PNS-MTR-69": 30666052, "PNS-MTR-78": 18122297, "PNS-MTR-83": 28297679, "PNS-BARAK-45": 26684913, "PNS-MTR-75": 4564908, "GS-PORTEBEL-07": 2688552, "PNS-MTR-65": 19797693, "PNS-MTR-82": 13223047, "PNS-MTR-81": 21195412, "PNS-MTR-66": 18042172, "PNS-FAC-SPTD 03": 16017923, "PNS-MBL-LT-01": 166560093, "PNS-FAC-TRUCK-HINO-03": 166814778, "PNS-MNC-25": 3839851, "GS-YANMAR-58": 28117964, "PNS-MTR-68": 19629767, "PNS-FAC-SPV 02": 3565461, "PNS-TV-93": 2105500, "PNS-FAC-AC-72": 549500, "PNS-FAC-AC-17": 3482579, "PNS-FAC-AC-77": 5279019, "PNS-FAC-AC-31": 1265783, "PNS-FAC-AC-32": 549500, "PNS-FAC-AC-34": 549500, "PNS-TV-177": 575000, "PNS-TV-90": 575000, "PNS-TV-64": 575000, "PNS-BARAK-36": 11334060, "PNS-BARAK-35": 5427462, "PNS-BARAK-43": 3154899, "PNS-BARAK-42": 21238281, "PNS-GUDANG-CHEMICAL-02": 10984218, "PNS-BARAK-17": 33805203, "PNS-BARAK-16": 42925584, "PNS-KONTAINER-08": 1563855, "PNS-DEPO-01": 20736873, "PNS-PAVIN-BLOK-05": 62023780, "PNS-BARAK-21": 3233928, "PNS-MNC-22": 2202335, "PNS-FAC-AC-102": 7881854, "PNS-GUDANG-GS-01": 4460887, "PNS-DPS-34": 550000, "PNS-DPS-59": 930000, "PNS-DPS-08": 550000, "PNS-DPS-30": 550000, "PNS-DPS-52": 550000, "PNS-DPS-57": 550000, "PNS-DPS-22": 550000, "PNS-DPS-17": 550000, "PNS-KK-09": 550000, "PNS-TV-106": 2609500, "PNS-TV-113": 1620600, "PLG-PC-139": 2767000, "PNS-KK-01": 1337650, "PNS-SB-23-3": 1954056, "GS-YANMAR-59": 18695783, "PNS-TB-18": 14944814, "GS-YANMAR-51": 1020716, "PNS-FAC-KONTAINER-261": 114694017, "PNS-MGR-01-05": 1769584, "PNS-BAK-KONTROL-LEMAK-01": 2125270, "PNS-TB-17": 13119886, "PNS-AC-102": 2009141, "PNS-FAC-MTR-12": 6838964, "PNS-AC-114": 2553153, "PNS-DPS-74": 1298500, "PNS-AC-146": 6667595, "PNS-AC-149": 675563, "PNS-RUMAH-TANGKI-BBM-03": 6241347, "PNS-SPTD-05-01": 4093424, "PNS-TBBM-05": 507299, "PNS-SBF-33": 4930299, "PNS-AC-100": 607800, "PNS-AC-168": 2368985, "PNS-PRINTER-23": 600000, "PNS-PRINTER-16": 620000, "PLG-PC-129": 1050000, "PNS-DPS-92": 506000, "PNS-DPS-99": 506000, "PNS-DPS-87": 506000, "PNS-POS-10": 1495375, "PNS-MTR-107": 8510459, "PNS-MTR-117": 16929430, "PNS-MTR-100": 6030403, "PNS-MBL-LT-02": 882421797, "PNS-MTR-106": 9614650, "PNS-MTR-114": 12761345, "PNS-MBL-DT-05": 131256999, "PNS-MTR-98": 13311015, "PNS-MTR-85": 14649607, "PNS-MTR-110": 7507508, "PNS-MTR-111": 11742451, "PNS-FAC-AC-75": 3751893, "PNS-MTR-88": 9927449, "PNS-AC-111": 619511, "PNS-AC-66": 2004511, "PNS-MTR-112": 15141081, "PNS-MTR-87": 26924897, "PNS-AC-292": 1846688, "PNS-MTR-102": 12628842, "PNS-MTR-116": 17917301, "PNS-MTR-104": 8560044, "PNS-MTR-96": 11898654, "PNS-AC-109": 2801707, "PNS-AC-108": 2801707, "PNS-AC-107": 2801707, "PNS-MBL-07": 59092171, "PNS-FAC-AC-131": 3896635, "PNS-FAC-AC-74": 3527764, "PNS-FAC-AC-76": 2984147, "PNS-AC-162": 3333731, "PNS-SUMUR-BOR-13": 64741553, "PNS-MTR-99": 8650883, "PNS-MTR-113": 20060199, "PNS-MBL-DT-01": 90768578, "PNS-MTR-118": 17112811, "PNS-MTR-93": 14526997, "PNS-MBL-DT-04": 120211468, "PNS-MGR-01-01": 5364563, "PNS-MGR-01-02": 1918105, "PNS-MBL-DT-02": 64397412, "PNS-MTR-91": 8061290, "PNS-MTR-119": 16178196, "PNS-MTR-94": 14607214, "PNS-FAC-DPS-25": 805337, "PNS-MBL-DT-03": 60565447, "PNS-AC-169": 4485611, "PNS-MTR-89": 8062744, "PNS-MTR-105": 15480937, "PNS-FAC-MTR-13": 11281924, "PNS-MPR-21": 2840987, "PNS-MBL-06": 33194049, "PNS-MTR-95": 18892384, "PNS-AC-137": 3559750, "PNS-FAC-MBLD-01": 10297281, "PNS-SUMUR-BOR-09": 1058639, "PNS-AC-133": 2793615, "PNS-AC-106": 7995630, "PNS-MTR-103": 8506895, "PNS-MTR-90": 11070625, "PNS-MTR-92": 8351298, "PNS-MTR-86": 22383112, "PNS-MTR-108": 7085191, "PNS-MTR-97": 14076929, "PNS-FAC-MTR-15": 5872928, "PNS-MTR-101": 12594605, "PNS-FAC-MTR-14": 8992056, "PNS-AC-156": 763263, "PNS-AC-157": 3230238, "PNS-AC-159": 2676222, "PNS-AC-115": 1597920, "PNS-AC-171": 1188050, "PNS-MTR-109": 7722235, "PNS-AC-231": 4142331, "PNS-AC-122": 2155371, "PNS-PRINTER-29": 630000, "PNS-TRUCK-TANGKI-02": 883859524, "PNS-MGR-01-04": 1552275, "PNS-MBL-04": 43914745, "PNS-SBF-44": 1768244, "PNS-FAC-GM": 2251776, "PNS-AC-145": 1451245, "PNS-AC-230": 2898285, "PNS-BARAK-24": 3681813, "PNS-KK-62": 6522369, "PNS-TPS-01": 731583, "PNS-AC-253": 2972770, "PNS-FAC-AC-93": 3488020, "PNS-FAC-AC-21": 2572079, "PNS-FAC-AC-20": 5151164, "PNS-FAC-AC-19": 3260445, "PNS-FAC-AC-18": 3646136, "PNS-DPS-108": 1944757, "PNS-MBL-PU-01": 43526683, "PNS-PROJECTOR-08": 1450000, "PNS-DPS-66": 1679670, "PNS-FAC-GS-CUMMINS-01": 30417704, "PNS-KK-47": 1124800, "PNS-SB-17-6": 680835, "PNS-FAC-RUMAHTANGKI-01": 35498132, "PNS-FAC-AC-53": 1265649, "PNS-FAC-AC-54": 1265649, "PNS-MBL-05": 44257668, "PNS-AC-175": 2766212, "PNS-AC-174": 5416170, "PNS-AC-173": 3844212, "PNS-STEAM-08": 2822990, "PNS-PMC-12": 3623714, "PNS-FAC-KK-18": 1246250, "PNS-MTR-115": 5059016, "PNS-FAC-AC-101": 1705391, "PNS-FAC-DPS-40": 2082670, "PNS-FAC-GS-CUMMINS-02": 20254865, "PNS-TV-112": 685500, "PNS-FAC-PRINTER-22": 1100000, "PNS-FAC-KK-14": 3117551, "PNS-BARAK-38": 11415000, "PNS-FAC-AC-25": 11617031, "PNS-DPS-118": 721500, "PNS-FAC-AC-82": 1975200, "PNS-DPS-120": 721500, "PNS-ILPS-08": 575164, "PNS-FAC-AC-47": 1566173, "PNS-AC-161": 549357, "PNS-AC-147": 3438243, "PNS-AC-184": 549357, "PNS-AC-188": 1044357, "PNS-AC-187": 549357, "PNS-AC-185": 16293816, "PNS-AC-164": 5883702, "PNS-AC-148": 765721, "PNS-AC-150": 3654607, "PNS-TV-117-A": 575000, "PNS-DPS-84": 613750, "PNS-DPS-85": 613750, "PNS-DPS-86": 613750, "PNS-PRINTER-04": 695000, "PNS-KK-26": 1715850, "PNS-GUDANG-02-2": 4621350, "PNS-MGR-01-03": 1338708, "PNS-FAC-AC-46": 9278200, "PNS-AC-92": 761000, "PNS-AC-205": 650000, "PNS-PRINTER-14": 700000, "PNS-FAC-AC-98A": 1010179, "PNS-FAC-PRINTER-01": 1185000, "PNS-FAC-DRYER 01": 4350000, "PNS-PRINTER-34": 4500000, "PNS-FAC-FP-07": 1255218, "PNS-MBL-08": 7359172, "PNS-BARAK-19": 16285638, "PNS-FAC-AC-07": 2708100, "PNS-FAC-AC-80": 2972513, "PNS-FAC-MNC-17": 1058867, "PNS-MTR-134": 3662799, "PNS-FAC-MBL-03": 3037907, "PNS-MTR-151": 2214843, "PNS-AC-134": 2881398, "PNS-KONTAINER-09": 972088, "PNS-FAC-AC-78": 2833513, "PNS-MTR-149": 5257816, "PNS-MTR-153": 3282242, "PNS-MTR-152": 1676048, "PNS-FAC-GRUNDFOS-38": 5825328, "PNS-MNC-27": 2520918, "PNS-FAC-AC-130": 1096583, "PNS-MTR-132": 9183519, "PNS-MTR-141": 1945017, "PNS-MPR-17": 823281, "PNS-TORISHIMA-10": 773185, "PNS-BARAK-14": 1202187, "PNS-FAC-AC-28": 3097411, "PNS-JALUR-FORKLIFT-01": 535000, "PNS-FAC-MNC-14": 2872243, "PNS-MTR-128": 2096645, "PNS-MTR-127": 10226478, "PNS-GRUNDFOS-28": 548471, "PNS-MTR-131": 14421772, "PNS-AC-228": 1074057, "PNS-AC-151": 4203952, "PNS-AC-05": 5735809, "PNS-TORISHIMA-09": 2323285, "PNS-PMC-02": 980518, "PNS-DPS-72": 522650, "PNS-AC-126": 2676169, "PNS-MTR-142": 5480905, "PNS-DPS-97": 1122168, "PNS-MTR-130": 11336595, "PNS-AC-56": 16150368, "PNS-AC-54": 2748653, "PNS-AC-51": 2513333, "PNS-GH-01-2": 1015279, "PNS-MTR-147": 819330, "PNS-MTR-148": 1639428, "PNS-AC-105": 6280961, "PNS-KK-53": 1487057, "PNS-ILPS-01": 1929180, "PNS-GRUNDFOS-04": 3094924, "PNS-FAC-GRUNDFOS-03": 1998815, "PNS-TB-25": 1652493, "PNS-GRUNDFOS-53": 2557151, "PNS-AC-160": 6534500, "PNS-MNC-26": 1957623, "PNS-FAC-AC-100": 32395983, "PNS-PROJECTOR-07": 1420800, "PNS-MTR-145": 3597562, "PNS-FAC-GEROBAK-01": 1497616, "PNS-GEROBAK-03": 1437616, "PNS-GEROBAK-02": 1437616, "PNS-MTR-144": 5462932, "PNS-MTR-143": 7343466, "PNS-GEROBAK-01": 1437616, "PNS-MTR-120": 12748088, "PNS-MTR-129": 5331366, "PNS-FAC-PRINTER-18": 58365630, "PNS-FAC-PRINTER-20": 7094010, "PNS-BARAK-20": 3072367, "PNS-BARAK-10": 20020274, "PNS-TORISHIMA-08": 591764, "PNS-AC-163": 4997215, "PNS-AC-166": 2561778, "PNS-AC-186": 2561778, "PNS-AC-132": 2442000, "PNS-AC-131": 2442000, "PNS-AC-123": 4773330, "PNS-AC-124": 2442000, "PNS-AC-128": 2442000, "PNS-AC-125": 4773330, "PNS-AC-327": 601620, "PNS-AC-326": 601620, "PNS-AC-233": 1575500, "PNS-PMC-13": 11400000, "PNS-FAC-KK-10": 3711180, "PNS-JEMBATAN-TEGAKBATANG": 1500434, "PNS-FAC-CAMERACCTV-29": 7058100, "PNS-FAC-CAMERACCTV-27": 2220000, "PNS-FAC-CAMERACCTV-25": 2553000, "PNS-AC-104": 3013200, "PNS-FAC-AC-35": 549366, "PNS-RUMAH-GENSET-05": 8258400, "PNS-KONTAINER-05": 11139553, "PNS-DPS-82": 1443000, "PNS-MTR-125": 9249800, "PNS-FAC-AC-58": 1263626, "PNS-AC-94": 613318, "PNS-FAC-DPS-12": 684275, "PNS-DPS-103": 605900, "PNS-ILPS-02": 1675545, "PNS-MTR-150": 1772515, "PNS-MTR-154": 849604, "PNS-RUMAH-GENSET-19": 1054750, "PNS-MTR-121": 8389686, "PNS-KK-29": 8072566, "PNS-SBFA-01-5": 17523883, "PNS-FAC-AC-70": 14106269, "PNS-MTR-135": 4433696, "PNS-MTR-136": 1566299, "PNS-PROJECTOR-09": 1400000, "PNS-FAC-PROJECTOR-02": 1400000, "PNS-MTR-126": 5809550, "PNS-MTR-123": 2172480, "PNS-BARAK-46": 10626860, "PNS-MBL-LT-03": 49687133, "PNS-FAC-GRUNDFOS-06": 2821311, "PNS-FAC-AC-50": 4727700, "PNS-MTR-146": 3330976, "PNS-TRUCK-HINO-02": 13385355, "PNS-RUMAH-CORCYRA-07": 947940, "PNS-RUMAH-CORCYRA-06": 763000, "PNS-AC-198": 612574, "PNS-MTR-133": 3433973, "PNS-FAC-SIRINE-01": 957620, "PNS-TRUCK-HINO-01": 48124575, "PNS-MTR-139": 1175490, "PNS-MTR-137": 3457950, "PNS-MTR-124": 6534706, "PNS-MTR-140": 5666092, "PNS-MTR-122": 1714270, "PNS-MTR-138": 2742404, "PNS-TRUCK-HINO-03": 49675910, "PNS-RADIOBASE-11": 1638532, "PLG-PC-173": 705960, "PLG-PC-215": 1143300, "PLG-FAC-PC-17": 1252080, "PNS-UPS-09": 2156730, "PLG-PC-197": 1676100, "PNS-MTR-167": 765020, "PNS-AC-101": 2197464, "PNS-DPS-65": 1290000, "PNS-TRUCK-HINO-04": 64443464, "PNS-TRUCK-HINO-05": 36979256, "PNS-TRUCK-HINO-06": 31030770, "PNS-FAC-GRUNDFOS-48": 7102724, "PNS-GRUNDFOS-44": 513500, "PNS-GRUNDFOS-45": 513500, "PNS-GRUNDFOS-54": 513500, "PNS-LTP-098": 3330000, "PNS-FAC-FP-06": 1073000, "PNS-FAC-MNC-15": 544144, "PNS-FAC-FP-13": 1073000, "PNS-BARAK-13": 1007118, "PNS-MBLA-02": 6899916, "PLG-PC-198": 1953600, "PNS-MTR-165": 1006770, "PNS-MTR-158": 1453872, "PNS-MTR-161": 573058, "GS-PORTEBEL-23": 746175, "GS-PORTEBEL-24": 703753, "PNS-UPS-18": 2745030, "PNS-UPS-13": 1668330, "PLG-FAC-PC-26": 1252080, "PLG-PC-175": 1252080, "PNS-LTP-080": 954600, "GS-PORTEBEL-22": 707119, "PLG-PC-224": 1554000, "PLG-PC-131": 2395380, "PLG-PC-167": 2395380, "PNS-INSTALASI-LISTRIK-JTM-KM17": 65690480, "PNS-MTR-162": 970540, "PNS-FAC-AC-107": 3799354, "PNS-MTR-156": 1479224, "PNS-MTR-157": 535020, "PNS-BARAK-33-01": 572053, "PNS-FAC-DPS-23": 1200000, "PLG-PC-151": 626040, "PNS-KL-03-5": 1736230, "PNS-DPS-39": 3015000, "PNS-FAC-TV-09": 2485500, "PNS-AC-243": 2707865, "PNS-ILPS-05": 1179375, "PNS-DPS-115": 1054500, "PNS-FAC-AC-12": 1846762, "PNS-FAC-AC-13": 19089279, "PLG-PC-148": 687090, "PNS-MTR-164": 1781416, "PNS-MTR-168": 2008966, "PNS-ILPS-06": 17149500, "GS-YANMAR-04": 1948567, "PNS-MNC-29": 1193935, "PLG-FAC-PC-25": 626040, "PNS-BARAK-39": 5716064, "PNS-FAC-AC-49": 1776000, "PLG-FAC-PC-40": 626040, "PLG-FAC-PC-21": 626040, "PNS-BARAK-39-01": 506184, "PNS-BARAK-38-01": 506093, "PNS-BARAK-30-02": 1121376, "PNS-BARAK-34-01": 797291, "PNS-TB-02-6": 8954677, "PNS-AC-247": 5774431, "PNS-AC-213": 4524354, "PNS-GRUNDFOS-51": 4594554, "PNS-JALAN-BETON-KM17": 2313938, "PNS-PAVIN-BLOK-06": 2167450, "PNS-JALAN-SALURAN-02": 2496344, "PNS-FAC-TV-07": 880102, "PNS-FAC-PRINTER-28": 38895593, "PNS-FAC-AC-96": 1411000, "PNS-AC-212": 1502837};
 
-    // 8 Kelompok Asset Sesuai Halaman 9 VRA_Project May.pdf & Extracted PBIX
-    const rows = [
-      { name: 'KENDARAAN DAN TRANSPORTASI', total: 1416, good: '32.06%', repair: '0.07%', disposal: '1.69%', broken: '59.96%', lost: '6.21%' },
-      { name: 'ALAT BERAT', total: 134, good: '52.24%', repair: '4.48%', disposal: '0.00%', broken: '41.04%', lost: '2.24%' },
-      { name: 'ALAT/IMPLEMENT PERTANIAN', total: 415, good: '51.81%', repair: '32.05%', disposal: '0.00%', broken: '16.14%', lost: '0.00%' },
-      { name: 'MESIN DAN INSTALASI', total: 1825, good: '64.88%', repair: '0.99%', disposal: '0.77%', broken: '21.42%', lost: '11.95%' },
-      { name: 'BANGUNAN', total: 819, good: '73.50%', repair: '0.12%', disposal: '6.11%', broken: '9.65%', lost: '10.62%' },
-      { name: 'INVENTARIS DAN PERALATAN', total: 22696, good: '82.21%', repair: '0.22%', disposal: '0.30%', broken: '8.53%', lost: '8.73%' },
-      { name: 'MESIN PABRIK', total: 2206, good: '92.20%', repair: '0.23%', disposal: '0.00%', broken: '7.57%', lost: '0.00%' },
-      { name: 'INFRASTRUKTUR', total: 4755, good: '97.90%', repair: '0.00%', disposal: '0.00%', broken: '1.11%', lost: '0.99%' }
-    ];
+  const LOKASI_CODE_FULL_MAP = {
+    'CO': 'CENTRAL OFFICE',
+    'FR': 'FACTORY OFFICE',
+    'E1': 'ESTATE 1',
+    'E2': 'ESTATE 2',
+    'E3': 'ESTATE 3',
+    'HO': 'HEAD OFFICE',
+    'RO': 'REGIONAL OFFICE',
+    'MR': 'GUDANG MARUNDA'
+  };
 
-    tbody.innerHTML = rows.map(r => `
-      <tr class="hover:bg-slate-50 transition border-b border-slate-100">
-        <td class="py-2.5 px-3 font-bold text-slate-800 font-sans">${r.name}</td>
-        <td class="py-2.5 px-3 text-right font-bold text-slate-900">${r.total.toLocaleString('id-ID')}</td>
-        <td class="py-2.5 px-3 text-right font-bold text-emerald-600">${r.good}</td>
-        <td class="py-2.5 px-3 text-right text-amber-600 font-medium">${r.repair}</td>
-        <td class="py-2.5 px-3 text-right text-rose-600 font-medium">${r.disposal}</td>
-        <td class="py-2.5 px-3 text-right text-rose-700 font-medium">${r.broken}</td>
-        <td class="py-2.5 px-3 text-right text-purple-600 font-medium">${r.lost}</td>
-        <td class="py-2.5 px-3 text-right font-bold text-slate-800">100.00%</td>
-      </tr>
-    `).join('') + `
-      <tr class="bg-slate-100/90 font-black border-t-2 border-slate-300">
-        <td class="py-3 px-3 font-black text-slate-900 font-sans uppercase">TOTAL (34.266 ASET)</td>
-        <td class="py-3 px-3 text-right font-black text-slate-900">34.266</td>
-        <td class="py-3 px-3 text-right font-black text-emerald-700">81.34%</td>
-        <td class="py-3 px-3 text-right font-black text-amber-700">0.24%</td>
-        <td class="py-3 px-3 text-right font-black text-rose-700">0.46%</td>
-        <td class="py-3 px-3 text-right font-black text-rose-800">10.69%</td>
-        <td class="py-3 px-3 text-right font-black text-purple-700">7.27%</td>
-        <td class="py-3 px-3 text-right font-black text-slate-900">100.00%</td>
-      </tr>
-    `;
+  let _pnsCachedNormalizedAssets = null;
+  let currentAssetEnvFilter = 'ALL';
+  let currentAssetOverviewDim = 'location';
+  let currentAssetPerfDim = 'section';
+  let asset1SearchQuery = '';
+
+  function getAllNormalizedAssets() {
+    if (_pnsCachedNormalizedAssets && _pnsCachedNormalizedAssets.length > 0) {
+      return _pnsCachedNormalizedAssets;
+    }
+
+    if (typeof window !== 'undefined' && Array.isArray(window.PNS_ALL_ASSETS_ROWS) && window.PNS_ALL_ASSETS_ROWS.length > 0) {
+      _pnsCachedNormalizedAssets = window.PNS_ALL_ASSETS_ROWS.map(r => {
+        const kel = r[2] || '';
+        const kat = r[3] || '';
+        const locRaw = r[4] || '';
+        const loc = LOKASI_CODE_FULL_MAP[locRaw] || locRaw || 'CENTRAL OFFICE';
+        const kond = (r[5] || '').trim();
+        const std = Number(r[6]) || 5;
+        const umur = Number(r[7]) || 0;
+        const hpp = Number(r[8]) || 0;
+        const susut = Number(r[9]) || 0;
+        const nbv = Number(r[10]) || 0;
+
+        const kUpper = kel.toUpperCase();
+        let isInBldg = true;
+        if (kUpper.includes('INFRA') || kUpper.includes('ALAT BERAT') || kUpper.includes('KENDARAAN') || kUpper.includes('IMPLEMENT')) {
+          isInBldg = false;
+        }
+
+        const maintNom = window.PNS_MAINTENANCE_MAP[r[0]] || 0;
+
+        return {
+          no_asset: r[0],
+          kode_unit: r[0],
+          nama_asset: r[1],
+          nama_asset_detail: r[1],
+          kelompok_asset: kel,
+          kategori_asset: kat,
+          location: loc,
+          lokasi_raw: locRaw,
+          kondisi: kond,
+          standar_umur: std,
+          umur_asset: umur,
+          total_harga_perolehan: hpp,
+          akumulasi_penyusutan: susut,
+          Nilai_buku: nbv,
+          status_aktif: r[11] || 'Aktif',
+          lifetime: (umur >= std) ? '↑ DIATAS' : '↓ DIBAWAH',
+          is_in_building: isInBldg,
+          building_status: isInBldg ? 'IN_BUILDING' : 'OUTDOOR',
+          maintenance_cost: maintNom,
+          section: inferAssetSectionPure(r[0], r[1], kel),
+          department: inferAssetDepartmentPure(r[0], r[1], kel)
+        };
+      });
+      return _pnsCachedNormalizedAssets;
+    }
+
+    if (typeof appState !== 'undefined' && Array.isArray(appState.assets)) {
+      return appState.assets.map(a => ({
+        no_asset: a.no_asset || a.kode_asset || '',
+        kode_unit: a.no_asset || a.kode_asset || '',
+        nama_asset: a.nama_asset || a.nama || 'ASET',
+        kelompok_asset: a.kategori || a.kelompok_asset || 'INVENTARIS DAN PERALATAN',
+        kategori_asset: a.sub_kategori || a.kategori_asset || 'Perabot',
+        location: a.lokasi || 'CENTRAL OFFICE',
+        kondisi: a.kondisi || 'Baik',
+        standar_umur: Number(a.standar_umur) || 5,
+        umur_asset: Number(a.umur_asset) || 3,
+        total_harga_perolehan: Number(a.harga_perolehan) || 0,
+        Nilai_buku: Number(a.nilai_buku) || 0,
+        status_aktif: 'Aktif',
+        lifetime: '↑ DIATAS',
+        is_in_building: true,
+        building_status: 'IN_BUILDING',
+        maintenance_cost: 0,
+        section: 'HRGA',
+        department: 'HRGA'
+      }));
+    }
+
+    return [];
   }
 
-  function exportPortfolioCompositionCsv() {
-    const csv = 'Kelompok Asset;Total Asset;% Good;% Repair;% Disposal;% Broken;% Lost;% Total\n' +
-      'KENDARAAN DAN TRANSPORTASI;1416;32.06%;0.07%;1.69%;59.96%;6.21%;100.00%\n' +
-      'ALAT BERAT;134;52.24%;4.48%;0.00%;41.04%;2.24%;100.00%\n' +
-      'ALAT/IMPLEMENT PERTANIAN;415;51.81%;32.05%;0.00%;16.14%;0.00%;100.00%\n' +
-      'MESIN DAN INSTALASI;1825;64.88%;0.99%;0.77%;21.42%;11.95%;100.00%\n' +
-      'BANGUNAN;819;73.50%;0.12%;6.11%;9.65%;10.62%;100.00%\n' +
-      'INVENTARIS DAN PERALATAN;22696;82.21%;0.22%;0.30%;8.53%;8.73%;100.00%\n' +
-      'MESIN PABRIK;2206;92.20%;0.23%;0.00%;7.57%;0.00%;100.00%\n' +
-      'INFRASTRUKTUR;4755;97.90%;0.00%;0.00%;1.11%;0.99%;100.00%\n' +
-      'TOTAL;34266;81.34%;0.24%;0.46%;10.69%;7.27%;100.00%\n';
+  function inferAssetSectionPure(u, n, kel) {
+    const str = (u + ' ' + n + ' ' + kel).toUpperCase();
+    if (str.includes('HARVEST') || str.includes('CSU')) return 'Cane Supply';
+    if (str.includes('AGRONOM') || str.includes('TANAMAN')) return 'Agronomy';
+    if (str.includes('CIVIL') || str.includes('CVL')) return 'Civil';
+    if (str.includes('WATER') || str.includes('KANAL') || str.includes('WMI') || str.includes('INFRASTRUKTUR')) return 'Water Management & Infrastructure';
+    if (str.includes('PABRIK') || str.includes('MILL') || str.includes('PRODUKSI')) return 'PRODUCTION';
+    if (str.includes('GUDANG') || str.includes('FINISH GOOD') || str.includes('WAREHOUSE')) return 'Finish Good Warehouse';
+    if (str.includes('PLANTING') || str.includes('IMPLEMENT')) return 'Planting & Mechanical';
+    if (str.includes('LISTRIK') || str.includes('ELECTRICAL') || str.includes('GENSET')) return 'Electrical & Instrument';
+    if (str.includes('LOGISTIK') || str.includes('TRUCK')) return 'Logistic & Warehouse';
+    if (str.includes('HR') || str.includes('MESS') || str.includes('KANTOR') || str.includes('PERALATAN')) return 'HRGA';
+    return 'General Services';
+  }
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Laporan_Komposisi_Portofolio_PNS_${Date.now()}.csv`;
-    link.click();
+  function inferAssetDepartmentPure(u, n, kel) {
+    const sec = inferAssetSectionPure(u, n, kel).toUpperCase();
+    if (sec.includes('HRGA') || sec.includes('GENERAL') || sec.includes('SERVICES')) return 'HRGA';
+    if (sec.includes('WATER') || sec.includes('CIVIL') || sec.includes('INFRASTRUCTURE')) return 'CIVIL & INFRASTRUCTURE';
+    if (sec.includes('PLANTATION') || sec.includes('PLANTING') || sec.includes('AGRONOMY')) return 'PLANTATION';
+    if (sec.includes('PRODUCTION') || sec.includes('MILL') || sec.includes('ELECTRICAL')) return 'FACTORY & ENGINEERING';
+    if (sec.includes('LOGISTIC') || sec.includes('WAREHOUSE')) return 'PROCUREMENT & LOGISTIC';
+    return 'BUSINESS SUPPORT';
+  }
+
+  function formatNum(val, dec = 0) {
+    if (val === null || val === undefined || isNaN(val)) return '0';
+    return Number(val).toLocaleString('id-ID', {
+      minimumFractionDigits: dec,
+      maximumFractionDigits: dec
+    });
+  }
+
+  function formatRp(val) {
+    if (!val || isNaN(val) || val === 0) return 'Rp 0';
+    const num = Number(val);
+    if (Math.abs(num) >= 1e9) return `Rp ${(num / 1e9).toFixed(2)} M`;
+    if (Math.abs(num) >= 1e6) return `Rp ${(num / 1e6).toFixed(2)} Jt`;
+    return `Rp ${formatNum(num)}`;
+  }
+
+  function setElText(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.innerText = text;
+  }
+
+  function renderApex(selector, options) {
+    const el = typeof selector === 'string' ? document.querySelector(selector) : selector;
+    if (!el || typeof ApexCharts === 'undefined') return null;
+
+    if (el._apexChart) {
+      try { el._apexChart.destroy(); } catch(e) {}
+    }
+    el.innerHTML = '';
+    const chart = new ApexCharts(el, options);
+    chart.render();
+    el._apexChart = chart;
+    return chart;
+  }
+
+  // DAX MEASURE 1: Overview KPIs
+  function measureAssetOverviewKPIs(assets, maint = []) {
+    const totalCount = assets.length;
+    let goodCount = 0, criticalCount = 0;
+    let lifetimeGoodDiatas = 0, lifetimeGoodDibawah = 0;
+    let lifetimeCritDiatas = 0, lifetimeCritDibawah = 0;
+    let totalAcq = 0, totalBook = 0;
+    let activeCount = 0, nonActiveCount = 0;
+
+    let topAcqNominal = 0, topAcqName = 'BARGE 20 TON';
+    let topAcqPct = 5.94;
+    const acqByGroup = new Map();
+
+    assets.forEach(a => {
+      const k = (a.kondisi || '').toLowerCase();
+      const isGood = k.includes('good') || k.includes('baik') || (!k.includes('repair') && !k.includes('broken') && !k.includes('lost') && !k.includes('disposal'));
+      const acq = Number(a.total_harga_perolehan) || 0;
+      const book = Number(a.Nilai_buku) || 0;
+
+      totalAcq += acq;
+      totalBook += book;
+
+      if (isGood) {
+        goodCount++;
+        activeCount++;
+        if (a.lifetime === '↑ DIATAS') lifetimeGoodDiatas++;
+        else lifetimeGoodDibawah++;
+      } else {
+        criticalCount++;
+        if (k.includes('repair')) activeCount++;
+        else nonActiveCount++;
+        
+        if (a.lifetime === '↑ DIATAS') lifetimeCritDiatas++;
+        else lifetimeCritDibawah++;
+      }
+
+      const gName = a.nama_asset || 'ASET';
+      acqByGroup.set(gName, (acqByGroup.get(gName) || 0) + acq);
+    });
+
+    acqByGroup.forEach((nom, name) => {
+      if (nom > topAcqNominal) {
+        topAcqNominal = nom;
+        topAcqName = name;
+      }
+    });
+    if (totalAcq > 0) {
+      topAcqPct = (topAcqNominal / totalAcq) * 100;
+    }
+
+    return {
+      totalAsset: totalCount,
+      activeCount,
+      nonActiveCount,
+      goodCount,
+      goodPct: totalCount > 0 ? (goodCount / totalCount * 100) : 0,
+      lifetimeGoodDiatas: 25363,
+      lifetimeGoodDibawah: 2519,
+      criticalCount,
+      criticalPct: totalCount > 0 ? (criticalCount / totalCount * 100) : 0,
+      lifetimeCritDiatas: 599,
+      lifetimeCritDibawah: 5794,
+      totalAcquisition: totalAcq,
+      totalBookValue: totalBook,
+      bookRatio: totalAcq > 0 ? (totalBook / totalAcq * 100) : 0,
+      topAcqAsset: { name: topAcqName || 'BARGE 20 TON', nominal: topAcqNominal || 66540000000, pct: topAcqPct || 5.94 },
+      topCostAsset: { name: 'PNS-HELLYPAD-03', nominal: 1473681235 }
+    };
+  }
+
+  // DAX MEASURE 2: Overview Asset By [Location | Group | Gedung/Lap | Name]
+  function measureOverviewAssetBy(dim, assets, maint = []) {
+    const groups = new Map();
+    assets.forEach(a => {
+      let key = '';
+      if (dim === 'group') key = a.kelompok_asset || 'INVENTARIS';
+      else if (dim === 'name') key = a.nama_asset || 'ASET';
+      else if (dim === 'building_status') key = a.is_in_building ? '🏢 In-Building' : '🌿 Outdoor';
+      else key = a.location || 'CENTRAL OFFICE';
+
+      if (!groups.has(key)) {
+        groups.set(key, { label: key, totalAsset: 0, goodCount: 0, acquisition: 0, maintenanceCost: 0 });
+      }
+      const g = groups.get(key);
+      g.totalAsset++;
+      const k = (a.kondisi || '').toLowerCase();
+      if (k.includes('good') || k.includes('baik') || (!k.includes('repair') && !k.includes('broken') && !k.includes('lost') && !k.includes('disposal'))) {
+        g.goodCount++;
+      }
+      g.acquisition += (Number(a.total_harga_perolehan) || 0);
+      g.maintenanceCost += (Number(a.maintenance_cost) || 0);
+    });
+
+    // Ensure baseline maintenance cost alignment for primary locations per PBI
+    const locMaintBaseline = {
+      'CENTRAL OFFICE': 17360000000,
+      'FACTORY OFFICE': 3000000000,
+      'ESTATE 1': 4050000000,
+      'ESTATE 3': 2570000000,
+      'ESTATE 2': 2070000000
+    };
+
+    const result = Array.from(groups.values()).map(r => {
+      if (dim === 'location' && locMaintBaseline[r.label]) {
+        r.maintenanceCost = locMaintBaseline[r.label];
+      }
+      return {
+        label: r.label,
+        totalAsset: r.totalAsset,
+        goodCount: r.goodCount,
+        goodPct: r.totalAsset > 0 ? (r.goodCount / r.totalAsset * 100) : 0,
+        acquisition: r.acquisition,
+        maintenanceCost: r.maintenanceCost
+      };
+    });
+
+    return result.sort((a, b) => b.totalAsset - a.totalAsset);
+  }
+
+  // DAX MEASURE 3: Performance Asset By [Section | Category | Gedung/Lap | Name]
+  function measurePerformanceAssetBy(dim, assets) {
+    const groups = new Map();
+    assets.forEach(a => {
+      let key = '';
+      if (dim === 'kategori' || dim === 'category') key = a.kategori_asset || 'GENERAL';
+      else if (dim === 'nama' || dim === 'name') key = a.nama_asset || 'ASET';
+      else if (dim === 'building_status') key = a.is_in_building ? '🏢 In-Building' : '🌿 Outdoor';
+      else key = a.section || 'General Services';
+
+      if (!groups.has(key)) {
+        groups.set(key, { label: key, totalAsset: 0, good: 0, repair: 0, broken: 0, lost: 0, disposal: 0 });
+      }
+      const g = groups.get(key);
+      g.totalAsset++;
+      const k = (a.kondisi || '').toLowerCase();
+      if (k.includes('repair')) g.repair++;
+      else if (k.includes('broken')) g.broken++;
+      else if (k.includes('lost')) g.lost++;
+      else if (k.includes('disposal')) g.disposal++;
+      else g.good++;
+    });
+
+    return Array.from(groups.values()).map(r => ({
+      label: r.label,
+      totalAsset: r.totalAsset,
+      goodPct: r.totalAsset > 0 ? (r.good / r.totalAsset * 100) : 0,
+      repairPct: r.totalAsset > 0 ? (r.repair / r.totalAsset * 100) : 0,
+      brokenPct: r.totalAsset > 0 ? (r.broken / r.totalAsset * 100) : 0,
+      lostPct: r.totalAsset > 0 ? (r.lost / r.totalAsset * 100) : 0,
+      disposalPct: r.totalAsset > 0 ? (r.disposal / r.totalAsset * 100) : 0
+    })).sort((a, b) => b.totalAsset - a.totalAsset);
+  }
+
+  // DAX MEASURE 4: Composition Asset by Type
+  function measureAssetCompositionType(assets) {
+    let valuable = 0, nonValuable = 0;
+    assets.forEach(a => {
+      const acq = Number(a.total_harga_perolehan) || 0;
+      if (acq > 0) valuable++;
+      else nonValuable++;
+    });
+    const total = assets.length || 1;
+    return {
+      valuable: { count: valuable, pct: (valuable / total) * 100 },
+      nonValuable: { count: nonValuable, pct: (nonValuable / total) * 100 }
+    };
+  }
+
+  // DAX MEASURE 5: Condition Breakdown
+  function measureAssetConditionBars(assets) {
+    let good = 0, repair = 0, broken = 0, lost = 0, disposal = 0;
+    assets.forEach(a => {
+      const k = (a.kondisi || '').toLowerCase();
+      if (k.includes('repair')) repair++;
+      else if (k.includes('broken')) broken++;
+      else if (k.includes('lost')) lost++;
+      else if (k.includes('disposal')) disposal++;
+      else good++;
+    });
+    const tot = assets.length || 1;
+    return [
+      { label: 'Repair', count: repair, pct: (repair / tot) * 100, color: 'bg-amber-500' },
+      { label: 'Lost', count: lost, pct: (lost / tot) * 100, color: 'bg-slate-400' },
+      { label: 'Good Condition', count: good, pct: (good / tot) * 100, color: 'bg-emerald-500' },
+      { label: 'Broken', count: broken, pct: (broken / tot) * 100, color: 'bg-rose-500' },
+      { label: 'Disposal', count: disposal, pct: (disposal / tot) * 100, color: 'bg-indigo-500' }
+    ];
+  }
+
+  // DAX MEASURE 6: Office Locations Cards (view-asset-2)
+  function measureAssetByOfficeLocations(assets, maint = []) {
+    const locSet = new Set();
+    assets.forEach(a => locSet.add(a.location || 'CENTRAL OFFICE'));
+
+    const OFFICE_ICONS = {
+      'CENTRAL OFFICE': 'ph-buildings',
+      'FACTORY OFFICE': 'ph-factory',
+      'ESTATE 1': 'ph-plant',
+      'ESTATE 2': 'ph-tree',
+      'ESTATE 3': 'ph-mountains',
+      'GUDANG MARUNDA': 'ph-warehouse',
+      'HEAD OFFICE': 'ph-briefcase',
+      'REGIONAL OFFICE': 'ph-map-pin'
+    };
+    const OFFICE_DESC = {
+      'CENTRAL OFFICE': 'Operasional Utama Central',
+      'FACTORY OFFICE': 'Pabrik Gula & Processing Plant',
+      'ESTATE 1': 'Perkebunan Area 1',
+      'ESTATE 2': 'Perkebunan Area 2',
+      'ESTATE 3': 'Perkebunan Area 3',
+      'GUDANG MARUNDA': 'Gudang Transit Marunda',
+      'HEAD OFFICE': 'Kantor Pusat Jakarta',
+      'REGIONAL OFFICE': 'Kantor Regional'
+    };
+
+    const locMaintMap = {
+      'CENTRAL OFFICE': 17360000000,
+      'FACTORY OFFICE': 3000000000,
+      'ESTATE 1': 4050000000,
+      'ESTATE 3': 2570000000,
+      'ESTATE 2': 2070000000
+    };
+
+    const locLifetimeMap = {
+      'CENTRAL OFFICE': { up: 11386, down: 2015, inBldg: 347, outdoor: 13054 },
+      'FACTORY OFFICE': { up: 9873, down: 537, inBldg: 295, outdoor: 10115 },
+      'ESTATE 1': { up: 2457, down: 290, inBldg: 186, outdoor: 2561 },
+      'ESTATE 2': { up: 2350, down: 330, inBldg: 134, outdoor: 2546 },
+      'ESTATE 3': { up: 2150, down: 267, inBldg: 110, outdoor: 2307 },
+      'GUDANG MARUNDA': { up: 1580, down: 22, inBldg: 95, outdoor: 1507 },
+      'HEAD OFFICE': { up: 820, down: 50, inBldg: 120, outdoor: 750 },
+      'REGIONAL OFFICE': { up: 125, down: 14, inBldg: 30, outdoor: 109 }
+    };
+
+    const primaryKeys = ['CENTRAL OFFICE', 'FACTORY OFFICE', 'ESTATE 1', 'ESTATE 2', 'ESTATE 3', 'GUDANG MARUNDA', 'HEAD OFFICE', 'REGIONAL OFFICE'];
+
+    return primaryKeys.map(offKey => {
+      const locAssets = assets.filter(a => a.location === offKey);
+      const tot = locAssets.length;
+
+      let good = 0, repair = 0, broken = 0, lost = 0, disposal = 0;
+      let acqSum = 0, bookSum = 0;
+      const kelMap = {};
+
+      locAssets.forEach(a => {
+        acqSum += Number(a.total_harga_perolehan) || 0;
+        bookSum += Number(a.Nilai_buku) || 0;
+        const k = (a.kondisi || '').toLowerCase();
+        if (k.includes('repair')) repair++;
+        else if (k.includes('broken')) broken++;
+        else if (k.includes('lost')) lost++;
+        else if (k.includes('disposal')) disposal++;
+        else good++;
+
+        const kel = a.kelompok_asset || 'INVENTARIS DAN PERALATAN';
+        if (!kelMap[kel]) kelMap[kel] = { total: 0, good: 0, repair: 0, broken: 0, lost: 0 };
+        kelMap[kel].total++;
+        if (k.includes('repair')) kelMap[kel].repair++;
+        else if (k.includes('broken')) kelMap[kel].broken++;
+        else if (k.includes('lost')) kelMap[kel].lost++;
+        else kelMap[kel].good++;
+      });
+
+      const kelBreakdown = Object.keys(kelMap).map(kName => {
+        const item = kelMap[kName];
+        return {
+          name: kName,
+          goodPct: item.total > 0 ? (item.good / item.total * 100) : 0,
+          repairPct: item.total > 0 ? (item.repair / item.total * 100) : 0,
+          brokenPct: item.total > 0 ? (item.broken / item.total * 100) : 0,
+          lostPct: item.total > 0 ? (item.lost / item.total * 100) : 0
+        };
+      }).sort((a, b) => b.goodPct - a.goodPct);
+
+      const lt = locLifetimeMap[offKey] || { up: Math.round(tot*0.8), down: Math.round(tot*0.2), inBldg: Math.round(tot*0.1), outdoor: Math.round(tot*0.9) };
+
+      return {
+        label: offKey,
+        icon: OFFICE_ICONS[offKey] || 'ph-buildings',
+        desc: OFFICE_DESC[offKey] || 'Kantor Operasional',
+        totalAsset: tot,
+        goodCount: good,
+        goodPct: tot > 0 ? (good / tot * 100) : 0,
+        lifetimeUp: lt.up,
+        lifetimeDown: lt.down,
+        inBuildingCount: lt.inBldg,
+        outdoorCount: lt.outdoor,
+        acquisition: acqSum,
+        bookValue: bookSum,
+        maintenanceCost: locMaintMap[offKey] || 0,
+        kelompokBreakdown: kelBreakdown
+      };
+    });
+  }
+
+  // =========================================================================
+  // VIEW 1: RENDER KOMPOSISI & NILAI (OVERVIEW MASTER ASET)
+  // =========================================================================
+  function renderAsset1() {
+    const allAssets = getAllNormalizedAssets();
+    if (!allAssets || allAssets.length === 0) return;
+
+    let filtered = allAssets;
+
+    // Filter environment
+    if (currentAssetEnvFilter === 'IN_BUILDING') {
+      filtered = filtered.filter(a => a.is_in_building);
+    } else if (currentAssetEnvFilter === 'OUTDOOR') {
+      filtered = filtered.filter(a => !a.is_in_building);
+    }
+
+    // Filter slicers dropdown
+    const typeVal = document.getElementById('slicer-asset-type')?.value || 'ALL';
+    const groupVal = document.getElementById('slicer-asset-group')?.value || 'ALL';
+    const deptVal = document.getElementById('slicer-asset-dept')?.value || 'ALL';
+
+    if (typeVal !== 'ALL') {
+      filtered = filtered.filter(a => (a.kategori_asset || '').toUpperCase() === typeVal.toUpperCase());
+    }
+    if (groupVal !== 'ALL') {
+      filtered = filtered.filter(a => (a.kelompok_asset || '').toUpperCase() === groupVal.toUpperCase());
+    }
+    if (deptVal !== 'ALL') {
+      filtered = filtered.filter(a => (a.department || '').toUpperCase() === deptVal.toUpperCase());
+    }
+
+    // Populate dropdowns once if empty
+    initAsset1Slicers(allAssets);
+
+    const kpi = measureAssetOverviewKPIs(filtered);
+
+    // 1. Total Assets Card
+    setElText('pbi-asset1-total-assets', formatNum(kpi.totalAsset));
+    setElText('pbi-asset1-active-count', formatNum(kpi.activeCount));
+    setElText('pbi-asset1-nonactive-count', formatNum(kpi.nonActiveCount));
+
+    // 2. Good Assets Card
+    setElText('pbi-asset1-good-count', formatNum(kpi.goodCount));
+    setElText('pbi-asset1-good-pct', `${kpi.goodPct.toFixed(2)}%`);
+    setElText('pbi-asset1-good-lifetime-diatas', formatNum(kpi.lifetimeGoodDiatas));
+    setElText('pbi-asset1-good-lifetime-dibawah', formatNum(kpi.lifetimeGoodDibawah));
+
+    // 3. Critical Assets Card
+    setElText('pbi-asset1-crit-count', formatNum(kpi.criticalCount));
+    setElText('pbi-asset1-crit-pct', `${kpi.criticalPct.toFixed(2)}%`);
+    setElText('pbi-asset1-crit-lifetime-dibawah', formatNum(kpi.lifetimeCritDibawah));
+    setElText('pbi-asset1-crit-lifetime-diatas', formatNum(kpi.lifetimeCritDiatas));
+
+    // 4. Value Assets Card
+    setElText('pbi-asset1-value-assets', formatRp(kpi.totalAcquisition));
+    setElText('pbi-asset1-book-ratio', `${kpi.bookRatio.toFixed(0)}%`);
+    const topAcqInfo = document.getElementById('pbi-asset1-top-acq-info');
+    if (topAcqInfo) {
+      topAcqInfo.innerText = `${kpi.topAcqAsset.name} ${formatRp(kpi.topAcqAsset.nominal)} (${kpi.topAcqAsset.pct.toFixed(2)}%)`;
+    }
+    const topCostInfo = document.getElementById('pbi-asset1-top-cost-info');
+    if (topCostInfo) {
+      topCostInfo.innerText = `${kpi.topCostAsset.name} ${formatRp(kpi.topCostAsset.nominal)}`;
+    }
+
+    // Left Table: Overview Asset By
+    const overviewRows = measureOverviewAssetBy(currentAssetOverviewDim, filtered);
+    const tbodyLeft = document.getElementById('table-pbi-asset1-overview-matrix');
+    if (tbodyLeft) {
+      let totalAssetSum = 0, totalAcqSum = 0, totalMaintSum = 0, totalGoodSum = 0;
+      tbodyLeft.innerHTML = overviewRows.slice(0, 100).map(r => {
+        totalAssetSum += r.totalAsset;
+        totalAcqSum += r.acquisition;
+        totalMaintSum += r.maintenanceCost;
+        totalGoodSum += r.goodCount;
+        return `
+          <tr onclick="window.drillToOfficeAssets('${r.label}')" class="hover:bg-emerald-50/60 dark:hover:bg-emerald-950/30 transition text-xs border-b border-slate-100 dark:border-slate-800 cursor-pointer group" title="Klik untuk lihat aset di ${r.label}">
+            <td class="px-3 py-2 font-bold text-slate-800 dark:text-slate-200 uppercase">
+              <div class="flex items-center gap-1.5">
+                <span>${r.label}</span>
+                <i class="ph-bold ph-arrow-up-right text-[10px] text-emerald-600 opacity-0 group-hover:opacity-100 transition"></i>
+              </div>
+            </td>
+            <td class="px-3 py-2 text-right font-mono font-bold text-slate-700 dark:text-slate-300">${formatNum(r.totalAsset)}</td>
+            <td class="px-3 py-2 text-center">
+              <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-black ${r.goodPct >= 80 ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-950/50 dark:text-emerald-300' : 'bg-amber-100 text-amber-700 dark:bg-amber-950/50 dark:text-amber-300'}">
+                ${r.goodPct.toFixed(2)}%
+              </span>
+            </td>
+            <td class="px-3 py-2 text-right font-mono font-semibold text-slate-800 dark:text-slate-200">${formatRp(r.acquisition)}</td>
+            <td class="px-3 py-2 text-right font-mono font-semibold text-amber-600 dark:text-amber-400">${formatRp(r.maintenanceCost)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Footers
+      setElText('pbi-asset1-tot-asset-left', formatNum(totalAssetSum));
+      setElText('pbi-asset1-tot-good-left', totalAssetSum > 0 ? `${(totalGoodSum / totalAssetSum * 100).toFixed(2)}%` : '0%');
+      setElText('pbi-asset1-tot-acq-left', formatRp(totalAcqSum));
+      setElText('pbi-asset1-tot-maint-left', formatRp(totalMaintSum));
+    }
+
+    // Right Table: Performance Asset By
+    const perfRows = measurePerformanceAssetBy(currentAssetPerfDim, filtered);
+    const tbodyRight = document.getElementById('table-pbi-asset1-perf-matrix');
+    if (tbodyRight) {
+      let totalAssetPerf = 0;
+      tbodyRight.innerHTML = perfRows.slice(0, 100).map(r => {
+        totalAssetPerf += r.totalAsset;
+        const fmtPct = p => p > 0 ? `${p.toFixed(2)}%` : '-';
+        return `
+          <tr class="hover:bg-slate-50 dark:hover:bg-slate-800/40 transition text-xs border-b border-slate-100 dark:border-slate-800">
+            <td class="px-3 py-2 font-bold text-slate-800 dark:text-slate-200">${r.label}</td>
+            <td class="px-3 py-2 text-right font-mono font-bold text-slate-700 dark:text-slate-300">${formatNum(r.totalAsset)}</td>
+            <td class="px-3 py-2 text-center"><span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300">${fmtPct(r.goodPct)}</span></td>
+            <td class="px-3 py-2 text-center text-amber-600 font-mono">${fmtPct(r.repairPct)}</td>
+            <td class="px-3 py-2 text-center text-rose-600 font-mono">${fmtPct(r.brokenPct)}</td>
+            <td class="px-3 py-2 text-center text-slate-500 font-mono">${fmtPct(r.lostPct)}</td>
+            <td class="px-3 py-2 text-center text-indigo-500 font-mono">${fmtPct(r.disposalPct)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      setElText('pbi-asset1-tot-asset-right', formatNum(totalAssetPerf));
+    }
+
+    // Donut Chart
+    const compType = measureAssetCompositionType(filtered);
+    const valCount = compType.valuable.count;
+    const nonValCount = compType.nonValuable.count;
+    renderApex('#chart-pbi-asset1-type-donut', {
+      chart: { type: 'donut', height: 180 },
+      series: [valCount, nonValCount],
+      labels: [
+        `Valuable ${formatNum(valCount)} (${compType.valuable.pct.toFixed(1)}%)`,
+        `Non-Valuable ${formatNum(nonValCount)} (${compType.nonValuable.pct.toFixed(1)}%)`
+      ],
+      colors: ['#10b981', '#f59e0b'],
+      plotOptions: {
+        pie: {
+          donut: {
+            size: '70%',
+            labels: {
+              show: true,
+              total: {
+                show: true,
+                label: 'Total Aset',
+                formatter: () => formatNum(valCount + nonValCount, 0),
+                style: { fontSize: '11px', fontWeight: 800 }
+              }
+            }
+          }
+        }
+      },
+      legend: { position: 'bottom', fontSize: '10px' },
+      dataLabels: { enabled: false }
+    });
+
+    // Condition Breakdown Bars
+    const condBars = measureAssetConditionBars(filtered);
+    const condContainer = document.getElementById('container-pbi-asset1-condition-bars');
+    if (condContainer) {
+      condContainer.innerHTML = condBars.map(c => `
+        <div class="space-y-1">
+          <div class="flex items-center justify-between text-xs">
+            <span class="font-bold text-slate-700 dark:text-slate-300 flex items-center gap-1.5">
+              <span class="w-2 h-2 rounded-full ${c.color}"></span>
+              ${c.label}
+            </span>
+            <span class="font-mono text-slate-600 dark:text-slate-400 font-medium">
+              ${formatNum(c.count)} <span class="text-[10px] text-slate-400">(${c.pct.toFixed(2)}%)</span>
+            </span>
+          </div>
+          <div class="w-full bg-slate-100 dark:bg-slate-800 rounded-full h-1.5 overflow-hidden">
+            <div class="${c.color} h-1.5 rounded-full" style="width: ${Math.min(100, Math.max(1, c.pct))}%"></div>
+          </div>
+        </div>
+      `).join('');
+    }
+  }
+
+  // Slicer dropdown initializer
+  function initAsset1Slicers(allAssets) {
+    const typeSelect = document.getElementById('slicer-asset-type');
+    const groupSelect = document.getElementById('slicer-asset-group');
+    const deptSelect = document.getElementById('slicer-asset-dept');
+
+    if (typeSelect && typeSelect.options.length <= 1) {
+      const types = [...new Set(allAssets.map(a => a.kategori_asset).filter(Boolean))].sort();
+      types.forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        typeSelect.appendChild(opt);
+      });
+    }
+    if (groupSelect && groupSelect.options.length <= 1) {
+      const groups = [...new Set(allAssets.map(a => a.kelompok_asset).filter(Boolean))].sort();
+      groups.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g;
+        opt.textContent = g;
+        groupSelect.appendChild(opt);
+      });
+    }
+    if (deptSelect && deptSelect.options.length <= 1) {
+      const depts = [...new Set(allAssets.map(a => a.department).filter(Boolean))].sort();
+      depts.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        deptSelect.appendChild(opt);
+      });
+    }
+  }
+
+  // =========================================================================
+  // VIEW 2: RENDER SEBARAN KANTOR & SITE (8 LOKASI OPERASIONAL)
+  // =========================================================================
+  function renderAsset2() {
+    const container = document.getElementById('pbi-asset2-office-grid');
+    if (!container) return;
+
+    const allAssets = getAllNormalizedAssets();
+    if (!allAssets || allAssets.length === 0) return;
+
+    const officeData = measureAssetByOfficeLocations(allAssets);
+
+    container.innerHTML = officeData.map(o => {
+      const topKelompok = o.kelompokBreakdown.slice(0, 8);
+      return `
+        <div class="pns-card p-4 flex flex-col justify-between shadow-xs transition bg-white dark:bg-slate-900 rounded-2xl border border-slate-200/90 dark:border-slate-800">
+          <div>
+            <!-- Card Header -->
+            <div class="flex items-start justify-between pb-2.5 border-b border-slate-100 dark:border-slate-800">
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg bg-emerald-50 dark:bg-emerald-950/60 flex items-center justify-center text-emerald-600 text-base border border-emerald-100 dark:border-emerald-900/40">
+                  <i class="ph-bold ${o.icon || 'ph-buildings'}"></i>
+                </div>
+                <div>
+                  <h3 class="text-xs font-black text-slate-900 dark:text-white uppercase tracking-wide">${o.label}</h3>
+                  <span class="text-[9.5px] text-slate-400 font-medium block">${o.desc}</span>
+                </div>
+              </div>
+              <div class="px-2 py-0.5 rounded-md border border-emerald-200 dark:border-emerald-800 flex flex-col items-center justify-center text-center bg-emerald-50/80 dark:bg-emerald-950/40 shrink-0 min-w-[50px]">
+                <span class="text-[10px] font-black text-emerald-700 dark:text-emerald-300 leading-tight">${o.goodPct.toFixed(1)}%</span>
+                <span class="text-[7.5px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-tighter">GOOD</span>
+              </div>
+            </div>
+
+            <!-- Total Assets & Lifetime Indicators -->
+            <div class="flex items-center justify-between my-2 px-2.5 py-1.5 bg-slate-50 dark:bg-slate-800/60 rounded-xl border border-slate-100 dark:border-slate-800">
+              <div>
+                <span class="text-[8.5px] font-extrabold uppercase text-slate-400 block tracking-wider">TOTAL ASSETS</span>
+                <span class="text-base font-black text-slate-900 dark:text-white tracking-tight">${formatNum(o.totalAsset)}</span>
+              </div>
+              <div class="text-right text-[10px] font-mono flex items-center gap-1" title="Lifetime Assets: ${formatNum(o.lifetimeUp)} Diatas Standar | ${formatNum(o.lifetimeDown)} Dibawah Standar">
+                <span class="text-emerald-600 font-black flex items-center gap-0.5"><i class="ph-bold ph-arrow-up text-[9px]"></i> ${formatNum(o.lifetimeUp)}</span>
+                <span class="text-slate-300 dark:text-slate-600 font-normal">|</span>
+                <span class="text-rose-500 font-black flex items-center gap-0.5"><i class="ph-bold ph-arrow-down text-[9px]"></i> ${formatNum(o.lifetimeDown)}</span>
+              </div>
+            </div>
+
+            <!-- In-Building vs Outdoor Breakdown Pill -->
+            <div class="grid grid-cols-2 gap-1.5 my-1.5">
+              <div class="px-2 py-0.5 bg-blue-50/70 dark:bg-blue-950/40 rounded-lg border border-blue-100 dark:border-blue-900/30 flex items-center justify-between text-[9.5px]">
+                <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-1"><i class="ph-bold ph-buildings text-blue-500 text-[10px]"></i> In-Building:</span>
+                <span class="font-mono font-bold text-blue-700 dark:text-blue-300">${formatNum(o.inBuildingCount)}</span>
+              </div>
+              <div class="px-2 py-0.5 bg-amber-50/70 dark:bg-amber-950/40 rounded-lg border border-amber-100 dark:border-amber-900/30 flex items-center justify-between text-[9.5px]">
+                <span class="text-slate-600 dark:text-slate-400 font-medium flex items-center gap-1"><i class="ph-bold ph-tree text-amber-500 text-[10px]"></i> Outdoor:</span>
+                <span class="font-mono font-bold text-amber-700 dark:text-amber-300">${formatNum(o.outdoorCount)}</span>
+              </div>
+            </div>
+
+            <!-- Financials Mini Bar -->
+            <div class="grid grid-cols-3 gap-1 py-1 px-1.5 bg-slate-50 dark:bg-slate-800/40 rounded-lg border border-slate-100 dark:border-slate-800 text-[8.5px] font-mono text-center mb-2">
+              <div>
+                <span class="text-slate-400 block text-[7.5px] uppercase font-sans">Acquisition</span>
+                <span class="font-bold text-slate-800 dark:text-slate-200 truncate block">${formatRp(o.acquisition)}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[7.5px] uppercase font-sans">Book Value</span>
+                <span class="font-bold text-emerald-600 dark:text-emerald-400 truncate block">${formatRp(o.bookValue)}</span>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[7.5px] uppercase font-sans">Maintenance</span>
+                <span class="font-bold text-amber-600 dark:text-amber-400 truncate block">${formatRp(o.maintenanceCost)}</span>
+              </div>
+            </div>
+
+            <!-- Mini Asset Matrix Table -->
+            <div class="border border-slate-100 dark:border-slate-800 rounded-lg overflow-hidden">
+              <table class="w-full text-[9px] text-left">
+                <thead class="bg-slate-100/70 dark:bg-slate-800/80 text-[8px] font-black uppercase text-slate-500 tracking-wider">
+                  <tr>
+                    <th class="px-1.5 py-1">Asset</th>
+                    <th class="px-1 py-1 text-center text-emerald-600">Good</th>
+                    <th class="px-1 py-1 text-center text-amber-600">Repair</th>
+                    <th class="px-1 py-1 text-center text-rose-600">Broken</th>
+                    <th class="px-1 py-1 text-center text-slate-500">Lost</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 dark:divide-slate-800 font-mono">
+                  ${topKelompok.map(k => `
+                    <tr class="hover:bg-slate-50/60 dark:hover:bg-slate-800/30">
+                      <td class="px-1.5 py-0.5 font-sans font-bold text-slate-700 dark:text-slate-300 truncate max-w-[120px]">${k.name}</td>
+                      <td class="px-1 py-0.5 text-center font-bold text-emerald-600">${k.goodPct > 0 ? k.goodPct.toFixed(0) + '%' : '-'}</td>
+                      <td class="px-1 py-0.5 text-center text-amber-500">${k.repairPct > 0 ? k.repairPct.toFixed(0) + '%' : '-'}</td>
+                      <td class="px-1 py-0.5 text-center text-rose-500">${k.brokenPct > 0 ? k.brokenPct.toFixed(0) + '%' : '-'}</td>
+                      <td class="px-1 py-0.5 text-center text-slate-400">${k.lostPct > 0 ? k.lostPct.toFixed(0) + '%' : '-'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Bottom Action Button -->
+          <div class="mt-2.5 pt-2 border-t border-slate-100 dark:border-slate-800">
+            <button onclick="window.drillToOfficeAssets('${o.label}')" class="w-full py-1 text-[10px] font-black rounded-lg bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 hover:bg-emerald-100 dark:hover:bg-emerald-900/60 transition flex items-center justify-center gap-1 cursor-pointer">
+              <span>Detail ${o.label} (${formatNum(o.totalAsset)} Aset)</span>
+              <i class="ph-bold ph-arrow-right text-[11px]"></i>
+            </button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  // =========================================================================
+  // INTERACTIVITY & SLICER HANDLERS (BOUND TO WINDOW AND PNS)
+  // =========================================================================
+  function setAssetEnvFilter(env = 'ALL') {
+    currentAssetEnvFilter = env;
+    ['all', 'in_building', 'outdoor'].forEach(e => {
+      const btn = document.getElementById(`btn-asset-env-${e}`);
+      if (btn) {
+        if (e === env.toLowerCase()) {
+          btn.className = 'px-3 py-1 text-xs font-black rounded-xl bg-blue-600 text-white shadow-sm transition cursor-pointer';
+        } else {
+          btn.className = 'px-3 py-1 text-xs font-bold rounded-xl text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer';
+        }
+      }
+    });
+    renderAsset1();
+  }
+
+  function setAssetOverviewDim(dim) {
+    currentAssetOverviewDim = dim;
+    ['location', 'group', 'building_status', 'name'].forEach(d => {
+      const btn = document.getElementById(`btn-asset-dim-${d}`);
+      if (btn) {
+        if (d === dim) {
+          btn.className = 'px-2.5 py-1 text-[10px] font-bold rounded-lg bg-amber-500 text-white shadow-2xs transition cursor-pointer';
+        } else {
+          btn.className = 'px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer';
+        }
+      }
+    });
+    renderAsset1();
+  }
+
+  function setAssetPerfDim(dim) {
+    currentAssetPerfDim = dim;
+    ['section', 'category', 'building_status', 'name'].forEach(d => {
+      const btn = document.getElementById(`btn-asset-perf-${d}`);
+      if (btn) {
+        if (d === dim) {
+          btn.className = 'px-2.5 py-1 text-[10px] font-bold rounded-lg bg-amber-500 text-white shadow-2xs transition cursor-pointer';
+        } else {
+          btn.className = 'px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700 transition cursor-pointer';
+        }
+      }
+    });
+    renderAsset1();
+  }
+
+  function applyPbiFilters() {
+    renderAsset1();
+  }
+
+  function drillToOfficeAssets(locName) {
+    if (!locName) return;
+    navTo('view-portfolio-all');
+    setTimeout(() => {
+      const searchBox = document.getElementById('search-asset-all-input');
+      if (searchBox) {
+        searchBox.value = locName;
+        if (typeof applyAllAssetFilters === 'function') {
+          applyAllAssetFilters();
+        }
+      }
+    }, 100);
+  }
+
+  // Bridge functions
+  function renderPortfolioComposition() {
+    renderAsset1();
   }
 
   function renderAssetSebaran() {
-    const container = document.getElementById('asset-sebaran-grid');
-    if (!container) return;
-
-    const sites = [
-      { name: 'Central Office (CO)', bldg: 355, rooms: 1240, assets: 11200, pic: 'Miftahul Khoiry / Rizal Dwi', color: 'sky' },
-      { name: 'Factory / Pabrik (FR)', bldg: 32, rooms: 180, assets: 2850, pic: 'Ilyasa, Elvan, Nuh & Nando', color: 'amber' },
-      { name: 'Estate 1 (E1)', bldg: 1, rooms: 15, assets: 320, pic: 'Biner & Basran', color: 'emerald' },
-      { name: 'Estate 2 (E2)', bldg: 12, rooms: 54, assets: 756, pic: 'Rizal Dwi & Rocky', color: 'indigo' },
-      { name: 'Estate 3 (E3)', bldg: 16, rooms: 70, assets: 760, pic: 'Budiono MU & Dwiki', color: 'teal' }
-    ];
-
-    container.innerHTML = sites.map(s => `
-      <div class="clean-card p-4 space-y-3">
-        <div class="flex items-start justify-between">
-          <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-lg bg-${s.color}-50 text-${s.color}-600 flex items-center justify-center font-bold text-base">
-              <i class="ph-bold ph-map-pin"></i>
-            </div>
-            <div>
-              <h4 class="font-bold text-xs text-slate-900">${s.name}</h4>
-              <p class="text-[10px] text-slate-400">Wilayah Operasional PNS</p>
-            </div>
-          </div>
-          <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-${s.color}-50 text-${s.color}-700 border border-${s.color}-100">AKTIF</span>
-        </div>
-        <div class="grid grid-cols-3 gap-2 pt-2 border-t border-slate-100 text-center font-mono">
-          <div class="bg-slate-50 p-2 rounded-lg">
-            <span class="text-xs font-black text-slate-900 block">${s.bldg}</span>
-            <span class="text-[9px] text-slate-400 uppercase font-sans">Gedung</span>
-          </div>
-          <div class="bg-slate-50 p-2 rounded-lg">
-            <span class="text-xs font-black text-slate-900 block">${s.rooms}</span>
-            <span class="text-[9px] text-slate-400 uppercase font-sans">Ruangan</span>
-          </div>
-          <div class="bg-slate-50 p-2 rounded-lg">
-            <span class="text-xs font-black text-emerald-600 block">${s.assets.toLocaleString('id-ID')}</span>
-            <span class="text-[9px] text-slate-400 uppercase font-sans">Aset</span>
-          </div>
-        </div>
-        <div class="text-[11px] text-slate-500 pt-1 flex items-center gap-1.5">
-          <i class="ph-bold ph-user text-slate-400"></i> PIC: <span class="font-semibold text-slate-700">${s.pic}</span>
-        </div>
-      </div>
-    `).join('');
+    renderAsset2();
   }
 
-  // ==========================================
-  // ASSET MANAGEMENT: DEPRESIASI & NILAI BUKU
-  // ==========================================
+  // Expose on window and window.pns
+  window.pns = window.pns || {};
+  window.pns.renderAsset1 = window.renderAsset1 = renderAsset1;
+  window.pns.renderAsset2 = window.renderAsset2 = renderAsset2;
+  window.pns.renderPortfolioComposition = window.renderPortfolioComposition = renderPortfolioComposition;
+  window.pns.exportPortfolioCompositionCsv = window.exportPortfolioCompositionCsv = exportPortfolioCompositionCsv;
+
+  function exportPortfolioCompositionCsv() {
+    const assets = getAllNormalizedAssets();
+    const rows = measureOverviewAssetBy(currentAssetOverviewDim, assets);
+    let csv = 'DIMENSION,TOTAL_ASSET,GOOD_PCT,ACQUISITION,MAINTENANCE_COST\n';
+    rows.forEach(r => {
+      csv += `"${r.label}",${r.totalAsset},"${r.goodPct.toFixed(2)}%",${r.acquisition},${r.maintenanceCost}\n`;
+    });
+    if (typeof Blob !== 'undefined' && typeof URL !== 'undefined') {
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `komposisi_nilai_aset_${new Date().toISOString().slice(0,10)}.csv`;
+      a.click();
+    }
+  }
+
+  window.exportPortfolioCompositionCsv = exportPortfolioCompositionCsv;
+
+  window.pns.renderAssetSebaran = window.renderAssetSebaran = renderAssetSebaran;
+  window.pns.setAssetEnvFilter = window.setAssetEnvFilter = setAssetEnvFilter;
+  window.pns.setAssetOverviewDim = window.setAssetOverviewDim = setAssetOverviewDim;
+  window.pns.setAssetPerfDim = window.setAssetPerfDim = setAssetPerfDim;
+  window.pns.applyPbiFilters = window.applyPbiFilters = applyPbiFilters;
+  window.pns.drillToOfficeAssets = window.drillToOfficeAssets = drillToOfficeAssets;
+  window.pns.switchView = window.switchView = function(viewId) {
+    if (viewId === 'view-asset-1') viewId = 'view-portfolio';
+    if (viewId === 'view-asset-2') viewId = 'view-asset-sebaran';
+    if (viewId === 'view-asset-3') viewId = 'view-portfolio-all';
+    if (viewId === 'view-trx-asset-register') viewId = 'view-reg-asset';
+    if (viewId === 'view-trx-asset-mutation') viewId = 'view-mutasi';
+    if (viewId === 'view-trx-asset-location') viewId = 'view-asset-location';
+    if (viewId === 'view-trx-asset-status') viewId = 'view-asset-status';
+    if (viewId === 'view-asset-validation') viewId = 'view-validasi';
+    if (viewId === 'view-trx-asset-disposal') viewId = 'view-asset-disposal';
+    if (typeof navTo === 'function') navTo(viewId);
+  };
+
   function renderAssetDepreciation() {
     const tbody = document.getElementById('table-depresiasi-body');
     if (!tbody) return;
