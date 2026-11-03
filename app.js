@@ -1174,6 +1174,8 @@ const PNS_SECTION_TO_DEPT = {
         renderAssetsTable();
       } else if (viewId === 'view-asset-sebaran') {
         renderAssetSebaran();
+      } else if (viewId === 'view-asset-detail-drill') {
+        renderAssetDrillThrough();
       } else if (viewId === 'view-asset-depreciation') {
         renderAssetDepreciation();
       } else if (viewId === 'view-asset-location') {
@@ -2075,9 +2077,6 @@ const PNS_SECTION_TO_DEPT = {
 
   // DAX MEASURE 6: Office Locations Cards (view-asset-2)
   function measureAssetByOfficeLocations(assets, maint = []) {
-    const locSet = new Set();
-    assets.forEach(a => locSet.add(a.location || 'CENTRAL OFFICE'));
-
     const OFFICE_ICONS = {
       'CENTRAL OFFICE': 'ph-buildings',
       'FACTORY OFFICE': 'ph-factory',
@@ -2089,27 +2088,27 @@ const PNS_SECTION_TO_DEPT = {
       'REGIONAL OFFICE': 'ph-map-pin'
     };
     const OFFICE_DESC = {
-      'CENTRAL OFFICE': 'Operasional Utama Central',
-      'FACTORY OFFICE': 'Pabrik Gula & Processing Plant',
-      'ESTATE 1': 'Perkebunan Area 1',
-      'ESTATE 2': 'Perkebunan Area 2',
-      'ESTATE 3': 'Perkebunan Area 3',
-      'GUDANG MARUNDA': 'Gudang Transit Marunda',
-      'HEAD OFFICE': 'Kantor Pusat Jakarta',
-      'REGIONAL OFFICE': 'Kantor Regional'
+      'CENTRAL OFFICE': 'Overview Assets',
+      'FACTORY OFFICE': 'Overview Assets',
+      'ESTATE 1': 'Overview Assets',
+      'ESTATE 2': 'Overview Assets',
+      'ESTATE 3': 'Overview Assets',
+      'GUDANG MARUNDA': 'Overview Assets',
+      'HEAD OFFICE': 'Overview Assets',
+      'REGIONAL OFFICE': 'Overview Assets'
     };
 
     const locMaintMap = {
-      'CENTRAL OFFICE': 17360000000,
-      'FACTORY OFFICE': 3000000000,
+      'CENTRAL OFFICE': 12624269104,
+      'FACTORY OFFICE': 2702719284,
       'ESTATE 1': 4050000000,
       'ESTATE 3': 2570000000,
       'ESTATE 2': 2070000000
     };
 
     const locLifetimeMap = {
-      'CENTRAL OFFICE': { up: 11386, down: 2015, inBldg: 347, outdoor: 13054 },
-      'FACTORY OFFICE': { up: 9873, down: 537, inBldg: 295, outdoor: 10115 },
+      'CENTRAL OFFICE': { up: 7917, down: 5515, inBldg: 347, outdoor: 13085 },
+      'FACTORY OFFICE': { up: 6774, down: 3631, inBldg: 295, outdoor: 10110 },
       'ESTATE 1': { up: 2457, down: 290, inBldg: 186, outdoor: 2561 },
       'ESTATE 2': { up: 2350, down: 330, inBldg: 134, outdoor: 2546 },
       'ESTATE 3': { up: 2150, down: 267, inBldg: 110, outdoor: 2307 },
@@ -2125,12 +2124,13 @@ const PNS_SECTION_TO_DEPT = {
       const tot = locAssets.length;
 
       let good = 0, repair = 0, broken = 0, lost = 0, disposal = 0;
-      let acqSum = 0, bookSum = 0;
+      let acqSum = 0, bookSum = 0, maintSum = 0;
       const kelMap = {};
 
       locAssets.forEach(a => {
         acqSum += Number(a.total_harga_perolehan) || 0;
         bookSum += Number(a.Nilai_buku) || 0;
+        maintSum += Number(a.maintenance_cost) || 0;
         const k = (a.kondisi || '').toLowerCase();
         if (k.includes('repair')) repair++;
         else if (k.includes('broken')) broken++;
@@ -2139,11 +2139,12 @@ const PNS_SECTION_TO_DEPT = {
         else good++;
 
         const kel = a.kelompok_asset || 'INVENTARIS DAN PERALATAN';
-        if (!kelMap[kel]) kelMap[kel] = { total: 0, good: 0, repair: 0, broken: 0, lost: 0 };
+        if (!kelMap[kel]) kelMap[kel] = { total: 0, good: 0, repair: 0, broken: 0, lost: 0, disposal: 0 };
         kelMap[kel].total++;
         if (k.includes('repair')) kelMap[kel].repair++;
         else if (k.includes('broken')) kelMap[kel].broken++;
         else if (k.includes('lost')) kelMap[kel].lost++;
+        else if (k.includes('disposal')) kelMap[kel].disposal++;
         else kelMap[kel].good++;
       });
 
@@ -2151,33 +2152,72 @@ const PNS_SECTION_TO_DEPT = {
         const item = kelMap[kName];
         return {
           name: kName,
+          total: item.total,
           goodPct: item.total > 0 ? (item.good / item.total * 100) : 0,
           repairPct: item.total > 0 ? (item.repair / item.total * 100) : 0,
           brokenPct: item.total > 0 ? (item.broken / item.total * 100) : 0,
-          lostPct: item.total > 0 ? (item.lost / item.total * 100) : 0
+          lostPct: item.total > 0 ? (item.lost / item.total * 100) : 0,
+          disposalPct: item.total > 0 ? (item.disposal / item.total * 100) : 0
         };
-      }).sort((a, b) => b.goodPct - a.goodPct);
+      }).sort((a, b) => b.total - a.total);
 
-      const lt = locLifetimeMap[offKey] || { up: Math.round(tot*0.8), down: Math.round(tot*0.2), inBldg: Math.round(tot*0.1), outdoor: Math.round(tot*0.9) };
+      const lt = locLifetimeMap[offKey] || { up: Math.round(tot*0.58), down: Math.round(tot*0.42), inBldg: Math.round(tot*0.1), outdoor: Math.round(tot*0.9) };
 
       return {
         label: offKey,
         icon: OFFICE_ICONS[offKey] || 'ph-buildings',
-        desc: OFFICE_DESC[offKey] || 'Kantor Operasional',
+        desc: OFFICE_DESC[offKey] || 'Overview Assets',
         totalAsset: tot,
         goodCount: good,
         goodPct: tot > 0 ? (good / tot * 100) : 0,
+        repairPct: tot > 0 ? (repair / tot * 100) : 0,
+        brokenPct: tot > 0 ? (broken / tot * 100) : 0,
+        lostPct: tot > 0 ? (lost / tot * 100) : 0,
+        disposalPct: tot > 0 ? (disposal / tot * 100) : 0,
         lifetimeUp: lt.up,
         lifetimeDown: lt.down,
         inBuildingCount: lt.inBldg,
         outdoorCount: lt.outdoor,
         acquisition: acqSum,
         bookValue: bookSum,
-        maintenanceCost: locMaintMap[offKey] || 0,
+        maintenanceCost: maintSum > 0 ? maintSum : (locMaintMap[offKey] || 0),
         kelompokBreakdown: kelBreakdown
       };
     });
   }
+
+  // Helper: Render Power BI Inline Data Bar Cell for Condition %
+  function renderPbiCondBarCell(pct, type = 'good', compact = false) {
+    if (!pct || pct <= 0) {
+      return `<td class="${compact ? 'px-1 py-0.5' : 'px-1.5 py-1'} text-right font-mono text-slate-300">-</td>`;
+    }
+    const barColors = {
+      good: 'rgba(16, 185, 129, 0.38)',     // Power BI Soft Teal Green
+      repair: 'rgba(244, 63, 94, 0.32)',    // Power BI Soft Rose
+      broken: 'rgba(245, 158, 11, 0.36)',   // Power BI Soft Amber
+      lost: 'rgba(100, 116, 139, 0.42)',    // Power BI Slate
+      disposal: 'rgba(148, 163, 184, 0.45)' // Power BI Grey
+    };
+    const w = Math.min(100, Math.max(4, pct)).toFixed(1);
+    const bg = barColors[type] || barColors.good;
+    return `
+      <td class="${compact ? 'px-1 py-0.5' : 'px-1.5 py-1'} relative font-mono text-right text-slate-900 overflow-hidden">
+        <div class="pbi-bar-bg" style="position:absolute;top:2px;bottom:2px;left:2px;width:calc(${w}% - 4px);background:${bg};border-radius:2px;pointer-events:none;"></div>
+        <span class="relative z-10 font-semibold ${compact ? 'text-[9px]' : 'text-[10.5px]'}">${pct.toFixed(2)}%</span>
+      </td>
+    `;
+  }
+
+  // State for inline [+] / [-] drill-down inside Overview Asset By (view-portfolio)
+  const overviewExpandedRows = new Set();
+
+  function toggleOverviewRowExpand(key, evt) {
+    if (evt) evt.stopPropagation();
+    if (overviewExpandedRows.has(key)) overviewExpandedRows.delete(key);
+    else overviewExpandedRows.add(key);
+    renderAsset1();
+  }
+  window.toggleOverviewRowExpand = toggleOverviewRowExpand;
 
   // =========================================================================
   // VIEW 1: RENDER KOMPOSISI & NILAI (OVERVIEW MASTER ASET)
@@ -2251,65 +2291,183 @@ const PNS_SECTION_TO_DEPT = {
       topCostInfo.innerText = `${kpi.topCostAsset.name} ${formatRp(kpi.topCostAsset.nominal)}`;
     }
 
-    // Left Table: Overview Asset By
+    // Update table header label
+    const dimTitleMap = { location: 'Location', group: 'Group', building_status: 'Gedung / Lap', name: 'Name' };
+    setElText('th-asset-overview-dim', dimTitleMap[currentAssetOverviewDim] || 'Location');
+
+    // Left Table: Overview Asset By (with [+] Drill-Down and Drill-Through)
     const overviewRows = measureOverviewAssetBy(currentAssetOverviewDim, filtered);
     const tbodyLeft = document.getElementById('table-pbi-asset1-overview-matrix');
     if (tbodyLeft) {
       let totalAssetSum = 0, totalAcqSum = 0, totalMaintSum = 0, totalGoodSum = 0;
-      tbodyLeft.innerHTML = overviewRows.slice(0, 100).map(r => {
+      const htmlRows = [];
+
+      overviewRows.slice(0, 100).forEach(r => {
         totalAssetSum += r.totalAsset;
         totalAcqSum += r.acquisition;
         totalMaintSum += r.maintenanceCost;
         totalGoodSum += r.goodCount;
-        return `
-          <tr onclick="window.drillToOfficeAssets('${r.label}')" class="hover:bg-emerald-50/60:bg-emerald-950/30 transition text-xs border-b border-slate-100 cursor-pointer group" title="Klik untuk lihat aset di ${r.label}">
-            <td class="px-3 py-2 font-bold text-slate-800 uppercase">
+
+        const rowKey = `${currentAssetOverviewDim}::${r.label}`;
+        const isExpanded = overviewExpandedRows.has(rowKey);
+        const canExpand = (currentAssetOverviewDim === 'location' || currentAssetOverviewDim === 'group' || currentAssetOverviewDim === 'building_status');
+        const safeLabel = String(r.label).replace(/'/g, "\\'");
+
+        htmlRows.push(`
+          <tr onclick="window.drillFromOverviewRow('${currentAssetOverviewDim}', '${safeLabel}')"
+              oncontextmenu="window.showPbiDrillContextMenu(event, { dim: '${currentAssetOverviewDim}', value: '${safeLabel}', expandKey: '${rowKey}', sourceView: 'view-portfolio' })"
+              class="hover:bg-emerald-50/70 transition text-xs border-b border-slate-100 cursor-pointer group"
+              title="Klik untuk Drill Through ke DT.Details.Assets (${r.label}) | Klik kanan untuk opsi Power BI">
+            <td class="px-2.5 py-2 font-bold text-slate-800 uppercase">
               <div class="flex items-center gap-1.5">
-                <span>${r.label}</span>
-                <i class="ph-bold ph-arrow-up-right text-[10px] text-emerald-600 opacity-0 group-hover:opacity-100 transition"></i>
+                ${canExpand ? `
+                  <button type="button" onclick="window.toggleOverviewRowExpand('${rowKey}', event)"
+                    class="w-4 h-4 rounded border border-slate-300 bg-white hover:bg-emerald-50 hover:border-emerald-500 text-slate-600 hover:text-emerald-700 flex items-center justify-center text-[10px] font-mono font-black shrink-0 transition cursor-pointer"
+                    title="${isExpanded ? 'Collapse (Tutup rincian)' : 'Drill Down (Buka rincian kategori)'}">
+                    ${isExpanded ? '−' : '+'}
+                  </button>
+                ` : ''}
+                <span class="truncate">${r.label}</span>
+                <span class="ml-auto opacity-0 group-hover:opacity-100 transition inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-emerald-600 text-white text-[9px] font-black shrink-0 shadow-2xs">
+                  DT.Details <i class="ph-bold ph-arrow-right text-[9px]"></i>
+                </span>
               </div>
             </td>
-            <td class="px-3 py-2 text-right font-mono font-bold text-slate-700">${formatNum(r.totalAsset)}</td>
-            <td class="px-3 py-2 text-center">
-              <span class="inline-flex items-center justify-center px-2 py-0.5 rounded-full text-[10px] font-black ${r.goodPct >= 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}">
-                ${r.goodPct.toFixed(2)}%
-              </span>
-            </td>
-            <td class="px-3 py-2 text-right font-mono font-semibold text-slate-800">${formatRp(r.acquisition)}</td>
-            <td class="px-3 py-2 text-right font-mono font-semibold text-amber-600">${formatRp(r.maintenanceCost)}</td>
+            <td class="px-2.5 py-2 text-right font-mono font-bold text-slate-700">${formatNum(r.totalAsset)}</td>
+            ${renderPbiCondBarCell(r.goodPct, 'good')}
+            <td class="px-2.5 py-2 text-right font-mono font-semibold text-slate-800">${ Number(r.acquisition || 0).toLocaleString('id-ID') }</td>
+            <td class="px-2.5 py-2 text-right font-mono font-semibold text-slate-700">${ Number(r.maintenanceCost || 0).toLocaleString('id-ID') }</td>
           </tr>
-        `;
-      }).join('');
+        `);
 
-      // Footers
-      setElText('pbi-asset1-tot-asset-left', formatNum(totalAssetSum));
-      setElText('pbi-asset1-tot-good-left', totalAssetSum > 0 ? `${(totalGoodSum / totalAssetSum * 100).toFixed(2)}%` : '0%');
-      setElText('pbi-asset1-tot-acq-left', formatRp(totalAcqSum));
-      setElText('pbi-asset1-tot-maint-left', formatRp(totalMaintSum));
+        // Inline Drill-Down Child Rows when [+] is expanded
+        if (isExpanded && canExpand) {
+          let subAssets = [];
+          let childDim = 'group';
+          if (currentAssetOverviewDim === 'location') {
+            subAssets = filtered.filter(a => (a.location || 'CENTRAL OFFICE') === r.label);
+            childDim = 'group';
+          } else if (currentAssetOverviewDim === 'group') {
+            subAssets = filtered.filter(a => (a.kelompok_asset || 'INVENTARIS') === r.label);
+            childDim = 'category';
+          } else if (currentAssetOverviewDim === 'building_status') {
+            const wantInBldg = r.label.includes('In-Building');
+            subAssets = filtered.filter(a => Boolean(a.is_in_building) === wantInBldg);
+            childDim = 'location';
+          }
+
+          const childMap = new Map();
+          subAssets.forEach(a => {
+            const cKey = childDim === 'group' ? (a.kelompok_asset || 'INVENTARIS') :
+                         childDim === 'category' ? (a.kategori_asset || 'UMUM') : (a.location || 'CENTRAL OFFICE');
+            if (!childMap.has(cKey)) {
+              childMap.set(cKey, { label: cKey, totalAsset: 0, goodCount: 0, acquisition: 0, maintenanceCost: 0 });
+            }
+            const cg = childMap.get(cKey);
+            cg.totalAsset++;
+            const k = (a.kondisi || '').toLowerCase();
+            if (k.includes('good') || k.includes('baik') || (!k.includes('repair') && !k.includes('broken') && !k.includes('lost') && !k.includes('disposal'))) {
+              cg.goodCount++;
+            }
+            cg.acquisition += (Number(a.total_harga_perolehan) || 0);
+            cg.maintenanceCost += (Number(a.maintenance_cost) || 0);
+          });
+
+          const childRows = Array.from(childMap.values()).sort((a, b) => b.totalAsset - a.totalAsset);
+          childRows.forEach(cr => {
+            const crGoodPct = cr.totalAsset > 0 ? (cr.goodCount / cr.totalAsset * 100) : 0;
+            const safeChild = String(cr.label).replace(/'/g, "\\'");
+            const drillCall = currentAssetOverviewDim === 'location'
+              ? `window.openAssetDrillThrough({ location: '${safeLabel}', group: '${safeChild}', sourceView: 'view-portfolio' })`
+              : currentAssetOverviewDim === 'group'
+              ? `window.openAssetDrillThrough({ group: '${safeLabel}', category: '${safeChild}', sourceView: 'view-portfolio' })`
+              : `window.openAssetDrillThrough({ location: '${safeChild}', sourceView: 'view-portfolio' })`;
+
+            htmlRows.push(`
+              <tr onclick="${drillCall}"
+                  class="bg-slate-50/90 hover:bg-emerald-50/90 transition text-[11px] border-b border-slate-100 cursor-pointer group">
+                <td class="pl-8 pr-2.5 py-1.5 font-semibold text-slate-700">
+                  <div class="flex items-center gap-1.5">
+                    <i class="ph-bold ph-arrow-elbow-down-right text-emerald-600 text-xs"></i>
+                    <span class="truncate">${cr.label}</span>
+                    <span class="ml-auto opacity-0 group-hover:opacity-100 text-[9px] font-bold text-emerald-700">Drill ➔</span>
+                  </div>
+                </td>
+                <td class="px-2.5 py-1.5 text-right font-mono text-slate-600">${formatNum(cr.totalAsset)}</td>
+                ${renderPbiCondBarCell(crGoodPct, 'good', true)}
+                <td class="px-2.5 py-1.5 text-right font-mono text-slate-600">${Number(cr.acquisition || 0).toLocaleString('id-ID')}</td>
+                <td class="px-2.5 py-1.5 text-right font-mono text-slate-600">${Number(cr.maintenanceCost || 0).toLocaleString('id-ID')}</td>
+              </tr>
+            `);
+          });
+        }
+      });
+
+      const totGoodPct = totalAssetSum > 0 ? (totalGoodSum / totalAssetSum * 100) : 0;
+      htmlRows.push(`
+        <tr class="bg-slate-100/95 font-black text-xs text-slate-900 border-t-2 border-slate-300 sticky bottom-0 z-10">
+          <td class="px-3 py-2">Total</td>
+          <td class="px-2.5 py-2 text-right font-mono">${formatNum(totalAssetSum)}</td>
+          <td class="px-2.5 py-2 text-right font-mono text-emerald-600">${totGoodPct.toFixed(2)}%</td>
+          <td class="px-2.5 py-2 text-right font-mono">${Number(totalAcqSum).toLocaleString('id-ID')}</td>
+          <td class="px-2.5 py-2 text-right font-mono">${Number(totalMaintSum).toLocaleString('id-ID')}</td>
+        </tr>
+      `);
+
+      tbodyLeft.innerHTML = htmlRows.join('');
     }
 
-    // Right Table: Performance Asset By
+    // Right Table: Performance Asset By (with Power BI Data Bars + Drill-Through)
     const perfRows = measurePerformanceAssetBy(currentAssetPerfDim, filtered);
     const tbodyRight = document.getElementById('table-pbi-asset1-perf-matrix');
     if (tbodyRight) {
       let totalAssetPerf = 0;
-      tbodyRight.innerHTML = perfRows.slice(0, 100).map(r => {
+      let sumGood = 0, sumRepair = 0, sumBroken = 0, sumLost = 0, sumDisposal = 0;
+
+      const rightRowsHtml = perfRows.slice(0, 100).map(r => {
         totalAssetPerf += r.totalAsset;
-        const fmtPct = p => p > 0 ? `${p.toFixed(2)}%` : '-';
+        sumGood += Math.round(r.totalAsset * r.goodPct / 100);
+        sumRepair += Math.round(r.totalAsset * r.repairPct / 100);
+        sumBroken += Math.round(r.totalAsset * r.brokenPct / 100);
+        sumLost += Math.round(r.totalAsset * r.lostPct / 100);
+        sumDisposal += Math.round(r.totalAsset * r.disposalPct / 100);
+
+        const safeLabel = String(r.label).replace(/'/g, "\\'");
         return `
-          <tr onclick="window.drillToDimension('section', '${r.label}')" class="hover:bg-emerald-50/70 transition text-xs border-b border-slate-100 cursor-pointer group" title="Klik untuk lihat aset di seksi ${r.label}">
-            <td class="px-3 py-2 font-bold text-slate-800">${r.label}</td>
-            <td class="px-3 py-2 text-right font-mono font-bold text-slate-700">${formatNum(r.totalAsset)}</td>
-            <td class="px-3 py-2 text-center"><span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-black bg-emerald-50 text-emerald-700">${fmtPct(r.goodPct)}</span></td>
-            <td class="px-3 py-2 text-center text-amber-600 font-mono">${fmtPct(r.repairPct)}</td>
-            <td class="px-3 py-2 text-center text-rose-600 font-mono">${fmtPct(r.brokenPct)}</td>
-            <td class="px-3 py-2 text-center text-slate-500 font-mono">${fmtPct(r.lostPct)}</td>
-            <td class="px-3 py-2 text-center text-indigo-500 font-mono">${fmtPct(r.disposalPct)}</td>
+          <tr onclick="window.drillToDimension('${currentAssetPerfDim}', '${safeLabel}')"
+              oncontextmenu="window.showPbiDrillContextMenu(event, { dim: '${currentAssetPerfDim}', value: '${safeLabel}', sourceView: 'view-portfolio' })"
+              class="hover:bg-emerald-50/70 transition text-xs border-b border-slate-100 cursor-pointer group"
+              title="Klik untuk Drill Through ke DT.Details.Assets (${r.label})">
+            <td class="px-3 py-1.5 font-semibold text-slate-800">
+              <div class="flex items-center justify-between gap-1">
+                <span class="truncate">${r.label}</span>
+                <i class="ph-bold ph-arrow-up-right text-[10px] text-emerald-600 opacity-0 group-hover:opacity-100 transition shrink-0"></i>
+              </div>
+            </td>
+            <td class="px-2 py-1.5 text-right font-mono font-bold text-slate-700">${formatNum(r.totalAsset)}</td>
+            ${renderPbiCondBarCell(r.goodPct, 'good')}
+            ${renderPbiCondBarCell(r.repairPct, 'repair')}
+            ${renderPbiCondBarCell(r.brokenPct, 'broken')}
+            ${renderPbiCondBarCell(r.lostPct, 'lost')}
+            ${renderPbiCondBarCell(r.disposalPct, 'disposal')}
           </tr>
         `;
-      }).join('');
+      });
 
-      setElText('pbi-asset1-tot-asset-right', formatNum(totalAssetPerf));
+      const totP = totalAssetPerf || 1;
+      rightRowsHtml.push(`
+        <tr class="bg-slate-100/95 font-black text-xs text-slate-900 border-t-2 border-slate-300 sticky bottom-0 z-10">
+          <td class="px-3 py-2">Total</td>
+          <td class="px-2 py-2 text-right font-mono">${formatNum(totalAssetPerf)}</td>
+          <td class="px-1.5 py-2 text-right font-mono text-emerald-600">${(sumGood / totP * 100).toFixed(2)}%</td>
+          <td class="px-1.5 py-2 text-right font-mono text-rose-600">${(sumRepair / totP * 100).toFixed(2)}%</td>
+          <td class="px-1.5 py-2 text-right font-mono text-amber-500">${(sumBroken / totP * 100).toFixed(2)}%</td>
+          <td class="px-1.5 py-2 text-right font-mono text-slate-700">${(sumLost / totP * 100).toFixed(2)}%</td>
+          <td class="px-1.5 py-2 text-right font-mono text-slate-500">${(sumDisposal / totP * 100).toFixed(2)}%</td>
+        </tr>
+      `);
+
+      tbodyRight.innerHTML = rightRowsHtml.join('');
     }
 
     // Donut Chart
@@ -2369,7 +2527,6 @@ const PNS_SECTION_TO_DEPT = {
       if (statValuable) statValuable.innerText = `${formatNum(valCount)} (${compType.valuable.pct.toFixed(1)}%)`;
       const statNonValuable = document.getElementById('stat-nonvaluable-donut');
       if (statNonValuable) statNonValuable.innerText = `${formatNum(nonValCount)} (${compType.nonValuable.pct.toFixed(1)}%)`;
-
     }
   }
 
@@ -2409,7 +2566,7 @@ const PNS_SECTION_TO_DEPT = {
   }
 
   // =========================================================================
-  // VIEW 2: RENDER SEBARAN KANTOR & SITE (8 LOKASI OPERASIONAL)
+  // VIEW 2: RENDER SEBARAN KANTOR & SITE (8 LOKASI OPERASIONAL - PBI PARITY)
   // =========================================================================
   function renderAsset2() {
     const container = document.getElementById('pbi-asset2-office-grid');
@@ -2422,104 +2579,736 @@ const PNS_SECTION_TO_DEPT = {
 
     container.innerHTML = officeData.map(o => {
       const topKelompok = o.kelompokBreakdown.slice(0, 8);
+      const safeLoc = String(o.label).replace(/'/g, "\\'");
       return `
-        <div class="pns-card p-4 flex flex-col justify-between shadow-xs transition bg-white rounded-2xl border border-slate-200/90">
+        <div oncontextmenu="window.showPbiDrillContextMenu(event, { dim: 'location', value: '${safeLoc}', sourceView: 'view-asset-sebaran' })"
+             class="pns-card p-4 flex flex-col justify-between shadow-xs transition bg-white rounded-2xl border border-emerald-300/90 hover:shadow-md">
           <div>
             <!-- Card Header -->
             <div class="flex items-start justify-between pb-2.5 border-b border-slate-100">
-              <div class="flex items-center gap-2">
-                <div class="w-8 h-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600 text-base border border-emerald-100">
+              <div class="flex items-center gap-2.5">
+                <div class="w-9 h-9 rounded-xl bg-emerald-600 flex items-center justify-center text-white text-lg shadow-2xs">
                   <i class="ph-bold ${o.icon || 'ph-buildings'}"></i>
                 </div>
                 <div>
-                  <h3 class="text-xs font-black text-slate-900 uppercase tracking-wide">${o.label}</h3>
-                  <span class="text-[9.5px] text-slate-400 font-medium block">${o.desc}</span>
+                  <h3 class="text-sm font-black text-slate-900 uppercase tracking-tight leading-none">${o.label}</h3>
+                  <span class="text-[10px] text-slate-400 font-medium block mt-0.5">${o.desc}</span>
                 </div>
               </div>
-              <div class="px-2 py-0.5 rounded-md border border-emerald-200 flex flex-col items-center justify-center text-center bg-emerald-50/80 shrink-0 min-w-[50px]">
-                <span class="text-[10px] font-black text-emerald-700 leading-tight">${o.goodPct.toFixed(1)}%</span>
-                <span class="text-[7.5px] font-bold text-emerald-600 uppercase tracking-tighter">GOOD</span>
+              <button type="button" onclick="window.drillToOfficeAssets('${safeLoc}')" class="px-2 py-1 rounded-lg bg-emerald-50 hover:bg-emerald-100 text-emerald-700 text-[9.5px] font-black flex items-center gap-1 border border-emerald-200 transition cursor-pointer" title="Drill through ke DT.Details.Assets (${o.label})">
+                <span>DT.Details</span>
+                <i class="ph-bold ph-arrow-up-right"></i>
+              </button>
+            </div>
+
+            <!-- Middle KPI & Ring Row (Power BI Office Card Layout) -->
+            <div class="grid grid-cols-12 gap-2 my-3 items-center">
+              <!-- Col 1: Total Asset + Lifetime -->
+              <div class="col-span-4">
+                <div class="text-xl font-black text-slate-900 font-mono leading-none">${formatNum(o.totalAsset)}</div>
+                <div class="text-[10px] font-bold text-slate-600 mt-0.5 mb-2">Total Asset</div>
+                <div class="space-y-0.5 text-[11px] font-mono font-black">
+                  <div class="text-rose-600 flex items-center gap-0.5" title="Diatas Standar Umur">${formatNum(o.lifetimeUp)} <i class="ph-bold ph-arrow-up text-xs"></i></div>
+                  <div class="text-[9px] text-slate-400 font-sans font-semibold">Lifetime</div>
+                  <div class="text-emerald-600 flex items-center gap-0.5" title="Dibawah Standar Umur">${formatNum(o.lifetimeDown)} <i class="ph-bold ph-arrow-down text-xs"></i></div>
+                </div>
+              </div>
+
+              <!-- Col 2: Circular Good % Ring -->
+              <div class="col-span-3 flex flex-col items-center justify-center">
+                <div class="relative w-16 h-16 flex items-center justify-center">
+                  <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                    <path class="text-slate-200" stroke-width="3.8" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                    <path class="text-emerald-500" stroke-dasharray="${o.goodPct.toFixed(1)}, 100" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                  </svg>
+                  <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                    <span class="text-[10px] font-black text-emerald-600 leading-none">${o.goodPct.toFixed(2)}%</span>
+                    <span class="text-[8px] font-bold text-emerald-600">Good</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Col 3: Acquisition, Nett Book Value, Maintenance Cost -->
+              <div class="col-span-5 space-y-1.5 pl-1 border-l border-slate-100">
+                <div class="flex items-start gap-1.5">
+                  <div class="w-6 h-6 rounded bg-sky-100 text-sky-600 flex items-center justify-center text-xs shrink-0 mt-0.5">
+                    <i class="ph-bold ph-buildings"></i>
+                  </div>
+                  <div class="min-w-0 flex-1 text-[9.5px]">
+                    <span class="text-slate-400 block leading-none">Acquisition</span>
+                    <span class="font-mono font-black text-slate-900 block truncate">${Number(o.acquisition).toLocaleString('id-ID')}</span>
+                    <span class="text-slate-400 block leading-none mt-1">Nett Book Value</span>
+                    <span class="font-mono font-black text-slate-900 block truncate">${Number(o.bookValue).toLocaleString('id-ID')}</span>
+                  </div>
+                </div>
+                <div class="flex items-start gap-1.5 pt-1 border-t border-slate-100">
+                  <div class="w-6 h-6 rounded bg-rose-100 text-rose-500 flex items-center justify-center text-xs shrink-0">
+                    <i class="ph-bold ph-wrench"></i>
+                  </div>
+                  <div class="min-w-0 flex-1 text-[9.5px]">
+                    <span class="text-slate-400 block leading-none">Maintenance Cost</span>
+                    <span class="font-mono font-black text-slate-900 block truncate">${Number(o.maintenanceCost).toLocaleString('id-ID')}</span>
+                  </div>
+                </div>
               </div>
             </div>
 
-            <!-- Total Assets & Lifetime Indicators -->
-            <div class="flex items-center justify-between my-2 px-2.5 py-1.5 bg-slate-50 rounded-xl border border-slate-100">
-              <div>
-                <span class="text-[8.5px] font-extrabold uppercase text-slate-400 block tracking-wider">TOTAL ASSETS</span>
-                <span class="text-base font-black text-slate-900 tracking-tight">${formatNum(o.totalAsset)}</span>
-              </div>
-              <div class="text-right text-[10px] font-mono flex items-center gap-1" title="Lifetime Assets: ${formatNum(o.lifetimeUp)} Diatas Standar | ${formatNum(o.lifetimeDown)} Dibawah Standar">
-                <span class="text-emerald-600 font-black flex items-center gap-0.5"><i class="ph-bold ph-arrow-up text-[9px]"></i> ${formatNum(o.lifetimeUp)}</span>
-                <span class="text-slate-300 font-normal">|</span>
-                <span class="text-rose-500 font-black flex items-center gap-0.5"><i class="ph-bold ph-arrow-down text-[9px]"></i> ${formatNum(o.lifetimeDown)}</span>
-              </div>
-            </div>
-
-            <!-- In-Building vs Outdoor Breakdown Pill -->
-            <div class="grid grid-cols-2 gap-1.5 my-1.5">
-              <div class="px-2 py-0.5 bg-blue-50/70 rounded-lg border border-blue-100 flex items-center justify-between text-[9.5px]">
-                <span class="text-slate-600 font-medium flex items-center gap-1"><i class="ph-bold ph-buildings text-blue-500 text-[10px]"></i> In-Building:</span>
-                <span class="font-mono font-bold text-blue-700">${formatNum(o.inBuildingCount)}</span>
-              </div>
-              <div class="px-2 py-0.5 bg-amber-50/70 rounded-lg border border-amber-100 flex items-center justify-between text-[9.5px]">
-                <span class="text-slate-600 font-medium flex items-center gap-1"><i class="ph-bold ph-tree text-amber-500 text-[10px]"></i> Outdoor:</span>
-                <span class="font-mono font-bold text-amber-700">${formatNum(o.outdoorCount)}</span>
-              </div>
-            </div>
-
-            <!-- Financials Mini Bar -->
-            <div class="grid grid-cols-3 gap-1 py-1 px-1.5 bg-slate-50 rounded-lg border border-slate-100 text-[8.5px] font-mono text-center mb-2">
-              <div>
-                <span class="text-slate-400 block text-[7.5px] uppercase font-sans">Acquisition</span>
-                <span class="font-bold text-slate-800 truncate block">${formatRp(o.acquisition)}</span>
-              </div>
-              <div>
-                <span class="text-slate-400 block text-[7.5px] uppercase font-sans">Book Value</span>
-                <span class="font-bold text-emerald-600 truncate block">${formatRp(o.bookValue)}</span>
-              </div>
-              <div>
-                <span class="text-slate-400 block text-[7.5px] uppercase font-sans">Maintenance</span>
-                <span class="font-bold text-amber-600 truncate block">${formatRp(o.maintenanceCost)}</span>
-              </div>
-            </div>
-
-            <!-- Mini Asset Matrix Table -->
-            <div class="border border-slate-100 rounded-lg overflow-hidden">
-              <table class="w-full text-[9px] text-left">
-                <thead class="bg-slate-100/70 text-[8px] font-black uppercase text-slate-500 tracking-wider">
+            <!-- Mini Asset Matrix Table with Power BI Data Bars & Drill-Through -->
+            <div class="border border-slate-200/80 rounded-xl overflow-hidden">
+              <table class="w-full text-[9.5px] text-left border-collapse">
+                <thead class="bg-slate-50 text-[8.5px] font-black uppercase text-slate-700 border-b border-slate-200">
                   <tr>
-                    <th class="px-1.5 py-1">Asset</th>
-                    <th class="px-1 py-1 text-center text-emerald-600">Good</th>
-                    <th class="px-1 py-1 text-center text-amber-600">Repair</th>
-                    <th class="px-1 py-1 text-center text-rose-600">Broken</th>
-                    <th class="px-1 py-1 text-center text-slate-500">Lost</th>
+                    <th class="px-2 py-1.5">KELOMPOK ASSET</th>
+                    <th class="px-1.5 py-1.5 text-right">Asset</th>
+                    <th class="px-1 py-1.5 text-center text-emerald-600">Good</th>
+                    <th class="px-1 py-1.5 text-center text-rose-500">Repair</th>
+                    <th class="px-1 py-1.5 text-center text-amber-500">Broken</th>
+                    <th class="px-1 py-1.5 text-center text-slate-700">Lost</th>
+                    <th class="px-1 py-1.5 text-center text-slate-500">Disposal</th>
                   </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 font-mono">
-                  ${topKelompok.map(k => `
-                    <tr class="hover:bg-slate-50/60:bg-slate-800/30">
-                      <td class="px-1.5 py-0.5 font-sans font-bold text-slate-700 truncate max-w-[120px]">${k.name}</td>
-                      <td class="px-1 py-0.5 text-center font-bold text-emerald-600">${k.goodPct > 0 ? k.goodPct.toFixed(0) + '%' : '-'}</td>
-                      <td class="px-1 py-0.5 text-center text-amber-500">${k.repairPct > 0 ? k.repairPct.toFixed(0) + '%' : '-'}</td>
-                      <td class="px-1 py-0.5 text-center text-rose-500">${k.brokenPct > 0 ? k.brokenPct.toFixed(0) + '%' : '-'}</td>
-                      <td class="px-1 py-0.5 text-center text-slate-400">${k.lostPct > 0 ? k.lostPct.toFixed(0) + '%' : '-'}</td>
-                    </tr>
-                  `).join('')}
+                <tbody class="divide-y divide-slate-100">
+                  ${topKelompok.map(k => {
+                    const safeKel = String(k.name).replace(/'/g, "\\'");
+                    return `
+                      <tr onclick="window.openAssetDrillThrough({ location: '${safeLoc}', group: '${safeKel}', sourceView: 'view-asset-sebaran' })"
+                          oncontextmenu="window.showPbiDrillContextMenu(event, { location: '${safeLoc}', group: '${safeKel}', sourceView: 'view-asset-sebaran' })"
+                          class="hover:bg-emerald-50/70 cursor-pointer transition"
+                          title="Klik untuk Drill Through ke ${o.label} - ${k.name}">
+                        <td class="px-2 py-1 font-semibold text-slate-800 truncate max-w-[115px]">${k.name}</td>
+                        <td class="px-1.5 py-1 text-right font-mono font-bold text-slate-800">${formatNum(k.total)}</td>
+                        ${renderPbiCondBarCell(k.goodPct, 'good', true)}
+                        ${renderPbiCondBarCell(k.repairPct, 'repair', true)}
+                        ${renderPbiCondBarCell(k.brokenPct, 'broken', true)}
+                        ${renderPbiCondBarCell(k.lostPct, 'lost', true)}
+                        ${renderPbiCondBarCell(k.disposalPct, 'disposal', true)}
+                      </tr>
+                    `;
+                  }).join('')}
                 </tbody>
+                <tfoot class="bg-slate-100/90 font-black text-[9.5px] border-t border-slate-300">
+                  <tr>
+                    <td class="px-2 py-1 text-slate-900">Total</td>
+                    <td class="px-1.5 py-1 text-right font-mono text-slate-900">${formatNum(o.totalAsset)}</td>
+                    <td class="px-1 py-1 text-right font-mono text-emerald-600">${o.goodPct.toFixed(2)}%</td>
+                    <td class="px-1 py-1 text-right font-mono text-rose-600">${o.repairPct > 0 ? o.repairPct.toFixed(2) + '%' : ''}</td>
+                    <td class="px-1 py-1 text-right font-mono text-amber-500">${o.brokenPct > 0 ? o.brokenPct.toFixed(2) + '%' : ''}</td>
+                    <td class="px-1 py-1 text-right font-mono text-slate-800">${o.lostPct > 0 ? o.lostPct.toFixed(2) + '%' : ''}</td>
+                    <td class="px-1 py-1 text-right font-mono text-slate-500">${o.disposalPct > 0 ? o.disposalPct.toFixed(2) + '%' : ''}</td>
+                  </tr>
+                </tfoot>
               </table>
             </div>
           </div>
 
-          <!-- Bottom Action Button -->
-          <div class="mt-2.5 pt-2 border-t border-slate-100">
-            <button type="button" onclick="window.drillToOfficeAssets('${o.label}')" class="w-full py-1 text-[10px] font-black rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100:bg-emerald-900/60 transition flex items-center justify-center gap-1 cursor-pointer">
-              <span>Detail ${o.label} (${formatNum(o.totalAsset)} Aset)</span>
-              <i class="ph-bold ph-arrow-right text-[11px]"></i>
+          <!-- Bottom Action Button: View Details > (Power BI Parity) -->
+          <div class="mt-3 pt-1">
+            <button type="button" onclick="window.drillToOfficeAssets('${safeLoc}')" class="w-full py-1.5 text-xs font-bold rounded-xl bg-white hover:bg-emerald-50 text-emerald-600 border border-slate-200 hover:border-emerald-300 shadow-2xs transition flex items-center justify-center gap-1 cursor-pointer">
+              <span>View Details</span>
+              <i class="ph-bold ph-caret-right text-xs"></i>
             </button>
           </div>
         </div>
       `;
     }).join('');
+  }
+
+  // =========================================================================
+  // VIEW 6E: POWER BI DRILL-THROUGH & DRILL-DOWN ENGINE (DT.Details.Assets)
+  // =========================================================================
+  const dtDrillState = {
+    sourceView: 'view-portfolio',
+    location: 'ALL',
+    type: 'ALL',
+    group: 'ALL',
+    category: 'ALL',
+    section: 'ALL',
+    kondisi: 'ALL',
+    crossKelompok: null,
+    crossPerfKey: null,
+    perfDim: 'section',
+    expandedCategories: new Set()
+  };
+
+  function openAssetDrillThrough(opts = {}) {
+    hidePbiDrillContextMenu();
+    dtDrillState.sourceView = opts.sourceView || (appState.currentView && appState.currentView !== 'view-asset-detail-drill' ? appState.currentView : 'view-portfolio');
+    dtDrillState.location = opts.location || 'ALL';
+    dtDrillState.type = opts.type || 'ALL';
+    dtDrillState.group = opts.group || 'ALL';
+    dtDrillState.category = opts.category || 'ALL';
+    dtDrillState.section = opts.section || 'ALL';
+    dtDrillState.kondisi = opts.kondisi || 'ALL';
+    dtDrillState.crossKelompok = null;
+    dtDrillState.crossPerfKey = null;
+    dtDrillState.expandedCategories.clear();
+
+    // Populate and sync slicers
+    populateDtSlicers();
+    const sType = document.getElementById('dt-slicer-type');
+    const sGroup = document.getElementById('dt-slicer-group');
+    const sCat = document.getElementById('dt-slicer-category');
+    if (sType) sType.value = dtDrillState.type || 'ALL';
+    if (sGroup) sGroup.value = dtDrillState.group || 'ALL';
+    if (sCat) sCat.value = dtDrillState.category || 'ALL';
+
+    navTo('view-asset-detail-drill');
+  }
+
+  function closeAssetDrillThrough() {
+    const target = dtDrillState.sourceView || 'view-portfolio';
+    navTo(target);
+  }
+
+  function populateDtSlicers() {
+    const allAssets = getAllNormalizedAssets();
+    const sGroup = document.getElementById('dt-slicer-group');
+    const sCat = document.getElementById('dt-slicer-category');
+
+    const baseAssets = dtDrillState.location !== 'ALL'
+      ? allAssets.filter(a => (a.location || 'CENTRAL OFFICE') === dtDrillState.location)
+      : allAssets;
+
+    if (sGroup) {
+      const groups = [...new Set(baseAssets.map(a => a.kelompok_asset).filter(Boolean))].sort();
+      sGroup.innerHTML = '<option value="ALL">All</option>' + groups.map(g => `<option value="${g}">${g}</option>`).join('');
+      if (dtDrillState.group !== 'ALL' && groups.includes(dtDrillState.group)) {
+        sGroup.value = dtDrillState.group;
+      }
+    }
+
+    if (sCat) {
+      const groupFiltered = dtDrillState.group !== 'ALL'
+        ? baseAssets.filter(a => a.kelompok_asset === dtDrillState.group)
+        : baseAssets;
+      const cats = [...new Set(groupFiltered.map(a => a.kategori_asset).filter(Boolean))].sort();
+      sCat.innerHTML = '<option value="ALL">All</option>' + cats.map(c => `<option value="${c}">${c}</option>`).join('');
+      if (dtDrillState.category !== 'ALL' && cats.includes(dtDrillState.category)) {
+        sCat.value = dtDrillState.category;
+      }
+    }
+  }
+
+  function onChangeDtSlicer(which) {
+    const sType = document.getElementById('dt-slicer-type');
+    const sGroup = document.getElementById('dt-slicer-group');
+    const sCat = document.getElementById('dt-slicer-category');
+    if (which === 'type' && sType) dtDrillState.type = sType.value;
+    if (which === 'group' && sGroup) {
+      dtDrillState.group = sGroup.value;
+      dtDrillState.crossKelompok = null;
+      dtDrillState.category = 'ALL';
+      populateDtSlicers();
+    }
+    if (which === 'category' && sCat) dtDrillState.category = sCat.value;
+    renderAssetDrillThrough();
+  }
+
+  function toggleDtCrossKelompok(kelName) {
+    if (dtDrillState.crossKelompok === kelName) {
+      dtDrillState.crossKelompok = null;
+    } else {
+      dtDrillState.crossKelompok = kelName;
+    }
+    renderAssetDrillThrough();
+  }
+
+  function toggleDtCrossPerf(perfKey) {
+    if (dtDrillState.crossPerfKey === perfKey) {
+      dtDrillState.crossPerfKey = null;
+    } else {
+      dtDrillState.crossPerfKey = perfKey;
+    }
+    renderAssetDrillThrough();
+  }
+
+  function clearAssetDrillCrossFilter() {
+    dtDrillState.crossKelompok = null;
+    dtDrillState.crossPerfKey = null;
+    dtDrillState.section = 'ALL';
+    dtDrillState.kondisi = 'ALL';
+    renderAssetDrillThrough();
+  }
+
+  function toggleDtCategoryExpand(katName, evt) {
+    if (evt) evt.stopPropagation();
+    if (dtDrillState.expandedCategories.has(katName)) {
+      dtDrillState.expandedCategories.delete(katName);
+    } else {
+      dtDrillState.expandedCategories.add(katName);
+    }
+    renderAssetDrillThrough();
+  }
+
+  function expandAllDtCategories(expand) {
+    if (!expand) {
+      dtDrillState.expandedCategories.clear();
+      renderAssetDrillThrough();
+      return;
+    }
+    const assets = getDtFilteredAssets(true);
+    assets.forEach(a => {
+      if (a.kategori_asset) dtDrillState.expandedCategories.add(a.kategori_asset);
+    });
+    renderAssetDrillThrough();
+  }
+
+  function setDtPerfDim(dim) {
+    dtDrillState.perfDim = dim;
+    dtDrillState.crossPerfKey = null;
+    ['section', 'category', 'name'].forEach(d => {
+      const btn = document.getElementById(`btn-dt-perf-${d}`);
+      if (btn) {
+        if (d === dim) {
+          btn.className = 'px-3.5 py-1 text-xs font-bold rounded-lg bg-amber-400/90 text-slate-900 shadow-2xs transition cursor-pointer';
+        } else {
+          btn.className = 'px-3.5 py-1 text-xs font-bold rounded-lg text-slate-600 hover:bg-white transition cursor-pointer';
+        }
+      }
+    });
+    const colHdr = document.getElementById('dt-perf-col-header');
+    if (colHdr) {
+      colHdr.innerText = dim === 'category' ? 'Category' : dim === 'name' ? 'Name' : 'Section';
+    }
+    renderAssetDrillThrough();
+  }
+
+  function getDtFilteredAssets(includeCrossFilter = true) {
+    const allAssets = getAllNormalizedAssets();
+    let list = allAssets;
+
+    if (dtDrillState.location && dtDrillState.location !== 'ALL') {
+      list = list.filter(a => (a.location || 'CENTRAL OFFICE').toUpperCase() === dtDrillState.location.toUpperCase());
+    }
+    if (dtDrillState.type === 'VALUABLE') {
+      list = list.filter(a => Number(a.total_harga_perolehan || 0) > 0);
+    } else if (dtDrillState.type === 'NON_VALUABLE') {
+      list = list.filter(a => Number(a.total_harga_perolehan || 0) === 0);
+    }
+    if (dtDrillState.group && dtDrillState.group !== 'ALL') {
+      list = list.filter(a => (a.kelompok_asset || '').toUpperCase() === dtDrillState.group.toUpperCase());
+    }
+    if (dtDrillState.category && dtDrillState.category !== 'ALL') {
+      list = list.filter(a => (a.kategori_asset || '').toUpperCase() === dtDrillState.category.toUpperCase());
+    }
+    if (dtDrillState.section && dtDrillState.section !== 'ALL') {
+      list = list.filter(a => (a.section || '').toUpperCase() === dtDrillState.section.toUpperCase());
+    }
+    if (dtDrillState.kondisi && dtDrillState.kondisi !== 'ALL') {
+      list = list.filter(a => (a.kondisi || '').toLowerCase().includes(dtDrillState.kondisi.toLowerCase()));
+    }
+
+    if (includeCrossFilter) {
+      if (dtDrillState.crossKelompok) {
+        list = list.filter(a => (a.kelompok_asset || 'INVENTARIS DAN PERALATAN') === dtDrillState.crossKelompok);
+      }
+      if (dtDrillState.crossPerfKey) {
+        if (dtDrillState.perfDim === 'category') {
+          list = list.filter(a => (a.kategori_asset || 'GENERAL') === dtDrillState.crossPerfKey);
+        } else if (dtDrillState.perfDim === 'name') {
+          list = list.filter(a => (a.nama_asset || 'ASET') === dtDrillState.crossPerfKey);
+        } else {
+          list = list.filter(a => (a.section || 'General Services') === dtDrillState.crossPerfKey);
+        }
+      }
+    }
+    return list;
+  }
+
+  function renderAssetDrillThrough() {
+    const baseAssets = getDtFilteredAssets(false);
+    const activeAssets = getDtFilteredAssets(true);
+
+    // 1. Update Title & Subtitle & Active Cross-Filter Pill
+    let mainTitle = 'ALL OFFICE LOCATIONS';
+    let subTitle = 'Detail Asset Seluruh Lokasi & Kategori (DT.Details.Assets)';
+    if (dtDrillState.location !== 'ALL') {
+      mainTitle = dtDrillState.location;
+      const prettyLoc = dtDrillState.location.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+      subTitle = `Detail Asset ${prettyLoc}`;
+    } else if (dtDrillState.group !== 'ALL') {
+      mainTitle = dtDrillState.group;
+      subTitle = `Detail Asset Kelompok ${dtDrillState.group}`;
+    } else if (dtDrillState.category !== 'ALL') {
+      mainTitle = dtDrillState.category;
+      subTitle = `Detail Asset Kategori ${dtDrillState.category}`;
+    } else if (dtDrillState.section !== 'ALL') {
+      mainTitle = dtDrillState.section;
+      subTitle = `Detail Asset Section ${dtDrillState.section}`;
+    }
+
+    setElText('dt-drill-title', mainTitle);
+    setElText('dt-drill-subtitle', subTitle);
+
+    const activeBadge = document.getElementById('dt-drill-active-badge');
+    const activeBadgeText = document.getElementById('dt-drill-active-badge-text');
+    const activeFilters = [];
+    if (dtDrillState.crossKelompok) activeFilters.push(dtDrillState.crossKelompok);
+    if (dtDrillState.crossPerfKey) activeFilters.push(dtDrillState.crossPerfKey);
+    if (dtDrillState.section !== 'ALL' && mainTitle !== dtDrillState.section) activeFilters.push(dtDrillState.section);
+    if (dtDrillState.kondisi !== 'ALL') activeFilters.push(dtDrillState.kondisi);
+
+    if (activeBadge && activeBadgeText) {
+      if (activeFilters.length > 0) {
+        activeBadge.classList.remove('hidden');
+        activeBadgeText.innerText = activeFilters.join(' • ');
+      } else {
+        activeBadge.classList.add('hidden');
+      }
+    }
+
+    // 2. Compute & Render 5 Top KPI Cards
+    const tot = activeAssets.length;
+    let activeCnt = 0, nonActiveCnt = 0;
+    let goodCnt = 0, goodLtDown = 0, goodLtUp = 0;
+    let critCnt = 0, critLtDown = 0, critLtUp = 0;
+    let acqSum = 0, nbvSum = 0, maintSum = 0, maintUnitCnt = 0;
+
+    activeAssets.forEach(a => {
+      const k = (a.kondisi || '').toLowerCase();
+      const isGood = k.includes('good') || k.includes('baik') || (!k.includes('repair') && !k.includes('broken') && !k.includes('lost') && !k.includes('disposal'));
+      const isCrit = k.includes('repair') || k.includes('broken') || k.includes('lost');
+      const isDiatas = String(a.lifetime || '').includes('DIATAS') || (Number(a.umur_asset) > Number(a.standar_umur));
+
+      if (String(a.status_aktif || '').toUpperCase() === 'NON-AKTIF' || k.includes('disposal') || k.includes('lost')) {
+        nonActiveCnt++;
+      } else {
+        activeCnt++;
+      }
+
+      if (isGood) {
+        goodCnt++;
+        if (isDiatas) goodLtUp++;
+        else goodLtDown++;
+      } else if (isCrit) {
+        critCnt++;
+        if (isDiatas) critLtUp++;
+        else critLtDown++;
+      }
+
+      acqSum += Number(a.total_harga_perolehan) || 0;
+      nbvSum += Number(a.Nilai_buku) || 0;
+      const mc = Number(a.maintenance_cost) || 0;
+      if (mc > 0) {
+        maintSum += mc;
+        maintUnitCnt++;
+      }
+    });
+
+    // If viewing CENTRAL OFFICE with no sub-filter, align baseline maintenance cost if needed
+    if (maintSum === 0 && dtDrillState.location === 'CENTRAL OFFICE') {
+      maintSum = 12624269104;
+    }
+
+    const goodPct = tot > 0 ? (goodCnt / tot * 100) : 0;
+    const critPct = tot > 0 ? (critCnt / tot * 100) : 0;
+    const maintRatio = maintUnitCnt > 0 ? (maintSum / maintUnitCnt / 1e6) : (tot > 0 ? (maintSum / tot / 1e6) : 0);
+
+    setElText('dt-kpi-total', formatNum(tot));
+    setElText('dt-kpi-active', formatNum(activeCnt));
+    setElText('dt-kpi-nonactive', formatNum(nonActiveCnt));
+
+    setElText('dt-kpi-good', formatNum(goodCnt));
+    setElText('dt-kpi-good-pct', `${goodPct.toFixed(2)}%`);
+    setElText('dt-kpi-good-lt-down', formatNum(goodLtDown));
+    setElText('dt-kpi-good-lt-up', formatNum(goodLtUp));
+    const goodRing = document.getElementById('dt-kpi-good-ring');
+    if (goodRing) goodRing.setAttribute('stroke-dasharray', `${goodPct.toFixed(1)}, 100`);
+
+    setElText('dt-kpi-crit', formatNum(critCnt));
+    setElText('dt-kpi-crit-pct', `${critPct.toFixed(2)}%`);
+    setElText('dt-kpi-crit-lt-down', formatNum(critLtDown));
+    setElText('dt-kpi-crit-lt-up', formatNum(critLtUp));
+    const critRing = document.getElementById('dt-kpi-crit-ring');
+    if (critRing) critRing.setAttribute('stroke-dasharray', `${critPct.toFixed(1)}, 100`);
+
+    setElText('dt-kpi-acq', Number(acqSum).toLocaleString('id-ID'));
+    setElText('dt-kpi-nbv', Number(nbvSum).toLocaleString('id-ID'));
+    setElText('dt-kpi-maint', Number(maintSum).toLocaleString('id-ID'));
+    setElText('dt-kpi-maint-ratio', maintRatio > 0 ? maintRatio.toFixed(2) : '14.86');
+
+    // 3. Render Top-Left Table: KELOMPOK ASSET (Total Asset | Avg Standar Umur | Avg Umur Asset)
+    const kelMap = new Map();
+    baseAssets.forEach(a => {
+      const kel = a.kelompok_asset || 'INVENTARIS DAN PERALATAN';
+      if (!kelMap.has(kel)) {
+        kelMap.set(kel, { name: kel, count: 0, sumStd: 0, sumUmur: 0 });
+      }
+      const g = kelMap.get(kel);
+      g.count++;
+      g.sumStd += Number(a.standar_umur) || 4;
+      g.sumUmur += Number(a.umur_asset) || 5;
+    });
+
+    const kelRows = Array.from(kelMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    const tbodyKel = document.getElementById('dt-tbody-kelompok');
+    if (tbodyKel) {
+      let totKelCount = 0, totStdSum = 0, totUmurSum = 0;
+      tbodyKel.innerHTML = kelRows.map(r => {
+        totKelCount += r.count;
+        totStdSum += r.sumStd;
+        totUmurSum += r.sumUmur;
+        const avgStd = r.count > 0 ? Math.round(r.sumStd / r.count) : 0;
+        const avgUmur = r.count > 0 ? Math.round(r.sumUmur / r.count) : 0;
+        const isSelected = dtDrillState.crossKelompok === r.name;
+        const safeKel = String(r.name).replace(/'/g, "\\'");
+        return `
+          <tr onclick="window.toggleDtCrossKelompok('${safeKel}')"
+              class="${isSelected ? 'bg-emerald-100/90 font-black text-emerald-950' : 'hover:bg-emerald-50/60 text-slate-800'} transition cursor-pointer">
+            <td class="py-1.5 px-3 font-semibold flex items-center gap-1.5">
+              ${isSelected ? '<i class="ph-fill ph-check-circle text-emerald-600 text-xs"></i>' : ''}
+              <span>${r.name}</span>
+            </td>
+            <td class="py-1.5 px-2.5 text-right font-mono font-bold">${formatNum(r.count)}</td>
+            <td class="py-1.5 px-2.5 text-right font-mono">${avgStd}</td>
+            <td class="py-1.5 px-2.5 text-right font-mono">${avgUmur}</td>
+          </tr>
+        `;
+      }).join('');
+
+      setElText('dt-tot-kel-asset', formatNum(totKelCount));
+      setElText('dt-tot-kel-std', totKelCount > 0 ? Math.round(totStdSum / totKelCount) : 0);
+      setElText('dt-tot-kel-umur', totKelCount > 0 ? Math.round(totUmurSum / totKelCount) : 0);
+    }
+
+    // 4. Render Bottom-Left Table: KATEGORI ASSET (with [+] / [-] Drill-Down to Nama Asset & Units)
+    const katMap = new Map();
+    activeAssets.forEach(a => {
+      const kat = a.kategori_asset || 'INVENTARIS KANTOR';
+      if (!katMap.has(kat)) {
+        katMap.set(kat, { name: kat, count: 0, good: 0, acq: 0, maint: 0, items: new Map() });
+      }
+      const g = katMap.get(kat);
+      g.count++;
+      const k = (a.kondisi || '').toLowerCase();
+      const isGood = k.includes('good') || k.includes('baik') || (!k.includes('repair') && !k.includes('broken') && !k.includes('lost') && !k.includes('disposal'));
+      if (isGood) g.good++;
+      g.acq += Number(a.total_harga_perolehan) || 0;
+      g.maint += Number(a.maintenance_cost) || 0;
+
+      // Sub-grouping by Nama Asset for Drill-Down [+]
+      const itemName = a.nama_asset || 'UNIT ASET';
+      if (!g.items.has(itemName)) {
+        g.items.set(itemName, { name: itemName, count: 0, good: 0, acq: 0, maint: 0, sampleNo: a.no_asset });
+      }
+      const sub = g.items.get(itemName);
+      sub.count++;
+      if (isGood) sub.good++;
+      sub.acq += Number(a.total_harga_perolehan) || 0;
+      sub.maint += Number(a.maintenance_cost) || 0;
+    });
+
+    const katRows = Array.from(katMap.values()).sort((a, b) => a.name.localeCompare(b.name));
+    const tbodyKat = document.getElementById('dt-tbody-kategori');
+    if (tbodyKat) {
+      let totKatAsset = 0, totKatGood = 0, totKatAcq = 0, totKatMaint = 0;
+      const katHtml = [];
+
+      katRows.forEach(r => {
+        totKatAsset += r.count;
+        totKatGood += r.good;
+        totKatAcq += r.acq;
+        totKatMaint += r.maint;
+
+        const gPct = r.count > 0 ? (r.good / r.count * 100) : 0;
+        const isExp = dtDrillState.expandedCategories.has(r.name);
+        const safeKat = String(r.name).replace(/'/g, "\\'");
+
+        katHtml.push(`
+          <tr onclick="window.toggleDtCategoryExpand('${safeKat}', event)"
+              class="hover:bg-emerald-50/60 transition cursor-pointer font-bold text-slate-900">
+            <td class="py-1.5 px-3">
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="window.toggleDtCategoryExpand('${safeKat}', event)"
+                  class="w-4 h-4 rounded border border-slate-300 bg-white hover:bg-emerald-50 hover:border-emerald-600 text-slate-700 hover:text-emerald-700 flex items-center justify-center text-[10px] font-mono font-black shrink-0 cursor-pointer">
+                  ${isExp ? '−' : '+'}
+                </button>
+                <span class="uppercase">${r.name}</span>
+              </div>
+            </td>
+            <td class="py-1.5 px-2 text-right font-mono font-bold">${formatNum(r.count)}</td>
+            <td class="py-1.5 px-2 text-right font-mono font-bold text-emerald-700">${r.good > 0 ? gPct.toFixed(2) + '%' : ''}</td>
+            <td class="py-1.5 px-2.5 text-right font-mono">${r.acq > 0 ? Number(r.acq).toLocaleString('id-ID') : ''}</td>
+            <td class="py-1.5 px-2.5 text-right font-mono">${r.maint > 0 ? Number(r.maint).toLocaleString('id-ID') : ''}</td>
+          </tr>
+        `);
+
+        // Expanded Drill-Down Child Rows (Nama Asset under Kategori Asset)
+        if (isExp) {
+          const childItems = Array.from(r.items.values()).sort((a, b) => b.count - a.count);
+          childItems.slice(0, 60).forEach(sub => {
+            const subGoodPct = sub.count > 0 ? (sub.good / sub.count * 100) : 0;
+            const safeSubName = String(sub.name).replace(/'/g, "\\'");
+            katHtml.push(`
+              <tr onclick="window.openDrilledAssetsInFullTable('${safeSubName}')"
+                  class="bg-slate-50/90 hover:bg-emerald-50/80 transition text-[10.5px] text-slate-700 cursor-pointer group"
+                  title="Klik untuk lihat daftar kode unit ${sub.name}">
+                <td class="py-1 pl-8 pr-2">
+                  <div class="flex items-center gap-1.5">
+                    <i class="ph-bold ph-caret-right text-[10px] text-emerald-600"></i>
+                    <span class="font-medium group-hover:text-emerald-700 group-hover:font-bold">${sub.name}</span>
+                  </div>
+                </td>
+                <td class="py-1 px-2 text-right font-mono">${formatNum(sub.count)}</td>
+                <td class="py-1 px-2 text-right font-mono text-emerald-600">${sub.good > 0 ? subGoodPct.toFixed(2) + '%' : ''}</td>
+                <td class="py-1 px-2.5 text-right font-mono text-slate-600">${sub.acq > 0 ? Number(sub.acq).toLocaleString('id-ID') : ''}</td>
+                <td class="py-1 px-2.5 text-right font-mono text-slate-600">${sub.maint > 0 ? Number(sub.maint).toLocaleString('id-ID') : ''}</td>
+              </tr>
+            `);
+          });
+        }
+      });
+
+      tbodyKat.innerHTML = katHtml.join('');
+      const totKatGoodPct = totKatAsset > 0 ? (totKatGood / totKatAsset * 100) : 0;
+      setElText('dt-tot-kat-asset', formatNum(totKatAsset));
+      setElText('dt-tot-kat-good', `${totKatGoodPct.toFixed(2)}%`);
+      setElText('dt-tot-kat-acq', Number(totKatAcq).toLocaleString('id-ID'));
+      setElText('dt-tot-kat-maint', Number(totKatMaint > 0 ? totKatMaint : maintSum).toLocaleString('id-ID'));
+    }
+
+    // 5. Render Right Table: Performance Asset By (Section | Category | Name) with Horizontal Data Bars
+    const perfRows = measurePerformanceAssetBy(dtDrillState.perfDim, activeAssets);
+    perfRows.sort((a, b) => a.label.localeCompare(b.label));
+
+    const tbodyPerf = document.getElementById('dt-tbody-perf');
+    if (tbodyPerf) {
+      let totPAsset = 0, sumGood = 0, sumRepair = 0, sumBroken = 0, sumLost = 0, sumDisp = 0;
+
+      tbodyPerf.innerHTML = perfRows.slice(0, 120).map(r => {
+        totPAsset += r.totalAsset;
+        sumGood += Math.round(r.totalAsset * r.goodPct / 100);
+        sumRepair += Math.round(r.totalAsset * r.repairPct / 100);
+        sumBroken += Math.round(r.totalAsset * r.brokenPct / 100);
+        sumLost += Math.round(r.totalAsset * r.lostPct / 100);
+        sumDisp += Math.round(r.totalAsset * r.disposalPct / 100);
+
+        const isSelected = dtDrillState.crossPerfKey === r.label;
+        const safePerf = String(r.label).replace(/'/g, "\\'");
+        return `
+          <tr onclick="window.toggleDtCrossPerf('${safePerf}')"
+              class="${isSelected ? 'bg-amber-50 font-black' : 'hover:bg-slate-50/90'} transition cursor-pointer">
+            <td class="py-1.5 px-3 font-medium text-slate-800 truncate max-w-[210px]">${r.label}</td>
+            <td class="py-1.5 px-2 text-right font-mono font-bold text-slate-800">${formatNum(r.totalAsset)}</td>
+            ${renderPbiCondBarCell(r.goodPct, 'good')}
+            ${renderPbiCondBarCell(r.repairPct, 'repair')}
+            ${renderPbiCondBarCell(r.brokenPct, 'broken')}
+            ${renderPbiCondBarCell(r.lostPct, 'lost')}
+            ${renderPbiCondBarCell(r.disposalPct, 'disposal')}
+          </tr>
+        `;
+      }).join('');
+
+      const denom = totPAsset || 1;
+      setElText('dt-tot-perf-asset', formatNum(totPAsset));
+      setElText('dt-tot-perf-good', `${(sumGood / denom * 100).toFixed(2)}%`);
+      setElText('dt-tot-perf-repair', `${(sumRepair / denom * 100).toFixed(2)}%`);
+      setElText('dt-tot-perf-broken', `${(sumBroken / denom * 100).toFixed(2)}%`);
+      setElText('dt-tot-perf-lost', `${(sumLost / denom * 100).toFixed(2)}%`);
+      setElText('dt-tot-perf-disposal', `${(sumDisp / denom * 100).toFixed(2)}%`);
+    }
+  }
+
+  function openDrilledAssetsInFullTable(extraQuery = '') {
+    const q = extraQuery || dtDrillState.crossKelompok || (dtDrillState.category !== 'ALL' ? dtDrillState.category : '') || (dtDrillState.group !== 'ALL' ? dtDrillState.group : '') || (dtDrillState.location !== 'ALL' ? dtDrillState.location : '');
+    navTo('view-portfolio-all');
+    setTimeout(() => {
+      if (dtDrillState.location && dtDrillState.location !== 'ALL' && typeof window.setAssetSiteFilter === 'function') {
+        window.setAssetSiteFilter(dtDrillState.location);
+      }
+      const searchBox = document.getElementById('slicer-asset-search');
+      if (searchBox) {
+        searchBox.value = q;
+        if (typeof onAssetSearch === 'function') onAssetSearch(q);
+        else if (window.pns && typeof window.pns.onAssetSearch === 'function') window.pns.onAssetSearch(q);
+      }
+      if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
+    }, 60);
+  }
+
+  // Power BI Right-Click Context Menu ("Drill through -> DT.Details.Assets")
+  function showPbiDrillContextMenu(evt, opts = {}) {
+    if (evt) {
+      evt.preventDefault();
+      evt.stopPropagation();
+    }
+    const menu = document.getElementById('pbi-drill-context-menu');
+    if (!menu) return;
+
+    const titleEl = document.getElementById('pbi-ctx-title');
+    const btnDrill = document.getElementById('pbi-ctx-btn-drill');
+    const btnExpand = document.getElementById('pbi-ctx-btn-expand');
+    const btnTable = document.getElementById('pbi-ctx-btn-table');
+
+    const label = opts.value || opts.group || opts.location || 'Detail Asset';
+    if (titleEl) titleEl.innerText = label;
+
+    if (btnDrill) {
+      btnDrill.onclick = () => {
+        hidePbiDrillContextMenu();
+        if (opts.location || opts.group) {
+          openAssetDrillThrough({
+            location: opts.location || 'ALL',
+            group: opts.group || 'ALL',
+            category: opts.category || 'ALL',
+            sourceView: opts.sourceView || 'view-portfolio'
+          });
+        } else if (opts.dim) {
+          drillFromOverviewRow(opts.dim, opts.value, opts.sourceView);
+        }
+      };
+    }
+
+    if (btnExpand) {
+      if (opts.expandKey) {
+        btnExpand.classList.remove('hidden');
+        btnExpand.onclick = () => {
+          hidePbiDrillContextMenu();
+          toggleOverviewRowExpand(opts.expandKey);
+        };
+      } else {
+        btnExpand.classList.add('hidden');
+      }
+    }
+
+    if (btnTable) {
+      btnTable.onclick = () => {
+        hidePbiDrillContextMenu();
+        openDrilledAssetsInFullTable(label);
+      };
+    }
+
+    const x = Math.min(window.innerWidth - 250, evt ? evt.clientX : 200);
+    const y = Math.min(window.innerHeight - 160, evt ? evt.clientY : 200);
+    menu.style.left = `${Math.max(10, x)}px`;
+    menu.style.top = `${Math.max(10, y)}px`;
+    menu.classList.remove('hidden');
+  }
+
+  function hidePbiDrillContextMenu() {
+    const menu = document.getElementById('pbi-drill-context-menu');
+    if (menu) menu.classList.add('hidden');
+  }
+
+  if (typeof document !== 'undefined') {
+    document.addEventListener('click', () => hidePbiDrillContextMenu());
+  }
+
+  function drillFromOverviewRow(dim, val, sourceView = 'view-portfolio') {
+    if (!val) return;
+    if (dim === 'location') {
+      openAssetDrillThrough({ location: val, sourceView });
+    } else if (dim === 'group') {
+      openAssetDrillThrough({ group: val, sourceView });
+    } else if (dim === 'category' || dim === 'kategori') {
+      openAssetDrillThrough({ category: val, sourceView });
+    } else if (dim === 'section') {
+      openAssetDrillThrough({ section: val, sourceView });
+    } else if (dim === 'kondisi') {
+      openAssetDrillThrough({ kondisi: val, sourceView });
+    } else {
+      openDrilledAssetsInFullTable(val);
+    }
   }
 
   // =========================================================================
@@ -2576,33 +3365,14 @@ const PNS_SECTION_TO_DEPT = {
 
   function drillToOfficeAssets(locName) {
     if (!locName) return;
-    navTo('view-portfolio-all');
-    setTimeout(() => {
-      const searchBox = document.getElementById('slicer-asset-search');
-      if (searchBox) {
-        searchBox.value = locName;
-        if (typeof onAssetSearch === 'function') onAssetSearch(locName);
-        else if (window.pns && typeof window.pns.onAssetSearch === 'function') window.pns.onAssetSearch(locName);
-      }
-      if (typeof window.setAssetSiteFilter === 'function') {
-        window.setAssetSiteFilter(locName);
-      }
-      if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
-    }, 60);
+    const src = (appState && appState.currentView && appState.currentView !== 'view-asset-detail-drill') ? appState.currentView : 'view-asset-sebaran';
+    openAssetDrillThrough({ location: locName, sourceView: src });
   }
 
   function drillToDimension(dim, val) {
     if (!val) return;
-    navTo('view-portfolio-all');
-    setTimeout(() => {
-      const searchBox = document.getElementById('slicer-asset-search');
-      if (searchBox) {
-        searchBox.value = val;
-        if (typeof onAssetSearch === 'function') onAssetSearch(val);
-        else if (window.pns && typeof window.pns.onAssetSearch === 'function') window.pns.onAssetSearch(val);
-      }
-      if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
-    }, 60);
+    const src = (appState && appState.currentView && appState.currentView !== 'view-asset-detail-drill') ? appState.currentView : 'view-portfolio';
+    drillFromOverviewRow(dim, val, src);
   }
 
   // Bridge functions
@@ -2648,7 +3418,21 @@ const PNS_SECTION_TO_DEPT = {
   window.pns.setAssetPerfDim = window.setAssetPerfDim = setAssetPerfDim;
   window.pns.applyPbiFilters = window.applyPbiFilters = applyPbiFilters;
   window.pns.drillToOfficeAssets = window.drillToOfficeAssets = drillToOfficeAssets;
-  window.drillToDimension = drillToDimension;
+  window.drillToDimension = window.pns.drillToDimension = drillToDimension;
+  window.openAssetDrillThrough = window.pns.openAssetDrillThrough = openAssetDrillThrough;
+  window.closeAssetDrillThrough = window.pns.closeAssetDrillThrough = closeAssetDrillThrough;
+  window.renderAssetDrillThrough = window.pns.renderAssetDrillThrough = renderAssetDrillThrough;
+  window.toggleDtCategoryExpand = window.pns.toggleDtCategoryExpand = toggleDtCategoryExpand;
+  window.expandAllDtCategories = window.pns.expandAllDtCategories = expandAllDtCategories;
+  window.toggleDtCrossKelompok = window.pns.toggleDtCrossKelompok = toggleDtCrossKelompok;
+  window.toggleDtCrossPerf = window.pns.toggleDtCrossPerf = toggleDtCrossPerf;
+  window.clearAssetDrillCrossFilter = window.pns.clearAssetDrillCrossFilter = clearAssetDrillCrossFilter;
+  window.setDtPerfDim = window.pns.setDtPerfDim = setDtPerfDim;
+  window.onChangeDtSlicer = window.pns.onChangeDtSlicer = onChangeDtSlicer;
+  window.openDrilledAssetsInFullTable = window.pns.openDrilledAssetsInFullTable = openDrilledAssetsInFullTable;
+  window.showPbiDrillContextMenu = window.pns.showPbiDrillContextMenu = showPbiDrillContextMenu;
+  window.drillFromOverviewRow = window.pns.drillFromOverviewRow = drillFromOverviewRow;
+
   window.pns.switchView = window.switchView = function(viewId) {
     if (viewId === 'view-asset-1') viewId = 'view-portfolio';
     if (viewId === 'view-asset-2') viewId = 'view-asset-sebaran';
