@@ -160,6 +160,13 @@
               <i id="caret-nav-group-asset-catalog" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform duration-150"></i>
             </button>
             <div id="nav-group-asset-catalog" class="space-y-0.5 mt-0.5 pl-1.5">
+              <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Laporan Validasi &amp; Rekonsiliasi Portofolio Aset (34.840 Unit)">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph-bold ph-seal-check text-sm text-sky-600 shrink-0"></i>
+                  <span class="truncate font-bold text-sky-900">Laporan Validasi Aset</span>
+                </span>
+                <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-sky-100 text-sky-800 border border-sky-300 shrink-0">34.840</span>
+              </button>
               <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Daftar Master Katalog Aset (34.266 Unit)">
                 <i class="ph-bold ph-table text-sm text-slate-400 shrink-0"></i>
                 <span class="truncate">Master Katalog Aset</span>
@@ -216,9 +223,12 @@
                 <i class="ph-bold ph-check-circle text-sm text-slate-400 shrink-0"></i>
                 <span class="truncate">Update Status &amp; Kondisi</span>
               </button>
-              <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Validasi & Audit Lapangan (Opname)">
-                <i class="ph-bold ph-seal-check text-sm text-slate-400 shrink-0"></i>
-                <span class="truncate">Audit &amp; Opname Fisik</span>
+              <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Laporan Validasi &amp; Audit Lapangan (Opname)">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph-bold ph-seal-check text-sm text-sky-600 shrink-0"></i>
+                  <span class="truncate">Validasi &amp; Opname Fisik</span>
+                </span>
+                <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-sky-50 text-sky-700 border border-sky-200 shrink-0">PBI</span>
               </button>
               <button type="button" data-view="view-asset-disposal" onclick="navTo('view-asset-disposal', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Disposal & Penghapusan Aset">
                 <i class="ph-bold ph-trash text-sm text-rose-500 shrink-0"></i>
@@ -1801,7 +1811,12 @@
         <!-- Depresiasi Table -->
         <div class="clean-card overflow-hidden">
           <div class="p-3 border-b border-slate-200 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 bg-slate-50/50">
-            <span class="text-xs text-slate-700 font-bold">Simulasi Jadwal Penyusutan per Golongan Aset</span>
+            <div>
+              <span class="text-xs text-slate-800 font-bold flex items-center gap-1.5">
+                <i class="ph-bold ph-chart-pie text-sky-600"></i> Simulasi Jadwal Penyusutan per Golongan Aset
+              </span>
+              <p class="text-[10px] text-sky-700 font-medium mt-0.5">💡 Klik baris golongan aset mana saja untuk langsung drill-down ke rincian inventaris fisik di Detail Asset Movement</p>
+            </div>
             <span class="text-[11px] text-slate-500">Masa manfaat PSAK Golongan 1 (4 thn), Golongan 2 (8 thn), Bangunan (20 thn)</span>
           </div>
           <div class="overflow-x-auto">
@@ -1815,6 +1830,7 @@
                   <th class="py-2.5 px-3 text-right">Akum. Depresiasi</th>
                   <th class="py-2.5 px-3 text-right">Nilai Buku (NBV)</th>
                   <th class="py-2.5 px-3 text-center">Status Buku</th>
+                  <th class="py-2.5 px-3 text-center">Drill Down</th>
                 </tr>
               </thead>
               <tbody class="divide-y divide-slate-100 font-mono" id="table-depresiasi-body">

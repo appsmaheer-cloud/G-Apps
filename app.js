@@ -5675,8 +5675,11 @@ const PNS_SECTION_TO_DEPT = {
     const fmtFull = val => 'Rp ' + Number(Math.round(val || 0)).toLocaleString('id-ID');
 
     tbody.innerHTML = deprData.map(d => `
-      <tr onclick="window.openAssetDrillThrough({ group: '${d.gol}', sourceView: 'view-asset-depreciation' })" class="hover:bg-slate-50/90 transition border-b border-slate-100 cursor-pointer">
-        <td class="py-3 px-4 font-bold text-slate-900">${d.gol}</td>
+      <tr onclick="window.openAssetDrillThrough({ group: '${d.gol}', sourceView: 'view-asset-depreciation' })" class="hover:bg-sky-50/80 transition border-b border-slate-100 cursor-pointer group" title="Klik untuk drill-down ke rincian inventaris ${d.gol}">
+        <td class="py-3 px-4 font-bold text-slate-900 flex items-center justify-between">
+          <span>${d.gol}</span>
+          <i class="ph-bold ph-arrow-right text-xs text-sky-500 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+        </td>
         <td class="py-3 px-4 font-mono font-bold text-slate-700">${Number(d.unit).toLocaleString('id-ID')} Unit</td>
         <td class="py-3 px-4 text-slate-600 font-mono text-[11px]">${d.masa}</td>
         <td class="py-3 px-4 text-right font-mono font-semibold text-slate-900">${fmtFull(d.hpp)}</td>
@@ -5684,6 +5687,11 @@ const PNS_SECTION_TO_DEPT = {
         <td class="py-3 px-4 text-right font-mono font-black text-emerald-600">${fmtFull(d.nbv)}</td>
         <td class="py-3 px-4 text-center">
           <span class="px-2 py-0.5 text-[10px] font-bold rounded-full bg-emerald-100 text-emerald-700">${d.status}</span>
+        </td>
+        <td class="py-3 px-4 text-center">
+          <button type="button" class="px-2 py-1 text-[11px] font-bold rounded bg-sky-100 text-sky-700 group-hover:bg-sky-600 group-hover:text-white transition flex items-center gap-1 mx-auto">
+            <span>Drill</span> <i class="ph-bold ph-arrow-right"></i>
+          </button>
         </td>
       </tr>
     `).join('');
