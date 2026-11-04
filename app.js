@@ -9558,70 +9558,360 @@ const PNS_SECTION_TO_DEPT = {
     renderAllAssetsTable();
   }
 
-  function renderValidasiTable() {
-    const tbody = document.getElementById('table-validasi-body');
+  // =========================================================================
+  // ENTERPRISE VALIDATION & PERFORMANCE REPORT (POWER BI EQUIVALENT)
+  // =========================================================================
+  let currentValidasiTab = 'rekon';
+  let currentMatrixGroup = 'loc';
+
+  const REAL_LOCATIONS_MATRIX = [
+    { name: 'CO', label: 'Central Office (CO)', validPct: '100%', avgStd: 13, avgUmur: 7, belum: 0, sesuai: 13383, tdkSesuai: 38, good: 11229, repair: 31, disp: 122, broken: 1085, lost: 965, total: 13432 },
+    { name: 'E1', label: 'Estate 1 (E1)', validPct: '100%', avgStd: 8, avgUmur: 9, belum: 0, sesuai: 2742, tdkSesuai: 2, good: 1177, repair: 2, disp: 15, broken: 898, lost: 652, total: 2744 },
+    { name: 'E2', label: 'Estate 2 (E2)', validPct: '100%', avgStd: 7, avgUmur: 7, belum: 0, sesuai: 2666, tdkSesuai: 3, good: 1784, repair: 4, disp: 2, broken: 702, lost: 177, total: 2669 },
+    { name: 'E3', label: 'Estate 3 (E3)', validPct: '100%', avgStd: 7, avgUmur: 6, belum: 0, sesuai: 2399, tdkSesuai: 4, good: 1535, repair: 4, disp: 2, broken: 405, lost: 457, total: 2403 },
+    { name: 'FR', label: 'Factory / Pabrik (FR)', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 10359, tdkSesuai: 46, good: 9656, repair: 41, disp: 16, broken: 522, lost: 170, total: 10405 },
+    { name: 'HO', label: 'Head Office (HO)', validPct: '100%', avgStd: 4, avgUmur: 9, belum: 0, sesuai: 869, tdkSesuai: 2, good: 794, repair: 0, disp: 0, broken: 22, lost: 55, total: 871 },
+    { name: 'MR', label: 'Mess Residence (MR)', validPct: '100%', avgStd: 6, avgUmur: 4, belum: 0, sesuai: 1602, tdkSesuai: 0, good: 1577, repair: 0, disp: 0, broken: 25, lost: 0, total: 1602 },
+    { name: 'RO', label: 'Regional Office (RO)', validPct: '100%', avgStd: 5, avgUmur: 12, belum: 0, sesuai: 139, tdkSesuai: 0, good: 120, repair: 0, disp: 0, broken: 4, lost: 16, total: 140 },
+    { name: 'API_PENDING', label: 'Pending Register API (Baru)', validPct: 'Pending', avgStd: 8, avgUmur: 1, belum: 574, sesuai: 0, tdkSesuai: 0, good: 574, repair: 0, disp: 0, broken: 0, lost: 0, total: 574 }
+  ];
+
+  const REAL_DEPTS_MATRIX = [
+    { name: 'BUSINESS SUPPORT', validPct: '100%', avgStd: 19, avgUmur: 5, belum: 0, sesuai: 8252, tdkSesuai: 2, good: 7560, repair: 17, disp: 30, broken: 381, lost: 266, total: 8254 },
+    { name: 'FINANCIAL & INFORMATION', validPct: '100%', avgStd: 5, avgUmur: 8, belum: 0, sesuai: 511, tdkSesuai: 0, good: 306, repair: 2, disp: 56, broken: 66, lost: 93, total: 523 },
+    { name: 'HARVESTING', validPct: '100%', avgStd: 9, avgUmur: 8, belum: 0, sesuai: 1154, tdkSesuai: 0, good: 336, repair: 3, disp: 9, broken: 694, lost: 112, total: 1154 },
+    { name: 'HRGA', validPct: '100%', avgStd: 5, avgUmur: 7, belum: 0, sesuai: 16863, tdkSesuai: 89, good: 14342, repair: 8, disp: 31, broken: 1258, lost: 1313, total: 16952 },
+    { name: 'PLANTATION', validPct: '100%', avgStd: 15, avgUmur: 8, belum: 0, sesuai: 1634, tdkSesuai: 0, good: 776, repair: 3, disp: 0, broken: 355, lost: 500, total: 1634 },
+    { name: 'PROCUREMENT & PURCHASING', validPct: '100%', avgStd: 5, avgUmur: 6, belum: 0, sesuai: 15, tdkSesuai: 0, good: 12, repair: 0, disp: 0, broken: 0, lost: 3, total: 15 },
+    { name: 'PRODUCTION', validPct: '100%', avgStd: 9, avgUmur: 5, belum: 0, sesuai: 1723, tdkSesuai: 0, good: 1609, repair: 16, disp: 0, broken: 96, lost: 2, total: 1723 },
+    { name: 'QUALITY HEALTH & SAFETY ENVIRONMENT', validPct: '100%', avgStd: 4, avgUmur: 6, belum: 0, sesuai: 984, tdkSesuai: 3, good: 762, repair: 10, disp: 30, broken: 145, lost: 40, total: 987 },
+    { name: 'RESEARCH & DEVELOPMENT', validPct: '100%', avgStd: 5, avgUmur: 8, belum: 0, sesuai: 537, tdkSesuai: 1, good: 262, repair: 2, disp: 0, broken: 238, lost: 36, total: 538 },
+    { name: 'SALES & MARKETING', validPct: '100%', avgStd: 6, avgUmur: 8, belum: 0, sesuai: 4, tdkSesuai: 0, good: 2, repair: 0, disp: 0, broken: 0, lost: 2, total: 4 },
+    { name: 'WORKSHOP & ENGINERING', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 2482, tdkSesuai: 0, good: 1905, repair: 21, disp: 1, broken: 430, lost: 125, total: 2482 },
+    { name: 'API_PENDING', validPct: 'Pending', avgStd: 8, avgUmur: 1, belum: 574, sesuai: 0, tdkSesuai: 0, good: 574, repair: 0, disp: 0, broken: 0, lost: 0, total: 574 }
+  ];
+
+  const REAL_KELOMPOK_STATS = [
+    { name: 'INVENTARIS DAN PERALATAN', count: 22696, pct: '66.23%', goodPct: '82.21%', repPct: '0.22%', dispPct: '0.30%', brkPct: '8.53%', lostPct: '8.73%' },
+    { name: 'INFRASTRUKTUR', count: 4755, pct: '13.88%', goodPct: '97.90%', repPct: '0.00%', dispPct: '0.00%', brkPct: '1.11%', lostPct: '0.99%' },
+    { name: 'MESIN PABRIK', count: 2206, pct: '6.44%', goodPct: '92.20%', repPct: '0.23%', dispPct: '0.00%', brkPct: '7.57%', lostPct: '0.00%' },
+    { name: 'MESIN DAN INSTALASI', count: 1825, pct: '5.33%', goodPct: '64.88%', repPct: '0.99%', dispPct: '0.77%', brkPct: '21.42%', lostPct: '11.95%' },
+    { name: 'KENDARAAN DAN TRANSPORTASI', count: 1416, pct: '4.13%', goodPct: '32.06%', repPct: '0.07%', dispPct: '1.69%', brkPct: '59.96%', lostPct: '6.21%' },
+    { name: 'BANGUNAN', count: 819, pct: '2.39%', goodPct: '73.50%', repPct: '0.12%', dispPct: '6.11%', brkPct: '9.65%', lostPct: '10.62%' },
+    { name: 'ALAT/IMPLEMENT PERTANIAN', count: 415, pct: '1.21%', goodPct: '51.81%', repPct: '0.00%', dispPct: '0.00%', brkPct: '32.05%', lostPct: '16.14%' },
+    { name: 'ALAT BERAT', count: 134, pct: '0.39%', goodPct: '52.24%', repPct: '4.48%', dispPct: '0.00%', brkPct: '41.04%', lostPct: '2.24%' }
+  ];
+
+  const REAL_TOP_KATEGORI = [
+    { name: 'KENDARAAN ANGKUTAN', total: 937, goodPct: '20.70%', brkPct: '73.64%' },
+    { name: 'KENDARAAN AIR', total: 238, goodPct: '23.11%', brkPct: '55.46%' },
+    { name: 'IMPLEMENT RATOONER', total: 161, goodPct: '54.66%', brkPct: '37.89%' },
+    { name: 'PERALATAN LABORATORIUM', total: 147, goodPct: '82.99%', brkPct: '12.93%' },
+    { name: 'TRACTOR - NEW HOLLAND', total: 36, goodPct: '66.67%', brkPct: '30.56%' },
+    { name: 'ALAT BERAT - EXCAVATOR', total: 13, goodPct: '30.77%', brkPct: '61.54%' },
+    { name: 'ALAT BERAT - BULLDOZER', total: 4, goodPct: '25.00%', brkPct: '75.00%' }
+  ];
+
+  function switchValidasiTab(tabKey) {
+    currentValidasiTab = tabKey;
+    const tabRekon = document.getElementById('validasi-tab-rekon');
+    const tabPerf = document.getElementById('validasi-tab-perf');
+    const btnRekon = document.getElementById('tab-btn-validasi-rekon');
+    const btnPerf = document.getElementById('tab-btn-validasi-perf');
+
+    if (tabKey === 'rekon') {
+      if (tabRekon) tabRekon.classList.remove('hidden');
+      if (tabPerf) tabPerf.classList.add('hidden');
+      if (btnRekon) { btnRekon.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-900 shadow-xs cursor-pointer'; }
+      if (btnPerf) { btnPerf.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/60 cursor-pointer'; }
+    } else {
+      if (tabRekon) tabRekon.classList.add('hidden');
+      if (tabPerf) tabPerf.classList.remove('hidden');
+      if (btnPerf) { btnPerf.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-900 shadow-xs cursor-pointer'; }
+      if (btnRekon) { btnRekon.className = 'px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/60 cursor-pointer'; }
+      renderPerformanceTab();
+    }
+  }
+
+  function switchMatrixGroup(type) {
+    currentMatrixGroup = type;
+    const btnLoc = document.getElementById('btn-val-matrix-loc');
+    const btnDept = document.getElementById('btn-val-matrix-dept');
+    const thName = document.getElementById('matrix-th-name');
+
+    if (type === 'loc') {
+      if (btnLoc) { btnLoc.className = 'px-2.5 py-1 rounded text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 transition cursor-pointer'; }
+      if (btnDept) { btnDept.className = 'px-2.5 py-1 rounded text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer'; }
+      if (thName) thName.innerText = 'Lokasi Site';
+    } else {
+      if (btnDept) { btnDept.className = 'px-2.5 py-1 rounded text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 transition cursor-pointer'; }
+      if (btnLoc) { btnLoc.className = 'px-2.5 py-1 rounded text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer'; }
+      if (thName) thName.innerText = 'Departemen';
+    }
+    renderValidasiMatrix();
+  }
+
+  function onFilterValidasiReport() {
+    renderValidasiMatrix();
+    if (currentValidasiTab === 'perf') renderPerformanceTab();
+  }
+
+  function renderEnterpriseValidasiReport() {
+    renderValidasiMatrix();
+    renderPerformanceTab();
+  }
+
+  function renderValidasiMatrix() {
+    const tbody = document.getElementById('table-validasi-matrix-body');
+    const tfoot = document.getElementById('table-validasi-matrix-foot');
     if (!tbody) return;
 
-    const query = (document.getElementById('search-validasi')?.value || '').toLowerCase();
-    const filterStatus = document.getElementById('filter-val-status')?.value || '';
+    const query = (document.getElementById('val-global-search')?.value || '').toLowerCase().trim();
+    const filterLoc = document.getElementById('val-filter-location')?.value || '';
+    const filterDept = document.getElementById('val-filter-dept')?.value || '';
+    const filterStatus = document.getElementById('val-filter-status')?.value || '';
 
-    const list = (appState.validations || REAL_VALIDATIONS).filter(v => {
-      const matchStatus = !filterStatus || v.status === filterStatus;
-      const matchQuery = !query ||
-        String(v.opname_id || '').toLowerCase().includes(query) ||
-        String(v.lokasi || '').toLowerCase().includes(query) ||
-        String(v.auditor || '').toLowerCase().includes(query);
-      return matchStatus && matchQuery;
+    const sourceData = (currentMatrixGroup === 'loc') ? REAL_LOCATIONS_MATRIX : REAL_DEPTS_MATRIX;
+
+    const filtered = sourceData.filter(item => {
+      if (currentMatrixGroup === 'loc' && filterLoc && item.name !== filterLoc && item.name !== 'API_PENDING') return false;
+      if (currentMatrixGroup === 'dept' && filterDept && item.name !== filterDept && item.name !== 'API_PENDING') return false;
+      if (filterStatus === 'SESUAI' && item.sesuai === 0) return false;
+      if (filterStatus === 'TIDAK SESUAI' && item.tdkSesuai === 0) return false;
+      if (filterStatus === 'BELUM VERIFIKASI' && item.belum === 0) return false;
+      if (query && !item.name.toLowerCase().includes(query) && !(item.label || '').toLowerCase().includes(query)) return false;
+      return true;
     });
 
-    // Update stats cards
-    const totalSessions = (appState.validations || []).length;
-    const totalAssets = (appState.validations || []).reduce((acc, v) => acc + (Number(v.total_terdaftar) || 0), 0);
-    const validAssets = (appState.validations || []).reduce((acc, v) => acc + (Number(v.sesuai) || 0), 0);
-    const diffAssets = (appState.validations || []).reduce((acc, v) => acc + (Number(v.selisih) || 0), 0);
-
-    const setValText = (id, val) => { const el = document.getElementById(id); if (el) el.innerText = val; };
-    setValText('val-stat-sessions', totalSessions + ' Sesi');
-    setValText('val-stat-total', totalAssets.toLocaleString('id-ID') + ' Unit');
-    setValText('val-stat-valid', validAssets.toLocaleString('id-ID') + ' Unit');
-    setValText('val-stat-selisih', diffAssets.toLocaleString('id-ID') + ' Unit');
-
-    if (list.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="10" class="text-center py-6 text-slate-500">Tidak ada catatan opname yang cocok.</td></tr>`;
+    if (filtered.length === 0) {
+      tbody.innerHTML = `<tr><td colspan="14" class="text-center py-6 text-slate-400">Tidak ada data yang cocok dengan filter saat ini.</td></tr>`;
+      if (tfoot) tfoot.innerHTML = '';
       return;
     }
 
-    tbody.innerHTML = list.map(v => {
-      const statusBadge = v.status === 'Valid'
-        ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800">Valid (Sesuai)</span>'
-        : (v.status === 'Ada Selisih'
-          ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800">Ada Selisih</span>'
-          : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-sky-100 text-sky-800">Proses</span>');
+    let totSesuai = 0, totTdkSesuai = 0, totBelum = 0;
+    let totGood = 0, totRepair = 0, totDisp = 0, totBroken = 0, totLost = 0, totAll = 0;
+
+    tbody.innerHTML = filtered.map(row => {
+      totSesuai += row.sesuai;
+      totTdkSesuai += row.tdkSesuai;
+      totBelum += row.belum;
+      totGood += row.good;
+      totRepair += row.repair;
+      totDisp += row.disp;
+      totBroken += row.broken;
+      totLost += row.lost;
+      totAll += row.total;
+
+      const isPending = (row.name === 'API_PENDING');
+      const rowBg = isPending ? 'bg-amber-50/50 hover:bg-amber-100/60' : 'hover:bg-slate-50';
+      const nameLabel = isPending
+        ? `<span class="font-bold text-amber-800 flex items-center gap-1.5"><i class="ph-bold ph-hourglass-high"></i> ${escapeHtml(row.label || row.name)}</span>`
+        : `<span class="font-bold text-slate-900">${escapeHtml(row.label || row.name)}</span>`;
+
+      const drillAction = isPending
+        ? `onclick="navTo('view-asset-movement'); setFilterBelumCheckout();"`
+        : (currentMatrixGroup === 'loc'
+            ? `onclick="window.openAssetDrillThrough({ location: '${escapeHtml(row.name)}', sourceView: 'view-validasi' });"`
+            : `onclick="window.openAssetMovementWithFilter({ section: '${escapeHtml(row.name)}' });"`);
 
       return `
-        <tr>
-          <td class="font-mono font-bold text-sky-600">${escapeHtml(v.opname_id)}</td>
-          <td class="num-tabular">${escapeHtml(v.tanggal)}</td>
-          <td class="font-semibold text-slate-900">${escapeHtml(v.lokasi)}</td>
-          <td class="num-tabular font-bold">${Number(v.total_terdaftar).toLocaleString('id-ID')}</td>
-          <td class="num-tabular text-emerald-600 font-bold">${Number(v.sesuai).toLocaleString('id-ID')}</td>
-          <td class="num-tabular ${v.selisih > 0 ? 'text-amber-600 font-bold' : 'text-slate-500'}">${Number(v.selisih)}</td>
-          <td>${statusBadge}</td>
-          <td>${escapeHtml(v.auditor)}</td>
-          <td class="text-xs text-slate-500 max-w-xs truncate">${escapeHtml(v.catatan || '-')}</td>
-          <td class="text-right">
-            <button type="button" onclick="verifikasiOpname('${escapeHtml(v.opname_id)}')" class="px-2.5 py-1 text-[10px] font-bold rounded bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition">
-              Detail / Sync
+        <tr class="${rowBg} transition cursor-pointer" ${drillAction} title="Klik untuk drill-through ke rincian inventaris">
+          <td class="py-2.5 px-3">${nameLabel}</td>
+          <td class="py-2 px-2 text-center num-tabular font-bold ${row.validPct === '100%' ? 'text-emerald-700 bg-emerald-50/40' : 'text-amber-700'}">${escapeHtml(row.validPct)}</td>
+          <td class="py-2 px-2 text-right num-tabular">${row.avgStd}</td>
+          <td class="py-2 px-2 text-right num-tabular">${row.avgUmur}</td>
+          <td class="py-2 px-2 text-right num-tabular font-bold ${row.belum > 0 ? 'text-amber-700 bg-amber-50/50' : 'text-slate-400'}">${row.belum > 0 ? row.belum.toLocaleString('id-ID') : '-'}</td>
+          <td class="py-2 px-2 text-right num-tabular font-bold text-emerald-700 bg-emerald-50/30">${row.sesuai.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-2 text-right num-tabular font-bold ${row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/50' : 'text-slate-400'}">${row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-'}</td>
+          <td class="py-2 px-2 text-right num-tabular text-slate-700">${row.good.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-2 text-right num-tabular text-blue-700">${row.repair.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-2 text-right num-tabular text-rose-700">${row.disp.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-2 text-right num-tabular text-amber-700">${row.broken.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-2 text-right num-tabular text-slate-500">${row.lost.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-3 text-right num-tabular font-black text-slate-900 bg-slate-100/50">${row.total.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-2 text-center" onclick="event.stopPropagation();">
+            <button type="button" ${drillAction} class="p-1 rounded bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition" title="Drill ke Detail Asset Movement">
+              <i class="ph-bold ph-arrow-right"></i>
             </button>
           </td>
         </tr>
       `;
     }).join('');
+
+    if (tfoot) {
+      tfoot.innerHTML = `
+        <tr>
+          <td class="py-3 px-3 uppercase tracking-wider">Total Portofolio</td>
+          <td class="py-3 px-2 text-center num-tabular text-emerald-700">98.05%</td>
+          <td class="py-3 px-2 text-right num-tabular">9</td>
+          <td class="py-3 px-2 text-right num-tabular">7</td>
+          <td class="py-3 px-2 text-right num-tabular text-amber-700 bg-amber-100/60">${totBelum.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right num-tabular text-emerald-800 bg-emerald-100/60">${totSesuai.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right num-tabular text-rose-800 bg-rose-100/60">${totTdkSesuai.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right num-tabular text-slate-800">${totGood.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right num-tabular text-blue-800">${totRepair.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right num-tabular text-rose-800">${totDisp.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right num-tabular text-amber-800">${totBroken.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right num-tabular text-slate-700">${totLost.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-3 text-right num-tabular text-slate-900 bg-slate-200/80">${totAll.toLocaleString('id-ID')}</td>
+          <td></td>
+        </tr>
+      `;
+    }
+  }
+
+  function renderPerformanceTab() {
+    // 1. Render Department breakdown table in Tab 2
+    const tbodyDept = document.getElementById('table-perf-dept-body');
+    if (tbodyDept) {
+      tbodyDept.innerHTML = REAL_DEPTS_MATRIX.filter(d => d.name !== 'API_PENDING').map(d => {
+        const goodPct = ((d.good / d.total) * 100).toFixed(2) + '%';
+        const repPct = ((d.repair / d.total) * 100).toFixed(2) + '%';
+        const dispPct = ((d.disp / d.total) * 100).toFixed(2) + '%';
+        const brkPct = ((d.broken / d.total) * 100).toFixed(2) + '%';
+        const lostPct = ((d.lost / d.total) * 100).toFixed(2) + '%';
+
+        return `
+          <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="window.openAssetMovementWithFilter({ section: '${escapeHtml(d.name)}' })" title="Klik untuk lihat rincian aset">
+            <td class="py-2 px-2.5 font-bold text-slate-800 truncate max-w-[160px]">${escapeHtml(d.name)}</td>
+            <td class="py-2 px-2 text-right num-tabular font-bold text-slate-900">${d.total.toLocaleString('id-ID')}</td>
+            <td class="py-2 px-1.5 text-right num-tabular text-emerald-700">${goodPct}</td>
+            <td class="py-2 px-1.5 text-right num-tabular text-blue-700">${repPct}</td>
+            <td class="py-2 px-1.5 text-right num-tabular text-rose-700">${dispPct}</td>
+            <td class="py-2 px-1.5 text-right num-tabular text-amber-700">${brkPct}</td>
+            <td class="py-2 px-1.5 text-right num-tabular text-slate-600">${lostPct}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // 2. Render Kelompok Asset bars
+    const kelContainer = document.getElementById('perf-kelompok-bars');
+    if (kelContainer) {
+      kelContainer.innerHTML = REAL_KELOMPOK_STATS.map(k => {
+        const widthPct = Math.min(100, Math.max(8, (k.count / 22696) * 100)).toFixed(1);
+        return `
+          <div class="space-y-1">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold text-slate-800 truncate pr-2">${escapeHtml(k.name)}</span>
+              <span class="num-tabular font-black text-slate-900">${k.count.toLocaleString('id-ID')}</span>
+            </div>
+            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden flex cursor-pointer" onclick="window.openAssetMovementWithFilter({ kelompok: '${escapeHtml(k.name)}' })" title="Klik untuk filter ${escapeHtml(k.name)}">
+              <div class="bg-sky-600 h-2.5 rounded-full transition-all duration-300" style="width: ${widthPct}%"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-400">
+              <span>Good: ${k.goodPct} | Broken: ${k.brkPct}</span>
+              <span>${k.pct} dari total</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // 3. Render Top Kategori Table
+    const katBody = document.getElementById('table-perf-kat-body');
+    if (katBody) {
+      katBody.innerHTML = REAL_TOP_KATEGORI.map(k => {
+        return `
+          <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="window.openAssetMovementWithFilter({ kategori: '${escapeHtml(k.name)}' })">
+            <td class="py-2 px-2.5 font-semibold text-slate-800 truncate max-w-[140px]">${escapeHtml(k.name)}</td>
+            <td class="py-2 px-1.5 text-right num-tabular font-black text-slate-900">${k.total}</td>
+            <td class="py-2 px-1.5 text-right num-tabular font-bold text-emerald-700">${k.goodPct}</td>
+            <td class="py-2 px-1.5 text-right num-tabular font-bold text-amber-700">${k.brkPct}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+  }
+
+  function setFilterBelumCheckout() {
+    const sel = document.getElementById('filter-asset-mv-checkout');
+    if (sel) {
+      sel.value = 'NY Checkout';
+      if (typeof onFilterAssetMovement === 'function') onFilterAssetMovement();
+    }
+  }
+
+  function exportValidasiReportXlsx() {
+    if (typeof XLSX === 'undefined') {
+      alert('Library Excel (SheetJS) sedang dimuat, silakan coba sesaat lagi.');
+      return;
+    }
+
+    try {
+      const wb = XLSX.utils.book_new();
+
+      // Sheet 1: Executive KPI Summary
+      const summaryRows = [
+        ['PT PRATAMA NUSANTARA SAKTI - LAPORAN VALIDASI & REKONSILIASI ASET'],
+        ['Tanggal Cetak:', new Date().toLocaleString('id-ID')],
+        ['Total Asset Portofolio:', 34840],
+        ['Status Sesuai (Valid):', 34159, '98.05%'],
+        ['Status Tidak Sesuai (Selisih):', 95, '0.27%'],
+        ['Belum Verifikasi (Pending API):', 586, '1.68%'],
+        [''],
+        ['METRIK FINANSIAL & PEMELIHARAAN'],
+        ['Nilai Perolehan (Acquisition):', 'Rp 1.120.265.723.611'],
+        ['Disposal Asset:', 'Rp 4.608.172.719 (157 Unit)'],
+        ['Akumulasi Depresiasi:', 'Rp 438.484.408.000'],
+        ['Net Book Value (NBV):', 'Rp 681.781.314.986'],
+        ['Historical Maintenance Cost:', 'Rp 27.652.413.593']
+      ];
+      const wsSummary = XLSX.utils.aoa_to_sheet(summaryRows);
+      XLSX.utils.book_append_sheet(wb, wsSummary, 'Executive Summary');
+
+      // Sheet 2: Rekap per Lokasi
+      const locHeaders = ['Lokasi Site', '% Validasi', 'Avg Standar Umur', 'Avg Umur Aset', 'Belum Verifikasi', 'Sesuai', 'Tidak Sesuai', 'Good Condition', 'Repair', 'Disposal', 'Broken', 'Lost', 'Total Asset'];
+      const locRows = [locHeaders];
+      REAL_LOCATIONS_MATRIX.forEach(l => {
+        locRows.push([l.label || l.name, l.validPct, l.avgStd, l.avgUmur, l.belum, l.sesuai, l.tdkSesuai, l.good, l.repair, l.disp, l.broken, l.lost, l.total]);
+      });
+      const wsLoc = XLSX.utils.aoa_to_sheet(locRows);
+      XLSX.utils.book_append_sheet(wb, wsLoc, 'Validasi per Lokasi');
+
+      // Sheet 3: Rekap per Departemen
+      const deptHeaders = ['Departemen', '% Validasi', 'Avg Standar Umur', 'Avg Umur Aset', 'Belum Verifikasi', 'Sesuai', 'Tidak Sesuai', 'Good Condition', 'Repair', 'Disposal', 'Broken', 'Lost', 'Total Asset'];
+      const deptRows = [deptHeaders];
+      REAL_DEPTS_MATRIX.forEach(d => {
+        deptRows.push([d.name, d.validPct, d.avgStd, d.avgUmur, d.belum, d.sesuai, d.tdkSesuai, d.good, d.repair, d.disp, d.broken, d.lost, d.total]);
+      });
+      const wsDept = XLSX.utils.aoa_to_sheet(deptRows);
+      XLSX.utils.book_append_sheet(wb, wsDept, 'Validasi per Departemen');
+
+      // Sheet 4: Performance per Kelompok Aset
+      const kelHeaders = ['Kelompok Asset', 'Total Unit', '% Portofolio', '% Good Condition', '% Repair', '% Disposal', '% Broken', '% Lost'];
+      const kelRows = [kelHeaders];
+      REAL_KELOMPOK_STATS.forEach(k => {
+        kelRows.push([k.name, k.count, k.pct, k.goodPct, k.repPct, k.dispPct, k.brkPct, k.lostPct]);
+      });
+      const wsKel = XLSX.utils.aoa_to_sheet(kelRows);
+      XLSX.utils.book_append_sheet(wb, wsKel, 'Performance Kelompok');
+
+      XLSX.writeFile(wb, 'Laporan_Validasi_Asset_PT_PNS_34840.xlsx');
+    } catch (e) {
+      alert('Gagal mengekspor file Excel: ' + e.message);
+    }
+  }
+
+  // Alias backward-compatibility
+  function renderValidasiTable() {
+    renderEnterpriseValidasiReport();
   }
 
   function onSearchValidasi() {
-    renderValidasiTable();
+    renderEnterpriseValidasiReport();
   }
+
+  // Export functions to window
+  window.switchValidasiTab = switchValidasiTab;
+  window.switchMatrixGroup = switchMatrixGroup;
+  window.onFilterValidasiReport = onFilterValidasiReport;
+  window.renderEnterpriseValidasiReport = renderEnterpriseValidasiReport;
+  window.renderPerformanceTab = renderPerformanceTab;
+  window.exportValidasiReportXlsx = exportValidasiReportXlsx;
+  window.setFilterBelumCheckout = setFilterBelumCheckout;
+
 
   function openModalTambahOpname() {
     const modal = document.getElementById('modal-tambah-opname');

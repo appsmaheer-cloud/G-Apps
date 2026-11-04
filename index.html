@@ -2717,91 +2717,482 @@
       </div>
 
       <!-- ======================================================== -->
-      <!-- VIEW: REPORT ASSET [VALIDASI & OPNAME ASET] -->
+      <!-- ======================================================== -->
+      <!-- VIEW: ENTERPRISE VALIDATION & PERFORMANCE REPORT (POWER BI EQUIVALENT) -->
       <!-- ======================================================== -->
       <div id="view-validasi" class="page-view hidden space-y-5">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+        <!-- Top Title & Navigation Toolbar -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
           <div>
             <div class="flex items-center gap-2 mb-1">
-              <span class="w-2 h-2 rounded-full bg-sky-500"></span>
-              <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">Stock Opname &amp; Physical Audit</span>
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span class="text-[11px] font-black text-slate-500 tracking-wider uppercase">Executive Portfolio &amp; Physical Opname Analytics</span>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Power BI Integrated</span>
             </div>
-            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <i class="ph-fill ph-seal-check text-sky-500"></i> Report Asset [Validasi &amp; Opname Fisik Aset]
+            <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <i class="ph-fill ph-seal-check text-sky-600"></i> Laporan Validasi &amp; Performance Aset PT PNS
             </h2>
-            <p class="text-xs text-slate-500">Pengecekan fisik rutin (stock opname) aset fasilitas di lapangan, verifikasi kesesuaian fisik vs sistem, dan pencatatan selisih inventaris.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Monitoring komprehensif 34.840 aset fisik, kesesuaian fisik vs akuntansi master, serta analisis umur dan kondisi fasilitas lapangan.</p>
           </div>
+
+          <!-- Dual Tab Switcher -->
+          <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shrink-0 shadow-inner">
+            <button type="button" id="tab-btn-validasi-rekon" onclick="switchValidasiTab('rekon')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-900 shadow-xs cursor-pointer">
+              <i class="ph-bold ph-chart-line-up text-sky-600"></i> Validasi Report (34.840)
+            </button>
+            <button type="button" id="tab-btn-validasi-perf" onclick="switchValidasiTab('perf')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/60 cursor-pointer">
+              <i class="ph-bold ph-pulse text-emerald-600"></i> Performance Validasi (Kondisi)
+            </button>
+          </div>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
+          <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
+            <div class="relative w-full sm:w-64">
+              <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+              <input type="text" id="val-global-search" oninput="onFilterValidasiReport()" placeholder="Cari unit, aset, kode, atau PIC..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:bg-white focus:border-sky-500 transition">
+            </div>
+
+            <select id="val-filter-location" onchange="onFilterValidasiReport()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium text-slate-700">
+              <option value="">Semua Lokasi Site</option>
+              <option value="CO">CO - Central Office</option>
+              <option value="FR">FR - Factory (Pabrik)</option>
+              <option value="E1">E1 - Estate 1</option>
+              <option value="E2">E2 - Estate 2</option>
+              <option value="E3">E3 - Estate 3</option>
+              <option value="MR">MR - Mess Residence</option>
+              <option value="HO">HO - Head Office</option>
+              <option value="RO">RO - Regional Office</option>
+            </select>
+
+            <select id="val-filter-dept" onchange="onFilterValidasiReport()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium text-slate-700">
+              <option value="">Semua Departemen</option>
+              <option value="HRGA">HRGA</option>
+              <option value="BUSINESS SUPPORT">BUSINESS SUPPORT</option>
+              <option value="PRODUCTION">PRODUCTION</option>
+              <option value="WORKSHOP & ENGINERING">WORKSHOP &amp; ENGINERING</option>
+              <option value="PLANTATION">PLANTATION</option>
+              <option value="HARVESTING">HARVESTING</option>
+              <option value="QUALITY HEALTH & SAFETY ENVIRONMENT">QHSE</option>
+              <option value="FINANCIAL & INFORMATION">FINANCIAL &amp; INFORMATION</option>
+              <option value="RESEARCH & DEVELOPMENT">RESEARCH &amp; DEVELOPMENT</option>
+              <option value="PROCUREMENT & PURCHASING">PROCUREMENT &amp; PURCHASING</option>
+              <option value="SALES & MARKETING">SALES &amp; MARKETING</option>
+            </select>
+
+            <select id="val-filter-status" onchange="onFilterValidasiReport()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium text-slate-700">
+              <option value="">Semua Status Validasi</option>
+              <option value="SESUAI">Sesuai (34.159)</option>
+              <option value="TIDAK SESUAI">Tidak Sesuai (95)</option>
+              <option value="BELUM VERIFIKASI">Belum Verifikasi / Pending (586)</option>
+            </select>
+          </div>
+
           <div class="flex items-center gap-2">
-            <button type="button" onclick="openModalTambahOpname()" class="px-3.5 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 shadow-xs transition">
-              <i class="ph-bold ph-plus"></i> Tambah Data Opname
+            <button type="button" onclick="syncAllFromBackend(true)" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold flex items-center gap-1.5 transition cursor-pointer" title="Sinkronisasi Data Real-Time">
+              <i class="ph-bold ph-arrows-clockwise text-sky-600"></i> Sync API
             </button>
-            <button type="button" onclick="exportValidasiCsv()" class="px-3 py-2 border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
-              <i class="ph-bold ph-export"></i> Export CSV
+            <button type="button" onclick="exportValidasiReportXlsx()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1.5 shadow-xs transition cursor-pointer" title="Download Excel Laporan Validasi Lengkap">
+              <i class="ph-bold ph-microsoft-excel-logo text-white"></i> Export Excel
             </button>
           </div>
         </div>
 
-        <!-- Metrics Overview Validasi -->
-        <div class="grid grid-cols-1 sm:grid-cols-4 gap-3.5">
-          <div class="clean-card p-4">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Sesi Opname</span>
-            <div id="val-stat-sessions" class="text-2xl font-bold text-slate-900 mt-1 num-tabular">5 Sesi</div>
-            <div class="text-[11px] text-slate-500 mt-0.5">Audit fisik terjadwal</div>
+        <!-- ========================================== -->
+        <!-- TAB 1: VALIDASI REPORT (REKONSILIASI 34.840) -->
+        <!-- ========================================== -->
+        <div id="validasi-tab-rekon" class="space-y-5">
+          <!-- TOP 6 EXECUTIVE FINANCIAL & PORTFOLIO CARDS -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+            <div class="clean-card p-3.5 border-l-4 border-l-sky-500">
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">TOTAL ASSET</div>
+              <div class="text-xl sm:text-2xl font-black text-slate-900 mt-1 num-tabular" id="val-kpi-total">34.840</div>
+              <div class="text-[10px] text-sky-600 font-semibold mt-0.5">34.266 Master + 574 API</div>
+            </div>
+            <div class="clean-card p-3.5 border-l-4 border-l-indigo-500">
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ACQUISITION (HPP)</div>
+              <div class="text-lg sm:text-xl font-black text-slate-900 mt-1 num-tabular" id="val-kpi-acq">Rp 1.120,27 M</div>
+              <div class="text-[10px] text-slate-500 mt-0.5">Nilai Perolehan Historis</div>
+            </div>
+            <div class="clean-card p-3.5 border-l-4 border-l-rose-500">
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">DISPOSAL ASSET</div>
+              <div class="text-lg sm:text-xl font-black text-rose-700 mt-1 num-tabular" id="val-kpi-disp">Rp 4,61 M</div>
+              <div class="text-[10px] text-rose-600 font-semibold mt-0.5">157 Unit Dihapuskan</div>
+            </div>
+            <div class="clean-card p-3.5 border-l-4 border-l-amber-500">
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">DEPRECIATION</div>
+              <div class="text-lg sm:text-xl font-black text-amber-700 mt-1 num-tabular" id="val-kpi-depr">Rp 438,48 M</div>
+              <div class="text-[10px] text-slate-500 mt-0.5">Akumulasi Penyusutan</div>
+            </div>
+            <div class="clean-card p-3.5 border-l-4 border-l-emerald-500">
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">NET BOOK VALUE (NBV)</div>
+              <div class="text-lg sm:text-xl font-black text-emerald-700 mt-1 num-tabular" id="val-kpi-nbv">Rp 681,78 M</div>
+              <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">Nilai Buku Aktif</div>
+            </div>
+            <div class="clean-card p-3.5 border-l-4 border-l-purple-500">
+              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">MAINTENANCE COST</div>
+              <div class="text-lg sm:text-xl font-black text-purple-700 mt-1 num-tabular" id="val-kpi-mtc">Rp 27,65 M</div>
+              <div class="text-[10px] text-slate-500 mt-0.5">Total Historical Perbaikan</div>
+            </div>
           </div>
-          <div class="clean-card p-4">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Total Aset Diperiksa</span>
-            <div id="val-stat-total" class="text-2xl font-bold text-sky-600 mt-1 num-tabular">1.467 Unit</div>
-            <div class="text-[11px] text-slate-500 mt-0.5">Tercatat di sistem</div>
-          </div>
-          <div class="clean-card p-4">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Fisik Sesuai (Valid)</span>
-            <div id="val-stat-valid" class="text-2xl font-bold text-emerald-600 mt-1 num-tabular">1.461 Unit</div>
-            <div class="text-[11px] text-emerald-600 mt-0.5 font-medium">99.6% Kesesuaian Fisik</div>
-          </div>
-          <div class="clean-card p-4">
-            <span class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Ada Selisih / Temuan</span>
-            <div id="val-stat-selisih" class="text-2xl font-bold text-amber-500 mt-1 num-tabular">6 Unit</div>
-            <div class="text-[11px] text-amber-600 mt-0.5 font-medium">Perlu tindak lanjut / mutasi</div>
+
+          <!-- MAIN 2-COLUMN RECONCILIATION SECTION -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <!-- LEFT COLUMN: STATUS VERIFIKASI & JENIS ASET (4 COLS) -->
+            <div class="lg:col-span-4 space-y-4">
+              <!-- STATUS VERIFIKASI PROGRESS CARDS -->
+              <div class="clean-card p-4 space-y-3.5">
+                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                  <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                    <i class="ph-bold ph-shield-check text-emerald-600"></i> Status Rekonsiliasi Aset
+                  </span>
+                  <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    98.05% Terverifikasi
+                  </span>
+                </div>
+
+                <!-- Sesuai -->
+                <div class="space-y-1">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold text-emerald-700 flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> SESUAI (ALOKASI VALID)
+                    </span>
+                    <span class="font-black text-slate-900 num-tabular" id="val-card-sesuai">34.159 (98.05%)</span>
+                  </div>
+                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div class="bg-emerald-500 h-2 rounded-full" style="width: 98.05%"></div>
+                  </div>
+                  <div class="text-[10px] text-slate-400">Data fisik lapangan &amp; master akuntansi cocok 100%</div>
+                </div>
+
+                <!-- Tidak Sesuai -->
+                <div class="space-y-1">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold text-rose-700 flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> TIDAK SESUAI (SELISIH FISIK)
+                    </span>
+                    <span class="font-black text-rose-700 num-tabular" id="val-card-tdk-sesuai">95 (0.27%)</span>
+                  </div>
+                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div class="bg-rose-500 h-2 rounded-full" style="width: 0.27%"></div>
+                  </div>
+                  <div class="text-[10px] text-slate-400">Perbedaan alokasi lokasi / penanggung jawab saat audit</div>
+                </div>
+
+                <!-- Belum Verifikasi -->
+                <div class="space-y-1">
+                  <div class="flex justify-between items-center text-xs">
+                    <span class="font-bold text-amber-700 flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> BELUM VERIFIKASI / PENDING
+                    </span>
+                    <span class="font-black text-amber-700 num-tabular" id="val-card-belum">586 (1.68%)</span>
+                  </div>
+                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                    <div class="bg-amber-500 h-2 rounded-full" style="width: 1.68%"></div>
+                  </div>
+                  <div class="text-[10px] text-slate-400">574 aset baru dari API + 12 item master belum opname</div>
+                </div>
+              </div>
+
+              <!-- JENIS ASSET TABLE -->
+              <div class="clean-card p-4 space-y-2.5">
+                <div class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between border-b border-slate-100 pb-2">
+                  <span>Klasifikasi Jenis Aset</span>
+                  <span class="text-[10px] text-slate-500 font-semibold">% Validasi</span>
+                </div>
+                <table class="w-full text-xs">
+                  <tbody class="divide-y divide-slate-100">
+                    <tr class="hover:bg-slate-50 transition">
+                      <td class="py-2 font-semibold text-slate-800">Asset (Fixed Asset)</td>
+                      <td class="py-2 text-right num-tabular font-bold text-emerald-600">100%</td>
+                      <td class="py-2 text-right num-tabular font-black text-slate-900 pl-3">21.648</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition">
+                      <td class="py-2 font-semibold text-slate-800">Non-Valueable Asset</td>
+                      <td class="py-2 text-right num-tabular font-bold text-emerald-600">100%</td>
+                      <td class="py-2 text-right num-tabular font-black text-slate-900 pl-3">12.618</td>
+                    </tr>
+                    <tr class="hover:bg-slate-50 transition bg-amber-50/50">
+                      <td class="py-2 font-semibold text-amber-800">Pending API Register</td>
+                      <td class="py-2 text-right num-tabular font-bold text-amber-600">Pending</td>
+                      <td class="py-2 text-right num-tabular font-black text-amber-700 pl-3">574</td>
+                    </tr>
+                    <tr class="font-black bg-slate-50 text-slate-900">
+                      <td class="py-2 pl-2">Total Portofolio</td>
+                      <td class="py-2 text-right num-tabular text-emerald-700">98.05%</td>
+                      <td class="py-2 text-right num-tabular pl-3 pr-2">34.840</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+              <!-- KONDISI FISIK ASET HORIZONTAL BARS -->
+              <div class="clean-card p-4 space-y-3">
+                <div class="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center justify-between">
+                  <span>Total Asset by Kondisi Fisik</span>
+                  <span class="text-[10px] text-slate-400">Master 34.266</span>
+                </div>
+                <div class="space-y-2 text-xs">
+                  <div>
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="font-semibold text-emerald-700">Good Condition</span>
+                      <span class="num-tabular font-black text-emerald-700">27.872 (81.34%)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div class="bg-emerald-500 h-2 rounded-full" style="width: 81.34%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="font-semibold text-amber-700">Broken (Rusak)</span>
+                      <span class="num-tabular font-black text-amber-700">3.663 (10.69%)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div class="bg-amber-500 h-2 rounded-full" style="width: 10.69%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="font-semibold text-slate-600">Lost (Hilang)</span>
+                      <span class="num-tabular font-black text-slate-700">2.492 (7.27%)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div class="bg-slate-400 h-2 rounded-full" style="width: 7.27%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="font-semibold text-rose-700">Disposal</span>
+                      <span class="num-tabular font-black text-rose-700">157 (0.46%)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div class="bg-rose-500 h-2 rounded-full" style="width: 0.46%"></div>
+                    </div>
+                  </div>
+                  <div>
+                    <div class="flex justify-between items-center mb-1">
+                      <span class="font-semibold text-blue-700">Repair (Perbaikan)</span>
+                      <span class="num-tabular font-black text-blue-700">82 (0.24%)</span>
+                    </div>
+                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+                      <div class="bg-blue-500 h-2 rounded-full" style="width: 0.24%"></div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- RIGHT COLUMN: DETAILED MATRIX BY LOCATION / DEPT (8 COLS) -->
+            <div class="lg:col-span-8 space-y-4">
+              <div class="clean-card overflow-hidden">
+                <!-- Matrix Table Header & Toggle -->
+                <div class="p-3.5 border-b border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+                  <div>
+                    <div class="text-xs font-black text-slate-900 tracking-tight flex items-center gap-2">
+                      <i class="ph-bold ph-table text-sky-600"></i> Matriks Validasi &amp; Kondisi Komprehensif
+                    </div>
+                    <p class="text-[11px] text-slate-500">Klik baris mana saja untuk drill-through ke rincian inventaris fisik di Detail Asset Movement</p>
+                  </div>
+                  <!-- Matrix Toggle Pills -->
+                  <div class="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200 shadow-2xs">
+                    <button type="button" id="btn-val-matrix-loc" onclick="switchMatrixGroup('loc')" class="px-2.5 py-1 rounded text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 transition cursor-pointer">
+                      Lokasi Site (8 Area)
+                    </button>
+                    <button type="button" id="btn-val-matrix-dept" onclick="switchMatrixGroup('dept')" class="px-2.5 py-1 rounded text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer">
+                      Departemen (11 Dept)
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Matrix Table Container -->
+                <div class="overflow-x-auto">
+                  <table class="w-full text-left text-xs border-collapse">
+                    <thead>
+                      <tr class="bg-slate-100/90 text-slate-700 text-[10px] font-black uppercase tracking-wider border-b border-slate-200">
+                        <th class="py-2.5 px-3" id="matrix-th-name">Lokasi</th>
+                        <th class="py-2.5 px-2 text-center">% Valid</th>
+                        <th class="py-2.5 px-2 text-right">Avg Std</th>
+                        <th class="py-2.5 px-2 text-right">Avg Umur</th>
+                        <th class="py-2.5 px-2 text-right bg-amber-50/70 text-amber-800">Belum Verif</th>
+                        <th class="py-2.5 px-2 text-right bg-emerald-50/70 text-emerald-800">Sesuai</th>
+                        <th class="py-2.5 px-2 text-right bg-rose-50/70 text-rose-800">Tdk Sesuai</th>
+                        <th class="py-2.5 px-2 text-right">Good</th>
+                        <th class="py-2.5 px-2 text-right">Repair</th>
+                        <th class="py-2.5 px-2 text-right">Disposal</th>
+                        <th class="py-2.5 px-2 text-right">Broken</th>
+                        <th class="py-2.5 px-2 text-right">Lost</th>
+                        <th class="py-2.5 px-3 text-right font-black bg-slate-200/60">Total Asset</th>
+                        <th class="py-2.5 px-2 text-center">Drill</th>
+                      </tr>
+                    </thead>
+                    <tbody id="table-validasi-matrix-body" class="divide-y divide-slate-100 font-medium">
+                      <!-- Rendered dynamically via JS -->
+                    </tbody>
+                    <tfoot id="table-validasi-matrix-foot" class="bg-slate-100 font-black text-slate-900 border-t-2 border-slate-300">
+                      <!-- Rendered dynamically via JS -->
+                    </tfoot>
+                  </table>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Table Card Validasi -->
-        <div class="clean-card overflow-hidden">
-          <div class="p-3 border-b border-slate-200 flex flex-col sm:flex-row justify-between gap-3 items-center">
-            <div class="relative w-full sm:w-72">
-              <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-500"></i>
-              <input type="text" id="search-validasi" oninput="onSearchValidasi()" placeholder="Cari ID opname / lokasi..." class="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-800">
+        <!-- ========================================== -->
+        <!-- TAB 2: PERFORMANCE VALIDASI (KONDISI & KELOMPOK) -->
+        <!-- ========================================== -->
+        <div id="validasi-tab-perf" class="hidden space-y-5">
+          <!-- 5 TOP CONDITION CARDS (MATCHING SCREENSHOT 1) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
+            <!-- GOOD CONDITION -->
+            <div class="clean-card p-4 border-t-4 border-t-emerald-500 space-y-2">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-black text-emerald-700 tracking-wider uppercase">GOOD CONDITION</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">81.34%</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 num-tabular">27.872</div>
+              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">16.998</span></div>
+                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">10.874</span></div>
+                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 935,10 M</span></div>
+                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-emerald-600 num-tabular">Rp 663,74 M</span></div>
+              </div>
             </div>
-            <div class="flex items-center gap-2">
-              <select id="filter-val-status" onchange="onSearchValidasi()" class="px-2.5 py-1.5 text-xs rounded-lg border border-slate-200 bg-white text-slate-700 font-medium">
-                <option value="">Semua Status Validasi</option>
-                <option value="Valid">Valid</option>
-                <option value="Ada Selisih">Ada Selisih</option>
-                <option value="Proses">Proses</option>
-              </select>
+
+            <!-- REPAIR -->
+            <div class="clean-card p-4 border-t-4 border-t-blue-500 space-y-2">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-black text-blue-700 tracking-wider uppercase">REPAIR</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">0.24%</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 num-tabular">82</div>
+              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">80</span></div>
+                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">2</span></div>
+                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 4,27 M</span></div>
+                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-blue-600 num-tabular">Rp 1,18 M</span></div>
+              </div>
+            </div>
+
+            <!-- DISPOSAL -->
+            <div class="clean-card p-4 border-t-4 border-t-rose-500 space-y-2">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-black text-rose-700 tracking-wider uppercase">DISPOSAL</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800">0.46%</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 num-tabular">157</div>
+              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">151</span></div>
+                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">6</span></div>
+                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 4,61 M</span></div>
+                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-rose-600 num-tabular">Rp 119,55 Jt</span></div>
+              </div>
+            </div>
+
+            <!-- BROKEN -->
+            <div class="clean-card p-4 border-t-4 border-t-amber-500 space-y-2">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-black text-amber-700 tracking-wider uppercase">BROKEN</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">10.69%</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 num-tabular">3.663</div>
+              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">2.958</span></div>
+                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">705</span></div>
+                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 166,31 M</span></div>
+                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-amber-600 num-tabular">Rp 16,32 M</span></div>
+              </div>
+            </div>
+
+            <!-- LOST -->
+            <div class="clean-card p-4 border-t-4 border-t-slate-500 space-y-2">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-black text-slate-700 tracking-wider uppercase">LOST</span>
+                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-800">7.27%</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 num-tabular">2.492</div>
+              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">1.461</span></div>
+                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">1.031</span></div>
+                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 9,99 M</span></div>
+                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-slate-700 num-tabular">Rp 422,20 Jt</span></div>
+              </div>
             </div>
           </div>
 
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse">
-              <thead>
-                <tr>
-                  <th>ID Opname</th>
-                  <th>Tanggal</th>
-                  <th>Lokasi Audit / Gedung</th>
-                  <th>Total Aset Terdaftar</th>
-                  <th>Fisik Sesuai</th>
-                  <th>Selisih</th>
-                  <th>Status Validasi</th>
-                  <th>Auditor / PIC</th>
-                  <th>Catatan Khusus</th>
-                  <th class="text-right">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="table-validasi-body">
-                <!-- Rendered via JS -->
-              </tbody>
-            </table>
+          <!-- THREE COLUMN ANALYTICAL GRID -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            <!-- COL 1: DEPARTEMENT CONDITION MATRIX (5 COLS) -->
+            <div class="lg:col-span-5 clean-card overflow-hidden">
+              <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Kondisi per Departemen</span>
+                <span class="text-[10px] text-slate-400">11 Departemen</span>
+              </div>
+              <div class="overflow-x-auto max-h-[480px] scrollbar-thin">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                    <tr>
+                      <th class="py-2 px-2.5">Departemen</th>
+                      <th class="py-2 px-2 text-right">Total</th>
+                      <th class="py-2 px-1.5 text-right text-emerald-700">% Good</th>
+                      <th class="py-2 px-1.5 text-right text-blue-700">% Rep</th>
+                      <th class="py-2 px-1.5 text-right text-rose-700">% Disp</th>
+                      <th class="py-2 px-1.5 text-right text-amber-700">% Brk</th>
+                      <th class="py-2 px-1.5 text-right text-slate-600">% Lost</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-perf-dept-body" class="divide-y divide-slate-100">
+                    <!-- Rendered via JS -->
+                  </tbody>
+                  <tfoot class="sticky bottom-0 bg-slate-100 font-bold border-t-2 border-slate-300">
+                    <tr>
+                      <td class="py-2 px-2.5">Total</td>
+                      <td class="py-2 px-2 text-right num-tabular">34.266</td>
+                      <td class="py-2 px-1.5 text-right text-emerald-700 num-tabular">81.34%</td>
+                      <td class="py-2 px-1.5 text-right text-blue-700 num-tabular">0.24%</td>
+                      <td class="py-2 px-1.5 text-right text-rose-700 num-tabular">0.46%</td>
+                      <td class="py-2 px-1.5 text-right text-amber-700 num-tabular">10.69%</td>
+                      <td class="py-2 px-1.5 text-right text-slate-600 num-tabular">7.27%</td>
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+
+            <!-- COL 2: KELOMPOK ASSET RANKING BARS (4 COLS) -->
+            <div class="lg:col-span-4 clean-card p-4 space-y-3">
+              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Total Asset by Kelompok</span>
+                <span class="text-[10px] text-slate-400">8 Kelompok</span>
+              </div>
+              <div class="space-y-2.5 text-xs" id="perf-kelompok-bars">
+                <!-- Dynamically rendered or static high precision -->
+              </div>
+            </div>
+
+            <!-- COL 3: KELOMPOK & KATEGORI MATRICES (3 COLS) -->
+            <div class="lg:col-span-3 clean-card overflow-hidden">
+              <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Top Kategori Aset</span>
+                <span class="text-[10px] text-slate-400">Kondisi Dominan</span>
+              </div>
+              <div class="overflow-x-auto max-h-[480px] scrollbar-thin">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                    <tr>
+                      <th class="py-2 px-2.5">Kategori</th>
+                      <th class="py-2 px-1.5 text-right">Total</th>
+                      <th class="py-2 px-1.5 text-right text-emerald-700">% Good</th>
+                      <th class="py-2 px-1.5 text-right text-amber-700">% Brk</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-perf-kat-body" class="divide-y divide-slate-100">
+                    <!-- Rendered via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
