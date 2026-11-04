@@ -30,6 +30,7 @@
   <script src="https://unpkg.com/@phosphor-icons/web" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/apexcharts" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Modular CSS Included from CSS.html -->
   <link rel="stylesheet" href="style.css">
@@ -546,10 +547,16 @@
                 <span>Sync API</span>
               </button>
 
-              <!-- Download Excel (.xls) Button -->
-              <button type="button" onclick="exportBelumCheckoutExcel('xls')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-xs cursor-pointer" title="Download File Microsoft Excel (.xls)">
+              <!-- Download Excel (.xlsx) Button -->
+              <button type="button" onclick="exportBelumCheckoutExcel('xlsx')" class="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 transition shadow-xs cursor-pointer" title="Download File Microsoft Excel (.xlsx) Sesuai Data Tampilan">
                 <i class="ph-bold ph-file-xls text-base"></i>
-                <span>Download Excel (.xls)</span>
+                <span>Download Excel (.xlsx)</span>
+              </button>
+
+              <!-- Download Full Master 34.266 Excel (.xlsx) Button -->
+              <button type="button" onclick="window.pns.exportAssetCatalogCsv('xlsx', true)" class="px-3 py-2 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer" title="Download Seluruh Master Katalog Aset (34.266 Unit) ke Excel (.xlsx)">
+                <i class="ph-bold ph-database text-sm"></i>
+                <span>Full 34.266 (.xlsx)</span>
               </button>
 
               <!-- Download CSV Button -->
@@ -621,6 +628,7 @@
                 <option value="ALL">Semua Belum Checkout (279 Unit)</option>
                 <option value="API">API Live: BELUM CHECKOUT (235 Unit)</option>
                 <option value="NY">Master Sheet: NY Checkout / Iddle (95 Unit)</option>
+                <option value="MASTER_ALL">Seluruh Master Aset PT PNS (34.266 Unit)</option>
               </select>
             </div>
 
@@ -726,10 +734,14 @@
               <input type="text" id="slicer-asset-search" oninput="window.pns.onAssetSearch(this.value)" placeholder="Cari kode/nama..." class="bg-transparent text-xs font-semibold text-slate-800 focus:outline-none w-full placeholder:text-slate-400">
             </div>
 
-            <!-- Export CSV Button -->
-            <button type="button" onclick="window.pns.exportAssetCatalogCsv()" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Download Data Katalog Aset (CSV)">
+            <!-- Export Excel (.xlsx) & CSV Buttons -->
+            <button type="button" onclick="window.pns.exportAssetCatalogCsv('xlsx')" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Download Data Katalog Aset ke Microsoft Excel (.xlsx) Sesuai Jumlah Unit">
+              <i class="ph-bold ph-file-xls"></i>
+              <span>Excel (.xlsx)</span>
+            </button>
+            <button type="button" onclick="window.pns.exportAssetCatalogCsv('csv')" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Download Data Katalog Aset (CSV)">
               <i class="ph-bold ph-download-simple"></i>
-              <span>Export</span>
+              <span>CSV</span>
             </button>
 
             <!-- Record Counter Badge -->
@@ -1674,8 +1686,11 @@
                                     <p class="text-[10px] text-slate-400">Klik baris unit untuk membuka Dossier Lengkap Aset</p>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <button type="button" onclick="window.exportMovementDetailsCsv()" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer">
-                                        <i class="ph-bold ph-download-simple"></i> Export CSV
+                                    <button type="button" onclick="window.exportMovementDetailsCsv('xlsx')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 transition cursor-pointer shadow-2xs">
+                                        <i class="ph-bold ph-file-xls"></i> Export Excel (.xlsx)
+                                    </button>
+                                    <button type="button" onclick="window.exportMovementDetailsCsv('csv')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer">
+                                        <i class="ph-bold ph-download-simple"></i> CSV
                                     </button>
                                 </div>
                             </div>
@@ -3079,8 +3094,8 @@
             </p>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <button type="button" onclick="exportPenghuniExcel('xls')" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition shadow-xs cursor-pointer" title="Download Data Penghuni Mess ke Microsoft Excel (.xls)">
-              <i class="ph-bold ph-file-xls text-sm"></i> Download Excel (.xls)
+            <button type="button" onclick="exportPenghuniExcel('xlsx')" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition shadow-xs cursor-pointer" title="Download Data Penghuni Mess ke Microsoft Excel (.xlsx)">
+              <i class="ph-bold ph-file-xls text-sm"></i> Download Excel (.xlsx)
             </button>
             <button type="button" onclick="promptAddPenghuni()" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 transition shadow-xs cursor-pointer">
               <i class="ph-bold ph-user-plus text-sm"></i> Tambah Penghuni Baru

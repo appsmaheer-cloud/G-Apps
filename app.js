@@ -1706,7 +1706,36 @@ const PNS_SECTION_TO_DEPT = {
     const secFilter = document.getElementById('rem-checkout-sec')?.value || 'ALL';
 
     if (remCheckoutMode === 'asset') {
-      return assetList.filter(item => {
+      let baseList = assetList;
+      if (srcFilter === 'MASTER_ALL' && typeof window !== 'undefined' && Array.isArray(window.PNS_ALL_ASSETS_ROWS)) {
+        baseList = window.PNS_ALL_ASSETS_ROWS.map((r, i) => ({
+          asset_id: r[16] || (i + 1),
+          kode_unit: r[0] || '-',
+          no_asset: r[0] || '-',
+          no_asset_alokasi: r[4] || 'CO',
+          nama_asset: r[1] || '-',
+          nama_asset_detail: r[15] || r[1] || '-',
+          kelompok: r[2] || '-',
+          kategori: r[3] || '-',
+          subkategori: r[14] || 'Asset',
+          location: r[4] || 'CO',
+          section: r[12] || '-',
+          kondisi: r[5] || 'Good Condition',
+          tipe_checkout: r[11] || 'Aktif / Digunakan',
+          status_checkout: r[11] || 'Aktif / Digunakan',
+          status_verifikasi: r[13] || 'ALOKASI SESUAI',
+          tanggal_perolehan: '-',
+          standar_umur: Number(r[6] || 5),
+          umur_asset: Number(r[7] || 0),
+          harga_perolehan: Number(r[8] || 0),
+          akumulasi_penyusutan: Number(r[9] || 0),
+          nilai_buku: Number(r[10] || 0),
+          pic: '-',
+          source: 'Master Sheet (34.266)'
+        }));
+      }
+
+      return baseList.filter(item => {
         if (srcFilter === 'API' && !String(item.source || '').includes('API')) return false;
         if (srcFilter === 'NY' && !String(item.source || '').includes('Master') && !String(item.status_checkout || '').includes('NY')) return false;
         if (locFilter !== 'ALL' && item.location !== locFilter) return false;
@@ -2266,22 +2295,203 @@ const PNS_SECTION_TO_DEPT = {
       });
   }
 
+  // =========================================================
+  // GENUINE BINARY .XLSX ENGINE (SHEETJS + PURE-JS ZIP FALLBACK)
+  // =========================================================
+  function buildNativeXlsxBlob(sheetName, aoa) {
+    const escXml = s => String(s === undefined || s === null ? '' : s)
+      .replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;');
+
+    const colLetter = n => {
+      let s = '';
+      while (n >= 0) {
+        s = String.fromCharCode((n % 26) + 65) + s;
+        n = Math.floor(n / 26) - 1;
+      }
+      return s;
+    };
+
+    const rowsXml = [];
+    for (let r = 0; r < aoa.length; r++) {
+      const row = aoa[r] || [];
+      const cells = [];
+      const rowIdx = r + 1;
+      for (let c = 0; c < row.length; c++) {
+        const val = row[c];
+        const ref = colLetter(c) + rowIdx;
+        if (typeof val === 'number' && Number.isFinite(val)) {
+          cells.push(`<c r="${ref}"><v>${val}</v></c>`);
+        } else {
+          cells.push(`<c r="${ref}" t="inlineStr"><is><t xml:space="preserve">${escXml(val)}</t></is></c>`);
+        }
+      }
+      rowsXml.push(`<row r="${rowIdx}">${cells.join('')}</row>`);
+    }
+
+    const safeSheet = escXml(String(sheetName || 'Data PNS').replace(/[\\/?*[\]:]/g, ' ').slice(0, 31) || 'Data PNS');
+
+    const files = [
+      {
+        name: '[Content_Types].xml',
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`
+      },
+      {
+        name: '_rels/.rels',
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`
+      },
+      {
+        name: 'xl/_rels/workbook.xml.rels',
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`
+      },
+      {
+        name: 'xl/workbook.xml',
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="${safeSheet}" sheetId="1" r:id="rId1"/></sheets></workbook>`
+      },
+      {
+        name: 'xl/worksheets/sheet1.xml',
+        content: `<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>${rowsXml.join('')}</sheetData></worksheet>`
+      }
+    ];
+
+    const crcTable = new Uint32Array(256);
+    for (let i = 0; i < 256; i++) {
+      let c = i;
+      for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+      crcTable[i] = c >>> 0;
+    }
+    const crc32 = bytes => {
+      let crc = 0xFFFFFFFF;
+      for (let i = 0; i < bytes.length; i++) {
+        crc = crcTable[(crc ^ bytes[i]) & 0xFF] ^ (crc >>> 8);
+      }
+      return (crc ^ 0xFFFFFFFF) >>> 0;
+    };
+
+    const encoder = new TextEncoder();
+    const localParts = [];
+    const centralParts = [];
+    let offset = 0;
+
+    files.forEach(f => {
+      const nameBytes = encoder.encode(f.name);
+      const dataBytes = encoder.encode(f.content);
+      const crc = crc32(dataBytes);
+      const size = dataBytes.length;
+
+      const localHeader = new Uint8Array(30 + nameBytes.length);
+      const lv = new DataView(localHeader.buffer);
+      lv.setUint32(0, 0x04034b50, true);
+      lv.setUint16(4, 20, true);
+      lv.setUint16(6, 0, true);
+      lv.setUint16(8, 0, true);
+      lv.setUint16(10, 0, true);
+      lv.setUint16(12, 0x21, true);
+      lv.setUint32(14, crc, true);
+      lv.setUint32(18, size, true);
+      lv.setUint32(22, size, true);
+      lv.setUint16(26, nameBytes.length, true);
+      lv.setUint16(28, 0, true);
+      localHeader.set(nameBytes, 30);
+
+      localParts.push(localHeader, dataBytes);
+
+      const centralHeader = new Uint8Array(46 + nameBytes.length);
+      const cv = new DataView(centralHeader.buffer);
+      cv.setUint32(0, 0x02014b50, true);
+      cv.setUint16(4, 20, true);
+      cv.setUint16(6, 20, true);
+      cv.setUint16(8, 0, true);
+      cv.setUint16(10, 0, true);
+      cv.setUint16(12, 0, true);
+      cv.setUint16(14, 0x21, true);
+      cv.setUint32(16, crc, true);
+      cv.setUint32(20, size, true);
+      cv.setUint32(24, size, true);
+      cv.setUint16(28, nameBytes.length, true);
+      cv.setUint16(30, 0, true);
+      cv.setUint16(32, 0, true);
+      cv.setUint16(34, 0, true);
+      cv.setUint16(36, 0, true);
+      cv.setUint32(38, 0, true);
+      cv.setUint32(42, offset, true);
+      centralHeader.set(nameBytes, 46);
+
+      centralParts.push(centralHeader);
+      offset += localHeader.length + dataBytes.length;
+    });
+
+    const centralSize = centralParts.reduce((s, p) => s + p.length, 0);
+    const eocd = new Uint8Array(22);
+    const ev = new DataView(eocd.buffer);
+    ev.setUint32(0, 0x06054b50, true);
+    ev.setUint16(4, 0, true);
+    ev.setUint16(6, 0, true);
+    ev.setUint16(8, files.length, true);
+    ev.setUint16(10, files.length, true);
+    ev.setUint32(12, centralSize, true);
+    ev.setUint32(16, offset, true);
+    ev.setUint16(20, 0, true);
+
+    return new Blob([...localParts, ...centralParts, eocd], {
+      type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+  }
+
+  function downloadRealXlsxFile(baseFilename, sheetName, aoa, colWidths) {
+    const cleanFile = String(baseFilename || 'Export_Data_PNS').replace(/\.(xlsx|xls|csv)$/i, '') + '.xlsx';
+    const safeSheet = String(sheetName || 'Data PNS').replace(/[\\/?*[\]:]/g, ' ').slice(0, 31) || 'Data PNS';
+
+    if (typeof window !== 'undefined' && window.XLSX && window.XLSX.utils) {
+      try {
+        const wb = window.XLSX.utils.book_new();
+        const ws = window.XLSX.utils.aoa_to_sheet(aoa);
+        if (Array.isArray(colWidths) && colWidths.length > 0) {
+          ws['!cols'] = colWidths.map(w => ({ wch: w }));
+        }
+        window.XLSX.utils.book_append_sheet(wb, ws, safeSheet);
+        window.XLSX.writeFile(wb, cleanFile, { bookType: 'xlsx', compression: true });
+        return;
+      } catch (e) {
+        console.warn('SheetJS fallback to native XLSX builder:', e);
+      }
+    }
+
+    const blob = buildNativeXlsxBlob(safeSheet, aoa);
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = cleanFile;
+    document.body.appendChild(link);
+    link.click();
+    setTimeout(() => {
+      try { document.body.removeChild(link); } catch (e) {}
+    }, 250);
+  }
+
   function exportBelumCheckoutExcel(format) {
     const isCsv = format === 'csv';
     const items = getFilteredReminderCheckoutItems();
     const dateStr = new Date().toISOString().slice(0, 10);
+    const srcFilter = document.getElementById('rem-checkout-source')?.value || 'ALL';
 
     if (remCheckoutMode === 'penghuni') {
-      return exportPenghuniDataToFile(items, isCsv ? 'csv' : 'xls', `Reminder_Penghuni_Belum_Checkout_PNS_${dateStr}`);
+      return exportPenghuniDataToFile(items, isCsv ? 'csv' : 'xlsx', `Reminder_Penghuni_Belum_Checkout_PNS_${items.length}Orang_${dateStr}`);
     }
 
     if (items.length === 0) {
-      if (typeof Swal !== 'undefined') Swal.fire('Data Kosong', 'Tidak ada data belum checkout untuk diunduh.', 'warning');
+      if (typeof Swal !== 'undefined') Swal.fire('Data Kosong', 'Tidak ada data untuk diunduh.', 'warning');
       return;
     }
 
+    const filePrefix = srcFilter === 'MASTER_ALL'
+      ? `Katalog_Master_Aset_PNS_${items.length}_Unit_${dateStr}`
+      : `Reminder_Aset_Belum_Checkout_PNS_${items.length}_Unit_${dateStr}`;
+
     if (isCsv) {
-      let csv = '\uFEFFNo;Asset ID;Kode Unit;No Asset Sistem;No Asset Alokasi;Nama Asset;Spesifikasi Detail;Kelompok Asset;Kategori Asset;Lokasi Site;Departemen / Section;Kondisi;Status Checkout;Status Verifikasi;Tanggal Perolehan;Standar Umur (Thn);Umur Pakai (Thn);Harga Perolehan (HPP);Nilai Buku (NBV);PIC\r\n';
+      let csv = '\uFEFFNo;Asset ID;Kode Unit;No Asset Sistem;No Asset Alokasi;Nama Asset;Spesifikasi Detail;Kelompok Asset;Kategori Asset;Lokasi Site;Departemen / Section;Kondisi;Status Checkout;Status Verifikasi;Tanggal Perolehan;Standar Umur (Thn);Umur Pakai (Thn);Harga Perolehan (HPP);Nilai Buku (NBV);PIC;Sumber Data\r\n';
       items.forEach((x, idx) => {
         const clean = v => `"${String(v !== undefined && v !== null ? v : '').replace(/"/g, '""')}"`;
         csv += [
@@ -2304,18 +2514,18 @@ const PNS_SECTION_TO_DEPT = {
           Number(x.umur_asset || 0),
           Math.round(Number(x.harga_perolehan || 0)),
           Math.round(Number(x.nilai_buku || 0)),
-          clean(x.pic)
+          clean(x.pic || '-'),
+          clean(x.source || 'API & Master Sheet')
         ].join(';') + '\r\n';
       });
       const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `Reminder_Aset_Belum_Checkout_PNS_${dateStr}.csv`;
+      link.download = `${filePrefix}.csv`;
       link.click();
       return;
     }
 
-    // Rich Microsoft Excel (.xls) workbook export
     let totalHpp = 0;
     let totalNbv = 0;
     items.forEach(x => {
@@ -2323,98 +2533,87 @@ const PNS_SECTION_TO_DEPT = {
       totalNbv += Number(x.nilai_buku || 0);
     });
 
-    const rowsHtml = items.map((x, idx) => `
-      <tr>
-        <td style="text-align:center;">${idx + 1}</td>
-        <td style="text-align:center;">${escapeHtml(String(x.asset_id))}</td>
-        <td style="font-weight:bold;mso-number-format:'\\@';">${escapeHtml(x.kode_unit)}</td>
-        <td style="mso-number-format:'\\@';">${escapeHtml(x.no_asset)}</td>
-        <td style="mso-number-format:'\\@';">${escapeHtml(x.no_asset_alokasi)}</td>
-        <td>${escapeHtml(x.nama_asset)}</td>
-        <td>${escapeHtml(x.nama_asset_detail)}</td>
-        <td>${escapeHtml(x.kelompok)}</td>
-        <td>${escapeHtml(x.kategori)}</td>
-        <td style="text-align:center;font-weight:bold;${x.location === 'BELUM CHECKOUT' ? 'background:#FEF3C7;color:#92400E;' : ''}">${escapeHtml(x.location)}</td>
-        <td style="${x.section === 'BELUM CHECKOUT' ? 'background:#FEF3C7;color:#92400E;font-weight:bold;' : ''}">${escapeHtml(x.section)}</td>
-        <td style="text-align:center;">${escapeHtml(x.kondisi)}</td>
-        <td style="background:#FFFBEB;color:#B45309;font-weight:bold;">${escapeHtml(x.status_checkout)}</td>
-        <td>${escapeHtml(x.status_verifikasi)}</td>
-        <td style="text-align:center;mso-number-format:'\\@';">${escapeHtml(x.tanggal_perolehan)}</td>
-        <td style="text-align:center;">${Number(x.standar_umur || 0)}</td>
-        <td style="text-align:center;">${Number(x.umur_asset || 0)}</td>
-        <td style="text-align:right;mso-number-format:'#\\,##0';">${Math.round(Number(x.harga_perolehan || 0))}</td>
-        <td style="text-align:right;mso-number-format:'#\\,##0';">${Math.round(Number(x.nilai_buku || 0))}</td>
-        <td>${escapeHtml(x.pic || '-')}</td>
-      </tr>
-    `).join('');
+    const aoa = [
+      ['PT PRATAMA NUSANTARA SAKTI - LAPORAN DATA ASET & REMINDER BELUM CHECKOUT'],
+      [`Tanggal Unduh: ${dateStr} | Total Unit: ${items.length.toLocaleString('id-ID')} Unit | Total HPP: Rp ${Math.round(totalHpp).toLocaleString('id-ID')} | Total Nilai Buku (NBV): Rp ${Math.round(totalNbv).toLocaleString('id-ID')}`],
+      [],
+      [
+        'No',
+        'Asset ID',
+        'Kode Unit',
+        'No. Asset Sistem',
+        'No. Asset Alokasi',
+        'Nama Aset',
+        'Spesifikasi Detail',
+        'Kelompok Aset',
+        'Kategori Aset',
+        'Lokasi Site',
+        'Departemen / Section',
+        'Kondisi Fisik',
+        'Status Checkout',
+        'Status Verifikasi',
+        'Tgl Perolehan',
+        'Std Umur (Thn)',
+        'Umur Pakai (Thn)',
+        'Harga Perolehan (HPP)',
+        'Nilai Buku (NBV)',
+        'PIC',
+        'Sumber Data'
+      ]
+    ];
 
-    const excelHtml = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta charset="UTF-8">
-        <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Reminder Belum Checkout</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-        <style>
-          body, table { font-family: Calibri, Arial, sans-serif; font-size: 11pt; }
-          th { background-color: #0F172A; color: #FFFFFF; font-weight: bold; padding: 8px; border: 1px solid #334155; }
-          td { padding: 6px 8px; border: 1px solid #CBD5E1; vertical-align: middle; }
-        </style>
-      </head>
-      <body>
-        <table border="1" cellspacing="0" cellpadding="4">
-          <tr>
-            <td colspan="20" style="font-size:14pt;font-weight:bold;background:#FEF3C7;color:#78350F;border:none;">
-              PT PRATAMA NUSANTARA SAKTI - LAPORAN REMINDER DATA ASET BELUM CHECKOUT &amp; ALOKASI
-            </td>
-          </tr>
-          <tr>
-            <td colspan="20" style="font-size:10pt;color:#475569;border:none;">
-              Tanggal Unduh: ${dateStr} | Total Item Belum Checkout: ${items.length.toLocaleString('id-ID')} Unit | Total HPP: Rp ${Math.round(totalHpp).toLocaleString('id-ID')} | Total Nilai Buku (NBV): Rp ${Math.round(totalNbv).toLocaleString('id-ID')}
-            </td>
-          </tr>
-          <tr><td colspan="20" style="border:none;"></td></tr>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Asset ID</th>
-              <th>Kode Unit</th>
-              <th>No. Asset Sistem</th>
-              <th>No. Asset Alokasi</th>
-              <th>Nama Aset</th>
-              <th>Spesifikasi Detail</th>
-              <th>Kelompok Aset</th>
-              <th>Kategori Aset</th>
-              <th>Lokasi Site</th>
-              <th>Departemen / Section</th>
-              <th>Kondisi Fisik</th>
-              <th>Status Checkout</th>
-              <th>Status Verifikasi</th>
-              <th>Tgl Perolehan</th>
-              <th>Std Umur (Thn)</th>
-              <th>Umur Pakai (Thn)</th>
-              <th>Harga Perolehan (HPP)</th>
-              <th>Nilai Buku (NBV)</th>
-              <th>PIC</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHtml}
-            <tr style="font-weight:bold;background:#F1F5F9;">
-              <td colspan="17" style="text-align:right;font-weight:bold;">TOTAL KESELURUHAN (${items.length.toLocaleString('id-ID')} UNIT):</td>
-              <td style="text-align:right;font-weight:bold;mso-number-format:'#\\,##0';">${Math.round(totalHpp)}</td>
-              <td style="text-align:right;font-weight:bold;mso-number-format:'#\\,##0';">${Math.round(totalNbv)}</td>
-              <td></td>
-            </tr>
-          </tbody>
-        </table>
-      </body>
-      </html>
-    `;
+    items.forEach((x, idx) => {
+      aoa.push([
+        idx + 1,
+        Number(x.asset_id) || String(x.asset_id || '-'),
+        String(x.kode_unit || '-'),
+        String(x.no_asset || '-'),
+        String(x.no_asset_alokasi || '-'),
+        String(x.nama_asset || '-'),
+        String(x.nama_asset_detail || '-'),
+        String(x.kelompok || '-'),
+        String(x.kategori || '-'),
+        String(x.location || '-'),
+        String(x.section || '-'),
+        String(x.kondisi || '-'),
+        String(x.status_checkout || '-'),
+        String(x.status_verifikasi || '-'),
+        String(x.tanggal_perolehan || '-'),
+        Number(x.standar_umur || 0),
+        Number(x.umur_asset || 0),
+        Math.round(Number(x.harga_perolehan || 0)),
+        Math.round(Number(x.nilai_buku || 0)),
+        String(x.pic || '-'),
+        String(x.source || 'API & Master Sheet')
+      ]);
+    });
 
-    const blob = new Blob(['\uFEFF' + excelHtml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Reminder_Aset_Belum_Checkout_PNS_${dateStr}.xls`;
-    link.click();
+    aoa.push([
+      '',
+      '',
+      '',
+      '',
+      '',
+      `TOTAL KESELURUHAN (${items.length.toLocaleString('id-ID')} UNIT)`,
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      Math.round(totalHpp),
+      Math.round(totalNbv),
+      '',
+      ''
+    ]);
+
+    const colWidths = [6, 10, 20, 18, 18, 26, 34, 26, 26, 14, 24, 16, 26, 20, 14, 14, 14, 20, 20, 20, 22];
+    downloadRealXlsxFile(filePrefix, 'Data Aset PNS', aoa, colWidths);
   }
 
   function exportPenghuniDataToFile(list, format, baseFilename) {
@@ -2423,7 +2622,7 @@ const PNS_SECTION_TO_DEPT = {
       return;
     }
     const dateStr = new Date().toISOString().slice(0, 10);
-    const filename = baseFilename || `Data_Penghuni_Mess_PNS_${dateStr}`;
+    const filename = baseFilename || `Data_Penghuni_Mess_PNS_${list.length}Baris_${dateStr}`;
 
     if (format === 'csv') {
       let csv = '\uFEFFNo;Kode Gedung / LH;Nama Ruangan / Kamar;Nomor Kasur / Bed;Status Hunian;NIK Karyawan;Nama Penghuni;Jabatan;Departemen;Tanggal Masuk;Kontak WA;Catatan\r\n';
@@ -2452,76 +2651,45 @@ const PNS_SECTION_TO_DEPT = {
       return;
     }
 
-    const rowsHtml = list.map((p, idx) => `
-      <tr>
-        <td style="text-align:center;">${idx + 1}</td>
-        <td style="font-weight:bold;mso-number-format:'\\@';">${escapeHtml(p.kode_gedung || '-')}</td>
-        <td>${escapeHtml(p.nama_ruangan || '-')}</td>
-        <td>${escapeHtml(p.nomor_kasur || '-')}</td>
-        <td style="text-align:center;font-weight:bold;${p.status_hunian === 'Aktif' ? 'background:#DCFCE7;color:#166534;' : 'background:#FEF3C7;color:#92400E;'}">${escapeHtml(p.status_hunian === 'Aktif' ? 'Aktif (Belum Checkout)' : (p.status_hunian || 'Vacant'))}</td>
-        <td style="mso-number-format:'\\@';">${escapeHtml(p.nik || '-')}</td>
-        <td style="font-weight:bold;">${escapeHtml(p.nama_penghuni || '- Kosong -')}</td>
-        <td>${escapeHtml(p.jabatan || '-')}</td>
-        <td>${escapeHtml(p.departemen || '-')}</td>
-        <td style="text-align:center;mso-number-format:'\\@';">${escapeHtml(p.tgl_masuk && p.tgl_masuk !== '1970-01-01' ? p.tgl_masuk : '-')}</td>
-        <td style="mso-number-format:'\\@';">${escapeHtml(p.no_kontak || '-')}</td>
-        <td>${escapeHtml(p.catatan || '-')}</td>
-      </tr>
-    `).join('');
+    const aoa = [
+      ['PT PRATAMA NUSANTARA SAKTI - DATA PENGHUNI MESS / LONGHOUSE & REMINDER BELUM CHECKOUT'],
+      [`Tanggal Unduh: ${dateStr} | Total Baris Data: ${list.length.toLocaleString('id-ID')}`],
+      [],
+      [
+        'No',
+        'Kode Gedung / LH',
+        'Ruangan / Kamar',
+        'Nomor Kasur / Bed',
+        'Status Checkout / Hunian',
+        'NIK Karyawan',
+        'Nama Penghuni',
+        'Jabatan',
+        'Departemen',
+        'Tanggal Masuk',
+        'Kontak / WA',
+        'Catatan'
+      ]
+    ];
 
-    const excelHtml = `
-      <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-      <head>
-        <meta charset="UTF-8">
-        <!--[if gte mso 9]><xml><x:ExcelWorkbook><x:ExcelWorksheets><x:ExcelWorksheet><x:Name>Data Penghuni Mess</x:Name><x:WorksheetOptions><x:DisplayGridlines/></x:WorksheetOptions></x:ExcelWorksheet></x:ExcelWorksheets></x:ExcelWorkbook></xml><![endif]-->
-        <style>
-          body, table { font-family: Calibri, Arial, sans-serif; font-size: 11pt; }
-          th { background-color: #312E81; color: #FFFFFF; font-weight: bold; padding: 8px; border: 1px solid #4338CA; }
-          td { padding: 6px 8px; border: 1px solid #CBD5E1; vertical-align: middle; }
-        </style>
-      </head>
-      <body>
-        <table border="1" cellspacing="0" cellpadding="4">
-          <tr>
-            <td colspan="12" style="font-size:14pt;font-weight:bold;background:#E0E7FF;color:#1E1B4B;border:none;">
-              PT PRATAMA NUSANTARA SAKTI - DATA PENGHUNI MESS / LONGHOUSE &amp; REMINDER BELUM CHECKOUT
-            </td>
-          </tr>
-          <tr>
-            <td colspan="12" style="font-size:10pt;color:#475569;border:none;">
-              Tanggal Unduh: ${dateStr} | Total Baris Data: ${list.length.toLocaleString('id-ID')}
-            </td>
-          </tr>
-          <tr><td colspan="12" style="border:none;"></td></tr>
-          <thead>
-            <tr>
-              <th>No</th>
-              <th>Kode Gedung / LH</th>
-              <th>Ruangan / Kamar</th>
-              <th>Nomor Kasur / Bed</th>
-              <th>Status Checkout / Hunian</th>
-              <th>NIK Karyawan</th>
-              <th>Nama Penghuni</th>
-              <th>Jabatan</th>
-              <th>Departemen</th>
-              <th>Tanggal Masuk</th>
-              <th>Kontak / WA</th>
-              <th>Catatan</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${rowsHtml}
-          </tbody>
-        </table>
-      </body>
-      </html>
-    `;
+    list.forEach((p, idx) => {
+      aoa.push([
+        idx + 1,
+        String(p.kode_gedung || '-'),
+        String(p.nama_ruangan || '-'),
+        String(p.nomor_kasur || '-'),
+        p.status_hunian === 'Aktif' ? 'Aktif (Belum Checkout)' : String(p.status_hunian || 'Vacant'),
+        String(p.nik || '-'),
+        String(p.nama_penghuni || '- Kosong -'),
+        String(p.jabatan || '-'),
+        String(p.departemen || '-'),
+        (p.tgl_masuk && p.tgl_masuk !== '1970-01-01') ? String(p.tgl_masuk) : '-',
+        String(p.no_kontak || '-'),
+        String(p.catatan || '-')
+      ]);
+    });
 
-    const blob = new Blob(['\uFEFF' + excelHtml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `${filename}.xls`;
-    link.click();
+    const colWidths = [6, 18, 22, 16, 24, 16, 28, 24, 24, 15, 18, 32];
+    downloadRealXlsxFile(filename, 'Data Penghuni Mess', aoa, colWidths);
   }
 
   function exportPenghuniExcel(format) {
@@ -2548,7 +2716,7 @@ const PNS_SECTION_TO_DEPT = {
     });
 
     const dateStr = new Date().toISOString().slice(0, 10);
-    exportPenghuniDataToFile(filtered, format || 'xls', `Data_Penghuni_Hunian_Mess_PNS_${dateStr}`);
+    exportPenghuniDataToFile(filtered, format || 'xlsx', `Data_Penghuni_Hunian_Mess_PNS_${filtered.length}Baris_${dateStr}`);
   }
 
   function renderPortfolioSites() {
@@ -4607,21 +4775,50 @@ const PNS_SECTION_TO_DEPT = {
   window.pns.renderPortfolioComposition = window.renderPortfolioComposition = renderPortfolioComposition;
   window.pns.exportPortfolioCompositionCsv = window.exportPortfolioCompositionCsv = exportPortfolioCompositionCsv;
 
-  function exportPortfolioCompositionCsv() {
+  function exportPortfolioCompositionCsv(format) {
     const assets = getAllNormalizedAssets();
     const rows = measureOverviewAssetBy(currentAssetOverviewDim, assets);
-    let csv = 'DIMENSION,TOTAL_ASSET,GOOD_PCT,ACQUISITION,MAINTENANCE_COST\n';
-    rows.forEach(r => {
-      csv += `"${r.label}",${r.totalAsset},"${r.goodPct.toFixed(2)}%",${r.acquisition},${r.maintenanceCost}\n`;
-    });
-    if (typeof Blob !== 'undefined' && typeof URL !== 'undefined') {
-      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `komposisi_nilai_aset_${new Date().toISOString().slice(0,10)}.csv`;
-      a.click();
+    const dateStr = new Date().toISOString().slice(0, 10);
+    if (format === 'csv') {
+      let csv = '\uFEFFDIMENSION;TOTAL_ASSET;GOOD_PCT;ACQUISITION;MAINTENANCE_COST\r\n';
+      rows.forEach(r => {
+        csv += `"${r.label}";${r.totalAsset};"${r.goodPct.toFixed(2)}%";${Math.round(r.acquisition || 0)};${Math.round(r.maintenanceCost || 0)}\r\n`;
+      });
+      if (typeof Blob !== 'undefined' && typeof URL !== 'undefined') {
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `Komposisi_Nilai_Aset_PNS_${dateStr}.csv`;
+        a.click();
+      }
+      return;
     }
+
+    let totUnit = 0;
+    let totAcq = 0;
+    let totMtc = 0;
+    const aoa = [
+      ['PT PRATAMA NUSANTARA SAKTI - KOMPOSISI & NILAI PORTOFOLIO ASET'],
+      [`Tanggal Unduh: ${dateStr} | Dimensi: ${String(currentAssetOverviewDim || 'group').toUpperCase()}`],
+      [],
+      ['No', 'Dimensi / Kategori', 'Total Asset (Unit)', 'Good Condition (%)', 'Nilai Perolehan / Acquisition (Rp)', 'Maintenance Cost (Rp)']
+    ];
+    rows.forEach((r, idx) => {
+      totUnit += Number(r.totalAsset || 0);
+      totAcq += Number(r.acquisition || 0);
+      totMtc += Number(r.maintenanceCost || 0);
+      aoa.push([
+        idx + 1,
+        String(r.label || '-'),
+        Number(r.totalAsset || 0),
+        `${Number(r.goodPct || 0).toFixed(2)}%`,
+        Math.round(Number(r.acquisition || 0)),
+        Math.round(Number(r.maintenanceCost || 0))
+      ]);
+    });
+    aoa.push(['', 'TOTAL KESELURUHAN', totUnit, '', Math.round(totAcq), Math.round(totMtc)]);
+    downloadRealXlsxFile(`Komposisi_Nilai_Aset_PNS_${totUnit}_Unit_${dateStr}`, 'Komposisi Aset', aoa, [6, 30, 18, 18, 24, 24]);
   }
 
   window.exportPortfolioCompositionCsv = exportPortfolioCompositionCsv;
@@ -5201,17 +5398,65 @@ const PNS_SECTION_TO_DEPT = {
     }).join('');
   }
 
-  function exportMovementDetailsCsv() {
+  function exportMovementDetailsCsv(format) {
     const list = getMovRightFilteredList();
-    let csv = 'location,kode_unit,nama_asset,nama_asset_detail,jenis_asset,kondisi,nilai_perolehan,nilai_buku\n';
-    list.slice(0, 15000).forEach(a => {
-      csv += `"${a.lokasi_raw || 'CO'}","${a.kode_unit}","${String(a.nama_asset || '').replace(/"/g, '""')}","${String(a.nama_asset_detail || '').replace(/"/g, '""')}","${a.jenis_asset}","${a.kondisi}",${a.total_harga_perolehan || 0},${a.Nilai_buku || 0}\n`;
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `Detail_Asset_Movement_${list.length}_Unit_${dateStr}`;
+
+    if (format === 'csv') {
+      let csv = '\uFEFFlocation;kode_unit;nama_asset;nama_asset_detail;jenis_asset;kondisi;nilai_perolehan;nilai_buku\r\n';
+      list.forEach(a => {
+        csv += `"${a.lokasi_raw || 'CO'}";"${a.kode_unit}";"${String(a.nama_asset || '').replace(/"/g, '""')}";"${String(a.nama_asset_detail || '').replace(/"/g, '""')}";"${a.jenis_asset}";"${a.kondisi}";${Math.round(Number(a.total_harga_perolehan || 0))};${Math.round(Number(a.Nilai_buku || 0))}\r\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = `${filename}.csv`;
+      a.click();
+      return;
+    }
+
+    let totHpp = 0;
+    let totNbv = 0;
+    list.forEach(a => {
+      totHpp += Number(a.total_harga_perolehan || 0);
+      totNbv += Number(a.Nilai_buku || 0);
     });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = `Detail_Asset_Movement_${new Date().toISOString().slice(0,10)}.csv`;
-    a.click();
+
+    const aoa = [
+      ['PT PRATAMA NUSANTARA SAKTI - DETAIL ASSET MOVEMENT & CONDITION'],
+      [`Tanggal Unduh: ${dateStr} | Total Aset Sesuai Filter: ${list.length.toLocaleString('id-ID')} Unit | Total HPP: Rp ${Math.round(totHpp).toLocaleString('id-ID')} | Total Nilai Buku: Rp ${Math.round(totNbv).toLocaleString('id-ID')}`],
+      [],
+      ['No', 'Location', 'Kode Unit', 'Nama Asset', 'Spesifikasi Detail', 'Jenis Asset', 'Kondisi', 'Nilai Perolehan (HPP)', 'Nilai Buku (NBV)']
+    ];
+
+    list.forEach((a, idx) => {
+      aoa.push([
+        idx + 1,
+        String(a.lokasi_raw || 'CO'),
+        String(a.kode_unit || '-'),
+        String(a.nama_asset || '-'),
+        String(a.nama_asset_detail || a.nama_asset || '-'),
+        String(a.jenis_asset || 'Asset'),
+        String(a.kondisi || 'Good Condition'),
+        Math.round(Number(a.total_harga_perolehan || 0)),
+        Math.round(Number(a.Nilai_buku || 0))
+      ]);
+    });
+
+    aoa.push([
+      '',
+      '',
+      '',
+      `TOTAL KESELURUHAN (${list.length.toLocaleString('id-ID')} UNIT)`,
+      '',
+      '',
+      '',
+      Math.round(totHpp),
+      Math.round(totNbv)
+    ]);
+
+    downloadRealXlsxFile(filename, 'Detail Asset Movement', aoa, [6, 12, 22, 26, 36, 20, 18, 22, 22]);
   }
 
   function triggerLiveApiAndSheetSync() {
@@ -5301,23 +5546,52 @@ const PNS_SECTION_TO_DEPT = {
     `).join('');
   }
 
-  function exportDepreciationCsv() {
-    const csv = 'Golongan Aset;Unit;Masa Manfaat;Nilai Perolehan (HPP);Akumulasi Depresiasi;Nilai Buku (NBV);Status\n' +
-      'Inventaris dan Peralatan;22696;4.2 Tahun;57954911761;54627461094;3327450666;Aktif\n' +
-      'Infrastruktur;4755;31.1 Tahun;520311996195;114239653909;406072342286;Aktif\n' +
-      'Mesin Pabrik;2206;10.0 Tahun;14448434972;4238381266;10210053706;Aktif\n' +
-      'Mesin dan Instalasi;1825;5.9 Tahun;51828149775;37642799133;14185350642;Aktif\n' +
-      'Kendaraan dan Transportasi;1416;7.4 Tahun;135898317639;114175165778;21723151861;Aktif\n' +
-      'Bangunan Fisik;819;20.9 Tahun;205577652924;52716015886;152861637038;Aktif\n' +
-      'Alat/Implement Pertanian;415;7.6 Tahun;14234877861;12048250380;2186627481;Aktif\n' +
-      'Alat Berat (Heavy Equipment);134;8.0 Tahun;120011382484;102062674610;17948707874;Aktif\n' +
-      'TOTAL;34266;-;1120265723611;491750402056;628515321555;Aktif\n';
+  function exportDepreciationCsv(format) {
+    const allAssets = getAllNormalizedAssets();
+    const grpMap = new Map();
+    allAssets.forEach(a => {
+      const gol = a.kelompok_asset || 'INVENTARIS DAN PERALATAN';
+      if (!grpMap.has(gol)) {
+        grpMap.set(gol, { gol, unit: 0, sumStd: 0, hpp: 0, akm: 0, nbv: 0 });
+      }
+      const g = grpMap.get(gol);
+      g.unit++;
+      g.sumStd += Number(a.standar_umur) || 5;
+      g.hpp += Number(a.total_harga_perolehan) || 0;
+      g.akm += Number(a.akumulasi_penyusutan) || 0;
+      g.nbv += Number(a.Nilai_buku) || 0;
+    });
+    const rows = Array.from(grpMap.values()).sort((a, b) => b.unit - a.unit);
+    const dateStr = new Date().toISOString().slice(0, 10);
 
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Laporan_Depresiasi_PNS_VRA_${Date.now()}.csv`;
-    link.click();
+    let totUnit = 0, totHpp = 0, totAkm = 0, totNbv = 0;
+    const aoa = [
+      ['PT PRATAMA NUSANTARA SAKTI - LAPORAN DEPRESIASI & NILAI BUKU ASET'],
+      [`Tanggal Unduh: ${dateStr} | Metode: Straight-Line (Garis Lurus)`],
+      [],
+      ['No', 'Golongan / Kelompok Aset', 'Jumlah Unit', 'Rata-rata Masa Manfaat', 'Nilai Perolehan (HPP)', 'Akumulasi Penyusutan', 'Nilai Buku Bersih (NBV)', 'Status']
+    ];
+    rows.forEach((g, idx) => {
+      totUnit += g.unit;
+      totHpp += g.hpp;
+      totAkm += g.akm;
+      totNbv += g.nbv;
+      const avgMasa = g.unit > 0 ? (g.sumStd / g.unit).toFixed(1) + ' Tahun' : '-';
+      aoa.push([idx + 1, g.gol, g.unit, avgMasa, Math.round(g.hpp), Math.round(g.akm), Math.round(g.nbv), 'Aktif']);
+    });
+    aoa.push(['', 'TOTAL KESELURUHAN', totUnit, '-', Math.round(totHpp), Math.round(totAkm), Math.round(totNbv), 'Aktif']);
+
+    if (format === 'csv') {
+      const csv = '\uFEFF' + aoa.slice(3).map(r => r.join(';')).join('\r\n');
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Laporan_Depresiasi_PNS_${totUnit}_Unit_${dateStr}.csv`;
+      link.click();
+      return;
+    }
+
+    downloadRealXlsxFile(`Laporan_Depresiasi_PNS_${totUnit}_Unit_${dateStr}`, 'Depresiasi Aset', aoa, [6, 30, 15, 22, 24, 24, 24, 14]);
   }
 
   let assetRelocHistory = [
@@ -5821,16 +6095,41 @@ const PNS_SECTION_TO_DEPT = {
     printWindow.document.close();
   }
 
-  function exportDisposalArchiveCsv() {
-    let csv = 'No BA;Kode Aset;Nama Barang;Lokasi;Metode;Nilai Sisa;Status;Tanggal;Alasan\n';
-    assetDisposalHistory.forEach(h => {
-      csv += `"${h.no_ba}";"${h.kode_asset}";"${h.nama_asset}";"${h.lokasi}";"${h.metode}";${h.nilai_sisa};"${h.status}";"${h.tgl}";"${h.alasan}"\n`;
+  function exportDisposalArchiveCsv(format) {
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const aoa = [
+      ['PT PRATAMA NUSANTARA SAKTI - ARSIP BERITA ACARA DISPOSAL & PENGHAPUSAN ASET'],
+      [`Tanggal Unduh: ${dateStr} | Total Dokumen BA: ${assetDisposalHistory.length}`],
+      [],
+      ['No', 'No. Berita Acara', 'Kode Aset', 'Nama Barang', 'Lokasi', 'Metode Penghapusan', 'Nilai Sisa / Buku (Rp)', 'Status Approval', 'Tanggal Pengajuan', 'Alasan Disposal']
+    ];
+    assetDisposalHistory.forEach((h, idx) => {
+      aoa.push([
+        idx + 1,
+        String(h.no_ba || '-'),
+        String(h.kode_asset || '-'),
+        String(h.nama_asset || '-'),
+        String(h.lokasi || '-'),
+        String(h.metode || '-'),
+        Math.round(Number(h.nilai_sisa || 0)),
+        String(h.status || '-'),
+        String(h.tgl || '-'),
+        String(h.alasan || '-')
+      ]);
     });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'Arsip_Berita_Acara_Disposal_PNS.csv';
-    link.click();
+    if (format === 'csv') {
+      let csv = '\uFEFFNo BA;Kode Aset;Nama Barang;Lokasi;Metode;Nilai Sisa;Status;Tanggal;Alasan\r\n';
+      assetDisposalHistory.forEach(h => {
+        csv += `"${h.no_ba}";"${h.kode_asset}";"${h.nama_asset}";"${h.lokasi}";"${h.metode}";${h.nilai_sisa};"${h.status}";"${h.tgl}";"${h.alasan}"\r\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Arsip_Berita_Acara_Disposal_PNS_${dateStr}.csv`;
+      link.click();
+      return;
+    }
+    downloadRealXlsxFile(`Arsip_Berita_Acara_Disposal_PNS_${dateStr}`, 'Arsip Disposal', aoa, [6, 22, 20, 28, 16, 22, 20, 20, 16, 32]);
   }
 
 // ==========================================
@@ -8844,18 +9143,163 @@ const PNS_SECTION_TO_DEPT = {
     renderAllAssetsTable();
   }
 
-  function exportAssetCatalogCsv() {
-    if (typeof window === 'undefined' || !window.PNS_ALL_ASSETS_ROWS) return;
+  function getFilteredMasterCatalogRows(forceAll) {
+    if (typeof window === 'undefined' || !window.PNS_ALL_ASSETS_ROWS) return [];
     const rawRows = window.PNS_ALL_ASSETS_ROWS;
-    let csv = 'Kode Unit;Nama Asset;Kelompok;Kategori;Lokasi;Kondisi;Standar Umur;Umur Asset;HPP;Penyusutan;Nilai Buku;Status\n';
-    rawRows.slice(0, 10000).forEach(r => {
-      csv += `${r[0]};"${(r[1]||'').replace(/"/g, '""')}";${r[2]};${r[3]};${r[4]};${r[5]};${r[6]};${r[7]};${r[8]};${r[9]};${r[10]};${r[11]}\n`;
+    if (forceAll) return rawRows;
+
+    const typeFilter = document.getElementById('slicer-asset-type-cat')?.value || 'ALL';
+    const katFilter = document.getElementById('slicer-asset-kat')?.value || 'ALL';
+    const kondisiFilter = document.getElementById('slicer-asset-kondisi')?.value || 'ALL';
+    const query = (document.getElementById('slicer-asset-search')?.value || '').trim().toLowerCase();
+
+    if (typeFilter === 'ALL' && katFilter === 'ALL' && kondisiFilter === 'ALL' && !query) {
+      return rawRows;
+    }
+
+    const filtered = [];
+    for (let i = 0; i < rawRows.length; i++) {
+      const r = rawRows[i];
+      const no = r[0] || '';
+      const nama = r[1] || '';
+      const kelompok = r[2] || '';
+      const kat = r[3] || 'LAINNYA';
+      const kond = r[5] || 'Good Condition';
+      const hpp = Number(r[8]) || 0;
+      const nbv = Number(r[10]) || 0;
+
+      if (typeFilter === 'valuable' && (hpp === 0 && nbv === 0)) continue;
+      if (typeFilter === 'non_valuable' && (hpp > 0 || nbv > 0)) continue;
+      if (katFilter !== 'ALL' && kat !== katFilter) continue;
+      if (kondisiFilter !== 'ALL' && !kond.toLowerCase().includes(kondisiFilter.toLowerCase())) continue;
+      if (query) {
+        const match = no.toLowerCase().includes(query) ||
+                      nama.toLowerCase().includes(query) ||
+                      kelompok.toLowerCase().includes(query) ||
+                      kat.toLowerCase().includes(query);
+        if (!match) continue;
+      }
+      filtered.push(r);
+    }
+    return filtered;
+  }
+
+  function exportAssetCatalogCsv(format, forceAll) {
+    if (typeof window === 'undefined' || !window.PNS_ALL_ASSETS_ROWS) return;
+    const rows = getFilteredMasterCatalogRows(Boolean(forceAll));
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const filename = `Katalog_Master_Aset_PNS_${rows.length}_Unit_${dateStr}`;
+
+    if (format === 'csv') {
+      let csv = '\uFEFFNo;Kode Unit;Nama Asset;Spesifikasi Detail;Kelompok;Kategori;Lokasi;Departemen / Section;Kondisi;Standar Umur (Thn);Umur Asset (Thn);HPP;Penyusutan;Nilai Buku;Status;Status Verifikasi;Jenis Asset\r\n';
+      rows.forEach((r, idx) => {
+        const clean = v => `"${String(v !== undefined && v !== null ? v : '').replace(/"/g, '""')}"`;
+        csv += [
+          idx + 1,
+          clean(r[0]),
+          clean(r[1]),
+          clean(r[15] || r[1]),
+          clean(r[2]),
+          clean(r[3]),
+          clean(r[4]),
+          clean(r[12] || '-'),
+          clean(r[5]),
+          Number(r[6] || 0),
+          Number(r[7] || 0),
+          Math.round(Number(r[8] || 0)),
+          Math.round(Number(r[9] || 0)),
+          Math.round(Number(r[10] || 0)),
+          clean(r[11]),
+          clean(r[13] || 'ALOKASI SESUAI'),
+          clean(r[14] || 'Asset')
+        ].join(';') + '\r\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `${filename}.csv`;
+      link.click();
+      return;
+    }
+
+    let totHpp = 0;
+    let totSusut = 0;
+    let totNbv = 0;
+    rows.forEach(r => {
+      totHpp += Number(r[8] || 0);
+      totSusut += Number(r[9] || 0);
+      totNbv += Number(r[10] || 0);
     });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `Katalog_Master_Aset_PNS_${Date.now()}.csv`;
-    link.click();
+
+    const aoa = [
+      ['PT PRATAMA NUSANTARA SAKTI - KATALOG MASTER ASET LENGKAP'],
+      [`Tanggal Unduh: ${dateStr} | Total Unit Aset: ${rows.length.toLocaleString('id-ID')} Unit | Total HPP: Rp ${Math.round(totHpp).toLocaleString('id-ID')} | Total Penyusutan: Rp ${Math.round(totSusut).toLocaleString('id-ID')} | Total Nilai Buku (NBV): Rp ${Math.round(totNbv).toLocaleString('id-ID')}`],
+      [],
+      [
+        'No',
+        'Kode Unit',
+        'Nama Asset',
+        'Spesifikasi Detail',
+        'Kelompok Asset',
+        'Kategori Asset',
+        'Lokasi Site',
+        'Departemen / Section',
+        'Kondisi Fisik',
+        'Standar Umur (Thn)',
+        'Umur Pakai (Thn)',
+        'Harga Perolehan (HPP)',
+        'Akumulasi Penyusutan',
+        'Nilai Buku (NBV)',
+        'Status Pemakaian',
+        'Status Verifikasi',
+        'Jenis Asset'
+      ]
+    ];
+
+    rows.forEach((r, idx) => {
+      aoa.push([
+        idx + 1,
+        String(r[0] || '-'),
+        String(r[1] || '-'),
+        String(r[15] || r[1] || '-'),
+        String(r[2] || '-'),
+        String(r[3] || '-'),
+        String(r[4] || '-'),
+        String(r[12] || '-'),
+        String(r[5] || '-'),
+        Number(r[6] || 0),
+        Number(r[7] || 0),
+        Math.round(Number(r[8] || 0)),
+        Math.round(Number(r[9] || 0)),
+        Math.round(Number(r[10] || 0)),
+        String(r[11] || 'Aktif / Digunakan'),
+        String(r[13] || 'ALOKASI SESUAI'),
+        String(r[14] || 'Asset')
+      ]);
+    });
+
+    aoa.push([
+      '',
+      '',
+      `TOTAL KESELURUHAN (${rows.length.toLocaleString('id-ID')} UNIT)`,
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      '',
+      Math.round(totHpp),
+      Math.round(totSusut),
+      Math.round(totNbv),
+      '',
+      '',
+      ''
+    ]);
+
+    const colWidths = [7, 20, 26, 34, 26, 26, 12, 24, 16, 15, 15, 22, 22, 22, 18, 18, 18];
+    downloadRealXlsxFile(filename, 'Master Katalog Aset', aoa, colWidths);
   }
 
   function drillToAssetDetail(assetCode) {
@@ -9107,17 +9551,42 @@ const PNS_SECTION_TO_DEPT = {
     });
   }
 
-  function exportValidasiCsv() {
+  function exportValidasiCsv(format) {
     const list = appState.validations || REAL_VALIDATIONS;
-    let csv = 'ID Opname,Tanggal,Lokasi,Total Terdaftar,Sesuai,Selisih,Status,Auditor,Catatan\r\n';
-    list.forEach(v => {
-      csv += `"${v.opname_id}","${v.tanggal}","${v.lokasi}",${v.total_terdaftar},${v.sesuai},${v.selisih},"${v.status}","${v.auditor}","${(v.catatan || '').replace(/"/g, '""')}"\r\n`;
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const aoa = [
+      ['PT PRATAMA NUSANTARA SAKTI - LAPORAN VALIDASI & OPNAME FISIK ASET'],
+      [`Tanggal Unduh: ${dateStr} | Total Rekaman Opname: ${list.length}`],
+      [],
+      ['No', 'ID Opname', 'Tanggal', 'Lokasi / Site', 'Total Terdaftar', 'Fisik Sesuai', 'Selisih', 'Status Validasi', 'Auditor', 'Catatan Temuan']
+    ];
+    list.forEach((v, idx) => {
+      aoa.push([
+        idx + 1,
+        String(v.opname_id || '-'),
+        String(v.tanggal || '-'),
+        String(v.lokasi || '-'),
+        Number(v.total_terdaftar || 0),
+        Number(v.sesuai || 0),
+        Number(v.selisih || 0),
+        String(v.status || '-'),
+        String(v.auditor || '-'),
+        String(v.catatan || '-')
+      ]);
     });
-    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = `PNS_Validasi_Opname_Aset_${new Date().toISOString().slice(0, 10)}.csv`;
-    link.click();
+    if (format === 'csv') {
+      let csv = '\uFEFFID Opname;Tanggal;Lokasi;Total Terdaftar;Sesuai;Selisih;Status;Auditor;Catatan\r\n';
+      list.forEach(v => {
+        csv += `"${v.opname_id}";"${v.tanggal}";"${v.lokasi}";${v.total_terdaftar};${v.sesuai};${v.selisih};"${v.status}";"${v.auditor}";"${(v.catatan || '').replace(/"/g, '""')}"\r\n`;
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `PNS_Validasi_Opname_Aset_${dateStr}.csv`;
+      link.click();
+      return;
+    }
+    downloadRealXlsxFile(`PNS_Validasi_Opname_Aset_${dateStr}`, 'Validasi Opname', aoa, [6, 18, 14, 24, 16, 16, 12, 18, 22, 34]);
   }
   // ========================================================
   // LIVE WEBRTC CAMERA ENGINE (HP & DESKTOP LANGSUNG)
