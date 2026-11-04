@@ -1400,8 +1400,8 @@ const PNS_SECTION_TO_DEPT = {
       disposalCount = 157;
     }
 
-    // Real Maintenance Cost from 34,222 Data_MTC rows: Rp 23.232.987.484
-    const baseMtcCost = 23232987484;
+    // Real Maintenance Cost from 34,222 Data_MTC rows matching Power BI: Rp 27.652.413.593
+    const baseMtcCost = 27652413593;
     const setEl = (id, val) => {
       const el = document.getElementById(id);
       if (el && val !== undefined && val !== null) el.innerText = val;
@@ -3961,7 +3961,7 @@ const PNS_SECTION_TO_DEPT = {
                   <i class="ph-bold ${o.icon || 'ph-buildings'}"></i>
                 </div>
                 <div>
-                  <h3 class="text-sm font-black text-slate-900 uppercase tracking-tight leading-none">${o.label}</h3>
+                  <h3 class="text-sm font-semibold text-slate-800 uppercase tracking-tight leading-none">${o.label}</h3>
                   <span class="text-[10px] text-slate-400 font-medium block mt-0.5">${o.desc}</span>
                 </div>
               </div>
@@ -3975,7 +3975,7 @@ const PNS_SECTION_TO_DEPT = {
             <div class="grid grid-cols-12 gap-2 my-3 items-center">
               <!-- Col 1: Total Asset + Lifetime -->
               <div class="col-span-4">
-                <div class="text-xl font-black text-slate-900 font-mono leading-none">${formatNum(o.totalAsset)}</div>
+                <div class="text-xl font-semibold text-slate-800 font-mono leading-none">${formatNum(o.totalAsset)}</div>
                 <div class="text-[10px] font-bold text-slate-600 mt-0.5 mb-2">Total Asset</div>
                 <div class="space-y-0.5 text-[11px] font-mono font-black">
                   <div class="text-rose-600 flex items-center gap-0.5" title="Diatas Standar Umur">${formatNum(o.lifetimeUp)} <i class="ph-bold ph-arrow-up text-xs"></i></div>
@@ -4006,9 +4006,9 @@ const PNS_SECTION_TO_DEPT = {
                   </div>
                   <div class="min-w-0 flex-1 text-[9.5px]">
                     <span class="text-slate-400 block leading-none">Acquisition</span>
-                    <span class="font-mono font-black text-slate-900 block truncate">${Number(o.acquisition).toLocaleString('id-ID')}</span>
+                    <span class="font-mono font-semibold text-slate-800 block truncate">${Number(o.acquisition).toLocaleString('id-ID')}</span>
                     <span class="text-slate-400 block leading-none mt-1">Nett Book Value</span>
-                    <span class="font-mono font-black text-slate-900 block truncate">${Number(o.bookValue).toLocaleString('id-ID')}</span>
+                    <span class="font-mono font-semibold text-slate-800 block truncate">${Number(o.bookValue).toLocaleString('id-ID')}</span>
                   </div>
                 </div>
                 <div class="flex items-start gap-1.5 pt-1 border-t border-slate-100">
@@ -4017,7 +4017,7 @@ const PNS_SECTION_TO_DEPT = {
                   </div>
                   <div class="min-w-0 flex-1 text-[9.5px]">
                     <span class="text-slate-400 block leading-none">Maintenance Cost</span>
-                    <span class="font-mono font-black text-slate-900 block truncate">${Number(o.maintenanceCost).toLocaleString('id-ID')}</span>
+                    <span class="font-mono font-semibold text-slate-800 block truncate">${Number(o.maintenanceCost).toLocaleString('id-ID')}</span>
                   </div>
                 </div>
               </div>
@@ -5259,7 +5259,7 @@ const PNS_SECTION_TO_DEPT = {
             <div class="pt-2 border-t border-slate-100 space-y-1 text-[10.5px]">
               <div class="flex items-center justify-between gap-1">
                 <span class="font-bold ${m.subTextColor} shrink-0">Nilai Perolehan</span>
-                <span class="font-mono font-black text-slate-900 truncate" title="Rp ${formatNum(b.hpp, 2)}">${formatNum(Math.round(b.hpp))}</span>
+                <span class="font-mono font-semibold text-slate-800 truncate" title="Rp ${formatNum(b.hpp, 2)}">${formatNum(Math.round(b.hpp))}</span>
               </div>
               <div class="flex items-center justify-between gap-1">
                 <span class="font-bold ${m.subTextColor} shrink-0">Nilai Buku</span>
@@ -7082,7 +7082,7 @@ const PNS_SECTION_TO_DEPT = {
               <i class="ph-bold ${g.icon}"></i>
             </div>
             <div class="text-right">
-              <span class="text-xl font-black text-slate-900 num-tabular tracking-tight block">${g.total}</span>
+              <span class="text-xl font-semibold text-slate-800 num-tabular tracking-tight block">${g.total}</span>
               <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider -mt-1 block">Unit</span>
             </div>
           </div>
@@ -8892,11 +8892,75 @@ const PNS_SECTION_TO_DEPT = {
     renderAllAssetsTable();
   }
 
+  
+  // UNIFIED ASSET CATALOG PROVIDER: 34.266 Master + 574 Belum Checkout = 34.840 Unit
+  window.currentAssetCatalogSegment = 'ALL'; // 'ALL' | 'MASTER' | 'BELUM_CHECKOUT'
+
+  function getUnifiedAllAssetRows() {
+    if (window._cachedUnifiedAssets && window._cachedUnifiedAssets.length === 34840) {
+      return window._cachedUnifiedAssets;
+    }
+    const masterRows = (typeof window !== 'undefined' && Array.isArray(window.PNS_ALL_ASSETS_ROWS))
+      ? window.PNS_ALL_ASSETS_ROWS
+      : [];
+    const bcList = (typeof window !== 'undefined' && Array.isArray(window.PNS_BELUM_CHECKOUT_ASSETS))
+      ? window.PNS_BELUM_CHECKOUT_ASSETS
+      : [];
+
+    // Map bcList to 13-item array matching PNS_ALL_ASSETS_ROWS schema:
+    // [0:no, 1:nama, 2:kelompok, 3:kategori, 4:lokasi, 5:kondisi, 6:std, 7:umur, 8:hpp, 9:susut, 10:nbv, 11:verif, 12:source]
+    const mappedBc = bcList.map(item => [
+      item.kode_unit || item.no_asset || '-',
+      item.nama_asset_detail || item.nama_asset || 'Aset Belum Checkout',
+      item.kelompok || 'INVENTARIS DAN PERALATAN',
+      item.kategori || 'BELUM CHECKOUT',
+      item.location || 'CO',
+      item.kondisi || 'Good Condition',
+      Number(item.standar_umur) || 4,
+      Number(item.umur_asset) || 0,
+      Number(item.harga_perolehan) || 0,
+      Number(item.akumulasi_penyusutan) || 0,
+      Number(item.nilai_buku) || 0,
+      item.status_verifikasi || 'BELUM VERIFIKASI',
+      'BELUM_CHECKOUT'
+    ]);
+
+    const unified = masterRows.concat(mappedBc);
+    window._cachedUnifiedAssets = unified;
+    return unified;
+  }
+
+  function setAssetCatalogSegment(segment) {
+    window.currentAssetCatalogSegment = segment;
+    assetCurrentPage = 1;
+    
+    // Update segment button styles
+    const btnAll = document.getElementById('btn-segment-asset-all');
+    const btnMaster = document.getElementById('btn-segment-asset-master');
+    const btnBc = document.getElementById('btn-segment-asset-bc');
+    
+    const activeClass = 'px-3 py-1 rounded-lg text-xs font-semibold bg-white text-slate-800 shadow-xs border border-slate-200 transition cursor-pointer';
+    const inactiveClass = 'px-3 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 transition cursor-pointer';
+    
+    if (btnAll) btnAll.className = (segment === 'ALL') ? activeClass : inactiveClass;
+    if (btnMaster) btnMaster.className = (segment === 'MASTER') ? activeClass : inactiveClass;
+    if (btnBc) btnBc.className = (segment === 'BELUM_CHECKOUT') ? activeClass : inactiveClass;
+    
+    renderAllAssetsTable();
+  }
+  window.setAssetCatalogSegment = setAssetCatalogSegment;
+
   function getFilteredAllAssets() {
     if (cachedFilteredAssets) return cachedFilteredAssets;
 
-    // Sumber data: 34.266 baris aset compact [no_asset, nama_asset, kelompok, kategori, lokasi, kondisi, std_umur, umur, hpp, susut, nbv, verif]
-    const rawRows = window.PNS_ALL_ASSETS_ROWS || [];
+    // Sumber data: 34.840 baris aset (34.266 master + 574 belum checkout)
+    const allUnifiedRows = getUnifiedAllAssetRows();
+    let rawRows = allUnifiedRows;
+    if (window.currentAssetCatalogSegment === 'MASTER') {
+      rawRows = allUnifiedRows.filter(r => r[12] !== 'BELUM_CHECKOUT');
+    } else if (window.currentAssetCatalogSegment === 'BELUM_CHECKOUT') {
+      rawRows = allUnifiedRows.filter(r => r[12] === 'BELUM_CHECKOUT');
+    }
 
     if (rawRows.length === 0) {
       return (appState.enterpriseAssets && appState.enterpriseAssets.length > 0)
@@ -8953,9 +9017,15 @@ const PNS_SECTION_TO_DEPT = {
   }
 
   function renderAllAssetsTable() {
-    if (typeof window === 'undefined' || !window.PNS_ALL_ASSETS_ROWS) return;
+    if (typeof window === 'undefined') return;
 
-    const rawRows = window.PNS_ALL_ASSETS_ROWS;
+    const allUnifiedRows = getUnifiedAllAssetRows();
+    let rawRows = allUnifiedRows;
+    if (window.currentAssetCatalogSegment === 'MASTER') {
+      rawRows = allUnifiedRows.filter(r => r[12] !== 'BELUM_CHECKOUT');
+    } else if (window.currentAssetCatalogSegment === 'BELUM_CHECKOUT') {
+      rawRows = allUnifiedRows.filter(r => r[12] === 'BELUM_CHECKOUT');
+    }
     const totalCountAll = rawRows.length;
 
     // 1. Populate Kategori Slicer if empty
@@ -9220,17 +9290,22 @@ const PNS_SECTION_TO_DEPT = {
       const isOverAge = (umur >= std);
       const pct = Math.min(100, Math.max(0, (nbv / maxBuku) * 100));
 
+      const isBelumCheckout = (r[12] === 'BELUM_CHECKOUT');
+      const originBadge = isBelumCheckout
+        ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">Belum Checkout</span>'
+        : '<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-50 text-slate-600 border border-slate-200 whitespace-nowrap">Master</span>';
+
       return `
-        <tr onclick="drillToAssetDetail('${escapeHtml(no)}')" class="hover:bg-emerald-50/70 transition text-xs border-b border-slate-100 cursor-pointer group" title="Klik untuk Dossier Aset ${escapeHtml(no)}">
-          <td class="font-bold text-blue-600 px-3 py-2.5 whitespace-nowrap">
+        <tr onclick="drillToAssetDetail('${escapeHtml(no)}')" class="hover:bg-slate-50 transition text-xs border-b border-slate-100 cursor-pointer group" title="Klik untuk Dossier Aset ${escapeHtml(no)}">
+          <td class="font-medium text-sky-700 px-3 py-2.5 whitespace-nowrap">
             <div class="flex items-center gap-1.5">
               <span>${escapeHtml(no)}</span>
-              <i class="ph-bold ph-arrow-square-out text-[11px] text-emerald-500 opacity-0 group-hover:opacity-100 transition"></i>
+              ${originBadge}
             </div>
           </td>
-          <td class="px-3 py-2.5 font-semibold truncate max-w-[180px]" title="${escapeHtml(nama)}">${escapeHtml(nama)}</td>
-          <td class="px-3 py-2.5 text-slate-500 truncate max-w-[120px]">${escapeHtml(kat)}</td>
-          <td class="px-3 py-2.5 text-slate-500 truncate max-w-[130px]">${escapeHtml(kelompok)}</td>
+          <td class="px-3 py-2.5 font-medium text-slate-800 whitespace-normal min-w-[200px]" title="${escapeHtml(nama)}">${escapeHtml(nama)}</td>
+          <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap">${escapeHtml(kat)}</td>
+          <td class="px-3 py-2.5 text-slate-500 whitespace-nowrap">${escapeHtml(kelompok)}</td>
           <td class="px-3 py-2.5 text-center whitespace-nowrap">
             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isGood ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
               ${escapeHtml(kond)}
@@ -9295,9 +9370,17 @@ const PNS_SECTION_TO_DEPT = {
   }
 
   function getFilteredMasterCatalogRows(forceAll) {
-    if (typeof window === 'undefined' || !window.PNS_ALL_ASSETS_ROWS) return [];
-    const rawRows = window.PNS_ALL_ASSETS_ROWS;
-    if (forceAll) return rawRows;
+    if (typeof window === 'undefined') return [];
+    const allUnifiedRows = getUnifiedAllAssetRows();
+    let rawRows = allUnifiedRows;
+    if (!forceAll) {
+      if (window.currentAssetCatalogSegment === 'MASTER') {
+        rawRows = allUnifiedRows.filter(r => r[12] !== 'BELUM_CHECKOUT');
+      } else if (window.currentAssetCatalogSegment === 'BELUM_CHECKOUT') {
+        rawRows = allUnifiedRows.filter(r => r[12] === 'BELUM_CHECKOUT');
+      }
+    }
+    if (forceAll) return allUnifiedRows;
 
     const typeFilter = document.getElementById('slicer-asset-type-cat')?.value || 'ALL';
     const katFilter = document.getElementById('slicer-asset-kat')?.value || 'ALL';
@@ -9724,23 +9807,23 @@ const PNS_SECTION_TO_DEPT = {
             : `onclick="window.openAssetMovementWithFilter({ section: '${escapeHtml(row.name)}' });"`);
 
       return `
-        <tr class="${rowBg} transition cursor-pointer" ${drillAction} title="Klik untuk drill-through ke rincian inventaris">
-          <td class="py-2.5 px-3">${nameLabel}</td>
-          <td class="py-2 px-2 text-center num-tabular font-bold ${row.validPct === '100%' ? 'text-emerald-700 bg-emerald-50/40' : 'text-amber-700'}">${escapeHtml(row.validPct)}</td>
-          <td class="py-2 px-2 text-right num-tabular">${row.avgStd}</td>
-          <td class="py-2 px-2 text-right num-tabular">${row.avgUmur}</td>
-          <td class="py-2 px-2 text-right num-tabular font-bold ${row.belum > 0 ? 'text-amber-700 bg-amber-50/50' : 'text-slate-400'}">${row.belum > 0 ? row.belum.toLocaleString('id-ID') : '-'}</td>
-          <td class="py-2 px-2 text-right num-tabular font-bold text-emerald-700 bg-emerald-50/30">${row.sesuai.toLocaleString('id-ID')}</td>
-          <td class="py-2 px-2 text-right num-tabular font-bold ${row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/50' : 'text-slate-400'}">${row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-'}</td>
-          <td class="py-2 px-2 text-right num-tabular text-slate-700">${row.good.toLocaleString('id-ID')}</td>
-          <td class="py-2 px-2 text-right num-tabular text-blue-700">${row.repair.toLocaleString('id-ID')}</td>
-          <td class="py-2 px-2 text-right num-tabular text-rose-700">${row.disp.toLocaleString('id-ID')}</td>
-          <td class="py-2 px-2 text-right num-tabular text-amber-700">${row.broken.toLocaleString('id-ID')}</td>
-          <td class="py-2 px-2 text-right num-tabular text-slate-500">${row.lost.toLocaleString('id-ID')}</td>
-          <td class="py-2.5 px-3 text-right num-tabular font-black text-slate-900 bg-slate-100/50">${row.total.toLocaleString('id-ID')}</td>
-          <td class="py-2 px-2 text-center" onclick="event.stopPropagation();">
-            <button type="button" ${drillAction} class="p-1 rounded bg-sky-50 text-sky-600 hover:bg-sky-600 hover:text-white transition" title="Drill ke Detail Asset Movement">
-              <i class="ph-bold ph-arrow-right"></i>
+        <tr class="${rowBg} transition cursor-pointer text-xs" ${drillAction} title="Klik untuk drilldown ke rincian inventaris">
+          <td class="py-2.5 px-3 whitespace-nowrap min-w-[160px]">${nameLabel}</td>
+          <td class="py-2.5 px-2 text-center whitespace-nowrap num-tabular font-semibold ${row.validPct === '100%' ? 'text-emerald-700 bg-emerald-50/30' : 'text-amber-700 bg-amber-50/30'}">${escapeHtml(row.validPct)}</td>
+          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">${row.avgStd}</td>
+          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">${row.avgUmur}</td>
+          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold ${row.belum > 0 ? 'text-amber-700 bg-amber-50/50' : 'text-slate-400'}">${row.belum > 0 ? row.belum.toLocaleString('id-ID') : '-'}</td>
+          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold text-emerald-700 bg-emerald-50/30">${row.sesuai.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold ${row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/50' : 'text-slate-400'}">${row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-'}</td>
+          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-700">${row.good.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-blue-700">${row.repair.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-rose-700">${row.disp.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-amber-700">${row.broken.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-500">${row.lost.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-3 text-right whitespace-nowrap num-tabular font-semibold text-slate-900 bg-slate-100/60">${row.total.toLocaleString('id-ID')}</td>
+          <td class="py-2.5 px-2 text-center whitespace-nowrap" onclick="event.stopPropagation();">
+            <button type="button" ${drillAction} class="px-2 py-1 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white text-[11px] font-medium transition cursor-pointer" title="Buka Detail">
+              Drill ➔
             </button>
           </td>
         </tr>
@@ -9749,20 +9832,20 @@ const PNS_SECTION_TO_DEPT = {
 
     if (tfoot) {
       tfoot.innerHTML = `
-        <tr>
-          <td class="py-3 px-3 uppercase tracking-wider">Total Portofolio</td>
-          <td class="py-3 px-2 text-center num-tabular text-emerald-700">98.05%</td>
-          <td class="py-3 px-2 text-right num-tabular">9</td>
-          <td class="py-3 px-2 text-right num-tabular">7</td>
-          <td class="py-3 px-2 text-right num-tabular text-amber-700 bg-amber-100/60">${totBelum.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right num-tabular text-emerald-800 bg-emerald-100/60">${totSesuai.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right num-tabular text-rose-800 bg-rose-100/60">${totTdkSesuai.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right num-tabular text-slate-800">${totGood.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right num-tabular text-blue-800">${totRepair.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right num-tabular text-rose-800">${totDisp.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right num-tabular text-amber-800">${totBroken.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right num-tabular text-slate-700">${totLost.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-3 text-right num-tabular text-slate-900 bg-slate-200/80">${totAll.toLocaleString('id-ID')}</td>
+        <tr class="bg-slate-50 text-slate-700 font-semibold border-t-2 border-slate-300">
+          <td class="py-3 px-3 uppercase tracking-wider whitespace-nowrap min-w-[160px]">Total Portofolio</td>
+          <td class="py-3 px-2 text-center whitespace-nowrap num-tabular text-emerald-700">98.05%</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">9</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">7</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-amber-800 bg-amber-100/50">${totBelum.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-emerald-800 bg-emerald-100/50">${totSesuai.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800 bg-rose-100/50">${totTdkSesuai.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-800">${totGood.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-blue-800">${totRepair.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800">${totDisp.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-amber-800">${totBroken.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-700">${totLost.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-3 text-right whitespace-nowrap num-tabular text-slate-900 bg-slate-200/70 font-bold">${totAll.toLocaleString('id-ID')}</td>
           <td></td>
         </tr>
       `;
@@ -9782,7 +9865,7 @@ const PNS_SECTION_TO_DEPT = {
 
         return `
           <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="window.openAssetMovementWithFilter({ section: '${escapeHtml(d.name)}' })" title="Klik untuk lihat rincian aset">
-            <td class="py-2 px-2.5 font-bold text-slate-800 truncate max-w-[160px]">${escapeHtml(d.name)}</td>
+            <td class="py-2.5 px-3 font-medium text-slate-800 whitespace-nowrap min-w-[160px]">${escapeHtml(d.name)}</td>
             <td class="py-2 px-2 text-right num-tabular font-bold text-slate-900">${d.total.toLocaleString('id-ID')}</td>
             <td class="py-2 px-1.5 text-right num-tabular text-emerald-700">${goodPct}</td>
             <td class="py-2 px-1.5 text-right num-tabular text-blue-700">${repPct}</td>
@@ -9803,7 +9886,7 @@ const PNS_SECTION_TO_DEPT = {
           <div class="space-y-1">
             <div class="flex justify-between items-center text-xs">
               <span class="font-bold text-slate-800 truncate pr-2">${escapeHtml(k.name)}</span>
-              <span class="num-tabular font-black text-slate-900">${k.count.toLocaleString('id-ID')}</span>
+              <span class="num-tabular font-semibold text-slate-800">${k.count.toLocaleString('id-ID')}</span>
             </div>
             <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden flex cursor-pointer" onclick="window.openAssetMovementWithFilter({ kelompok: '${escapeHtml(k.name)}' })" title="Klik untuk filter ${escapeHtml(k.name)}">
               <div class="bg-sky-600 h-2.5 rounded-full transition-all duration-300" style="width: ${widthPct}%"></div>
@@ -9823,8 +9906,8 @@ const PNS_SECTION_TO_DEPT = {
       katBody.innerHTML = REAL_TOP_KATEGORI.map(k => {
         return `
           <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="window.openAssetMovementWithFilter({ kategori: '${escapeHtml(k.name)}' })">
-            <td class="py-2 px-2.5 font-semibold text-slate-800 truncate max-w-[140px]">${escapeHtml(k.name)}</td>
-            <td class="py-2 px-1.5 text-right num-tabular font-black text-slate-900">${k.total}</td>
+            <td class="py-2.5 px-3 font-medium text-slate-800 whitespace-nowrap min-w-[160px]">${escapeHtml(k.name)}</td>
+            <td class="py-2 px-1.5 text-right num-tabular font-semibold text-slate-800">${k.total}</td>
             <td class="py-2 px-1.5 text-right num-tabular font-bold text-emerald-700">${k.goodPct}</td>
             <td class="py-2 px-1.5 text-right num-tabular font-bold text-amber-700">${k.brkPct}</td>
           </tr>

@@ -131,180 +131,120 @@
         </button>
       </div>
 
-      <nav id="sidebar-nav-scroll" class="p-2.5 space-y-3.5 flex-1 overflow-y-auto scrollbar-thin text-xs font-medium" style="scrollbar-gutter: stable;" aria-label="Menu Utama">
-        <!-- DASHBOARD OVERVIEW BUTTON -->
-        <div class="pb-2 border-b border-slate-100">
-          <button type="button" data-view="view-dashboard" onclick="navTo('view-dashboard', this)" class="nav-btn active w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Ringkasan Eksekutif & Statistik Real-Time">
+      <nav id="sidebar-nav-scroll" class="p-2.5 space-y-3 flex-1 overflow-y-auto scrollbar-thin text-xs" style="scrollbar-gutter: stable;" aria-label="Menu Utama">
+        <!-- 1. RINGKASAN & LAPORAN -->
+        <div class="space-y-1 pb-2 border-b border-slate-100">
+          <button type="button" data-view="view-dashboard" onclick="navTo('view-dashboard', this)" class="nav-btn active w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Ringkasan Eksekutif Terpadu">
             <span class="flex items-center gap-2 min-w-0">
-              <i class="ph-bold ph-squares-four text-sm text-emerald-600 shrink-0"></i>
+              <i class="ph ph-squares-four text-base text-emerald-600 shrink-0"></i>
               <span class="truncate">Dashboard Overview</span>
             </span>
-            <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">HOME</span>
+          </button>
+          <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Laporan Hasil Validasi &amp; Rekonsiliasi (34.840 Unit)">
+            <span class="flex items-center gap-2 min-w-0">
+              <i class="ph ph-seal-check text-base text-sky-600 shrink-0"></i>
+              <span class="truncate text-slate-800">Laporan Hasil Validasi</span>
+            </span>
+            <span class="text-[10px] text-sky-700 font-medium px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200/80 shrink-0">34.840</span>
           </button>
         </div>
 
-        <!-- MODUL 1: ASSET MANAGEMENT -->
-        <div class="border-b border-slate-100 pb-2.5">
-          <div class="px-2 mb-1.5 text-[10px] font-black tracking-wider text-blue-600 uppercase flex items-center justify-between">
-            <span class="flex items-center gap-1.5"><i class="ph-bold ph-cube text-xs text-blue-600"></i> Asset Management</span>
-            <span class="text-[8.5px] font-bold px-1.5 py-0.2 rounded bg-blue-50 text-blue-600 border border-blue-200/60">ASET</span>
+        <!-- 2. KATALOG & PORTOFOLIO ASET -->
+        <div class="space-y-1 pb-2 border-b border-slate-100">
+          <div class="px-2 pt-1 text-[11px] font-medium tracking-wide text-slate-400 uppercase">
+            Katalog &amp; Nilai Aset
           </div>
-
-          <!-- 1.1 SUB MODUL: KATALOG & NILAI ASET -->
-          <div class="nav-module-group mb-1.5">
-            <button type="button" onclick="toggleNavModule('nav-group-asset-catalog')" class="w-full h-7 px-2 flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors cursor-pointer rounded-lg hover:bg-slate-100" title="Katalog & Portofolio">
-              <span class="flex items-center gap-1.5 min-w-0">
-                <i class="ph-bold ph-folder-notch-open text-xs text-blue-600 shrink-0"></i>
-                <span class="truncate">Katalog &amp; Nilai Aset</span>
-              </span>
-              <i id="caret-nav-group-asset-catalog" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform duration-150"></i>
-            </button>
-            <div id="nav-group-asset-catalog" class="space-y-0.5 mt-0.5 pl-1.5">
-              <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Laporan Validasi &amp; Rekonsiliasi Portofolio Aset (34.840 Unit)">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-seal-check text-sm text-sky-600 shrink-0"></i>
-                  <span class="truncate font-bold text-sky-900">Laporan Validasi Aset</span>
-                </span>
-                <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-sky-100 text-sky-800 border border-sky-300 shrink-0">34.840</span>
-              </button>
-              <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Daftar Master Katalog Aset (34.266 Unit)">
-                <i class="ph-bold ph-table text-sm text-slate-400 shrink-0"></i>
-                <span class="truncate">Master Katalog Aset</span>
-              </button>
-              <button type="button" data-view="view-portfolio" onclick="navTo('view-portfolio', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Komposisi & Nilai Portofolio">
-                <i class="ph-bold ph-chart-pie text-sm text-slate-400 shrink-0"></i>
-                <span class="truncate">Komposisi &amp; Nilai</span>
-              </button>
-              <button type="button" data-view="view-asset-sebaran" onclick="navTo('view-asset-sebaran', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Sebaran Lokasi Kantor & Site">
-                <i class="ph-bold ph-map-pin text-sm text-slate-400 shrink-0"></i>
-                <span class="truncate">Sebaran Kantor &amp; Site</span>
-              </button>
-              <button type="button" data-view="view-asset-movement" onclick="navTo('view-asset-movement', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Detail Asset Movement & Kondisi Real-Time">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-pulse text-sm text-emerald-600 shrink-0"></i>
-                  <span class="truncate">Detail Asset Movement</span>
-                </span>
-                <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">LIVE</span>
-              </button>
-              <button type="button" data-view="view-asset-detail-drill" onclick="window.openAssetDrillThrough({ location: 'CENTRAL OFFICE', sourceView: 'view-portfolio' }, this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Drill-Through Detail Asset per Lokasi (DT.Details.Assets)">
-                <i class="ph-bold ph-crosshair text-sm text-amber-500 shrink-0"></i>
-                <span class="truncate">Detail Aset Lokasi (DT)</span>
-              </button>
-              <button type="button" data-view="view-asset-depreciation" onclick="navTo('view-asset-depreciation', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Depresiasi Dinamis & Nilai Buku">
-                <i class="ph-bold ph-trend-down text-sm text-slate-400 shrink-0"></i>
-                <span class="truncate">Depresiasi &amp; Nilai Buku</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- 1.2 SUB MODUL: MUTASI & SIKLUS ASET -->
-          <div class="nav-module-group">
-            <button type="button" onclick="toggleNavModule('nav-group-asset-trans')" class="w-full h-7 px-2 flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors cursor-pointer rounded-lg hover:bg-slate-100" title="Kelola Siklus Aset">
-              <span class="flex items-center gap-1.5 min-w-0">
-                <i class="ph-bold ph-arrows-clockwise text-xs text-blue-600 shrink-0"></i>
-                <span class="truncate">Mutasi &amp; Siklus Aset</span>
-              </span>
-              <i id="caret-nav-group-asset-trans" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform duration-150"></i>
-            </button>
-            <div id="nav-group-asset-trans" class="space-y-0.5 mt-0.5 pl-1.5">
-              <button type="button" data-view="view-reg-asset" onclick="navTo('view-reg-asset', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Form Register Aset Baru">
-                <i class="ph-bold ph-plus-circle text-sm text-blue-600 shrink-0"></i>
-                <span class="truncate">Register Aset Baru</span>
-              </button>
-              <button type="button" data-view="view-mutasi" onclick="navTo('view-mutasi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Mutasi Antar Departemen">
-                <i class="ph-bold ph-arrows-left-right text-sm text-blue-500 shrink-0"></i>
-                <span class="truncate">Mutasi Antar Dept</span>
-              </button>
-              <button type="button" data-view="view-asset-location" onclick="navTo('view-asset-location', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Perubahan Lokasi Fisik">
-                <i class="ph-bold ph-map-pin text-sm text-slate-400 shrink-0"></i>
-                <span class="truncate">Perubahan Lokasi Fisik</span>
-              </button>
-              <button type="button" data-view="view-asset-status" onclick="navTo('view-asset-status', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Update Kondisi & Status Aset">
-                <i class="ph-bold ph-check-circle text-sm text-slate-400 shrink-0"></i>
-                <span class="truncate">Update Status &amp; Kondisi</span>
-              </button>
-              <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Laporan Validasi &amp; Audit Lapangan (Opname)">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-seal-check text-sm text-sky-600 shrink-0"></i>
-                  <span class="truncate">Validasi &amp; Opname Fisik</span>
-                </span>
-                <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-sky-50 text-sky-700 border border-sky-200 shrink-0">PBI</span>
-              </button>
-              <button type="button" data-view="view-asset-disposal" onclick="navTo('view-asset-disposal', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Disposal & Penghapusan Aset">
-                <i class="ph-bold ph-trash text-sm text-rose-500 shrink-0"></i>
-                <span class="truncate">Disposal &amp; Penghapusan</span>
-              </button>
-            </div>
-          </div>
+          <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Seluruh Portofolio Aset Termasuk Belum Checkout (34.840 Unit)">
+            <span class="flex items-center gap-2 min-w-0">
+              <i class="ph ph-database text-base text-slate-500 shrink-0"></i>
+              <span class="truncate">Master Katalog Aset</span>
+            </span>
+            <span class="text-[10px] text-slate-500 font-medium px-1.5 py-0.5 rounded bg-slate-100 shrink-0">34.840</span>
+          </button>
+          <button type="button" data-view="view-portfolio" onclick="navTo('view-portfolio', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Komposisi &amp; Nilai Portofolio">
+            <i class="ph ph-chart-pie text-base text-slate-500 shrink-0"></i>
+            <span class="truncate">Komposisi &amp; Nilai</span>
+          </button>
+          <button type="button" data-view="view-asset-sebaran" onclick="navTo('view-asset-sebaran', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Sebaran Lokasi Kantor &amp; Site">
+            <i class="ph ph-map-pin text-base text-slate-500 shrink-0"></i>
+            <span class="truncate">Sebaran Kantor &amp; Site</span>
+          </button>
+          <button type="button" data-view="view-asset-movement" onclick="navTo('view-asset-movement', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Gerbang Akhir Drill-Down: Rincian Fisik &amp; Kondisi Inventaris">
+            <span class="flex items-center gap-2 min-w-0">
+              <i class="ph ph-table text-base text-emerald-600 shrink-0"></i>
+              <span class="truncate">Detail Asset Movement</span>
+            </span>
+            <span class="text-[10px] text-emerald-700 font-medium px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200/80 shrink-0">Drill</span>
+          </button>
+          <button type="button" data-view="view-asset-depreciation" onclick="navTo('view-asset-depreciation', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Depresiasi Dinamis &amp; Nilai Buku">
+            <i class="ph ph-chart-line-down text-base text-slate-500 shrink-0"></i>
+            <span class="truncate">Depresiasi &amp; Nilai Buku</span>
+          </button>
         </div>
 
-        <!-- MODUL 2: FACILITY MANAGEMENT (HRGA) -->
-        <div class="border-b border-slate-100 pb-2.5">
-          <button type="button" onclick="toggleNavModule('nav-group-facility-hrga')" class="w-full h-7 px-2 mb-1 flex items-center justify-between text-[10px] font-black tracking-wider text-amber-600 uppercase rounded-lg hover:bg-amber-50/60 transition-colors cursor-pointer">
-            <span class="flex items-center gap-1.5 min-w-0">
-              <i class="ph-bold ph-buildings text-amber-500 shrink-0"></i>
-              <span class="truncate">Facility Management</span>
-            </span>
-            <span class="flex items-center gap-1 shrink-0">
-              <span class="text-[8.5px] px-1.5 py-0.2 rounded font-extrabold bg-amber-100 text-amber-800">HRGA</span>
-              <i id="caret-nav-group-facility-hrga" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform duration-150"></i>
-            </span>
-          </button>
-          <div id="nav-group-facility-hrga" class="space-y-0.5 pl-1">
-            <!-- SUB MODUL 1: BUILDING -->
-            <button type="button" data-view="view-gedung" onclick="navTo('view-gedung', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer">
-              <span class="flex items-center gap-2 min-w-0"><i class="ph-bold ph-building-office text-sm text-amber-500 shrink-0"></i> <span class="truncate">Building (Gedung)</span></span>
-              <span id="nav-badge-bldg" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold shrink-0">422</span>
-            </button>
-
-            <!-- SUB MODUL 2: FACILITIES -->
-            <button type="button" data-view="view-assets" onclick="navTo('view-assets', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer">
-              <span class="flex items-center gap-2 min-w-0"><i class="ph-bold ph-armchair text-sm text-emerald-600 shrink-0"></i> <span class="truncate">Facilities (Aset)</span></span>
-              <span id="nav-badge-asset" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold shrink-0">15.778</span>
-            </button>
-
-            <!-- SUB MODUL 3: INSPEKSI -->
-            <button type="button" data-view="view-inspeksi" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer">
-              <i class="ph-bold ph-clipboard-text text-sm text-emerald-500 shrink-0"></i>
-              <span class="truncate">Inspeksi Ruangan</span>
-            </button>
-
-            <!-- SUB MODUL 4: AVAILABILITY & PENGHUNI HUNIAN -->
-            <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" id="nav-btn-availability">
-              <span class="flex items-center gap-2 min-w-0"><i class="ph-bold ph-bed text-sm text-indigo-500 shrink-0"></i> <span class="truncate">Availability Hunian</span></span>
-              <span id="nav-badge-penghuni" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold shrink-0">409</span>
-            </button>
-
-            <!-- SUB MODUL 5: RIWAYAT TEMUAN -->
-            <button type="button" data-view="view-riwayat-inspeksi" onclick="navTo('view-riwayat-inspeksi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer">
-              <i class="ph-bold ph-clock-counter-clockwise text-sm text-slate-500 shrink-0"></i>
-              <span class="truncate">Riwayat Laporan Temuan</span>
-            </button>
+        <!-- 3. MUTASI & SIKLUS ASET -->
+        <div class="space-y-1 pb-2 border-b border-slate-100">
+          <div class="px-2 pt-1 text-[11px] font-medium tracking-wide text-slate-400 uppercase">
+            Mutasi &amp; Siklus Aset
           </div>
+          <button type="button" data-view="view-reg-asset" onclick="navTo('view-reg-asset', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Form Register Aset Baru">
+            <i class="ph ph-plus-circle text-base text-blue-600 shrink-0"></i>
+            <span class="truncate">Register Aset Baru</span>
+          </button>
+          <button type="button" data-view="view-mutasi" onclick="navTo('view-mutasi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Mutasi Antar Departemen">
+            <i class="ph ph-arrows-left-right text-base text-slate-500 shrink-0"></i>
+            <span class="truncate">Mutasi Antar Dept</span>
+          </button>
+          <button type="button" data-view="view-asset-location" onclick="navTo('view-asset-location', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Perubahan Lokasi Fisik">
+            <i class="ph ph-map-pin-line text-base text-slate-500 shrink-0"></i>
+            <span class="truncate">Perubahan Lokasi Fisik</span>
+          </button>
+          <button type="button" data-view="view-asset-status" onclick="navTo('view-asset-status', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Update Kondisi &amp; Status Aset">
+            <i class="ph ph-check-circle text-base text-slate-500 shrink-0"></i>
+            <span class="truncate">Update Status &amp; Kondisi</span>
+          </button>
+          <button type="button" data-view="view-asset-disposal" onclick="navTo('view-asset-disposal', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Disposal &amp; Penghapusan Aset">
+            <i class="ph ph-trash text-base text-rose-500 shrink-0"></i>
+            <span class="truncate">Disposal &amp; Penghapusan</span>
+          </button>
         </div>
 
-        <!-- MODUL 3: MAINTENANCE & WORK ORDER -->
-        <div>
-          <button type="button" onclick="toggleNavModule('nav-group-mtc-wo')" class="w-full h-7 px-2 mb-1 flex items-center justify-between text-[10px] font-black tracking-wider text-emerald-600 uppercase rounded-lg hover:bg-emerald-50/60 transition-colors cursor-pointer">
-            <span class="flex items-center gap-1.5 min-w-0">
-              <i class="ph-bold ph-wrench text-emerald-500 shrink-0"></i>
-              <span class="truncate">Maintenance &amp; Servis</span>
-            </span>
-            <span class="flex items-center gap-1 shrink-0">
-              <span class="text-[8.5px] px-1.5 py-0.2 rounded font-extrabold bg-emerald-100 text-emerald-800">MTC</span>
-              <i id="caret-nav-group-mtc-wo" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform duration-150"></i>
-            </span>
-          </button>
-          <div id="nav-group-mtc-wo" class="space-y-0.5 pl-1">
-            <button type="button" data-view="view-wo" onclick="navTo('view-wo', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer">
-              <span class="flex items-center gap-2 min-w-0"><i class="ph-bold ph-kanban text-sm text-amber-500 shrink-0"></i> <span class="truncate">Work Order Kanban</span></span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-bold shrink-0" id="sidebar-wo-count">15</span>
-            </button>
-            <button type="button" onclick="promptCreateWo()" class="w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-emerald-700 hover:bg-emerald-50 text-left transition-colors font-bold text-xs cursor-pointer">
-              <i class="ph-bold ph-plus-circle text-sm text-emerald-500 shrink-0"></i>
-              <span class="truncate">+ Buat Work Order Baru</span>
-            </button>
+        <!-- 4. FASILITAS & GEDUNG (HRGA) -->
+        <div class="space-y-1 pb-2 border-b border-slate-100">
+          <div class="px-2 pt-1 text-[11px] font-medium tracking-wide text-slate-400 uppercase">
+            Fasilitas &amp; Gedung
           </div>
+          <button type="button" data-view="view-gedung" onclick="navTo('view-gedung', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Master Gedung &amp; Bangunan Fisik">
+            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-building-office text-base text-amber-500 shrink-0"></i> <span class="truncate">Gedung &amp; Bangunan</span></span>
+            <span id="nav-badge-bldg" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium shrink-0">416</span>
+          </button>
+          <button type="button" data-view="view-assets" onclick="navTo('view-assets', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Fasilitas &amp; Inventaris per Ruangan">
+            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-door text-base text-emerald-600 shrink-0"></i> <span class="truncate">Fasilitas Ruangan</span></span>
+            <span id="nav-badge-asset" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium shrink-0">1.559</span>
+          </button>
+          <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" id="nav-btn-availability" title="Availability Kasur &amp; Hunian Mess">
+            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-bed text-base text-indigo-500 shrink-0"></i> <span class="truncate">Penghuni &amp; Hunian</span></span>
+            <span id="nav-badge-penghuni" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium shrink-0">409</span>
+          </button>
+          <button type="button" data-view="view-inspeksi" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Formulir Inspeksi Lapangan Ruangan">
+            <i class="ph ph-clipboard-text text-base text-slate-500 shrink-0"></i>
+            <span class="truncate">Inspeksi Ruangan</span>
+          </button>
+        </div>
+
+        <!-- 5. PEMELIHARAAN & WORK ORDER -->
+        <div class="space-y-1">
+          <div class="px-2 pt-1 text-[11px] font-medium tracking-wide text-slate-400 uppercase">
+            Pemeliharaan &amp; Work Order
+          </div>
+          <button type="button" data-view="view-wo" onclick="navTo('view-wo', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Daftar Tiket Pekerjaan Pemeliharaan">
+            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-kanban text-base text-amber-500 shrink-0"></i> <span class="truncate">Work Order Kanban</span></span>
+            <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium shrink-0" id="sidebar-wo-count">15</span>
+          </button>
+          <button type="button" onclick="navTo('view-validasi'); switchValidasiTab('rekon');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Analisis Biaya Pemeliharaan Rp 27,65 Miliar">
+            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-wrench text-base text-slate-500 shrink-0"></i> <span class="truncate">Maintenance Analytics</span></span>
+            <span class="text-[10px] text-slate-500 font-medium px-1.5 py-0.5 rounded bg-slate-100 shrink-0">27,65 M</span>
+          </button>
         </div>
       </nav>
 
@@ -337,8 +277,8 @@
         <!-- Dashboard Header -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Dashboard Analisis &amp; Manajemen Aset</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Monitoring real-time portofolio bangunan, inventaris ruangan, dan pemeliharaan fasilitas PT Pratama Nusantara Sakti</p>
+            <h1 class="text-xl sm:text-2xl font-semibold tracking-tight text-slate-800">Dashboard Analisis &amp; Manajemen Aset</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Ringkasan menyeluruh portofolio 34.840 aset, status validasi fisik, valuasi perolehan, depresiasi, dan fasilitas lapangan PT PNS.</p>
           </div>
           <div class="flex items-center gap-2">
             <button type="button" onclick="refreshDashboard()" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition">
@@ -359,7 +299,7 @@
             <div class="flex justify-between items-start">
               <div>
                 <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Valuasi Aset (HPP)</span>
-                <div id="kpi-val-hpp" class="num-tabular text-2xl font-black text-slate-900 mt-1.5 tracking-tight">Rp 1,12 T</div>
+                <div id="kpi-val-hpp" class="num-tabular text-2xl font-semibold text-slate-800 mt-1.5 tracking-tight">Rp 1,12 T</div>
                 <div id="kpi-sub-hpp" class="text-[11px] text-emerald-600 mt-1.5 font-semibold flex items-center gap-1">
                   <i class="ph-bold ph-check-circle text-xs"></i> Rp 1.120.265.723.612
                 </div>
@@ -375,7 +315,7 @@
             <div class="flex justify-between items-start">
               <div>
                 <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Akumulasi Depresiasi</span>
-                <div id="kpi-val-dep" class="num-tabular text-2xl font-black text-slate-900 mt-1.5 tracking-tight">Rp 438,48 M</div>
+                <div id="kpi-val-dep" class="num-tabular text-2xl font-semibold text-slate-800 mt-1.5 tracking-tight">Rp 438,48 M</div>
                 <div id="kpi-sub-dep" class="text-[11px] text-slate-500 mt-1.5 font-medium flex items-center gap-1">
                   <i class="ph-bold ph-chart-line-down text-xs text-amber-500"></i> Rp 438.484.408.626 (39,1%)
                 </div>
@@ -391,7 +331,7 @@
             <div class="flex justify-between items-start">
               <div>
                 <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Nilai Buku Bersih (NBV)</span>
-                <div id="kpi-val-nbv" class="num-tabular text-2xl font-black text-slate-900 mt-1.5 tracking-tight">Rp 681,78 M</div>
+                <div id="kpi-val-nbv" class="num-tabular text-2xl font-semibold text-slate-800 mt-1.5 tracking-tight">Rp 681,78 M</div>
                 <div id="kpi-sub-nbv" class="text-[11px] text-indigo-600 mt-1.5 font-semibold flex items-center gap-1">
                   <i class="ph-bold ph-shield-check text-xs"></i> Rp 681.781.314.986 (60,9%)
                 </div>
@@ -407,7 +347,7 @@
             <div class="flex justify-between items-start">
               <div>
                 <span class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Biaya Perawatan YTD</span>
-                <div id="kpi-val-mtc" class="num-tabular text-2xl font-black text-slate-900 mt-1.5 tracking-tight">Rp 23,23 M</div>
+                <div id="kpi-val-mtc" class="num-tabular text-2xl font-semibold text-slate-800 mt-1.5 tracking-tight">Rp 23,23 M</div>
                 <div id="kpi-sub-mtc" class="text-[11px] text-emerald-600 mt-1.5 font-semibold flex items-center gap-1">
                   <i class="ph-bold ph-wrench text-xs"></i> Rp 23.232.987.484 (3,41% NBV)
                 </div>
@@ -457,8 +397,8 @@
             </div>
             <div>
               <div class="flex items-center gap-1.5">
-                <span class="num-tabular text-lg font-black text-amber-800" id="stat-belum-checkout-count">279</span>
-                <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-200/80 text-amber-900 font-extrabold uppercase">Reminder</span>
+                <span class="num-tabular text-lg font-semibold text-amber-800" id="stat-belum-checkout-count">279</span>
+                <span class="text-[9px] px-1.5 py-0.5 rounded bg-amber-200/80 text-amber-900 font-semibold uppercase">Reminder</span>
               </div>
               <div class="text-[11px] font-semibold text-amber-700">Belum Checkout</div>
             </div>
@@ -519,14 +459,14 @@
               </div>
               <div>
                 <div class="flex flex-wrap items-center gap-2">
-                  <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300">
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300">
                     Reminder Tindak Lanjut
                   </span>
                   <span id="rem-checkout-source-badge" class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
                     Live Sync: API Verification &amp; Google Sheets
                   </span>
                 </div>
-                <h2 class="text-base sm:text-lg font-extrabold text-slate-900 mt-1">
+                <h2 class="text-base sm:text-lg font-semibold text-slate-900 mt-1">
                   Data Belum Checkout &amp; Alokasi Verifikasi
                 </h2>
                 <p class="text-xs text-slate-600 mt-0.5">
@@ -542,12 +482,12 @@
                 <button type="button" id="btn-rem-mode-asset" onclick="setReminderCheckoutMode('asset')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-2xs transition flex items-center gap-1.5 cursor-pointer">
                   <i class="ph-bold ph-package text-amber-600"></i>
                   <span>Aset Belum Checkout</span>
-                  <span id="rem-tab-count-asset" class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 text-[10px] font-extrabold">279</span>
+                  <span id="rem-tab-count-asset" class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 text-[10px] font-semibold">279</span>
                 </button>
                 <button type="button" id="btn-rem-mode-penghuni" onclick="setReminderCheckoutMode('penghuni')" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5 cursor-pointer">
                   <i class="ph-bold ph-bed text-indigo-600"></i>
                   <span>Penghuni Mess Belum Checkout</span>
-                  <span id="rem-tab-count-penghuni" class="px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-800 text-[10px] font-extrabold">409</span>
+                  <span id="rem-tab-count-penghuni" class="px-1.5 py-0.2 rounded bg-indigo-100 text-indigo-800 text-[10px] font-semibold">409</span>
                 </button>
               </div>
 
@@ -581,8 +521,8 @@
           <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 p-4 bg-slate-50/70 border-b border-slate-200/80">
             <div class="bg-white p-3 rounded-xl border border-slate-200/90 flex items-center justify-between">
               <div>
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block" id="rem-kpi-1-label">Total Belum Checkout</span>
-                <span class="num-tabular text-lg font-black text-amber-700 mt-0.5 block" id="rem-kpi-1-val">279 Unit</span>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block" id="rem-kpi-1-label">Total Belum Checkout</span>
+                <span class="num-tabular text-lg font-semibold text-amber-700 mt-0.5 block" id="rem-kpi-1-val">279 Unit</span>
                 <span class="text-[10px] text-slate-500 font-medium" id="rem-kpi-1-sub">235 API Live &bull; 95 NY Alokasi</span>
               </div>
               <div class="w-9 h-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center text-lg">
@@ -592,8 +532,8 @@
 
             <div class="bg-white p-3 rounded-xl border border-slate-200/90 flex items-center justify-between">
               <div>
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block" id="rem-kpi-2-label">Nilai Perolehan (HPP)</span>
-                <span class="num-tabular text-lg font-black text-slate-900 mt-0.5 block" id="rem-kpi-2-val">Rp 4,41 M</span>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block" id="rem-kpi-2-label">Nilai Perolehan (HPP)</span>
+                <span class="num-tabular text-lg font-semibold text-slate-900 mt-0.5 block" id="rem-kpi-2-val">Rp 4,41 M</span>
                 <span class="text-[10px] text-emerald-600 font-semibold" id="rem-kpi-2-sub">Rp 4.409.869.218</span>
               </div>
               <div class="w-9 h-9 rounded-lg bg-sky-50 text-sky-600 flex items-center justify-center text-lg">
@@ -603,8 +543,8 @@
 
             <div class="bg-white p-3 rounded-xl border border-slate-200/90 flex items-center justify-between">
               <div>
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block" id="rem-kpi-3-label">Nilai Buku (NBV)</span>
-                <span class="num-tabular text-lg font-black text-indigo-700 mt-0.5 block" id="rem-kpi-3-val">Rp 1,55 M</span>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block" id="rem-kpi-3-label">Nilai Buku (NBV)</span>
+                <span class="num-tabular text-lg font-semibold text-indigo-700 mt-0.5 block" id="rem-kpi-3-val">Rp 1,55 M</span>
                 <span class="text-[10px] text-indigo-600 font-semibold" id="rem-kpi-3-sub">Rp 1.549.781.086</span>
               </div>
               <div class="w-9 h-9 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center text-lg">
@@ -614,8 +554,8 @@
 
             <div class="bg-white p-3 rounded-xl border border-slate-200/90 flex items-center justify-between">
               <div>
-                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 block" id="rem-kpi-4-label">Belum Verifikasi Lapangan</span>
-                <span class="num-tabular text-lg font-black text-rose-600 mt-0.5 block" id="rem-kpi-4-val">235 Unit</span>
+                <span class="text-[10px] font-semibold uppercase tracking-wider text-slate-400 block" id="rem-kpi-4-label">Belum Verifikasi Lapangan</span>
+                <span class="num-tabular text-lg font-semibold text-rose-600 mt-0.5 block" id="rem-kpi-4-val">235 Unit</span>
                 <span class="text-[10px] text-rose-600 font-semibold" id="rem-kpi-4-sub">Wajib segera checkout &amp; opname</span>
               </div>
               <div class="w-9 h-9 rounded-lg bg-rose-50 text-rose-600 flex items-center justify-center text-lg">
@@ -667,7 +607,7 @@
           <!-- Table Wrapper -->
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
-              <thead id="rem-checkout-thead" class="bg-slate-50 text-slate-600 uppercase tracking-wider text-[10.5px] font-extrabold border-b border-slate-200 select-none">
+              <thead id="rem-checkout-thead" class="bg-slate-50 text-slate-600 uppercase tracking-wider text-[10.5px] font-semibold border-b border-slate-200 select-none">
                 <!-- Populated dynamically based on active mode (Asset vs Penghuni) -->
               </thead>
               <tbody id="rem-checkout-tbody" class="divide-y divide-slate-100">
@@ -701,9 +641,18 @@
         <!-- Top Action & Slicer Bar -->
         <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white rounded-2xl border border-slate-200/90 shadow-xs shrink-0 gap-3">
           <div class="flex items-center gap-2">
-            <span class="text-[10.5px] font-black uppercase tracking-wider text-emerald-600 flex items-center gap-1.5 shrink-0">
-              <i class="ph-bold ph-database"></i> Katalog Master Aset:
-            </span>
+            <!-- 3-Segment Slicer Pills -->
+            <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/90 shrink-0 gap-1">
+              <button type="button" id="btn-segment-asset-all" onclick="window.setAssetCatalogSegment('ALL')" class="px-3 py-1 rounded-lg text-xs font-semibold bg-white text-slate-800 shadow-xs border border-slate-200 transition cursor-pointer" title="Seluruh Portofolio Aset Terdaftar &amp; Terintegrasi">
+                Semua (34.840)
+              </button>
+              <button type="button" id="btn-segment-asset-master" onclick="window.setAssetCatalogSegment('MASTER')" class="px-3 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 transition cursor-pointer" title="Aset Fisik Master Terdaftar di Google Sheets">
+                Tercatat Master (34.266)
+              </button>
+              <button type="button" id="btn-segment-asset-bc" onclick="window.setAssetCatalogSegment('BELUM_CHECKOUT')" class="px-3 py-1 rounded-lg text-xs font-medium text-amber-700 hover:text-amber-900 transition cursor-pointer flex items-center gap-1" title="Aset Terverifikasi dari Web API yang Belum Checkout">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Belum Checkout (574)
+              </button>
+            </div>
           </div>
 
           <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-0 justify-end">
@@ -2741,23 +2690,23 @@
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
           <div>
             <div class="flex items-center gap-2 mb-1">
-              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span class="text-[11px] font-black text-slate-500 tracking-wider uppercase">Executive Portfolio &amp; Physical Opname Analytics</span>
-              <span class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">Power BI Integrated</span>
+              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+              <span class="text-xs font-medium text-slate-500">Rekonsiliasi &amp; Opname Fisik Lapangan</span>
+              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Portofolio 34.840 Unit</span>
             </div>
-            <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
-              <i class="ph-fill ph-seal-check text-sky-600"></i> Laporan Validasi &amp; Performance Aset PT PNS
+            <h2 class="text-xl sm:text-2xl font-semibold text-slate-800 tracking-tight flex items-center gap-2">
+              <i class="ph ph-seal-check text-sky-600"></i> Laporan Hasil Validasi Aset
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Monitoring komprehensif 34.840 aset fisik, kesesuaian fisik vs akuntansi master, serta analisis umur dan kondisi fasilitas lapangan.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Hasil rekonsiliasi fisik vs master akuntansi (34.840 aset), verifikasi lapangan, serta pemetaan kondisi dan nilai perolehan.</p>
           </div>
 
           <!-- Dual Tab Switcher -->
           <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shrink-0 shadow-inner">
-            <button type="button" id="tab-btn-validasi-rekon" onclick="switchValidasiTab('rekon')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-900 shadow-xs cursor-pointer">
-              <i class="ph-bold ph-chart-line-up text-sky-600"></i> Validasi Report (34.840)
+            <button type="button" id="tab-btn-validasi-rekon" onclick="switchValidasiTab('rekon')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-white text-slate-800 shadow-xs border border-slate-200 cursor-pointer">
+              <i class="ph ph-chart-line-up text-sky-600"></i> Laporan Hasil Validasi (34.840)
             </button>
-            <button type="button" id="tab-btn-validasi-perf" onclick="switchValidasiTab('perf')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/60 cursor-pointer">
-              <i class="ph-bold ph-pulse text-emerald-600"></i> Performance Validasi (Kondisi)
+            <button type="button" id="tab-btn-validasi-perf" onclick="switchValidasiTab('perf')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 text-slate-500 hover:text-slate-800 cursor-pointer">
+              <i class="ph ph-pulse text-emerald-600"></i> Performance Kondisi &amp; Departemen
             </button>
           </div>
         </div>
@@ -2823,32 +2772,32 @@
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             <div class="clean-card p-3.5 border-l-4 border-l-sky-500">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">TOTAL ASSET</div>
-              <div class="text-xl sm:text-2xl font-black text-slate-900 mt-1 num-tabular" id="val-kpi-total">34.840</div>
+              <div class="text-xl sm:text-2xl font-semibold text-slate-800 mt-1 num-tabular" id="val-kpi-total">34.840</div>
               <div class="text-[10px] text-sky-600 font-semibold mt-0.5">34.266 Master + 574 API</div>
             </div>
             <div class="clean-card p-3.5 border-l-4 border-l-indigo-500">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ACQUISITION (HPP)</div>
-              <div class="text-lg sm:text-xl font-black text-slate-900 mt-1 num-tabular" id="val-kpi-acq">Rp 1.120,27 M</div>
+              <div class="text-lg sm:text-xl font-semibold text-slate-800 mt-1 num-tabular" id="val-kpi-acq">Rp 1.120,27 M</div>
               <div class="text-[10px] text-slate-500 mt-0.5">Nilai Perolehan Historis</div>
             </div>
             <div class="clean-card p-3.5 border-l-4 border-l-rose-500">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">DISPOSAL ASSET</div>
-              <div class="text-lg sm:text-xl font-black text-rose-700 mt-1 num-tabular" id="val-kpi-disp">Rp 4,61 M</div>
+              <div class="text-lg sm:text-xl font-semibold text-rose-700 mt-1 num-tabular" id="val-kpi-disp">Rp 4,61 M</div>
               <div class="text-[10px] text-rose-600 font-semibold mt-0.5">157 Unit Dihapuskan</div>
             </div>
             <div class="clean-card p-3.5 border-l-4 border-l-amber-500">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">DEPRECIATION</div>
-              <div class="text-lg sm:text-xl font-black text-amber-700 mt-1 num-tabular" id="val-kpi-depr">Rp 438,48 M</div>
+              <div class="text-lg sm:text-xl font-semibold text-amber-700 mt-1 num-tabular" id="val-kpi-depr">Rp 438,48 M</div>
               <div class="text-[10px] text-slate-500 mt-0.5">Akumulasi Penyusutan</div>
             </div>
             <div class="clean-card p-3.5 border-l-4 border-l-emerald-500">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">NET BOOK VALUE (NBV)</div>
-              <div class="text-lg sm:text-xl font-black text-emerald-700 mt-1 num-tabular" id="val-kpi-nbv">Rp 681,78 M</div>
+              <div class="text-lg sm:text-xl font-semibold text-emerald-700 mt-1 num-tabular" id="val-kpi-nbv">Rp 681,78 M</div>
               <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">Nilai Buku Aktif</div>
             </div>
             <div class="clean-card p-3.5 border-l-4 border-l-purple-500">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">MAINTENANCE COST</div>
-              <div class="text-lg sm:text-xl font-black text-purple-700 mt-1 num-tabular" id="val-kpi-mtc">Rp 27,65 M</div>
+              <div class="text-lg sm:text-xl font-semibold text-purple-700 mt-1 num-tabular" id="val-kpi-mtc">Rp 27,65 M</div>
               <div class="text-[10px] text-slate-500 mt-0.5">Total Historical Perbaikan</div>
             </div>
           </div>
@@ -3025,21 +2974,21 @@
                 <div class="overflow-x-auto">
                   <table class="w-full text-left text-xs border-collapse">
                     <thead>
-                      <tr class="bg-slate-100/90 text-slate-700 text-[10px] font-black uppercase tracking-wider border-b border-slate-200">
-                        <th class="py-2.5 px-3" id="matrix-th-name">Lokasi</th>
-                        <th class="py-2.5 px-2 text-center">% Valid</th>
-                        <th class="py-2.5 px-2 text-right">Avg Std</th>
-                        <th class="py-2.5 px-2 text-right">Avg Umur</th>
-                        <th class="py-2.5 px-2 text-right bg-amber-50/70 text-amber-800">Belum Verif</th>
-                        <th class="py-2.5 px-2 text-right bg-emerald-50/70 text-emerald-800">Sesuai</th>
-                        <th class="py-2.5 px-2 text-right bg-rose-50/70 text-rose-800">Tdk Sesuai</th>
-                        <th class="py-2.5 px-2 text-right">Good</th>
-                        <th class="py-2.5 px-2 text-right">Repair</th>
-                        <th class="py-2.5 px-2 text-right">Disposal</th>
-                        <th class="py-2.5 px-2 text-right">Broken</th>
-                        <th class="py-2.5 px-2 text-right">Lost</th>
-                        <th class="py-2.5 px-3 text-right font-black bg-slate-200/60">Total Asset</th>
-                        <th class="py-2.5 px-2 text-center">Drill</th>
+                      <tr class="bg-slate-50 text-slate-600 text-[11px] font-semibold tracking-wider border-b border-slate-200">
+                        <th class="py-2.5 px-3 whitespace-nowrap min-w-[160px]" id="matrix-th-name">Lokasi Site</th>
+                        <th class="py-2.5 px-2 text-center whitespace-nowrap">% Validasi</th>
+                        <th class="py-2.5 px-2 text-right whitespace-nowrap">Avg Std</th>
+                        <th class="py-2.5 px-2 text-right whitespace-nowrap">Avg Umur</th>
+                        <th class="py-2.5 px-2 text-right whitespace-nowrap bg-amber-50/80 text-amber-800 font-semibold">Belum Verifikasi</th>
+                        <th class="py-2.5 px-2 text-right whitespace-nowrap bg-emerald-50/80 text-emerald-800 font-semibold">Sesuai</th>
+                        <th class="py-2.5 px-2 text-right whitespace-nowrap bg-rose-50/80 text-rose-800 font-semibold">Selisih</th>
+                        <th class="py-2.5 px-2 text-right whitespace-nowrap text-emerald-700">Baik</th>
+                        <th class="py-2.5 px-2 text-right whitespace-nowrap text-blue-700">Perbaikan</th>
+                        <th class="py-2.5 px-2 text-right whitespace-nowrap text-rose-700">Disposal</th>
+                        <th class="py-2.5 px-2 text-right whitespace-nowrap text-amber-700">Rusak</th>
+                        <th class="py-2.5 px-2 text-right whitespace-nowrap text-slate-500">Hilang</th>
+                        <th class="py-2.5 px-3 text-right whitespace-nowrap font-semibold bg-slate-100 text-slate-800">Total Portofolio</th>
+                        <th class="py-2.5 px-2 text-center whitespace-nowrap">Drilldown</th>
                       </tr>
                     </thead>
                     <tbody id="table-validasi-matrix-body" class="divide-y divide-slate-100 font-medium">
