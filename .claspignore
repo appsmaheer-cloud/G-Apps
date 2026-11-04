@@ -1,0 +1,11 @@
+**/*
+!Code.gs
+!SetupSheet.gs
+!SheetDB.gs
+!PopulateHunianSlots.gs
+!PopulateRuanganAssets.gs
+!RestorePMAK.gs
+!Index.html
+!CSS.html
+!JS.html
+!appsscript.json
