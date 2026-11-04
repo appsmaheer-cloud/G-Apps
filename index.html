@@ -1206,10 +1206,14 @@
                                 <i id="dt-drill-icon" class="ph-bold ph-house-line"></i>
                             </div>
                             <div>
-                                <div class="flex items-center gap-2.5">
+                                <div class="flex items-center gap-2.5 flex-wrap">
                                     <h2 id="dt-drill-title" class="text-base sm:text-lg font-black text-slate-900 tracking-tight uppercase">CENTRAL OFFICE</h2>
                                     <button type="button" onclick="window.closeAssetDrillThrough()" class="w-7 h-7 rounded-full border-2 border-slate-600 hover:border-emerald-600 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 flex items-center justify-center transition cursor-pointer shadow-2xs" title="Kembali ke Halaman Sebelumnya (Back)">
                                         <i class="ph-bold ph-arrow-left text-sm"></i>
+                                    </button>
+                                    <button type="button" onclick="window.drillFromDtToMovement()" class="px-2.5 py-1 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white flex items-center gap-1.5 shadow-2xs transition cursor-pointer" title="Gerbang Akhir Drill: Buka Detail Asset Movement dengan filter aktif saat ini">
+                                        <i class="ph-bold ph-pulse text-xs"></i>
+                                        <span>Drill Akhir (Detail Asset Movement) &rarr;</span>
                                     </button>
                                     <span id="dt-drill-active-badge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 cursor-pointer" onclick="window.clearAssetDrillCrossFilter()" title="Klik untuk reset filter silang">
                                         <span id="dt-drill-active-badge-text">Filter</span>
@@ -1483,9 +1487,14 @@
                                         <button type="button" id="btn-dt-perf-name" onclick="window.setDtPerfDim('name')" class="px-3.5 py-1 text-xs font-bold rounded-lg text-slate-600 hover:bg-white transition cursor-pointer">Name</button>
                                     </div>
                                 </div>
-                                <button type="button" onclick="window.openDrilledAssetsInFullTable()" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 flex items-center gap-1 transition cursor-pointer">
-                                    <i class="ph-bold ph-table"></i> Lihat Unit di Tabel Master
-                                </button>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" onclick="window.drillFromDtToMovement()" class="px-2.5 py-1 rounded-lg text-[10.5px] font-black bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white flex items-center gap-1 transition cursor-pointer shadow-2xs" title="Gerbang Akhir Drill: Buka Detail Asset Movement">
+                                        <i class="ph-bold ph-pulse"></i> Drill Akhir: Movement &rarr;
+                                    </button>
+                                    <button type="button" onclick="window.openDrilledAssetsInFullTable()" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer" title="Lihat di Tabel Master">
+                                        <i class="ph-bold ph-table"></i> Master Unit
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- Performance Matrix Table with Horizontal Data Bars -->
@@ -1708,28 +1717,34 @@
                                 </div>
                             </div>
 
-                            <!-- Details Asset Table -->
+                            <!-- Details Asset Table (Power BI Details Asset by Condition Parity) -->
                             <div class="overflow-x-auto max-h-[470px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl flex-1">
-                                <table class="w-full text-left border-collapse">
-                                    <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[11px] font-black text-slate-800">
+                                <table class="w-full text-left border-collapse min-w-[840px]">
+                                    <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10.5px] font-black text-slate-800">
                                         <tr>
-                                            <th class="py-2 px-2.5 w-16">location</th>
-                                            <th class="py-2 px-2.5 w-40">kode_unit <i class="ph-fill ph-caret-up text-[9px] text-slate-500"></i></th>
-                                            <th class="py-2 px-2.5">nama_asset_detail</th>
-                                            <th class="py-2 px-2 text-center">Kondisi</th>
-                                            <th class="py-2 px-2 text-right">Nilai Perolehan</th>
-                                            <th class="py-2 px-2.5 text-right">Nilai Buku</th>
+                                            <th class="py-2 px-2 w-14">location</th>
+                                            <th class="py-2 px-2 w-36">kode_unit <i class="ph-fill ph-caret-up text-[9px] text-slate-500"></i></th>
+                                            <th class="py-2 px-2 min-w-[150px]">nama_asset_detail</th>
+                                            <th class="py-2 px-2 text-center w-24">kondisi</th>
+                                            <th class="py-2 px-2 text-right w-20">varian_umur</th>
+                                            <th class="py-2 px-2 text-right w-16">Sum of<br>standar_umur</th>
+                                            <th class="py-2 px-2 text-right w-16">Sum of<br>umur_asset</th>
+                                            <th class="py-2 px-2 text-right w-28">Nilai_pembukuan</th>
+                                            <th class="py-2 px-2 text-right w-28">Maintenance Cost</th>
                                         </tr>
                                     </thead>
-                                    <tbody id="mov-tbody-details" class="divide-y divide-slate-100 text-[11px]">
-                                        <!-- Populated dynamically from real data -->
+                                    <tbody id="mov-tbody-details" class="divide-y divide-slate-100 text-[10.5px]">
+                                        <!-- Populated dynamically from real data with conditional varian_umur -->
                                     </tbody>
-                                    <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11px] font-black text-slate-900">
+                                    <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[10.5px] font-black text-slate-900">
                                         <tr>
-                                            <td class="py-2 px-2.5" colspan="2">Total (<span id="mov-tot-right-count">34,266</span> Unit)</td>
-                                            <td class="py-2 px-2.5 text-slate-500 font-normal text-[10px]" colspan="2">Real-Time Google Sheets (asset)</td>
-                                            <td id="mov-tot-right-hpp" class="py-2 px-2 text-right font-mono">1,120,265,723,611</td>
-                                            <td id="mov-tot-right-nbv" class="py-2 px-2.5 text-right font-mono text-emerald-700">681,781,314,986</td>
+                                            <td class="py-2 px-2" colspan="3">Total (<span id="mov-tot-right-count">34,266</span> Unit)</td>
+                                            <td class="py-2 px-2 text-center text-slate-400 font-normal text-[9px]">-</td>
+                                            <td class="py-2 px-2 text-right font-mono text-slate-500 text-[10px]" id="mov-tot-right-varian">-</td>
+                                            <td id="mov-tot-right-std" class="py-2 px-2 text-right font-mono">307784</td>
+                                            <td id="mov-tot-right-umur" class="py-2 px-2 text-right font-mono">232566</td>
+                                            <td id="mov-tot-right-nbv" class="py-2 px-2 text-right font-mono text-emerald-800">681,781,314,986</td>
+                                            <td id="mov-tot-right-maint" class="py-2 px-2 text-right font-mono text-slate-900">27,652,413,593</td>
                                         </tr>
                                     </tfoot>
                                 </table>
