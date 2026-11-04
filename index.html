@@ -39,17 +39,53 @@
       const sb = document.getElementById('app-sidebar');
       const bd = document.getElementById('sidebar-backdrop');
       if (!sb) return;
-      const shouldOpen = (typeof forceState === 'boolean')
-        ? forceState
-        : sb.classList.contains('-translate-x-full');
-      if (shouldOpen) {
-        sb.classList.remove('-translate-x-full');
-        if (bd) bd.classList.remove('hidden');
+      const isDesktop = window.innerWidth >= 768;
+
+      if (isDesktop) {
+        const isCollapsed = sb.classList.contains('desktop-collapsed');
+        const shouldCollapse = (typeof forceState === 'boolean') ? !forceState : !isCollapsed;
+        if (shouldCollapse) {
+          sb.classList.add('desktop-collapsed');
+          try { localStorage.setItem('pns_sidebar_collapsed', '1'); } catch (e) {}
+        } else {
+          sb.classList.remove('desktop-collapsed');
+          try { localStorage.removeItem('pns_sidebar_collapsed'); } catch (e) {}
+        }
       } else {
-        sb.classList.add('-translate-x-full');
-        if (bd) bd.classList.add('hidden');
+        const isClosed = sb.classList.contains('-translate-x-full');
+        const shouldOpen = (typeof forceState === 'boolean') ? forceState : isClosed;
+        if (shouldOpen) {
+          sb.classList.remove('-translate-x-full');
+          if (bd) bd.classList.remove('hidden');
+        } else {
+          sb.classList.add('-translate-x-full');
+          if (bd) bd.classList.add('hidden');
+        }
       }
     };
+
+    window.toggleNavGroup = function(groupId, headerBtn) {
+      const grp = document.getElementById(groupId);
+      if (!grp) return;
+      const isHidden = grp.classList.contains('hidden');
+      const icon = headerBtn ? headerBtn.querySelector('.group-caret') : null;
+      if (isHidden) {
+        grp.classList.remove('hidden');
+        if (icon) icon.classList.remove('-rotate-90');
+      } else {
+        grp.classList.add('hidden');
+        if (icon) icon.classList.add('-rotate-90');
+      }
+    };
+
+    // Auto-restore desktop sidebar state
+    document.addEventListener('DOMContentLoaded', function() {
+      try {
+        if (window.innerWidth >= 768 && localStorage.getItem('pns_sidebar_collapsed') === '1') {
+          document.getElementById('app-sidebar')?.classList.add('desktop-collapsed');
+        }
+      } catch (e) {}
+    });
   </script>
 </head>
 <body class="text-slate-800 bg-slate-50 h-screen overflow-hidden flex flex-col font-sans antialiased">
@@ -57,8 +93,8 @@
   <!-- TOP HEADER -->
   <header class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0 shadow-2xs z-40">
     <div class="flex items-center gap-3">
-      <button type="button" id="btn-toggle-sidebar" onclick="toggleSidebar()" aria-label="Buka atau tutup navigasi samping" class="md:hidden p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 cursor-pointer">
-        <i class="ph-bold ph-list text-lg" aria-hidden="true"></i>
+      <button type="button" id="btn-toggle-sidebar" onclick="toggleSidebar()" aria-label="Buka atau tutup navigasi samping" class="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 cursor-pointer transition flex items-center justify-center shrink-0" title="Buka / Sembunyikan Navigasi Samping">
+        <i class="ph-bold ph-sidebar-simple text-lg" aria-hidden="true"></i>
       </button>
       <div class="flex items-center gap-2.5 cursor-pointer" onclick="navTo('view-dashboard')" title="Kembali ke Dashboard Utama">
         <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shadow-xs shrink-0">
@@ -117,7 +153,7 @@
     <div id="sidebar-backdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-2xs z-20 hidden md:hidden transition-opacity"></div>
 
     <!-- SIDEBAR NAVIGATION (STABLE ZERO-JUMP LAYOUT) -->
-    <aside id="app-sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full overflow-hidden z-30 fixed md:static inset-y-0 left-0 -translate-x-full md:translate-x-0 transition-transform duration-200 shadow-lg md:shadow-none select-none">
+    <aside id="app-sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full overflow-hidden z-30 fixed md:static inset-y-0 left-0 -translate-x-full md:translate-x-0 transition-all duration-200 ease-in-out shadow-lg md:shadow-none select-none">
       <!-- MOBILE-ONLY SIDEBAR DRAWER HEADER -->
       <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 md:hidden shrink-0">
         <div class="flex items-center gap-2.5">
@@ -145,15 +181,17 @@
               <i class="ph ph-seal-check text-base text-sky-600 shrink-0"></i>
               <span class="truncate text-slate-800">Laporan Hasil Validasi</span>
             </span>
-            <span class="text-[10px] text-sky-700 font-medium px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200/80 shrink-0">34.840</span>
+            <span class="text-[10px] text-sky-700 font-medium px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200/80 shrink-0">34.266</span>
           </button>
         </div>
 
         <!-- 2. KATALOG & PORTOFOLIO ASET -->
-        <div class="space-y-1 pb-2 border-b border-slate-100">
-          <div class="px-2 pt-1 text-[11px] font-medium tracking-wide text-slate-400 uppercase">
-            Katalog &amp; Nilai Aset
-          </div>
+        <div class="pb-2 border-b border-slate-100">
+          <button type="button" onclick="toggleNavGroup('nav-group-katalog', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-medium tracking-wide text-slate-400 hover:text-slate-700 uppercase transition cursor-pointer select-none">
+            <span class="flex items-center gap-1.5"><i class="ph ph-folder text-xs"></i> Katalog &amp; Nilai Aset</span>
+            <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          </button>
+          <div id="nav-group-katalog" class="space-y-1">
           <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Seluruh Portofolio Aset Termasuk Belum Checkout (34.840 Unit)">
             <span class="flex items-center gap-2 min-w-0">
               <i class="ph ph-database text-base text-slate-500 shrink-0"></i>
@@ -184,9 +222,10 @@
 
         <!-- 3. MUTASI & SIKLUS ASET -->
         <div class="space-y-1 pb-2 border-b border-slate-100">
-          <div class="px-2 pt-1 text-[11px] font-medium tracking-wide text-slate-400 uppercase">
-            Mutasi &amp; Siklus Aset
-          </div>
+          <button type="button" onclick="toggleNavGroup('nav-group-mutasi', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-medium tracking-wide text-slate-400 hover:text-slate-700 uppercase transition cursor-pointer select-none">
+            <span class="flex items-center gap-1.5"><i class="ph ph-folder text-xs"></i> Mutasi &amp; Siklus Aset</span>
+            <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          </button>
           <button type="button" data-view="view-reg-asset" onclick="navTo('view-reg-asset', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Form Register Aset Baru">
             <i class="ph ph-plus-circle text-base text-blue-600 shrink-0"></i>
             <span class="truncate">Register Aset Baru</span>
@@ -211,9 +250,11 @@
 
         <!-- 4. FASILITAS & GEDUNG (HRGA) -->
         <div class="space-y-1 pb-2 border-b border-slate-100">
-          <div class="px-2 pt-1 text-[11px] font-medium tracking-wide text-slate-400 uppercase">
-            Fasilitas &amp; Gedung
-          </div>
+          <button type="button" onclick="toggleNavGroup('nav-group-fasilitas', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-medium tracking-wide text-slate-400 hover:text-slate-700 uppercase transition cursor-pointer select-none">
+            <span class="flex items-center gap-1.5"><i class="ph ph-folder text-xs"></i> Fasilitas &amp; Gedung</span>
+            <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          </button>
+          <div id="nav-group-fasilitas" class="space-y-1">
           <button type="button" data-view="view-gedung" onclick="navTo('view-gedung', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Master Gedung &amp; Bangunan Fisik">
             <span class="flex items-center gap-2 min-w-0"><i class="ph ph-building-office text-base text-amber-500 shrink-0"></i> <span class="truncate">Gedung &amp; Bangunan</span></span>
             <span id="nav-badge-bldg" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium shrink-0">416</span>
@@ -230,13 +271,16 @@
             <i class="ph ph-clipboard-text text-base text-slate-500 shrink-0"></i>
             <span class="truncate">Inspeksi Ruangan</span>
           </button>
+          </div>
         </div>
 
         <!-- 5. PEMELIHARAAN & WORK ORDER -->
         <div class="space-y-1">
-          <div class="px-2 pt-1 text-[11px] font-medium tracking-wide text-slate-400 uppercase">
-            Pemeliharaan &amp; Work Order
-          </div>
+          <button type="button" onclick="toggleNavGroup('nav-group-pemeliharaan', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-medium tracking-wide text-slate-400 hover:text-slate-700 uppercase transition cursor-pointer select-none">
+            <span class="flex items-center gap-1.5"><i class="ph ph-folder text-xs"></i> Pemeliharaan &amp; Work Order</span>
+            <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          </button>
+          <div id="nav-group-pemeliharaan" class="space-y-1">
           <button type="button" data-view="view-wo" onclick="navTo('view-wo', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Daftar Tiket Pekerjaan Pemeliharaan">
             <span class="flex items-center gap-2 min-w-0"><i class="ph ph-kanban text-base text-amber-500 shrink-0"></i> <span class="truncate">Work Order Kanban</span></span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium shrink-0" id="sidebar-wo-count">15</span>
@@ -245,6 +289,7 @@
             <span class="flex items-center gap-2 min-w-0"><i class="ph ph-wrench text-base text-slate-500 shrink-0"></i> <span class="truncate">Maintenance Analytics</span></span>
             <span class="text-[10px] text-slate-500 font-medium px-1.5 py-0.5 rounded bg-slate-100 shrink-0">27,65 M</span>
           </button>
+          </div>
         </div>
       </nav>
 
@@ -2692,18 +2737,18 @@
             <div class="flex items-center gap-2 mb-1">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               <span class="text-xs font-medium text-slate-500">Rekonsiliasi &amp; Opname Fisik Lapangan</span>
-              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Portofolio 34.840 Unit</span>
+              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Master 34.266 Unit</span>
             </div>
             <h2 class="text-xl sm:text-2xl font-semibold text-slate-800 tracking-tight flex items-center gap-2">
               <i class="ph ph-seal-check text-sky-600"></i> Laporan Hasil Validasi Aset
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Hasil rekonsiliasi fisik vs master akuntansi (34.840 aset), verifikasi lapangan, serta pemetaan kondisi dan nilai perolehan.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Hasil rekonsiliasi fisik vs master akuntansi (34.266 aset master), verifikasi lapangan, serta pemetaan kondisi dan nilai perolehan.</p>
           </div>
 
           <!-- Dual Tab Switcher -->
           <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shrink-0 shadow-inner">
             <button type="button" id="tab-btn-validasi-rekon" onclick="switchValidasiTab('rekon')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-white text-slate-800 shadow-xs border border-slate-200 cursor-pointer">
-              <i class="ph ph-chart-line-up text-sky-600"></i> Laporan Hasil Validasi (34.840)
+              <i class="ph ph-chart-line-up text-sky-600"></i> Laporan Hasil Validasi (34.266)
             </button>
             <button type="button" id="tab-btn-validasi-perf" onclick="switchValidasiTab('perf')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 text-slate-500 hover:text-slate-800 cursor-pointer">
               <i class="ph ph-pulse text-emerald-600"></i> Performance Kondisi &amp; Departemen
@@ -2772,8 +2817,8 @@
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             <div class="clean-card p-3.5 border-l-4 border-l-sky-500">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">TOTAL ASSET</div>
-              <div class="text-xl sm:text-2xl font-semibold text-slate-800 mt-1 num-tabular" id="val-kpi-total">34.840</div>
-              <div class="text-[10px] text-sky-600 font-semibold mt-0.5">34.266 Master + 574 API</div>
+              <div class="text-xl sm:text-2xl font-semibold text-slate-800 mt-1 num-tabular" id="val-kpi-total">34.266</div>
+              <div class="text-[10px] text-sky-600 font-semibold mt-0.5">34.266 Master Aset Fisik</div>
             </div>
             <div class="clean-card p-3.5 border-l-4 border-l-indigo-500">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ACQUISITION (HPP)</div>
@@ -2812,8 +2857,8 @@
                   <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
                     <i class="ph-bold ph-shield-check text-emerald-600"></i> Status Rekonsiliasi Aset
                   </span>
-                  <span class="text-[10px] font-extrabold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    98.05% Terverifikasi
+                  <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
+                    99.7% Terverifikasi
                   </span>
                 </div>
 
@@ -2823,10 +2868,10 @@
                     <span class="font-bold text-emerald-700 flex items-center gap-1.5">
                       <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> SESUAI (ALOKASI VALID)
                     </span>
-                    <span class="font-black text-slate-900 num-tabular" id="val-card-sesuai">34.159 (98.05%)</span>
+                    <span class="font-semibold text-slate-800 num-tabular" id="val-card-sesuai">34.159 (99,69%)</span>
                   </div>
                   <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div class="bg-emerald-500 h-2 rounded-full" style="width: 98.05%"></div>
+                    <div class="bg-emerald-500 h-2 rounded-full" style="width: 99.69%"></div>
                   </div>
                   <div class="text-[10px] text-slate-400">Data fisik lapangan &amp; master akuntansi cocok 100%</div>
                 </div>
@@ -2837,10 +2882,10 @@
                     <span class="font-bold text-rose-700 flex items-center gap-1.5">
                       <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> TIDAK SESUAI (SELISIH FISIK)
                     </span>
-                    <span class="font-black text-rose-700 num-tabular" id="val-card-tdk-sesuai">95 (0.27%)</span>
+                    <span class="font-semibold text-rose-700 num-tabular" id="val-card-tdk-sesuai">95 (0,28%)</span>
                   </div>
                   <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div class="bg-rose-500 h-2 rounded-full" style="width: 0.27%"></div>
+                    <div class="bg-rose-500 h-2 rounded-full" style="width: 0.28%"></div>
                   </div>
                   <div class="text-[10px] text-slate-400">Perbedaan alokasi lokasi / penanggung jawab saat audit</div>
                 </div>
@@ -2851,12 +2896,12 @@
                     <span class="font-bold text-amber-700 flex items-center gap-1.5">
                       <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> BELUM VERIFIKASI / PENDING
                     </span>
-                    <span class="font-black text-amber-700 num-tabular" id="val-card-belum">586 (1.68%)</span>
+                    <span class="font-semibold text-slate-600 num-tabular" id="val-card-belum">12 (0,03%)</span>
                   </div>
                   <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div class="bg-amber-500 h-2 rounded-full" style="width: 1.68%"></div>
+                    <div class="bg-slate-400 h-2 rounded-full" style="width: 0.03%"></div>
                   </div>
-                  <div class="text-[10px] text-slate-400">574 aset baru dari API + 12 item master belum opname</div>
+                  <div class="text-[10px] text-slate-400">Item aset master yang sedang dalam antrean verifikasi fisik</div>
                 </div>
               </div>
 
@@ -2878,15 +2923,10 @@
                       <td class="py-2 text-right num-tabular font-bold text-emerald-600">100%</td>
                       <td class="py-2 text-right num-tabular font-black text-slate-900 pl-3">12.618</td>
                     </tr>
-                    <tr class="hover:bg-slate-50 transition bg-amber-50/50">
-                      <td class="py-2 font-semibold text-amber-800">Pending API Register</td>
-                      <td class="py-2 text-right num-tabular font-bold text-amber-600">Pending</td>
-                      <td class="py-2 text-right num-tabular font-black text-amber-700 pl-3">574</td>
-                    </tr>
-                    <tr class="font-black bg-slate-50 text-slate-900">
-                      <td class="py-2 pl-2">Total Portofolio</td>
-                      <td class="py-2 text-right num-tabular text-emerald-700">98.05%</td>
-                      <td class="py-2 text-right num-tabular pl-3 pr-2">34.840</td>
+                    <tr class="font-semibold bg-slate-50 text-slate-800">
+                      <td class="py-2 pl-2">Total Portofolio Master</td>
+                      <td class="py-2 text-right num-tabular text-emerald-700">100%</td>
+                      <td class="py-2 text-right num-tabular pl-3 pr-2">34.266</td>
                     </tr>
                   </tbody>
                 </table>

@@ -9663,8 +9663,7 @@ const PNS_SECTION_TO_DEPT = {
     { name: 'FR', label: 'Factory / Pabrik (FR)', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 10359, tdkSesuai: 46, good: 9656, repair: 41, disp: 16, broken: 522, lost: 170, total: 10405 },
     { name: 'HO', label: 'Head Office (HO)', validPct: '100%', avgStd: 4, avgUmur: 9, belum: 0, sesuai: 869, tdkSesuai: 2, good: 794, repair: 0, disp: 0, broken: 22, lost: 55, total: 871 },
     { name: 'MR', label: 'Mess Residence (MR)', validPct: '100%', avgStd: 6, avgUmur: 4, belum: 0, sesuai: 1602, tdkSesuai: 0, good: 1577, repair: 0, disp: 0, broken: 25, lost: 0, total: 1602 },
-    { name: 'RO', label: 'Regional Office (RO)', validPct: '100%', avgStd: 5, avgUmur: 12, belum: 0, sesuai: 139, tdkSesuai: 0, good: 120, repair: 0, disp: 0, broken: 4, lost: 16, total: 140 },
-    { name: 'API_PENDING', label: 'Pending Register API (Baru)', validPct: 'Pending', avgStd: 8, avgUmur: 1, belum: 574, sesuai: 0, tdkSesuai: 0, good: 574, repair: 0, disp: 0, broken: 0, lost: 0, total: 574 }
+    { name: 'RO', label: 'Regional Office (RO)', validPct: '100%', avgStd: 5, avgUmur: 12, belum: 0, sesuai: 139, tdkSesuai: 0, good: 120, repair: 0, disp: 0, broken: 4, lost: 16, total: 140 }
   ];
 
   const REAL_DEPTS_MATRIX = [
@@ -9678,8 +9677,7 @@ const PNS_SECTION_TO_DEPT = {
     { name: 'QUALITY HEALTH & SAFETY ENVIRONMENT', validPct: '100%', avgStd: 4, avgUmur: 6, belum: 0, sesuai: 984, tdkSesuai: 3, good: 762, repair: 10, disp: 30, broken: 145, lost: 40, total: 987 },
     { name: 'RESEARCH & DEVELOPMENT', validPct: '100%', avgStd: 5, avgUmur: 8, belum: 0, sesuai: 537, tdkSesuai: 1, good: 262, repair: 2, disp: 0, broken: 238, lost: 36, total: 538 },
     { name: 'SALES & MARKETING', validPct: '100%', avgStd: 6, avgUmur: 8, belum: 0, sesuai: 4, tdkSesuai: 0, good: 2, repair: 0, disp: 0, broken: 0, lost: 2, total: 4 },
-    { name: 'WORKSHOP & ENGINERING', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 2482, tdkSesuai: 0, good: 1905, repair: 21, disp: 1, broken: 430, lost: 125, total: 2482 },
-    { name: 'API_PENDING', validPct: 'Pending', avgStd: 8, avgUmur: 1, belum: 574, sesuai: 0, tdkSesuai: 0, good: 574, repair: 0, disp: 0, broken: 0, lost: 0, total: 574 }
+    { name: 'WORKSHOP & ENGINERING', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 2482, tdkSesuai: 0, good: 1905, repair: 21, disp: 1, broken: 430, lost: 125, total: 2482 }
   ];
 
   const REAL_KELOMPOK_STATS = [
@@ -9833,11 +9831,11 @@ const PNS_SECTION_TO_DEPT = {
     if (tfoot) {
       tfoot.innerHTML = `
         <tr class="bg-slate-50 text-slate-700 font-semibold border-t-2 border-slate-300">
-          <td class="py-3 px-3 uppercase tracking-wider whitespace-nowrap min-w-[160px]">Total Portofolio</td>
-          <td class="py-3 px-2 text-center whitespace-nowrap num-tabular text-emerald-700">98.05%</td>
+          <td class="py-3 px-3 uppercase tracking-wider whitespace-nowrap min-w-[160px]">Total Validasi Master</td>
+          <td class="py-3 px-2 text-center whitespace-nowrap num-tabular text-emerald-700">100%</td>
           <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">9</td>
           <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">7</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-amber-800 bg-amber-100/50">${totBelum.toLocaleString('id-ID')}</td>
+          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-400">-</td>
           <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-emerald-800 bg-emerald-100/50">${totSesuai.toLocaleString('id-ID')}</td>
           <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800 bg-rose-100/50">${totTdkSesuai.toLocaleString('id-ID')}</td>
           <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-800">${totGood.toLocaleString('id-ID')}</td>

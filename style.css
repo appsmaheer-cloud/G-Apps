@@ -461,3 +461,17 @@ textarea:focus-visible {
             border-radius: 1rem;
             padding: 1rem 1.125rem;
         }
+/* Sidebar Desktop Collapse */
+@media (min-width: 768px) {
+  #app-sidebar.desktop-collapsed {
+    width: 0 !important;
+    min-width: 0 !important;
+    border-right-width: 0 !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    margin-left: 0 !important;
+    overflow: hidden !important;
+    visibility: hidden;
+    opacity: 0;
+  }
+}
