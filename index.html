@@ -36,12 +36,17 @@
   <script>
     window.toggleSidebar = function(forceState) {
       const sb = document.getElementById('app-sidebar');
+      const bd = document.getElementById('sidebar-backdrop');
       if (!sb) return;
-      if (typeof forceState === 'boolean') {
-        if (forceState) sb.classList.remove('-translate-x-full');
-        else sb.classList.add('-translate-x-full');
+      const shouldOpen = (typeof forceState === 'boolean')
+        ? forceState
+        : sb.classList.contains('-translate-x-full');
+      if (shouldOpen) {
+        sb.classList.remove('-translate-x-full');
+        if (bd) bd.classList.remove('hidden');
       } else {
-        sb.classList.toggle('-translate-x-full');
+        sb.classList.add('-translate-x-full');
+        if (bd) bd.classList.add('hidden');
       }
     };
   </script>
@@ -51,10 +56,10 @@
   <!-- TOP HEADER -->
   <header class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0 shadow-2xs z-40">
     <div class="flex items-center gap-3">
-      <button type="button" id="btn-toggle-sidebar" aria-label="Buka atau tutup navigasi samping" class="lg:hidden p-1.5 rounded-lg border border-slate-200 text-slate-600">
+      <button type="button" id="btn-toggle-sidebar" onclick="toggleSidebar()" aria-label="Buka atau tutup navigasi samping" class="md:hidden p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 cursor-pointer">
         <i class="ph-bold ph-list text-lg" aria-hidden="true"></i>
       </button>
-      <div class="flex items-center gap-2.5">
+      <div class="flex items-center gap-2.5 cursor-pointer" onclick="navTo('view-dashboard')" title="Kembali ke Dashboard Utama">
         <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shadow-xs shrink-0">
           <img data-pns-logo alt="Logo PT Pratama Nusantara Sakti" width="28" height="28" class="w-full h-full object-contain">
         </div>
@@ -70,15 +75,15 @@
       </div>
     </div>
 
-        <!-- 3 MAIN DOMAINS SWITCHER PILLS -->
+    <!-- 3 MAIN DOMAINS SWITCHER PILLS -->
     <div class="hidden lg:flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs">
-      <button type="button" onclick="navTo('view-inspeksi', this)" id="top-pill-hrga" class="top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 hover:bg-white shadow-2xs cursor-pointer">
+      <button type="button" onclick="navTo('view-inspeksi')" id="top-pill-hrga" class="top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 hover:bg-white shadow-2xs cursor-pointer">
         <i class="ph-bold ph-buildings text-amber-500"></i> Asset Dept. HRGA
       </button>
-      <button type="button" onclick="navTo('view-portfolio-all', this)" id="top-pill-all" class="top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 hover:bg-white shadow-2xs cursor-pointer">
+      <button type="button" onclick="navTo('view-portfolio-all')" id="top-pill-all" class="top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 hover:bg-white shadow-2xs cursor-pointer">
         <i class="ph-bold ph-database text-sky-500"></i> All Asset (Katalog Master)
       </button>
-      <button type="button" onclick="navTo('view-wo', this)" id="top-pill-wo" class="top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 hover:bg-white shadow-2xs cursor-pointer">
+      <button type="button" onclick="navTo('view-wo')" id="top-pill-wo" class="top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 hover:bg-white shadow-2xs cursor-pointer">
         <i class="ph-bold ph-wrench text-emerald-500"></i> Maintenance &amp; Work Order
       </button>
     </div>
@@ -86,12 +91,10 @@
     <!-- Right Controls -->
     <div class="flex items-center gap-2">
       <!-- Live Sync Badge -->
-      <div id="sync-badge" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 text-slate-600 border border-slate-200">
+      <div id="sync-badge" onclick="syncAllFromBackend(true)" title="Klik untuk sinkronisasi ulang dari Google Sheets" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 border border-slate-200 cursor-pointer transition">
         <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
         <span id="sync-text">Sheets Synced</span>
       </div>
-
-      
 
       <!-- User Profile Badge -->
       <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
@@ -107,67 +110,79 @@
   </header>
 
   <!-- MAIN APP CONTAINER (SIDEBAR + CONTENT) -->
-  <div class="flex-1 flex overflow-hidden min-h-0">
+  <div class="flex-1 flex overflow-hidden min-h-0 relative">
 
-    <!-- SIDEBAR NAVIGATION (3 PILAR OPERASIONAL) -->
-        <!-- SIDEBAR NAVIGATION (HRGA ASSET, ALL ASSET & MAINTENANCE) -->
-        <!-- SIDEBAR NAVIGATION: ASSET MANAGEMENT & FACILITY MANAGEMENT (HRGA) -->
-    <aside id="app-sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full overflow-y-auto scrollbar-thin z-30 fixed lg:static inset-y-0 left-0 -translate-x-full lg:translate-x-0 transition-transform duration-200 shadow-sm lg:shadow-none">
-      <!-- MOBILE-ONLY SIDEBAR DRAWER HEADER (Eliminates redundant double header on desktop) -->
-      <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 lg:hidden">
+    <!-- MOBILE SIDEBAR BACKDROP OVERLAY -->
+    <div id="sidebar-backdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-slate-900/40 backdrop-blur-2xs z-20 hidden md:hidden transition-opacity"></div>
+
+    <!-- SIDEBAR NAVIGATION (STABLE ZERO-JUMP LAYOUT) -->
+    <aside id="app-sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full overflow-hidden z-30 fixed md:static inset-y-0 left-0 -translate-x-full md:translate-x-0 transition-transform duration-200 shadow-lg md:shadow-none select-none">
+      <!-- MOBILE-ONLY SIDEBAR DRAWER HEADER -->
+      <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 md:hidden shrink-0">
         <div class="flex items-center gap-2.5">
           <div class="w-7 h-7 rounded-lg bg-white border border-slate-200 p-1 flex items-center justify-center shadow-xs shrink-0">
             <img data-pns-logo alt="Logo PNS" width="20" height="20" class="w-full h-full object-contain">
           </div>
           <div class="font-bold text-xs text-slate-800">Menu Navigasi</div>
         </div>
-        <button type="button" id="btn-close-sidebar-drawer" onclick="toggleSidebar(false)" aria-label="Tutup navigasi" class="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition">
+        <button type="button" id="btn-close-sidebar-drawer" onclick="toggleSidebar(false)" aria-label="Tutup navigasi" class="p-1 rounded-md text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition cursor-pointer">
           <i class="ph-bold ph-x text-base" aria-hidden="true"></i>
         </button>
       </div>
 
-      <nav class="p-3 space-y-5 flex-1 text-xs font-medium" aria-label="Menu Utama">
-        <!-- MODUL 1: ASSET MANAGEMENT (PERSIS VERSI PHP) -->
-        <div class="border-b border-slate-100 pb-3">
-          <div class="px-2 mb-2 text-[10px] font-black tracking-wider text-blue-600 uppercase flex items-center justify-between">
+      <nav id="sidebar-nav-scroll" class="p-2.5 space-y-3.5 flex-1 overflow-y-auto scrollbar-thin text-xs font-medium" style="scrollbar-gutter: stable;" aria-label="Menu Utama">
+        <!-- DASHBOARD OVERVIEW BUTTON -->
+        <div class="pb-2 border-b border-slate-100">
+          <button type="button" data-view="view-dashboard" onclick="navTo('view-dashboard', this)" class="nav-btn active w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Ringkasan Eksekutif & Statistik Real-Time">
+            <span class="flex items-center gap-2 min-w-0">
+              <i class="ph-bold ph-squares-four text-sm text-emerald-600 shrink-0"></i>
+              <span class="truncate">Dashboard Overview</span>
+            </span>
+            <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">HOME</span>
+          </button>
+        </div>
+
+        <!-- MODUL 1: ASSET MANAGEMENT -->
+        <div class="border-b border-slate-100 pb-2.5">
+          <div class="px-2 mb-1.5 text-[10px] font-black tracking-wider text-blue-600 uppercase flex items-center justify-between">
             <span class="flex items-center gap-1.5"><i class="ph-bold ph-cube text-xs text-blue-600"></i> Asset Management</span>
             <span class="text-[8.5px] font-bold px-1.5 py-0.2 rounded bg-blue-50 text-blue-600 border border-blue-200/60">ASET</span>
           </div>
 
           <!-- 1.1 SUB MODUL: KATALOG & NILAI ASET -->
-          <div class="nav-module-group mb-1">
-            <button type="button" onclick="toggleNavModule('nav-group-asset-catalog')" class="w-full px-2 py-1.5 flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-900 transition cursor-pointer rounded-lg hover:bg-slate-100" title="Katalog & Portofolio">
+          <div class="nav-module-group mb-1.5">
+            <button type="button" onclick="toggleNavModule('nav-group-asset-catalog')" class="w-full h-7 px-2 flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors cursor-pointer rounded-lg hover:bg-slate-100" title="Katalog & Portofolio">
               <span class="flex items-center gap-1.5 min-w-0">
                 <i class="ph-bold ph-folder-notch-open text-xs text-blue-600 shrink-0"></i>
                 <span class="truncate">Katalog &amp; Nilai Aset</span>
               </span>
-              <i id="caret-nav-group-asset-catalog" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform"></i>
+              <i id="caret-nav-group-asset-catalog" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform duration-150"></i>
             </button>
             <div id="nav-group-asset-catalog" class="space-y-0.5 mt-0.5 pl-1.5">
-              <button type="button" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Daftar Master Katalog Aset (34K+)">
+              <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Daftar Master Katalog Aset (34.266 Unit)">
                 <i class="ph-bold ph-table text-sm text-slate-400 shrink-0"></i>
                 <span class="truncate">Master Katalog Aset</span>
               </button>
-              <button type="button" onclick="navTo('view-portfolio', this)" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Komposisi & Nilai Portofolio">
+              <button type="button" data-view="view-portfolio" onclick="navTo('view-portfolio', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Komposisi & Nilai Portofolio">
                 <i class="ph-bold ph-chart-pie text-sm text-slate-400 shrink-0"></i>
                 <span class="truncate">Komposisi &amp; Nilai</span>
               </button>
-              <button type="button" onclick="navTo('view-asset-sebaran', this)" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Sebaran Lokasi Kantor & Site">
+              <button type="button" data-view="view-asset-sebaran" onclick="navTo('view-asset-sebaran', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Sebaran Lokasi Kantor & Site">
                 <i class="ph-bold ph-map-pin text-sm text-slate-400 shrink-0"></i>
                 <span class="truncate">Sebaran Kantor &amp; Site</span>
               </button>
-              <button type="button" onclick="navTo('view-asset-movement', this)" class="nav-btn w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Detail Asset Movement & Kondisi Real-Time">
+              <button type="button" data-view="view-asset-movement" onclick="navTo('view-asset-movement', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Detail Asset Movement & Kondisi Real-Time">
                 <span class="flex items-center gap-2 min-w-0">
                   <i class="ph-bold ph-pulse text-sm text-emerald-600 shrink-0"></i>
                   <span class="truncate">Detail Asset Movement</span>
                 </span>
                 <span class="text-[9px] font-black px-1.5 py-0.2 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 shrink-0">LIVE</span>
               </button>
-              <button type="button" onclick="window.openAssetDrillThrough({ location: 'CENTRAL OFFICE', sourceView: 'view-portfolio' })" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Drill-Through Detail Asset per Lokasi (DT.Details.Assets)">
+              <button type="button" data-view="view-asset-detail-drill" onclick="window.openAssetDrillThrough({ location: 'CENTRAL OFFICE', sourceView: 'view-portfolio' }, this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Drill-Through Detail Asset per Lokasi (DT.Details.Assets)">
                 <i class="ph-bold ph-crosshair text-sm text-amber-500 shrink-0"></i>
                 <span class="truncate">Detail Aset Lokasi (DT)</span>
               </button>
-              <button type="button" onclick="navTo('view-asset-depreciation', this)" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Depresiasi Dinamis & Nilai Buku">
+              <button type="button" data-view="view-asset-depreciation" onclick="navTo('view-asset-depreciation', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Depresiasi Dinamis & Nilai Buku">
                 <i class="ph-bold ph-trend-down text-sm text-slate-400 shrink-0"></i>
                 <span class="truncate">Depresiasi &amp; Nilai Buku</span>
               </button>
@@ -176,35 +191,35 @@
 
           <!-- 1.2 SUB MODUL: MUTASI & SIKLUS ASET -->
           <div class="nav-module-group">
-            <button type="button" onclick="toggleNavModule('nav-group-asset-trans')" class="w-full px-2 py-1.5 flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-900 transition cursor-pointer rounded-lg hover:bg-slate-100" title="Kelola Siklus Aset">
+            <button type="button" onclick="toggleNavModule('nav-group-asset-trans')" class="w-full h-7 px-2 flex items-center justify-between text-[10px] font-black uppercase tracking-wider text-slate-500 hover:text-slate-900 transition-colors cursor-pointer rounded-lg hover:bg-slate-100" title="Kelola Siklus Aset">
               <span class="flex items-center gap-1.5 min-w-0">
                 <i class="ph-bold ph-arrows-clockwise text-xs text-blue-600 shrink-0"></i>
                 <span class="truncate">Mutasi &amp; Siklus Aset</span>
               </span>
-              <i id="caret-nav-group-asset-trans" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform"></i>
+              <i id="caret-nav-group-asset-trans" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform duration-150"></i>
             </button>
             <div id="nav-group-asset-trans" class="space-y-0.5 mt-0.5 pl-1.5">
-              <button type="button" onclick="navTo('view-reg-asset', this)" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Form Register Aset Baru">
+              <button type="button" data-view="view-reg-asset" onclick="navTo('view-reg-asset', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Form Register Aset Baru">
                 <i class="ph-bold ph-plus-circle text-sm text-blue-600 shrink-0"></i>
                 <span class="truncate">Register Aset Baru</span>
               </button>
-              <button type="button" onclick="navTo('view-mutasi', this)" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Mutasi Antar Departemen">
+              <button type="button" data-view="view-mutasi" onclick="navTo('view-mutasi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Mutasi Antar Departemen">
                 <i class="ph-bold ph-arrows-left-right text-sm text-blue-500 shrink-0"></i>
                 <span class="truncate">Mutasi Antar Dept</span>
               </button>
-              <button type="button" onclick="navTo('view-asset-location', this)" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Perubahan Lokasi Fisik">
+              <button type="button" data-view="view-asset-location" onclick="navTo('view-asset-location', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Perubahan Lokasi Fisik">
                 <i class="ph-bold ph-map-pin text-sm text-slate-400 shrink-0"></i>
                 <span class="truncate">Perubahan Lokasi Fisik</span>
               </button>
-              <button type="button" onclick="navTo('view-asset-status', this)" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Update Kondisi & Status Aset">
+              <button type="button" data-view="view-asset-status" onclick="navTo('view-asset-status', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Update Kondisi & Status Aset">
                 <i class="ph-bold ph-check-circle text-sm text-slate-400 shrink-0"></i>
                 <span class="truncate">Update Status &amp; Kondisi</span>
               </button>
-              <button type="button" onclick="navTo('view-validasi', this)" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Validasi & Audit Lapangan (Opname)">
+              <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Validasi & Audit Lapangan (Opname)">
                 <i class="ph-bold ph-seal-check text-sm text-slate-400 shrink-0"></i>
                 <span class="truncate">Audit &amp; Opname Fisik</span>
               </button>
-              <button type="button" onclick="navTo('view-asset-disposal', this)" class="nav-btn w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left transition text-xs font-medium cursor-pointer" title="Disposal & Penghapusan Aset">
+              <button type="button" data-view="view-asset-disposal" onclick="navTo('view-asset-disposal', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Disposal & Penghapusan Aset">
                 <i class="ph-bold ph-trash text-sm text-rose-500 shrink-0"></i>
                 <span class="truncate">Disposal &amp; Penghapusan</span>
               </button>
@@ -213,61 +228,78 @@
         </div>
 
         <!-- MODUL 2: FACILITY MANAGEMENT (HRGA) -->
-        <div>
-          <div class="px-2 mb-2 text-[10px] font-bold tracking-wider text-amber-600 uppercase flex items-center justify-between">
-            <span class="flex items-center gap-1.5"><i class="ph-bold ph-buildings text-amber-500"></i> Facility Management</span>
-            <span class="text-[9px] px-1.5 py-0.2 rounded font-extrabold bg-amber-100 text-amber-800">HRGA</span>
-          </div>
-          <div class="space-y-1">
+        <div class="border-b border-slate-100 pb-2.5">
+          <button type="button" onclick="toggleNavModule('nav-group-facility-hrga')" class="w-full h-7 px-2 mb-1 flex items-center justify-between text-[10px] font-black tracking-wider text-amber-600 uppercase rounded-lg hover:bg-amber-50/60 transition-colors cursor-pointer">
+            <span class="flex items-center gap-1.5 min-w-0">
+              <i class="ph-bold ph-buildings text-amber-500 shrink-0"></i>
+              <span class="truncate">Facility Management</span>
+            </span>
+            <span class="flex items-center gap-1 shrink-0">
+              <span class="text-[8.5px] px-1.5 py-0.2 rounded font-extrabold bg-amber-100 text-amber-800">HRGA</span>
+              <i id="caret-nav-group-facility-hrga" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform duration-150"></i>
+            </span>
+          </button>
+          <div id="nav-group-facility-hrga" class="space-y-0.5 pl-1">
             <!-- SUB MODUL 1: BUILDING -->
-            <button type="button" onclick="navTo('view-gedung', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-left transition">
-              <span class="flex items-center gap-2.5"><i class="ph-bold ph-building-office text-base text-amber-500"></i> Building</span>
-              <span id="nav-badge-bldg" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold">422</span>
+            <button type="button" data-view="view-gedung" onclick="navTo('view-gedung', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer">
+              <span class="flex items-center gap-2 min-w-0"><i class="ph-bold ph-building-office text-sm text-amber-500 shrink-0"></i> <span class="truncate">Building (Gedung)</span></span>
+              <span id="nav-badge-bldg" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold shrink-0">422</span>
             </button>
 
             <!-- SUB MODUL 2: FACILITIES -->
-            <button type="button" onclick="navTo('view-assets', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-left transition">
-              <span class="flex items-center gap-2.5"><i class="ph-bold ph-armchair text-base text-emerald-600"></i> Facilities (Aset Fasilitas)</span>
-              <span id="nav-badge-asset" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold">15.778</span>
+            <button type="button" data-view="view-assets" onclick="navTo('view-assets', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer">
+              <span class="flex items-center gap-2 min-w-0"><i class="ph-bold ph-armchair text-sm text-emerald-600 shrink-0"></i> <span class="truncate">Facilities (Aset)</span></span>
+              <span id="nav-badge-asset" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-bold shrink-0">15.778</span>
             </button>
 
             <!-- SUB MODUL 3: INSPEKSI -->
-            <button type="button" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-left transition">
-              <i class="ph-bold ph-clipboard-text text-base text-emerald-500"></i> Inspeksi
+            <button type="button" data-view="view-inspeksi" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer">
+              <i class="ph-bold ph-clipboard-text text-sm text-emerald-500 shrink-0"></i>
+              <span class="truncate">Inspeksi Ruangan</span>
             </button>
 
             <!-- SUB MODUL 4: AVAILABILITY & PENGHUNI HUNIAN -->
-            <button type="button" onclick="navTo('view-penghuni', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-left transition" id="nav-btn-availability">
-              <span class="flex items-center gap-2.5"><i class="ph-bold ph-bed text-base text-indigo-500"></i> Availability Hunian</span>
-              <span id="nav-badge-penghuni" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold">409</span>
+            <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" id="nav-btn-availability">
+              <span class="flex items-center gap-2 min-w-0"><i class="ph-bold ph-bed text-sm text-indigo-500 shrink-0"></i> <span class="truncate">Availability Hunian</span></span>
+              <span id="nav-badge-penghuni" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold shrink-0">409</span>
             </button>
-            <button type="button" onclick="navTo('view-riwayat-inspeksi', this)" class="nav-btn w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-left transition">
-              <i class="ph-bold ph-clock-counter-clockwise text-base text-slate-500"></i> Riwayat Laporan Temuan
+
+            <!-- SUB MODUL 5: RIWAYAT TEMUAN -->
+            <button type="button" data-view="view-riwayat-inspeksi" onclick="navTo('view-riwayat-inspeksi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer">
+              <i class="ph-bold ph-clock-counter-clockwise text-sm text-slate-500 shrink-0"></i>
+              <span class="truncate">Riwayat Laporan Temuan</span>
             </button>
           </div>
         </div>
 
         <!-- MODUL 3: MAINTENANCE & WORK ORDER -->
         <div>
-          <div class="px-2 mb-2 text-[10px] font-bold tracking-wider text-emerald-600 uppercase flex items-center justify-between">
-            <span class="flex items-center gap-1.5"><i class="ph-bold ph-wrench text-emerald-500"></i> Maintenance &amp; Servis</span>
-            <span class="text-[9px] px-1.5 py-0.2 rounded font-extrabold bg-emerald-100 text-emerald-800">MTC</span>
-          </div>
-          <div class="space-y-1">
-            <button type="button" onclick="navTo('view-wo', this)" class="nav-btn w-full flex items-center justify-between px-3 py-2 rounded-lg text-slate-600 hover:bg-slate-100 text-left transition">
-              <span class="flex items-center gap-2.5"><i class="ph-bold ph-kanban text-base text-amber-500"></i> Work Order Kanban</span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-bold" id="sidebar-wo-count">15</span>
+          <button type="button" onclick="toggleNavModule('nav-group-mtc-wo')" class="w-full h-7 px-2 mb-1 flex items-center justify-between text-[10px] font-black tracking-wider text-emerald-600 uppercase rounded-lg hover:bg-emerald-50/60 transition-colors cursor-pointer">
+            <span class="flex items-center gap-1.5 min-w-0">
+              <i class="ph-bold ph-wrench text-emerald-500 shrink-0"></i>
+              <span class="truncate">Maintenance &amp; Servis</span>
+            </span>
+            <span class="flex items-center gap-1 shrink-0">
+              <span class="text-[8.5px] px-1.5 py-0.2 rounded font-extrabold bg-emerald-100 text-emerald-800">MTC</span>
+              <i id="caret-nav-group-mtc-wo" class="ph-bold ph-caret-down text-xs module-caret text-slate-400 transition-transform duration-150"></i>
+            </span>
+          </button>
+          <div id="nav-group-mtc-wo" class="space-y-0.5 pl-1">
+            <button type="button" data-view="view-wo" onclick="navTo('view-wo', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-600 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer">
+              <span class="flex items-center gap-2 min-w-0"><i class="ph-bold ph-kanban text-sm text-amber-500 shrink-0"></i> <span class="truncate">Work Order Kanban</span></span>
+              <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-100 text-amber-700 font-bold shrink-0" id="sidebar-wo-count">15</span>
             </button>
-            <button type="button" onclick="promptCreateWo()" class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg text-emerald-700 hover:bg-emerald-50 text-left transition font-semibold">
-              <i class="ph-bold ph-plus-circle text-base text-emerald-500"></i> + Buat Work Order Baru
+            <button type="button" onclick="promptCreateWo()" class="w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-emerald-700 hover:bg-emerald-50 text-left transition-colors font-bold text-xs cursor-pointer">
+              <i class="ph-bold ph-plus-circle text-sm text-emerald-500 shrink-0"></i>
+              <span class="truncate">+ Buat Work Order Baru</span>
             </button>
           </div>
         </div>
       </nav>
 
-      <!-- Sidebar User & Footer (Pratama GS Portal Style) -->
-      <div class="mt-auto border-t border-slate-200 bg-slate-50/60 p-3 space-y-2.5">
-        <div class="flex items-center gap-2.5 px-1 py-1">
+      <!-- Sidebar User & Footer (Fixed Shrink-0 at Bottom) -->
+      <div class="shrink-0 border-t border-slate-200 bg-slate-50/80 p-3 space-y-2">
+        <div class="flex items-center gap-2.5 px-1 py-0.5">
           <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs border border-emerald-200">
             M
           </div>
@@ -285,7 +317,7 @@
     </aside>
 
     <!-- CONTENT AREA -->
-    <main class="flex-1 h-full overflow-y-auto scrollbar-thin p-4 sm:p-6 space-y-6 bg-slate-50/70">
+    <main id="app-main-content" class="flex-1 h-full overflow-y-auto scrollbar-thin p-4 sm:p-6 space-y-6 bg-slate-50/70 min-w-0">
 
       <!-- ======================================================== -->
       <!-- VIEW: EXECUTIVE DASHBOARD -->
@@ -1552,16 +1584,336 @@
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
-                <tr class="bg-slate-50/95 border-b border-slate-200 text-slate-700 uppercase tracking-wider text-[11px] font-bold">
-                  <th class="py-3 px-3.5">Gedung &amp; Bangunan Fisik</th>
-                  <th class="py-3 px-3">Kategori &amp; Fungsi</th>
-                  <th class="py-3 px-3">Lokasi / Site</th>
-                  <th class="py-3 px-3">Penanggungjawab (PIC)</th>
-                  <th class="py-3 px-3">Kapasitas Ruang</th>
-                  <th class="py-3 px-3">Aset Terdaftar</th>
-                  <th class="py-3 px-3">Status Operasional</th>
-                  <th class="py-3 px-3 text-center">Aksi</th>
+                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold">
+                  <th class="py-2.5 px-3">Golongan / Kategori Aset</th>
+                  <th class="py-2.5 px-3">Unit Aset</th>
+                  <th class="py-2.5 px-3">Masa Manfaat</th>
+                  <th class="py-2.5 px-3 text-right">Nilai Perolehan (HPP)</th>
+                  <th class="py-2.5 px-3 text-right">Akum. Depresiasi</th>
+                  <th class="py-2.5 px-3 text-right">Nilai Buku (NBV)</th>
+                  <th class="py-2.5 px-3 text-center">Status Buku</th>
                 </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 font-mono" id="table-depresiasi-body">
+                <!-- Rendered dynamically -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- VIEW: PERUBAHAN LOKASI FISIK (Asset Management 1.2) -->
+      <!-- ======================================================== -->
+      <div id="view-asset-location" class="page-view hidden space-y-5">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">Asset Management &bull; Mutasi &amp; Siklus Aset</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <i class="ph-bold ph-map-pin text-blue-600"></i> Perubahan Lokasi Fisik Aset
+            </h2>
+            <p class="text-xs text-slate-500">Formulir pemindahan lokasi fisik aset antar gedung, mess, atau ruangan operasional.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <!-- Form Perubahan Lokasi -->
+          <div class="clean-card p-5 lg:col-span-1 space-y-4">
+            <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+              <i class="ph-bold ph-arrows-clockwise text-blue-600"></i> Form Relokasi Aset
+            </h3>
+            <form id="form-asset-relocation" onsubmit="event.preventDefault(); submitAssetLocation(event); return false;" class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Pilih No Aset / Inventaris</label>
+                <select id="loc-select-asset" onchange="onLocAssetSelected()" class="w-full p-2 rounded-lg border border-slate-200 bg-white font-mono text-xs focus:ring-2 focus:ring-blue-500/20" required>
+                  <option value="">-- Pilih Aset --</option>
+                </select>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1 text-[11px]">
+                <div class="text-slate-500">Lokasi Asal: <span id="loc-asal-bldg" class="font-bold text-slate-800">-</span></div>
+                <div class="text-slate-500">Ruangan Asal: <span id="loc-asal-room" class="font-bold text-slate-800">-</span></div>
+                <div class="text-slate-500">PIC Asal: <span id="loc-asal-pic" class="font-bold text-slate-800">-</span></div>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Gedung / Lokasi Tujuan</label>
+                <select id="loc-target-bldg" onchange="onLocTargetBldgChange()" class="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20" required>
+                  <option value="">-- Pilih Gedung Tujuan --</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Ruangan Tujuan</label>
+                <select id="loc-target-room" class="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20" required>
+                  <option value="">-- Pilih Ruangan Tujuan --</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">PIC Penerima / Baru</label>
+                <input type="text" id="loc-target-pic" placeholder="Nama PIC Penerima..." class="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20" required>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Alasan Relokasi</label>
+                <textarea id="loc-keterangan" rows="2" placeholder="Keperluan pemindahan..." class="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20" required></textarea>
+              </div>
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition cursor-pointer">
+                Simpan &amp; Perbarui Lokasi
+              </button>
+            </form>
+          </div>
+
+          <!-- Riwayat Relokasi -->
+          <div class="clean-card p-5 lg:col-span-2 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-clock-counter-clockwise text-blue-600"></i> Log Riwayat Perpindahan Lokasi
+              </h3>
+              <span class="text-[11px] text-slate-400">Sinkron Google Sheets</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold">
+                    <th class="py-2 px-3">Tanggal</th>
+                    <th class="py-2 px-3">No Aset</th>
+                    <th class="py-2 px-3">Nama Barang</th>
+                    <th class="py-2 px-3">Dari Lokasi</th>
+                    <th class="py-2 px-3">Ke Lokasi</th>
+                    <th class="py-2 px-3">Penerima</th>
+                  </tr>
+                </thead>
+                <tbody id="table-loc-history-body" class="divide-y divide-slate-100">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- VIEW: UPDATE KONDISI & STATUS ASET (Asset Management 1.2) -->
+      <!-- ======================================================== -->
+      <div id="view-asset-status" class="page-view hidden space-y-5">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+              <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">Asset Management &bull; Mutasi &amp; Siklus Aset</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <i class="ph-bold ph-check-circle text-blue-600"></i> Update Kondisi &amp; Status Operasional Aset
+            </h2>
+            <p class="text-xs text-slate-500">Pembaruan status operasional (Aktif, Idle, Rusak, Under Maintenance) dan kondisi fisik berkala.</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <div class="clean-card p-5 lg:col-span-1 space-y-4">
+            <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2 border-b border-slate-100 pb-2">
+              <i class="ph-bold ph-note-pencil text-blue-600"></i> Form Update Status
+            </h3>
+            <form id="form-asset-status" onsubmit="event.preventDefault(); submitAssetStatus(event); return false;" class="space-y-3 text-xs">
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Pilih No Aset</label>
+                <select id="status-select-asset" onchange="onStatusAssetSelected()" class="w-full p-2 rounded-lg border border-slate-200 bg-white font-mono text-xs focus:ring-2 focus:ring-blue-500/20" required>
+                  <option value="">-- Pilih Aset --</option>
+                </select>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 space-y-1 text-[11px]">
+                <div class="text-slate-500">Nama Aset: <span id="status-curr-name" class="font-bold text-slate-800">-</span></div>
+                <div class="text-slate-500">Kondisi Saat Ini: <span id="status-curr-cond" class="font-bold text-slate-800">-</span></div>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Kondisi Baru</label>
+                <select id="status-new-cond" class="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20" required>
+                  <option value="Baik">Baik (Normal Operasi)</option>
+                  <option value="Rusak Ringan">Rusak Ringan (Bisa Digunakan)</option>
+                  <option value="Rusak Berat">Rusak Berat (Tidak Berfungsi)</option>
+                  <option value="Hilang">Hilang (Selisih Sensus)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Status Operasional</label>
+                <select id="status-new-ops" class="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20" required>
+                  <option value="Aktif">Aktif Digunakan</option>
+                  <option value="Idle / Standby">Idle / Standby (Gudang)</option>
+                  <option value="Dalam Perbaikan">Dalam Perbaikan (MTC)</option>
+                  <option value="Diusulkan Afkir">Diusulkan Afkir</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-semibold text-slate-700 mb-1">Catatan Pemeriksaan</label>
+                <textarea id="status-notes" rows="2" placeholder="Keterangan fisik aset..." class="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs focus:ring-2 focus:ring-blue-500/20" required></textarea>
+              </div>
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-xs transition cursor-pointer">
+                Simpan Perubahan Status
+              </button>
+            </form>
+          </div>
+
+          <div class="clean-card p-5 lg:col-span-2 space-y-3">
+            <div class="flex justify-between items-center border-b border-slate-100 pb-2">
+              <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-clock-counter-clockwise text-blue-600"></i> Riwayat Perubahan Status &amp; Kondisi
+              </h3>
+              <span class="text-[11px] text-slate-400">Log Pemeliharaan</span>
+            </div>
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold">
+                    <th class="py-2 px-3">Tanggal</th>
+                    <th class="py-2 px-3">No Aset</th>
+                    <th class="py-2 px-3">Kondisi</th>
+                    <th class="py-2 px-3">Status</th>
+                    <th class="py-2 px-3">Pemeriksa</th>
+                    <th class="py-2 px-3">Catatan</th>
+                  </tr>
+                </thead>
+                <tbody id="table-status-history-body" class="divide-y divide-slate-100">
+                  <!-- Rendered dynamically -->
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ======================================================== -->
+      <!-- VIEW: DISPOSAL & PENGHAPUSAN ASET (Asset Management 1.2) -->
+      <!-- ======================================================== -->
+      <div id="view-asset-disposal" class="page-view hidden space-y-5">
+        <!-- Header -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="w-2 h-2 rounded-full bg-rose-500"></span>
+              <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">Asset Management &bull; Mutasi &amp; Siklus Aset</span>
+            </div>
+            <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
+              <i class="ph-bold ph-trash text-rose-600"></i> Berita Acara (BA) Disposal &amp; Penghapusan Aset
+            </h2>
+            <p class="text-xs text-slate-500">Pencatatan dan pengajuan Berita Acara (BA) penghapusan aktiva tetap berdasarkan Kode Aset fisik resmi PT Pratama Nusantara Sakti.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="exportDisposalArchiveCsv()" class="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 shadow-2xs transition flex items-center gap-1.5 cursor-pointer">
+              <i class="ph-bold ph-download-simple"></i> Ekspor Arsip BA (CSV)
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+          <!-- Form Pengajuan BA Disposal Berdasarkan Kode Aset -->
+          <div class="clean-card p-5 lg:col-span-1 space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+              <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                <i class="ph-bold ph-file-text text-rose-600"></i> Form BA Disposal Aset
+              </h3>
+              <span class="text-[10px] font-bold px-2 py-0.5 rounded bg-rose-50 text-rose-700 border border-rose-200">KODE ASET</span>
+            </div>
+
+            <form id="form-asset-disposal" onsubmit="event.preventDefault(); submitAssetDisposal(event); return false;" class="space-y-3.5 text-xs">
+              <!-- INPUT KODE ASET (Searchable / Datalist) -->
+              <div>
+                <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Pilih / Ketik Kode Aset (No Aset)</span>
+                  <span class="text-[10px] font-normal text-slate-400">Pencarian Otomatis</span>
+                </label>
+                <div class="relative">
+                  <i class="ph-bold ph-barcode absolute left-3 top-2.5 text-slate-400 text-sm"></i>
+                  <input type="text" id="disp-input-kode" list="disp-asset-datalist" oninput="onDispAssetCodeInput(this.value)" placeholder="Contoh: AST-2024-0012, PNS-FAC..." class="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-200 bg-white font-mono text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500" required>
+                  <datalist id="disp-asset-datalist">
+                    <!-- Populated dynamically via JS -->
+                  </datalist>
+                </div>
+                <p class="text-[10px] text-slate-400 mt-1">Ketik kode aset atau pilih dari 34.266 inventaris terdaftar.</p>
+              </div>
+
+              <!-- CARD DETAIL ASET TERPILIH (Auto-populated berdasarkan Kode Aset) -->
+              <div id="disp-asset-detail-card" class="p-3 rounded-xl bg-slate-50 border border-slate-200 space-y-2 text-[11px]">
+                <div class="flex justify-between items-center border-b border-slate-200/60 pb-1.5">
+                  <span class="font-bold text-slate-500 uppercase text-[10px]">Identitas Fisik Aset Terpilih</span>
+                  <span id="disp-detail-status-badge" class="px-2 py-0.5 rounded text-[9px] font-bold bg-slate-200 text-slate-700">Belum Dipilih</span>
+                </div>
+                <div class="space-y-1">
+                  <div class="text-slate-500">Kode Aset: <span id="disp-card-kode" class="font-mono font-bold text-sky-700">-</span></div>
+                  <div class="text-slate-500">Nama Barang: <span id="disp-card-nama" class="font-bold text-slate-900">-</span></div>
+                  <div class="text-slate-500">Lokasi / Gedung: <span id="disp-card-lokasi" class="font-semibold text-slate-700">-</span></div>
+                  <div class="text-slate-500">Kondisi Fisik: <span id="disp-card-kondisi" class="font-bold text-slate-800">-</span></div>
+                  <div class="text-slate-500">Nilai Perolehan / Buku: <span id="disp-card-nbv" class="font-mono font-bold text-slate-900">-</span></div>
+                </div>
+              </div>
+
+              <!-- NOMOR BERITA ACARA (BA) -->
+              <div>
+                <label class="block font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Nomor Berita Acara (BA)</span>
+                  <span class="text-[10px] font-normal text-emerald-600">Auto-Generated</span>
+                </label>
+                <input type="text" id="disp-no-ba" class="w-full p-2 rounded-lg border border-slate-200 bg-slate-50 font-mono text-xs font-bold text-rose-700" required>
+              </div>
+
+              <!-- METODE PENGHAPUSAN -->
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Metode Penghapusan Aset</label>
+                <select id="disp-method" class="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs font-semibold text-slate-800 focus:outline-none focus:ring-2 focus:ring-rose-500/20" required>
+                  <option value="Afkir / Scrap (Besi Tua / Daur Ulang)">Afkir / Scrap (Besi Tua / Daur Ulang)</option>
+                  <option value="Pemusnahan (Rusak Berat / Total Loss)">Pemusnahan (Rusak Berat / Total Loss)</option>
+                  <option value="Penjualan Lelang Karyawan / Umum">Penjualan Lelang Karyawan / Umum</option>
+                  <option value="Penghapusan Selisih Sensus (Hilang)">Penghapusan Selisih Sensus (Hilang)</option>
+                  <option value="Hibah / Transfer Sosial">Hibah / Transfer Sosial</option>
+                </select>
+              </div>
+
+              <!-- NILAI SISA / HASIL LELANG -->
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Taksiran Nilai Sisa / Realisasi Jual (Rp)</label>
+                <input type="number" id="disp-nilai-sisa" value="0" min="0" step="1000" class="w-full p-2 rounded-lg border border-slate-200 bg-white font-mono text-xs text-slate-800" required>
+                <span class="text-[10px] text-slate-400 mt-0.5 block">Isi 0 jika dimusnahkan atau diafkirkan tanpa nilai ekonomis.</span>
+              </div>
+
+              <!-- JUSTIFIKASI TEKNIS -->
+              <div>
+                <label class="block font-bold text-slate-700 mb-1">Alasan Disposal &amp; Justifikasi Teknis</label>
+                <textarea id="disp-justifikasi" rows="2" placeholder="Uraikan kondisi fisik, riwayat kerusakan, dan pertimbangan teknis..." class="w-full p-2 rounded-lg border border-slate-200 bg-white text-xs" required></textarea>
+              </div>
+
+              <button type="submit" class="w-full py-2.5 px-4 rounded-lg bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs shadow-xs transition flex items-center justify-center gap-2 cursor-pointer">
+                <i class="ph-bold ph-stamp"></i> Terbitkan Berita Acara Disposal
+              </button>
+            </form>
+          </div>
+
+          <!-- Tabel Arsip Berita Acara Disposal Aset -->
+          <div class="clean-card p-5 lg:col-span-2 space-y-3">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-slate-100 pb-2">
+              <div>
+                <h3 class="font-bold text-sm text-slate-900 flex items-center gap-2">
+                  <i class="ph-bold ph-archive text-rose-600"></i> Arsip Berita Acara (BA) Disposal Aset
+                </h3>
+                <p class="text-[11px] text-slate-400">Daftar aset yang telah diajukan dan diproses penghapusannya berdasarkan Kode Aset resmi.</p>
+              </div>
+              <div class="relative w-full sm:w-56">
+                <i class="ph-bold ph-magnifying-glass absolute left-2.5 top-2 text-slate-400 text-xs"></i>
+                <input type="text" id="search-disp-ba" oninput="onSearchDisposalBa(this.value)" placeholder="Cari No BA / Kode Aset..." class="w-full pl-7 pr-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-slate-800 focus:outline-none">
+              </div>
+            </div>
+
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse text-xs">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold text-[11px]">
+                    <th class="py-2.5 px-3">No Berita Acara</th>
+                    <th class="py-2.5 px-3">Kode Aset</th>
+                    <th class="py-2.5 px-3">Nama Barang</th>
+                    <th class="py-2.5 px-3">Lokasi / Gedung</th>
+                    <th class="py-2.5 px-3">Metode</th>
+                    <th class="py-2.5 px-3 text-right">Nilai Sisa</th>
+                    <th class="py-2.5 px-3 text-center">Status BA</th>
+                    <th class="py-2.5 px-3 text-center">Aksi</th>
+                  </tr>
                 </thead>
                 <tbody id="table-disp-history-body" class="divide-y divide-slate-100">
                   <!-- Rendered dynamically -->
@@ -1574,7 +1926,7 @@
 
       
       <!-- ======================================================== -->
-      <!-- VIEW: MASTER GEDUNG / BUILDING -->
+            <!-- VIEW: MASTER GEDUNG / BUILDING -->
       <!-- ======================================================== -->
       <div id="view-gedung" class="page-view hidden space-y-4">
         <!-- Header & Action -->
@@ -1686,16 +2038,15 @@
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
               <thead>
-                <tr class="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold">
-                  <th class="py-2.5 px-3">Kode Gedung</th>
-                  <th class="py-2.5 px-3">Nama Bangunan</th>
-                  <th class="py-2.5 px-3">Kategori</th>
-                  <th class="py-2.5 px-3">Lokasi / Site</th>
-                  <th class="py-2.5 px-3">Penanggungjawab (PIC)</th>
-                  <th class="py-2.5 px-3">Kapasitas Ruang</th>
-                  <th class="py-2.5 px-3">Aset Terdaftar</th>
-                  <th class="py-2.5 px-3">Status</th>
-                  <th class="py-2.5 px-3 text-center">Aksi</th>
+                <tr class="bg-slate-50/95 border-b border-slate-200 text-slate-700 uppercase tracking-wider text-[11px] font-bold">
+                  <th class="py-3 px-3.5">Gedung &amp; Bangunan Fisik</th>
+                  <th class="py-3 px-3">Kategori &amp; Fungsi</th>
+                  <th class="py-3 px-3">Lokasi / Site</th>
+                  <th class="py-3 px-3">Penanggungjawab (PIC)</th>
+                  <th class="py-3 px-3">Kapasitas Ruang</th>
+                  <th class="py-3 px-3">Aset Terdaftar</th>
+                  <th class="py-3 px-3">Status Operasional</th>
+                  <th class="py-3 px-3 text-center">Aksi</th>
                 </tr>
               </thead>
               <tbody id="table-bldg-body" class="divide-y divide-slate-100">

@@ -1101,25 +1101,41 @@ const PNS_SECTION_TO_DEPT = {
   // ==========================================
   // NAVIGATION & THEME CONTROLLER
   // ==========================================
-    function syncTopPills(viewId) {
+  function syncTopPills(viewId) {
     const pillHrga = document.getElementById('top-pill-hrga');
     const pillAll = document.getElementById('top-pill-all');
     const pillWo = document.getElementById('top-pill-wo');
 
     const resetPill = (el) => {
-      if (el) el.className = 'top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700  hover:bg-white :bg-slate-700 shadow-2xs cursor-pointer';
+      if (el) el.className = 'top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 hover:bg-white shadow-2xs cursor-pointer';
     };
     const activePill = (el) => {
-      if (el) el.className = 'top-nav-pill active px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white  text-slate-900  shadow-xs cursor-pointer ring-1 ring-slate-200 ';
+      if (el) el.className = 'top-nav-pill active px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-900 shadow-xs cursor-pointer ring-1 ring-slate-200';
     };
 
     resetPill(pillHrga);
     resetPill(pillAll);
     resetPill(pillWo);
 
+    const assetManagementViews = new Set([
+      'view-dashboard',
+      'view-portfolio-all',
+      'view-portfolio',
+      'view-asset-sebaran',
+      'view-asset-movement',
+      'view-asset-detail-drill',
+      'view-asset-depreciation',
+      'view-reg-asset',
+      'view-mutasi',
+      'view-asset-location',
+      'view-asset-status',
+      'view-validasi',
+      'view-asset-disposal'
+    ]);
+
     if (viewId === 'view-wo') {
       activePill(pillWo);
-    } else if (viewId === 'view-portfolio-all' || viewId === 'view-portfolio' || viewId === 'view-dashboard') {
+    } else if (assetManagementViews.has(viewId)) {
       activePill(pillAll);
     } else {
       activePill(pillHrga);
@@ -1133,33 +1149,66 @@ const PNS_SECTION_TO_DEPT = {
   function navTo(viewId, btnEl) {
     if (viewId === 'view-asset-3') viewId = 'view-portfolio-all';
     if (viewId === 'view-asset-1') viewId = 'view-portfolio';
+    if (viewId === 'view-asset-2') viewId = 'view-asset-sebaran';
+    if (viewId === 'view-trx-asset-register') viewId = 'view-reg-asset';
+    if (viewId === 'view-trx-asset-mutation') viewId = 'view-mutasi';
+    if (viewId === 'view-trx-asset-location') viewId = 'view-asset-location';
+    if (viewId === 'view-trx-asset-status') viewId = 'view-asset-status';
+    if (viewId === 'view-asset-validation') viewId = 'view-validasi';
+    if (viewId === 'view-trx-asset-disposal') viewId = 'view-asset-disposal';
+
+    // Preserve sidebar scroll position so sidebar never jumps
+    const navScroll = document.getElementById('sidebar-nav-scroll');
+    const savedSidebarScroll = navScroll ? navScroll.scrollTop : 0;
+
     document.querySelectorAll('.page-view').forEach(el => el.classList.add('hidden'));
     const target = document.getElementById(viewId);
     if (target) target.classList.remove('hidden');
 
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    if (btnEl) {
-      btnEl.classList.add('active');
-    } else {
-      const matched = document.querySelector(`.nav-btn[onclick*="${viewId}"]`);
-      if (matched) matched.classList.add('active');
+    const activeBtn = (btnEl && btnEl.classList && btnEl.classList.contains('nav-btn'))
+      ? btnEl
+      : (document.querySelector(`.nav-btn[data-view="${viewId}"]`) || document.querySelector(`.nav-btn[onclick*="'${viewId}'"]`));
+
+    if (activeBtn) {
+      activeBtn.classList.add('active');
+      // Ensure parent accordion module is open so active item is never hidden
+      const parentGroup = activeBtn.closest('[id^="nav-group-"]');
+      if (parentGroup && parentGroup.classList.contains('hidden')) {
+        parentGroup.classList.remove('hidden');
+        const caret = document.getElementById('caret-' + parentGroup.id);
+        if (caret) caret.classList.remove('-rotate-90', 'rotate-180');
+      }
     }
+
+    if (navScroll) {
+      navScroll.scrollTop = savedSidebarScroll;
+    }
+
     appState.currentView = viewId;
     syncTopPills(viewId);
 
-    // Close mobile drawer immediately
-    const sb = document.getElementById('app-sidebar');
-    if (sb) {
-      sb.classList.add('-translate-x-full');
+    // Close drawer ONLY on mobile screens (< 768px) so desktop sidebar never disappears
+    if (typeof window !== 'undefined' && window.innerWidth < 768) {
+      if (typeof window.toggleSidebar === 'function') {
+        window.toggleSidebar(false);
+      } else {
+        const sb = document.getElementById('app-sidebar');
+        if (sb) sb.classList.add('-translate-x-full');
+      }
     }
 
-    // Scroll to top for seamless mobile view transition
-    if (typeof window !== 'undefined') {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+    // Scroll main content container to top without disturbing sidebar
+    const mainEl = document.getElementById('app-main-content');
+    if (mainEl) {
+      mainEl.scrollTop = 0;
     }
 
     try {
-      if (viewId === 'view-wo') {
+      if (viewId === 'view-dashboard') {
+        renderDashboardCharts();
+        renderPortfolioSites();
+      } else if (viewId === 'view-wo') {
         renderWorkOrdersKanban();
       } else if (viewId === 'view-portfolio-all') {
         renderAllAssetsTable();
@@ -1175,6 +1224,14 @@ const PNS_SECTION_TO_DEPT = {
       } else if (viewId === 'view-assets') {
         updateFacilitiesKpi();
         renderAssetsTable();
+      } else if (viewId === 'view-inspeksi') {
+        initInspectionFormDropdowns();
+      } else if (viewId === 'view-riwayat-inspeksi') {
+        renderHistoryTable();
+      } else if (viewId === 'view-reg-asset') {
+        if (typeof loadRegRooms === 'function') loadRegRooms();
+      } else if (viewId === 'view-mutasi') {
+        if (typeof loadMutRooms === 'function') loadMutRooms();
       } else if (viewId === 'view-asset-sebaran') {
         renderAssetSebaran();
       } else if (viewId === 'view-asset-detail-drill') {
@@ -1242,14 +1299,13 @@ const PNS_SECTION_TO_DEPT = {
   }
 
   function initNavigation() {
-    const toggleBtn = document.getElementById('btn-toggle-sidebar');
-    if (toggleBtn) {
-      toggleBtn.addEventListener('click', () => {
-        document.getElementById('app-sidebar').classList.toggle('-translate-x-full');
-      });
-    }
     document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeDetailModal();
+      if (e.key === 'Escape') {
+        closeDetailModal();
+        if (typeof window !== 'undefined' && window.innerWidth < 768 && typeof window.toggleSidebar === 'function') {
+          window.toggleSidebar(false);
+        }
+      }
     });
   }
 
@@ -1399,14 +1455,17 @@ const PNS_SECTION_TO_DEPT = {
     const el = document.getElementById(groupId);
     const caret = document.getElementById('caret-' + groupId);
     if (!el) return;
+    const navScroll = document.getElementById('sidebar-nav-scroll');
+    const savedScroll = navScroll ? navScroll.scrollTop : 0;
     const isHidden = el.classList.contains('hidden');
     if (isHidden) {
       el.classList.remove('hidden');
-      if (caret) caret.classList.add('rotate-180');
+      if (caret) caret.classList.remove('-rotate-90', 'rotate-180');
     } else {
       el.classList.add('hidden');
-      if (caret) caret.classList.remove('rotate-180');
+      if (caret) caret.classList.add('-rotate-90');
     }
+    if (navScroll) navScroll.scrollTop = savedScroll;
   }
 
 
@@ -1423,19 +1482,7 @@ const PNS_SECTION_TO_DEPT = {
     if (mode === 'table') {
       if (tableContainer) tableContainer.classList.remove('hidden');
       if (cardsContainer) cardsContainer.classList.add('hidden');
-      const btnMov = document.getElementById('pbi-ctx-btn-movement');
-    if (btnMov) {
-      btnMov.onclick = () => {
-        hidePbiDrillContextMenu();
-        openAssetMovementView({
-          location: opts.location || 'ALL',
-          kondisi: opts.kondisi || 'ALL',
-          sourceView: opts.sourceView || 'view-portfolio'
-        });
-      };
-    }
-
-    if (btnTable) {
+      if (btnTable) {
         btnTable.className = 'px-3 py-1.5 rounded-md bg-white text-slate-900 shadow-2xs transition flex items-center gap-1.5 cursor-pointer';
       }
       if (btnGrid) {
@@ -2714,7 +2761,7 @@ const PNS_SECTION_TO_DEPT = {
     expandedCategories: new Set()
   };
 
-  function openAssetDrillThrough(opts = {}) {
+  function openAssetDrillThrough(opts = {}, btnEl = null) {
     hidePbiDrillContextMenu();
     dtDrillState.sourceView = opts.sourceView || (appState.currentView && appState.currentView !== 'view-asset-detail-drill' ? appState.currentView : 'view-portfolio');
     dtDrillState.location = opts.location || 'ALL';
@@ -2736,7 +2783,7 @@ const PNS_SECTION_TO_DEPT = {
     if (sGroup) sGroup.value = dtDrillState.group || 'ALL';
     if (sCat) sCat.value = dtDrillState.category || 'ALL';
 
-    navTo('view-asset-detail-drill');
+    navTo('view-asset-detail-drill', btnEl);
   }
 
   function closeAssetDrillThrough() {
@@ -3253,6 +3300,18 @@ const PNS_SECTION_TO_DEPT = {
       } else {
         btnExpand.classList.add('hidden');
       }
+    }
+
+    const btnMov = document.getElementById('pbi-ctx-btn-movement');
+    if (btnMov) {
+      btnMov.onclick = () => {
+        hidePbiDrillContextMenu();
+        openAssetMovementView({
+          location: opts.location || 'ALL',
+          kondisi: opts.kondisi || 'ALL',
+          sourceView: opts.sourceView || 'view-portfolio'
+        });
+      };
     }
 
     if (btnTable) {

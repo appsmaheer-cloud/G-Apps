@@ -110,12 +110,13 @@ td.font-mono,
   font-variant-numeric: tabular-nums;
 }
 
-/* Active Navigation State - Pratama NS General Services Style */
+/* Active Navigation State - Pratama NS General Services Style (Zero Layout Shift) */
 .nav-btn {
   color: #475569; /* slate-600 */
-  font-weight: 500;
+  font-weight: 600;
   border-radius: 0.5rem;
-  transition: all 0.15s ease;
+  box-shadow: inset -3px 0 0 transparent;
+  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .nav-btn:hover {
@@ -126,8 +127,8 @@ td.font-mono,
 .nav-btn.active {
   background-color: #ECFDF5 !important; /* emerald-50 */
   color: #065F46 !important;            /* emerald-800 */
-  font-weight: 700 !important;
-  border-right: 3px solid #059669 !important; /* emerald-600 accent bar */
+  font-weight: 600 !important;
+  box-shadow: inset -3px 0 0 #059669 !important; /* emerald-600 accent bar without box width shift */
 }
 
 .nav-btn.active i {
