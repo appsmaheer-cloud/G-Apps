@@ -181,7 +181,7 @@
               <i class="ph ph-seal-check text-base text-sky-600 shrink-0"></i>
               <span class="truncate text-slate-800">Laporan Hasil Validasi</span>
             </span>
-            <span class="text-[10px] text-sky-700 font-medium px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200/80 shrink-0">34.266</span>
+            <span class="text-[10px] text-sky-700 font-medium px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200/80 shrink-0">34.254</span>
           </button>
         </div>
 
@@ -694,8 +694,8 @@
               <button type="button" id="btn-segment-asset-master" onclick="window.setAssetCatalogSegment('MASTER')" class="px-3 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 transition cursor-pointer" title="Aset Fisik Master Terdaftar di Google Sheets">
                 Tercatat Master (34.266)
               </button>
-              <button type="button" id="btn-segment-asset-bc" onclick="window.setAssetCatalogSegment('BELUM_CHECKOUT')" class="px-3 py-1 rounded-lg text-xs font-medium text-amber-700 hover:text-amber-900 transition cursor-pointer flex items-center gap-1" title="Aset Terverifikasi dari Web API yang Belum Checkout">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Belum Checkout (574)
+              <button type="button" id="btn-segment-asset-bc" onclick="window.setAssetCatalogSegment('BELUM_CHECKOUT')" class="px-3 py-1 rounded-lg text-xs font-medium text-amber-700 hover:text-amber-900 transition cursor-pointer flex items-center gap-1" title="Aset yang Belum Checkout / Belum Selesai Validasi">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Belum Validasi / Checkout (586)
               </button>
             </div>
           </div>
@@ -2737,18 +2737,18 @@
             <div class="flex items-center gap-2 mb-1">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
               <span class="text-xs font-medium text-slate-500">Rekonsiliasi &amp; Opname Fisik Lapangan</span>
-              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Master 34.266 Unit</span>
+              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Hasil Validasi 34.254 Unit</span>
             </div>
             <h2 class="text-xl sm:text-2xl font-semibold text-slate-800 tracking-tight flex items-center gap-2">
               <i class="ph ph-seal-check text-sky-600"></i> Laporan Hasil Validasi Aset
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Hasil rekonsiliasi fisik vs master akuntansi (34.266 aset master), verifikasi lapangan, serta pemetaan kondisi dan nilai perolehan.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Ringkasan hasil validasi fisik lapangan: 34.159 unit sesuai alokasi, 95 unit selisih fisik. Aset belum validasi/checkout dialihkan ke Master Katalog Aset.</p>
           </div>
 
           <!-- Dual Tab Switcher -->
           <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shrink-0 shadow-inner">
             <button type="button" id="tab-btn-validasi-rekon" onclick="switchValidasiTab('rekon')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-white text-slate-800 shadow-xs border border-slate-200 cursor-pointer">
-              <i class="ph ph-chart-line-up text-sky-600"></i> Laporan Hasil Validasi (34.266)
+              <i class="ph ph-chart-line-up text-sky-600"></i> Laporan Hasil Validasi (34.254)
             </button>
             <button type="button" id="tab-btn-validasi-perf" onclick="switchValidasiTab('perf')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 text-slate-500 hover:text-slate-800 cursor-pointer">
               <i class="ph ph-pulse text-emerald-600"></i> Performance Kondisi &amp; Departemen
@@ -2800,8 +2800,8 @@
           </div>
 
           <div class="flex items-center gap-2">
-            <button type="button" onclick="syncAllFromBackend(true)" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-semibold flex items-center gap-1.5 transition cursor-pointer" title="Sinkronisasi Data Real-Time">
-              <i class="ph-bold ph-arrows-clockwise text-sky-600"></i> Sync API
+            <button type="button" onclick="triggerApiPullAndCompare()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium flex items-center gap-1.5 transition cursor-pointer" title="Tarik Data API &amp; Komparasi Otomatis dengan Sheet Asset">
+              <i class="ph-bold ph-cloud-arrow-down text-sky-600"></i> Tarik &amp; Compare API
             </button>
             <button type="button" onclick="exportValidasiReportXlsx()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1.5 shadow-xs transition cursor-pointer" title="Download Excel Laporan Validasi Lengkap">
               <i class="ph-bold ph-microsoft-excel-logo text-white"></i> Export Excel
@@ -2817,8 +2817,8 @@
           <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
             <div class="clean-card p-3.5 border-l-4 border-l-sky-500">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">TOTAL ASSET</div>
-              <div class="text-xl sm:text-2xl font-semibold text-slate-800 mt-1 num-tabular" id="val-kpi-total">34.266</div>
-              <div class="text-[10px] text-sky-600 font-semibold mt-0.5">34.266 Master Aset Fisik</div>
+              <div class="text-xl sm:text-2xl font-semibold text-slate-800 mt-1 num-tabular" id="val-kpi-total">34.254</div>
+              <div class="text-[10px] text-sky-600 font-medium mt-0.5">34.159 Sesuai + 95 Selisih</div>
             </div>
             <div class="clean-card p-3.5 border-l-4 border-l-indigo-500">
               <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ACQUISITION (HPP)</div>
@@ -2893,15 +2893,12 @@
                 <!-- Belum Verifikasi -->
                 <div class="space-y-1">
                   <div class="flex justify-between items-center text-xs">
-                    <span class="font-bold text-amber-700 flex items-center gap-1.5">
-                      <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> BELUM VERIFIKASI / PENDING
+                    <span class="font-medium text-slate-500 flex items-center gap-1.5">
+                      <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span> ASET BELUM DIVALIDASI
                     </span>
-                    <span class="font-semibold text-slate-600 num-tabular" id="val-card-belum">12 (0,03%)</span>
+                    <span class="font-medium text-slate-500 num-tabular" id="val-card-belum">Dialihkan ke All Asset</span>
                   </div>
-                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div class="bg-slate-400 h-2 rounded-full" style="width: 0.03%"></div>
-                  </div>
-                  <div class="text-[10px] text-slate-400">Item aset master yang sedang dalam antrean verifikasi fisik</div>
+                  <div class="text-[10px] text-slate-400">586 unit aset yang belum divalidasi/checkout kini dimuat lengkap di menu Master Katalog Aset (All Asset).</div>
                 </div>
               </div>
 
@@ -2924,9 +2921,9 @@
                       <td class="py-2 text-right num-tabular font-black text-slate-900 pl-3">12.618</td>
                     </tr>
                     <tr class="font-semibold bg-slate-50 text-slate-800">
-                      <td class="py-2 pl-2">Total Portofolio Master</td>
+                      <td class="py-2 pl-2">Total Hasil Validasi</td>
                       <td class="py-2 text-right num-tabular text-emerald-700">100%</td>
-                      <td class="py-2 text-right num-tabular pl-3 pr-2">34.266</td>
+                      <td class="py-2 text-right num-tabular pl-3 pr-2">34.254</td>
                     </tr>
                   </tbody>
                 </table>

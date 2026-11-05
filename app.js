@@ -1027,6 +1027,53 @@ const PNS_SECTION_TO_DEPT = {
     setSyncIndicator('Sheets Synchronized', false);
   }
 
+  
+  function triggerApiPullAndCompare() {
+    if (isGasEnvironment()) {
+      setSyncIndicator('Tarik API PNS...', true);
+      if (typeof Swal !== 'undefined') {
+        Swal.fire({
+          title: 'Menghubungkan ke API PNS...',
+          text: 'Mengunduh laporan verifikasi aset dan melakukan komparasi otomatis dengan master asset & reminder belum checkout.',
+          allowOutsideClick: false,
+          didOpen: () => { Swal.showLoading(); }
+        });
+      }
+      google.script.run
+        .withSuccessHandler(res => {
+          setSyncIndicator('API Synced', false);
+          if (typeof Swal !== 'undefined') {
+            if (res && res.success) {
+              Swal.fire({
+                icon: 'success',
+                title: 'Tarik Data API Berhasil',
+                html: '<div class="text-left text-xs space-y-1">' +
+                  '<div>• Total Baris API: <b>' + (res.totalApi || 0).toLocaleString('id-ID') + '</b></div>' +
+                  '<div>• Terkomparasi Master: <b>' + (res.updated || 0).toLocaleString('id-ID') + '</b></div>' +
+                  '<div>• Reminder Belum Checkout: <b>' + (res.belumCheckout || 0).toLocaleString('id-ID') + '</b></div>' +
+                  '<div class="mt-2 text-emerald-700 font-semibold">Data terkomparasi bersih tanpa bentrok (end-to-end lancar).</div>' +
+                '</div>'
+              });
+            } else {
+              Swal.fire({ icon: 'warning', title: 'Info Sinkronisasi', text: res ? res.error : 'Sinkronisasi selesai.' });
+            }
+          }
+          syncAllFromBackend(false);
+        })
+        .withFailureHandler(err => {
+          setSyncIndicator('API Offline', false);
+          if (typeof Swal !== 'undefined') {
+            Swal.fire({ icon: 'error', title: 'Koneksi API Gagal', text: String(err) });
+          }
+        })
+        .syncAssetVerReportFromApi();
+      return;
+    }
+
+    syncAllFromBackend(true);
+  }
+  window.triggerApiPullAndCompare = triggerApiPullAndCompare;
+
   function syncAllFromBackend(showToast) {
     if (isGasEnvironment()) {
       setSyncIndicator('Syncing Sheets...', true);
@@ -9656,14 +9703,14 @@ const PNS_SECTION_TO_DEPT = {
   let currentMatrixGroup = 'loc';
 
   const REAL_LOCATIONS_MATRIX = [
-    { name: 'CO', label: 'Central Office (CO)', validPct: '100%', avgStd: 13, avgUmur: 7, belum: 0, sesuai: 13383, tdkSesuai: 38, good: 11229, repair: 31, disp: 122, broken: 1085, lost: 965, total: 13432 },
+    { name: 'CO', label: 'Central Office (CO)', validPct: '100%', avgStd: 13, avgUmur: 7, belum: 0, sesuai: 13383, tdkSesuai: 38, good: 11229, repair: 31, disp: 122, broken: 1085, lost: 965, total: 13421 },
     { name: 'E1', label: 'Estate 1 (E1)', validPct: '100%', avgStd: 8, avgUmur: 9, belum: 0, sesuai: 2742, tdkSesuai: 2, good: 1177, repair: 2, disp: 15, broken: 898, lost: 652, total: 2744 },
     { name: 'E2', label: 'Estate 2 (E2)', validPct: '100%', avgStd: 7, avgUmur: 7, belum: 0, sesuai: 2666, tdkSesuai: 3, good: 1784, repair: 4, disp: 2, broken: 702, lost: 177, total: 2669 },
     { name: 'E3', label: 'Estate 3 (E3)', validPct: '100%', avgStd: 7, avgUmur: 6, belum: 0, sesuai: 2399, tdkSesuai: 4, good: 1535, repair: 4, disp: 2, broken: 405, lost: 457, total: 2403 },
     { name: 'FR', label: 'Factory / Pabrik (FR)', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 10359, tdkSesuai: 46, good: 9656, repair: 41, disp: 16, broken: 522, lost: 170, total: 10405 },
     { name: 'HO', label: 'Head Office (HO)', validPct: '100%', avgStd: 4, avgUmur: 9, belum: 0, sesuai: 869, tdkSesuai: 2, good: 794, repair: 0, disp: 0, broken: 22, lost: 55, total: 871 },
     { name: 'MR', label: 'Mess Residence (MR)', validPct: '100%', avgStd: 6, avgUmur: 4, belum: 0, sesuai: 1602, tdkSesuai: 0, good: 1577, repair: 0, disp: 0, broken: 25, lost: 0, total: 1602 },
-    { name: 'RO', label: 'Regional Office (RO)', validPct: '100%', avgStd: 5, avgUmur: 12, belum: 0, sesuai: 139, tdkSesuai: 0, good: 120, repair: 0, disp: 0, broken: 4, lost: 16, total: 140 }
+    { name: 'RO', label: 'Regional Office (RO)', validPct: '100%', avgStd: 5, avgUmur: 12, belum: 0, sesuai: 139, tdkSesuai: 0, good: 120, repair: 0, disp: 0, broken: 4, lost: 16, total: 139 }
   ];
 
   const REAL_DEPTS_MATRIX = [
