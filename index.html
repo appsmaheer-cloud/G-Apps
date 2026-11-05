@@ -226,6 +226,7 @@
             <span class="flex items-center gap-1.5"><i class="ph ph-folder text-xs"></i> Mutasi &amp; Siklus Aset</span>
             <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
           </button>
+          <div id="nav-group-mutasi" class="space-y-1">
           <button type="button" data-view="view-reg-asset" onclick="navTo('view-reg-asset', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Form Register Aset Baru">
             <i class="ph ph-plus-circle text-base text-blue-600 shrink-0"></i>
             <span class="truncate">Register Aset Baru</span>
@@ -246,6 +247,7 @@
             <i class="ph ph-trash text-base text-rose-500 shrink-0"></i>
             <span class="truncate">Disposal &amp; Penghapusan</span>
           </button>
+          </div>
         </div>
 
         <!-- 4. FASILITAS & GEDUNG (HRGA) -->
@@ -2487,212 +2489,401 @@
         </div>
       </div>
 
-      <div id="view-inspeksi" class="page-view hidden space-y-5">
-        <!-- Form Header -->
-        <div class="clean-card p-5">
-          <h2 class="text-xl font-bold text-slate-900">Formulir Sensus &amp; Audit Fisik Fasilitas Bangunan</h2>
-          <p class="text-xs text-slate-500 mt-1">
-            Alur 5 langkah pemeriksaan fisik ruangan, verifikasi inventaris kamar/mess, dan pencatatan temuan langsung ke Google Sheets.
-          </p>
-        </div>
+            <!-- ======================================================== -->
+      <!-- VIEW: INSPEKSI FISIK ENTERPRISE (KANTOR, FASILITAS UMUM, HUNIAN) -->
+      <!-- ======================================================== -->
+      <div id="view-inspeksi" class="page-view hidden space-y-6">
 
-        <!-- Step 1 & 2: Pilih Gedung & Ruangan -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <!-- Step 1: Gedung -->
-          <div class="clean-card p-4 space-y-3">
-            <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">1</span>
-              <label for="insp-gedung" class="font-bold text-xs text-slate-900 uppercase tracking-wider">Pilih Gedung / Bangunan</label>
+        <!-- Header Card Enterprise -->
+        <div class="clean-card p-5 border-l-4 border-l-sky-600 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold tracking-wider uppercase bg-sky-100 text-sky-800">Enterprise Facility Audit</span>
+              <span class="text-xs text-slate-400">• Standard K3 &amp; PSAK Asset</span>
             </div>
-            <!-- Category Slicer Buttons (Hunian, Bangunan Kantor, Gudang & Fasilitas) -->
-            <div class="flex items-center gap-1.5 flex-wrap">
-              <button type="button" onclick="setInspBldgCategory('ALL', this)" id="cat-btn-all" class="insp-cat-btn active px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-900 text-white transition cursor-pointer shadow-xs">
-                Semua (416)
-              </button>
-              <button type="button" onclick="setInspBldgCategory('HUNIAN', this)" id="cat-btn-hunian" class="insp-cat-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer">
-                🏡 Hunian / Mess (113)
-              </button>
-              <button type="button" onclick="setInspBldgCategory('KANTOR', this)" id="cat-btn-kantor" class="insp-cat-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer">
-                🏢 Bangunan Kantor (21)
-              </button>
-              <button type="button" onclick="setInspBldgCategory('GUDANG_FASILITAS', this)" id="cat-btn-gudang" class="insp-cat-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer">
-                🏭 Gudang &amp; Fasilitas (282)
-              </button>
-            </div>
-            <select id="insp-gedung" onchange="onInspGedungChange()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 font-medium">
-              <option value="">-- Pilih Gedung Acuan --</option>
-            </select>
-            <div id="insp-gedung-info" class="text-xs text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200 hidden">
-            </div>
+            <h2 class="text-xl font-bold text-slate-900">Inspeksi Fasilitas, Bangunan &amp; Hunian Mess</h2>
+            <p class="text-xs text-slate-500 mt-1 max-w-2xl">
+              Audit fisik inventaris ruangan, verifikasi sensus penghuni mess/karyawan, serta penilaian kelayakan dan score kebersihan hunian terintegrasi.
+            </p>
           </div>
-
-          <!-- Step 2: Ruangan -->
-          <div class="clean-card p-4 space-y-3">
-            <div class="flex items-center gap-2">
-              <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">2</span>
-              <label for="insp-ruangan" class="font-bold text-xs text-slate-900 uppercase tracking-wider">Pilih Ruangan / Kamar</label>
-            </div>
-            <select id="insp-ruangan" onchange="onInspRuanganChange()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 font-medium" disabled>
-              <option value="">-- Pilih Gedung Terlebih Dahulu --</option>
-            </select>
-            <div id="insp-ruang-info" class="text-xs text-slate-500 bg-slate-50 p-2.5 rounded-lg border border-slate-200 hidden">
-            </div>
-          </div>
-        </div>
-
-        <!-- Step 3: Konfirmasi Penanggungjawab -->
-        <div class="clean-card p-4 space-y-3">
           <div class="flex items-center gap-2">
-            <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">3</span>
-            <span class="font-bold text-xs text-slate-900 uppercase tracking-wider">Konfirmasi Petugas &amp; Penanggungjawab (PIC)</span>
-          </div>
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label for="insp-pic" class="block text-[11px] font-medium text-slate-500 mb-1">PIC Gedung / Ruangan:</label>
-              <input type="text" id="insp-pic" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800" placeholder="Nama Penanggungjawab">
-            </div>
-            <div>
-              <label for="insp-inspector" class="block text-[11px] font-medium text-slate-500 mb-1">Nama Petugas Pemeriksa (Inspector):</label>
-              <input type="text" id="insp-inspector" value="Miftahul Khoiry (Admin)" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800">
-            </div>
+            <button type="button" onclick="navTo('view-riwayat-inspeksi')" class="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 transition cursor-pointer flex items-center gap-1.5 shadow-2xs">
+              <i class="ph-bold ph-clock-counter-clockwise"></i> Riwayat Inspeksi
+            </button>
+            <button type="button" onclick="openPhotoViewerModal()" class="px-3 py-2 text-xs font-semibold rounded-lg bg-sky-50 text-sky-700 hover:bg-sky-100 transition cursor-pointer flex items-center gap-1.5 shadow-2xs">
+              <i class="ph-bold ph-image"></i> Galeri Dokumentasi
+            </button>
           </div>
         </div>
 
-                <!-- Step 4: Checklist Aset Ruangan (Identik dengan Versi PHP fac-inspeksi.php) -->
-        <div class="clean-card p-4 space-y-3">
-          <div class="flex justify-between items-center flex-wrap gap-2 pb-2 border-b border-slate-100">
-            <div class="flex items-center gap-2">
-              <span class="w-6 h-6 rounded-full bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">4</span>
-              <div>
-                <span class="font-bold text-xs sm:text-sm text-slate-900 uppercase tracking-wider block">Checklist Aset Fisik di Ruangan Ini</span>
-                <span class="text-[11px] text-slate-500">Verifikasi kode, lokasi, kondisi fisik, dan kelengkapan fasilitas ruangan</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <span id="insp-asset-count-badge" class="px-2.5 py-1 rounded text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">0 Item Aset</span>
-              <button type="button" onclick="markAllAssetsGood()" id="btn-mark-all-good" class="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition shadow-2xs">
-                <i class="ph-bold ph-check-circle text-sm text-emerald-600"></i> Tandai Semua Baik
-              </button>
-              <button type="button" onclick="promptAddAssetToRoom()" class="flex items-center gap-1.5 px-3 py-1 text-xs font-semibold rounded-lg bg-sky-50 text-sky-700 border border-sky-200 hover:bg-sky-100 transition shadow-2xs">
-                <i class="ph-bold ph-plus text-sm text-sky-600"></i> Tambah Item Aset Baru
-              </button>
-            </div>
-          </div>
-
-          <!-- RINGKASAN VISUAL KARTU JUMLAH JENIS ASET (Persis Desain Lapangan Facility Management Hunian.html) -->
-          <div id="insp-visual-summary-container" class="space-y-3 pt-1">
-            <div class="flex items-center justify-between flex-wrap gap-2.5 pb-1">
-              <div>
-                <div class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <i class="ph-bold ph-squares-four text-emerald-600"></i>
-                  <span>Ringkasan Fasilitas &amp; Jumlah Jenis Aset</span>
-                </div>
-                <div class="text-[11px] text-slate-500">
-                  Klik kartu visual untuk memfilter daftar aset, atau gunakan tombol cepat untuk verifikasi kondisi per jenis barang.
-                </div>
-              </div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <!-- Tombol Reset Filter Jenis -->
-                <button type="button" onclick="resetInspectionAssetFilter()" id="btn-reset-type-filter" class="hidden px-2.5 py-1 text-[11px] font-bold rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition cursor-pointer flex items-center gap-1 shadow-2xs">
-                  <i class="ph-bold ph-x text-xs text-rose-500"></i> <span>Tampilkan Semua (<span id="filter-all-count">0</span>)</span>
-                </button>
-                <!-- Switcher Mode Tampilan: Kartu Visual vs Mode Lapangan vs Tabel Detail -->
-                <div class="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-[11px] font-bold">
-                  <button type="button" onclick="setInspectionViewMode('grid', this)" id="btn-viewmode-grid" class="px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-2xs transition flex items-center gap-1 cursor-pointer">
-                    <i class="ph-bold ph-squares-four text-emerald-600"></i> Kartu Visual
-                  </button>
-                  <button type="button" onclick="setInspectionViewMode('field', this)" id="btn-viewmode-field" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">
-                    <i class="ph-bold ph-device-mobile text-indigo-500"></i> Mode Lapangan
-                  </button>
-                  <button type="button" onclick="setInspectionViewMode('table', this)" id="btn-viewmode-table" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition flex items-center gap-1 cursor-pointer">
-                    <i class="ph-bold ph-table text-sky-600"></i> Tabel Detail
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            <!-- GRID CARD VISUAL BUTTONS: Bantal 4, Kasur 2, Lampu 7, dll -->
-            <div id="insp-visual-cards-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5">
-              <!-- Rendered dynamically via renderInspectionVisualCards() in app.js -->
-            </div>
-
-            <!-- MODE KARTU LAPANGAN INTERAKTIF (Persis mInspeksi() di Facility Management Hunian.html) -->
-            <div id="insp-field-mode-container" class="hidden space-y-3 bg-slate-50/80 p-3.5 rounded-xl border border-slate-200">
-              <!-- Rendered dynamically via renderInspectionFieldCards() in app.js -->
-            </div>
-          </div>
-
-          <!-- DESKTOP & TABLET TABLE VIEW (Sesuai fac-inspeksi.php) -->
-          <div id="insp-detail-table-container" class="overflow-x-auto border border-slate-200/80 rounded-xl">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead class="bg-slate-50 text-slate-500 uppercase tracking-wider text-[11px] font-bold border-b border-slate-200">
-                <tr>
-                  <th class="py-2.5 px-3">Kode Aset</th>
-                  <th class="py-2.5 px-3">Nama Aset &amp; Spesifikasi</th>
-                  <th class="py-2.5 px-3">Klasifikasi &amp; Qty</th>
-                  <th class="py-2.5 px-3">Verifikasi Fisik</th>
-                  <th class="py-2.5 px-3">Kondisi Aktual</th>
-                  <th class="py-2.5 px-3">Foto / Bukti</th>
-                  <th class="py-2.5 px-3">Catatan Khusus</th>
-                  <th class="py-2.5 px-2 text-center">Aksi</th>
-                </tr>
-              </thead>
-              <tbody id="insp-asset-checklist" class="divide-y divide-slate-100">
-                <tr>
-                  <td colspan="8" class="text-center py-8 text-slate-500">
-                    <i class="ph-bold ph-arrow-bend-left-up text-lg mb-1 block text-slate-500"></i>
-                    Pilih gedung bangunan dan ruangan di atas untuk memuat daftar aset nyata dari database.
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- Step 5: Penilaian Kelaikan & Simpan -->
+        <!-- Section 1: Kategori Inspeksi & Pemilihan Bangunan -->
         <div class="clean-card p-5 space-y-4">
-          <div class="flex items-center gap-2">
-            <span class="w-5 h-5 rounded-full bg-slate-900 text-white font-bold text-xs flex items-center justify-center">5</span>
-            <span class="font-bold text-xs text-slate-900 uppercase tracking-wider">Penilaian Kelaikan, Catatan Temuan &amp; Simpan</span>
+          <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-100">
+            <div>
+              <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">1. Kategori Inspeksi Bangunan</span>
+              <span class="text-[11px] text-slate-500">Pilih salah satu kategori untuk menyaring daftar gedung acuan</span>
+            </div>
+            <div class="text-[11px] font-medium text-slate-500">
+              Total Bangunan: <span class="font-bold text-slate-900">416 Unit</span>
+            </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label for="insp-skor" class="block text-xs font-bold text-slate-700 mb-1">Skor Kelaikan Kamar (0 - 100): <span id="skor-label" class="num-tabular text-emerald-600 font-extrabold ml-1">100</span></label>
-              <input type="range" id="insp-skor" min="0" max="100" value="100" oninput="document.getElementById('skor-label').innerText = this.value; updateStatusKelaikanAuto(this.value);" class="w-full accent-emerald-500">
-            </div>
+          <!-- 3 Clear Category Cards + Semua -->
+          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+            <button type="button" onclick="setInspBldgCategory('KANTOR', this)" id="cat-btn-kantor" class="insp-cat-btn p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer flex flex-col justify-between group">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-base group-hover:scale-105 transition">
+                  <i class="ph-bold ph-buildings"></i>
+                </span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">21 Unit</span>
+              </div>
+              <span class="text-xs font-bold text-slate-900 block">Kantor</span>
+              <span class="text-[10px] text-slate-500">Main Office, Pos Security, Control Room</span>
+            </button>
 
-            <div>
-              <label for="insp-status" class="block text-xs font-bold text-slate-700 mb-1">Status Kelaikan Akhir:</label>
-              <select id="insp-status" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 font-semibold">
-                <option value="Aman" class="text-emerald-600">Aman (Layak Huni Penuh)</option>
-                <option value="Ada Temuan" class="text-amber-600">Ada Temuan (Minor)</option>
-                <option value="Perlu Perbaikan" class="text-orange-600">Perlu Perbaikan (Kerusakan Fisik)</option>
-                <option value="Kritis" class="text-rose-600">Kritis (Tidak Layak Huni / Bahaya)</option>
+            <button type="button" onclick="setInspBldgCategory('FASILITAS_UMUM', this)" id="cat-btn-fasum" class="insp-cat-btn p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer flex flex-col justify-between group">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-base group-hover:scale-105 transition">
+                  <i class="ph-bold ph-warehouse"></i>
+                </span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">282 Unit</span>
+              </div>
+              <span class="text-xs font-bold text-slate-900 block">Fasilitas Umum</span>
+              <span class="text-[10px] text-slate-500">Workshop, Gudang, Klinik, Musholla</span>
+            </button>
+
+            <button type="button" onclick="setInspBldgCategory('HUNIAN', this)" id="cat-btn-hunian" class="insp-cat-btn p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer flex flex-col justify-between group">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center text-base group-hover:scale-105 transition">
+                  <i class="ph-bold ph-house-line"></i>
+                </span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">113 Unit</span>
+              </div>
+              <span class="text-xs font-bold text-slate-900 block">Hunian</span>
+              <span class="text-[10px] text-slate-500">Mess Karyawan, Longhouse, Guest House</span>
+            </button>
+
+            <button type="button" onclick="setInspBldgCategory('ALL', this)" id="cat-btn-all" class="insp-cat-btn active p-3 rounded-xl border border-slate-800 bg-slate-900 text-white text-left transition cursor-pointer flex flex-col justify-between shadow-xs">
+              <div class="flex items-center justify-between mb-2">
+                <span class="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center text-base">
+                  <i class="ph-bold ph-squares-four"></i>
+                </span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-200">416 Unit</span>
+              </div>
+              <span class="text-xs font-bold text-white block">Semua Bangunan</span>
+              <span class="text-[10px] text-slate-300">Seluruh lokasi site &amp; peruntukan</span>
+            </button>
+          </div>
+
+          <!-- Selector Gedung / Bangunan -->
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div class="md:col-span-2 space-y-1.5">
+              <label for="insp-gedung" class="font-bold text-xs text-slate-800 block">Pilih Gedung / Bangunan Acuan:</label>
+              <select id="insp-gedung" onchange="onInspGedungChange()" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500">
+                <option value="">-- Silakan Pilih Gedung / Bangunan --</option>
               </select>
             </div>
+            <div class="space-y-1.5">
+              <label for="insp-inspector" class="font-bold text-xs text-slate-800 block">Nama Auditor (Inspector):</label>
+              <input type="text" id="insp-inspector" value="Miftahul Khoiry (Admin)" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 font-medium">
+            </div>
           </div>
 
-          <div>
-            <label for="insp-catatan" class="block text-xs font-bold text-slate-700 mb-1">Catatan Temuan / Rekomendasi Audit:</label>
-            <textarea id="insp-catatan" rows="3" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800" placeholder="Contoh: Kondisi sprei dan bantal bersih, AC dingin normal, 1 lampu kamar mandi putus perlu diganti."></textarea>
+          <!-- Gedung Metadata Info Card -->
+          <div id="insp-gedung-info" class="text-xs text-slate-700 bg-slate-50 p-3.5 rounded-xl border border-slate-200 hidden">
+            <!-- Populated dynamically via JS -->
           </div>
 
-          <div class="flex justify-end gap-3 pt-2">
-            <button type="button" onclick="resetInspectionForm()" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50">
-              Reset Form
-            </button>
-            <button type="button" onclick="submitInspection()" class="flex items-center gap-1.5 px-6 py-2.5 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition">
-              <i class="ph-bold ph-floppy-disk text-sm" aria-hidden="true"></i> Simpan Laporan Inspeksi
-            </button>
+          <!-- Section 2: Tombol Pilihan Target Langsung (Ruangan vs Penghuni) -->
+          <div class="pt-3 border-t border-slate-100 space-y-2">
+            <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">2. Pilih Target Audit Yang Mau Diinspeksi</span>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+              <!-- Button Ruangan & Fasilitas -->
+              <button type="button" id="btn-mode-ruangan" onclick="setInspTargetMode('ruangan')" class="p-4 rounded-xl border-2 border-sky-500 bg-sky-50/70 text-slate-900 text-left transition cursor-pointer flex items-center justify-between shadow-xs">
+                <div class="flex items-center gap-3.5">
+                  <div class="w-11 h-11 rounded-xl bg-sky-600 text-white flex items-center justify-center text-xl shadow-xs">
+                    <i class="ph-bold ph-door-open"></i>
+                  </div>
+                  <div>
+                    <span class="font-bold text-sm text-slate-900 block">Inspeksi Ruangan &amp; Fasilitas</span>
+                    <span class="text-xs text-slate-500">Checklist aset fisik, inventaris kamar &amp; score kebersihan</span>
+                  </div>
+                </div>
+                <span id="badge-count-ruangan" class="px-2.5 py-1 rounded-md text-xs font-bold bg-sky-200 text-sky-800">-- Ruangan</span>
+              </button>
+
+              <!-- Button Penghuni Mess -->
+              <button type="button" id="btn-mode-penghuni" onclick="setInspTargetMode('penghuni')" class="p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-left transition cursor-pointer flex items-center justify-between">
+                <div class="flex items-center gap-3.5">
+                  <div class="w-11 h-11 rounded-xl bg-slate-100 text-slate-700 flex items-center justify-center text-xl">
+                    <i class="ph-bold ph-users-three"></i>
+                  </div>
+                  <div>
+                    <span class="font-bold text-sm text-slate-900 block">Inspeksi Penghuni Mess</span>
+                    <span class="text-xs text-slate-500">Sensus penghuni kamar, status ketertiban, &amp; izin tinggal</span>
+                  </div>
+                </div>
+                <span id="badge-count-penghuni" class="px-2.5 py-1 rounded-md text-xs font-bold bg-slate-100 text-slate-700">-- Penghuni</span>
+              </button>
+            </div>
           </div>
         </div>
+
+        <!-- ======================================================== -->
+        <!-- PANEL TARGET A: DETAIL INSPEKSI RUANGAN & FASILITAS -->
+        <!-- ======================================================== -->
+        <div id="insp-panel-ruangan" class="space-y-6">
+
+          <!-- Pemilihan Ruangan & PIC -->
+          <div class="clean-card p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label for="insp-ruangan" class="font-bold text-xs text-slate-900 uppercase tracking-wider block mb-1.5">Pilih Ruangan / Kamar:</label>
+                <select id="insp-ruangan" onchange="onInspRuanganChange()" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 font-medium">
+                  <option value="">-- Pilih Gedung Terlebih Dahulu --</option>
+                </select>
+                <div id="insp-ruang-info" class="text-xs text-slate-500 mt-2 bg-slate-50 p-2.5 rounded-lg border border-slate-200 hidden"></div>
+              </div>
+              <div>
+                <label for="insp-pic" class="font-bold text-xs text-slate-900 uppercase tracking-wider block mb-1.5">Penanggung Jawab (PIC Ruangan):</label>
+                <input type="text" id="insp-pic" placeholder="Nama Penanggungjawab Ruangan / Penghuni Utama" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800">
+                <span class="text-[11px] text-slate-400 block mt-1">Otomatis terisi dari master gedung atau penanggungjawab ruangan</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- KARTU SCORE KEBERSIHAN HUNIAN / RUANGAN (ENTERPRISE SCORECARD) -->
+          <div class="clean-card p-5 border-t-4 border-t-emerald-500 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div>
+                <div class="flex items-center gap-2">
+                  <i class="ph-bold ph-sparkle text-emerald-600 text-base"></i>
+                  <span class="font-bold text-sm text-slate-900 uppercase tracking-wider">Score Kebersihan &amp; Kelayakan Hunian (K3)</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">Penilaian standar sanitasi, kerapian, tata letak, dan ventilasi fisik ruangan</p>
+              </div>
+
+              <!-- Live Score Gauge / Grade Badge -->
+              <div class="flex items-center gap-3 bg-emerald-50/80 px-4 py-2 rounded-xl border border-emerald-200 self-start sm:self-auto">
+                <div class="text-right">
+                  <span class="text-[10px] uppercase font-bold text-emerald-800 tracking-wider block">Nilai Kebersihan</span>
+                  <span id="insp-kebersihan-num" class="text-2xl font-black text-emerald-700 num-tabular">88</span>
+                  <span class="text-xs font-semibold text-emerald-600">/ 100</span>
+                </div>
+                <div class="pl-3 border-l border-emerald-200 text-left">
+                  <span id="insp-kebersihan-grade" class="px-2 py-0.5 rounded text-xs font-black bg-emerald-600 text-white block text-center">Grade A</span>
+                  <span id="insp-kebersihan-label" class="text-[10px] font-semibold text-emerald-800 whitespace-nowrap block mt-0.5">Sangat Bersih &amp; Terawat</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Progress Bar Score -->
+            <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden shadow-2xs">
+              <div id="insp-kebersihan-bar" class="bg-emerald-500 h-full rounded-full transition-all duration-300" style="width: 88%"></div>
+            </div>
+
+            <!-- 4 Criteria Scoring Sliders / Controls -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 pt-1">
+              <!-- Kriteria 1: Lantai & Dinding -->
+              <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200 space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="font-bold text-slate-800">1. Lantai &amp; Dinding</span>
+                  <span id="lbl-score-lantai" class="font-black text-sky-700 num-tabular">22 / 25</span>
+                </div>
+                <input type="range" id="insp-score-lantai" min="0" max="25" value="22" oninput="calculateKebersihanScore()" class="w-full accent-sky-600 cursor-pointer">
+                <span class="text-[10px] text-slate-500 block leading-tight">Bebas debu, noda lantai, lumut, keretakan, atau kebocoran plafon.</span>
+              </div>
+
+              <!-- Kriteria 2: Sanitasi & Kamar Mandi -->
+              <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200 space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="font-bold text-slate-800">2. Sanitasi &amp; KM</span>
+                  <span id="lbl-score-sanitasi" class="font-black text-sky-700 num-tabular">22 / 25</span>
+                </div>
+                <input type="range" id="insp-score-sanitasi" min="0" max="25" value="22" oninput="calculateKebersihanScore()" class="w-full accent-sky-600 cursor-pointer">
+                <span class="text-[10px] text-slate-500 block leading-tight">Drainase lancar, kloset bersih, kran tidak bocor, dan bebas kerak.</span>
+              </div>
+
+              <!-- Kriteria 3: Kerapian Inventaris -->
+              <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200 space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="font-bold text-slate-800">3. Kerapian Inventaris</span>
+                  <span id="lbl-score-kerapian" class="font-black text-sky-700 num-tabular">22 / 25</span>
+                </div>
+                <input type="range" id="insp-score-kerapian" min="0" max="25" value="22" oninput="calculateKebersihanScore()" class="w-full accent-sky-600 cursor-pointer">
+                <span class="text-[10px] text-slate-500 block leading-tight">Tempat tidur/kasur rapi, lemari teratur, pakaian tidak berserakan.</span>
+              </div>
+
+              <!-- Kriteria 4: Ventilasi & Bebas Bau -->
+              <div class="bg-slate-50/70 p-3 rounded-xl border border-slate-200 space-y-2">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="font-bold text-slate-800">4. Ventilasi &amp; Udara</span>
+                  <span id="lbl-score-ventilasi" class="font-black text-sky-700 num-tabular">22 / 25</span>
+                </div>
+                <input type="range" id="insp-score-ventilasi" min="0" max="25" value="22" oninput="calculateKebersihanScore()" class="w-full accent-sky-600 cursor-pointer">
+                <span class="text-[10px] text-slate-500 block leading-tight">Sirkulasi udara lancar, bebas bau apek/rokok, pencahayaan memadai.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CHECKLIST ASET & FASILITAS RUANGAN -->
+          <div class="clean-card p-4 space-y-3">
+            <div class="flex justify-between items-center flex-wrap gap-2 pb-2 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <div class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold text-xs flex items-center justify-center">
+                  <i class="ph-bold ph-checks"></i>
+                </div>
+                <div>
+                  <span class="font-bold text-xs sm:text-sm text-slate-900 uppercase tracking-wider block">Checklist Aset Fisik &amp; Fasilitas Ruangan</span>
+                  <span class="text-[11px] text-slate-500">Verifikasi kondisi fisik (Baik, Rusak, Hilang) dan perabotan terpasang</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-2">
+                <span id="insp-asset-count-badge" class="px-2.5 py-1 rounded text-xs font-bold bg-slate-100 text-slate-700 border border-slate-200">0 Item Aset</span>
+                <button type="button" onclick="markAllAssetsGood()" id="btn-mark-all-good" class="px-2.5 py-1 text-xs font-semibold rounded bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-200 transition cursor-pointer flex items-center gap-1">
+                  <i class="ph-bold ph-check"></i> Tandai Semua Baik
+                </button>
+              </div>
+            </div>
+
+            <!-- Asset Inspection Table Container -->
+            <div class="overflow-x-auto max-h-[420px] scrollbar-thin border border-slate-200 rounded-lg">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3">No</th>
+                    <th class="py-2.5 px-3">Kode / No Asset</th>
+                    <th class="py-2.5 px-3">Nama Asset &amp; Fasilitas</th>
+                    <th class="py-2.5 px-2">Kelompok</th>
+                    <th class="py-2.5 px-3 text-center">Status Kondisi Fisik</th>
+                    <th class="py-2.5 px-3">Keterangan / Temuan</th>
+                  </tr>
+                </thead>
+                <tbody id="insp-asset-checklist-body" class="divide-y divide-slate-100 font-medium">
+                  <tr>
+                    <td colspan="6" class="text-center py-8 text-slate-400">Pilih gedung dan ruangan di atas untuk memuat inventaris fasilitas.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- DOKUMENTASI FOTO & KESIMPULAN AUDIT RUANGAN -->
+          <div class="clean-card p-4 space-y-3">
+            <div class="flex items-center gap-2 pb-2 border-b border-slate-100">
+              <i class="ph-bold ph-camera text-sky-600 text-base"></i>
+              <span class="font-bold text-xs text-slate-900 uppercase tracking-wider">Dokumentasi Foto Temuan &amp; Catatan Audit Ruangan</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-[11px] font-semibold text-slate-700 mb-1">Ambil / Unggah Foto Bukti Fisik:</label>
+                <div class="flex items-center gap-2">
+                  <button type="button" onclick="openCameraModal('insp-photo-ruang')" class="px-3.5 py-2 rounded-lg bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-xs">
+                    <i class="ph-bold ph-camera"></i> Buka Kamera
+                  </button>
+                  <label class="px-3.5 py-2 rounded-lg border border-slate-300 hover:bg-slate-50 text-slate-700 text-xs font-semibold flex items-center gap-1.5 transition cursor-pointer">
+                    <i class="ph-bold ph-upload-simple"></i> Upload File
+                    <input type="file" accept="image/*" class="hidden" onchange="handleFileUpload(event, 'insp-photo-ruang')">
+                  </label>
+                </div>
+                <div id="insp-photo-preview-ruang" class="mt-2.5 flex items-center gap-2 flex-wrap"></div>
+              </div>
+              <div>
+                <label for="insp-catatan-ruangan" class="block text-[11px] font-semibold text-slate-700 mb-1">Rekomendasi Tindak Lanjut / Catatan Petugas:</label>
+                <textarea id="insp-catatan-ruangan" rows="3" placeholder="Contoh: AC kamar bocor freon, perlu perbaikan teknisi. Kebersihan kamar mandi terawat." class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800"></textarea>
+              </div>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+              <button type="button" onclick="resetFormInspeksi()" class="px-4 py-2 text-xs font-semibold rounded-lg border border-slate-300 text-slate-600 hover:bg-slate-50">Reset Form</button>
+              <button type="button" onclick="submitInspeksiRuangan()" class="px-5 py-2 text-xs font-semibold rounded-lg bg-sky-600 hover:bg-sky-500 text-white flex items-center gap-1.5 shadow-xs transition cursor-pointer">
+                <i class="ph-bold ph-floppy-disk"></i> Simpan Hasil Inspeksi Ruangan ke Google Sheets
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- PANEL TARGET B: DETAIL SENSUS & INSPEKSI PENGHUNI MESS -->
+        <!-- ======================================================== -->
+        <div id="insp-panel-penghuni" class="hidden space-y-6">
+
+          <!-- Header Sensus Penghuni Mess -->
+          <div class="clean-card p-5 border-t-4 border-t-indigo-500 space-y-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-100">
+              <div>
+                <div class="flex items-center gap-2">
+                  <i class="ph-bold ph-address-book text-indigo-600 text-base"></i>
+                  <span class="font-bold text-sm text-slate-900 uppercase tracking-wider">Sensus &amp; Verifikasi Penghuni Mess / Bangunan</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mt-0.5">Daftar penghuni terdaftar, nomor kamar, kepatuhan tata tertib, dan status izin tinggal</p>
+              </div>
+
+              <!-- Occupancy Summary Badges -->
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="px-3 py-1 rounded-lg text-xs font-bold bg-indigo-50 text-indigo-800 border border-indigo-200">
+                  Total Penghuni: <span id="sensus-tot-penghuni" class="font-black">0</span> Orang
+                </span>
+                <span class="px-3 py-1 rounded-lg text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                  Status Aktif: <span id="sensus-tot-aktif" class="font-black">0</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Tabel Daftar Penghuni Kamar -->
+            <div class="overflow-x-auto max-h-[460px] scrollbar-thin border border-slate-200 rounded-lg">
+              <table class="w-full text-left text-xs border-collapse">
+                <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2.5 px-3">No</th>
+                    <th class="py-2.5 px-3">Kamar / Ruangan</th>
+                    <th class="py-2.5 px-3">NIK</th>
+                    <th class="py-2.5 px-3">Nama Karyawan</th>
+                    <th class="py-2.5 px-2">Departemen / Jabatan</th>
+                    <th class="py-2.5 px-2 text-center">Status Hunian</th>
+                    <th class="py-2.5 px-2">Tgl Masuk</th>
+                    <th class="py-2.5 px-2 text-center">Aksi / Verifikasi</th>
+                  </tr>
+                </thead>
+                <tbody id="insp-penghuni-table-body" class="divide-y divide-slate-100 font-medium">
+                  <tr>
+                    <td colspan="8" class="text-center py-8 text-slate-400">Pilih gedung mess/hunian di atas untuk memuat daftar penghuni kamar.</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Evaluasi Kepatuhan & Ketertiban Penghuni -->
+            <div class="pt-3 border-t border-slate-100 space-y-3">
+              <span class="font-bold text-xs text-slate-800 uppercase tracking-wider block">Catatan Ketertiban &amp; Kepatuhan Mess:</span>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input type="checkbox" id="check-kepatuhan-rokok" checked class="rounded accent-sky-600">
+                  <span class="text-xs text-slate-700">Bebas puntung rokok di kamar</span>
+                </label>
+                <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input type="checkbox" id="check-kepatuhan-listrik" checked class="rounded accent-sky-600">
+                  <span class="text-xs text-slate-700">Instalasi listrik standar (tidak modif)</span>
+                </label>
+                <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input type="checkbox" id="check-kepatuhan-tamu" checked class="rounded accent-sky-600">
+                  <span class="text-xs text-slate-700">Kepatuhan izin tamu luar</span>
+                </label>
+              </div>
+              <textarea id="insp-catatan-penghuni" rows="2" placeholder="Catatan pelanggaran atau mutasi penghuni jika ada..." class="w-full px-3 py-2 text-xs rounded-lg border border-slate-300 bg-white text-slate-800"></textarea>
+            </div>
+
+            <div class="pt-3 border-t border-slate-100 flex justify-end gap-2">
+              <button type="button" onclick="submitSensusPenghuni()" class="px-5 py-2 text-xs font-semibold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 shadow-xs transition cursor-pointer">
+                <i class="ph-bold ph-floppy-disk"></i> Simpan Pembaruan Sensus Penghuni ke Google Sheets
+              </button>
+            </div>
+          </div>
+        </div>
+
       </div>
 
-      <!-- ======================================================== -->
-      <!-- VIEW: RIWAYAT LAPORAN INSPEKSI -->
-      <!-- ======================================================== -->
-      <div id="view-riwayat-inspeksi" class="page-view hidden space-y-4">
+<div id="view-riwayat-inspeksi" class="page-view hidden space-y-4">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <h2 class="text-xl font-bold text-slate-900">Riwayat Audit &amp; Laporan Inspeksi Fasilitas</h2>
@@ -3013,10 +3204,10 @@
                     <thead>
                       <tr class="bg-slate-50 text-slate-600 text-[11px] font-semibold tracking-wider border-b border-slate-200">
                         <th class="py-2.5 px-3 whitespace-nowrap min-w-[160px]" id="matrix-th-name">Lokasi Site</th>
-                        <th class="py-2.5 px-2 text-center whitespace-nowrap">% Validasi</th>
+                        <th class="py-2.5 px-3 text-left whitespace-nowrap min-w-[120px]">% Validasi</th>
+                        <th class="py-2.5 px-3 text-left whitespace-nowrap min-w-[130px]">Distribusi Kondisi</th>
                         <th class="py-2.5 px-2 text-right whitespace-nowrap">Avg Std</th>
                         <th class="py-2.5 px-2 text-right whitespace-nowrap">Avg Umur</th>
-                        <th class="py-2.5 px-2 text-right whitespace-nowrap bg-amber-50/80 text-amber-800 font-semibold">Belum Verifikasi</th>
                         <th class="py-2.5 px-2 text-right whitespace-nowrap bg-emerald-50/80 text-emerald-800 font-semibold">Sesuai</th>
                         <th class="py-2.5 px-2 text-right whitespace-nowrap bg-rose-50/80 text-rose-800 font-semibold">Selisih</th>
                         <th class="py-2.5 px-2 text-right whitespace-nowrap text-emerald-700">Baik</th>
@@ -3024,7 +3215,7 @@
                         <th class="py-2.5 px-2 text-right whitespace-nowrap text-rose-700">Disposal</th>
                         <th class="py-2.5 px-2 text-right whitespace-nowrap text-amber-700">Rusak</th>
                         <th class="py-2.5 px-2 text-right whitespace-nowrap text-slate-500">Hilang</th>
-                        <th class="py-2.5 px-3 text-right whitespace-nowrap font-semibold bg-slate-100 text-slate-800">Total Portofolio</th>
+                        <th class="py-2.5 px-3 text-right whitespace-nowrap font-semibold bg-slate-100 text-slate-800">Total Validasi</th>
                         <th class="py-2.5 px-2 text-center whitespace-nowrap">Drilldown</th>
                       </tr>
                     </thead>
@@ -3896,7 +4087,91 @@
 
 
   <!-- MODAL: TAMBAH DATA OPNAME / VALIDASI ASET -->
-  <div id="modal-tambah-opname" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <!-- MODAL: DRILLDOWN & DRILL-THROUGH VALIDASI FISIK (DETAIL PER ITEM ASET) -->
+  <div id="modal-drilldown-validasi" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="clean-card w-full max-w-5xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in">
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-base">
+            <i class="ph-bold ph-list-magnifying-glass"></i>
+          </div>
+          <div>
+            <h3 id="val-drill-title" class="text-sm font-bold text-slate-900">Rincian Drill-Down Validasi Fisik</h3>
+            <p class="text-[11px] text-slate-500">Audit item-level master aset, kondisi fisik, dan status verifikasi lapangan</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeValidasiDrillModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer">
+          <i class="ph-bold ph-x text-base"></i>
+        </button>
+      </div>
+
+      <!-- Filter Bar & Slicers -->
+      <div class="p-4 border-b border-slate-200 bg-white flex flex-wrap items-center justify-between gap-3 text-xs">
+        <!-- Search -->
+        <div class="relative min-w-[240px] flex-1 max-w-md">
+          <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+          <input type="text" id="val-drill-search" oninput="renderValidasiDrillTable()" placeholder="Cari Kode Unit, Nama Aset, Kelompok..." class="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <!-- Filter Chips / Tabs -->
+        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+          <button type="button" id="val-drill-tab-all" onclick="setValidasiDrillStatusFilter('ALL')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 text-white transition cursor-pointer shadow-xs">
+            Semua (<span id="val-drill-count-total">0</span>)
+          </button>
+          <button type="button" id="val-drill-tab-selisih" onclick="setValidasiDrillStatusFilter('SELISIH')" class="px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50 transition cursor-pointer rounded">
+            Selisih Fisik (<span id="val-drill-count-selisih">0</span>)
+          </button>
+          <button type="button" id="val-drill-tab-sesuai" onclick="setValidasiDrillStatusFilter('SESUAI')" class="px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50 transition cursor-pointer rounded">
+            Sesuai (<span id="val-drill-count-sesuai">0</span>)
+          </button>
+        </div>
+
+        <!-- Export Excel -->
+        <div>
+          <button type="button" onclick="exportValidasiDrillXlsx()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5 shadow-xs">
+            <i class="ph-bold ph-file-xls"></i> Export Excel (.xlsx)
+          </button>
+        </div>
+      </div>
+
+      <!-- Drilldown Table Container -->
+      <div class="flex-1 overflow-auto p-0 scrollbar-thin">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200 z-10">
+            <tr>
+              <th class="py-2.5 px-3">Kode Unit</th>
+              <th class="py-2.5 px-3">Nama Asset</th>
+              <th class="py-2.5 px-2">Kelompok / Kategori</th>
+              <th class="py-2.5 px-2">Lokasi</th>
+              <th class="py-2.5 px-2">Kondisi Fisik</th>
+              <th class="py-2.5 px-2">Status Validasi</th>
+              <th class="py-2.5 px-3 text-right">Nilai Perolehan (HPP)</th>
+              <th class="py-2.5 px-3 text-right">Nilai Buku (NBV)</th>
+            </tr>
+          </thead>
+          <tbody id="val-drill-tbody" class="divide-y divide-slate-100 font-medium">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal Footer with Pagination -->
+      <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-between items-center text-xs">
+        <span id="val-drill-paging-info" class="text-slate-500 text-[11px]">Memuat data...</span>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="valDrillPrevPage()" class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs transition cursor-pointer">
+            <i class="ph-bold ph-caret-left"></i> Prev
+          </button>
+          <button type="button" onclick="valDrillNextPage()" class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs transition cursor-pointer">
+            Next <i class="ph-bold ph-caret-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div id="modal-tambah-opname" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
     <div class="clean-card w-full max-w-lg bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden animate-in">
       <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
         <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">

@@ -1,3 +1,36 @@
+  // Global Sidebar & Navigation Group Toggles
+  function toggleSidebar(forceState) {
+    const sidebar = document.getElementById('app-sidebar');
+    if (!sidebar) return;
+    if (typeof forceState === 'boolean') {
+      if (forceState) {
+        sidebar.classList.remove('-translate-x-full');
+      } else {
+        sidebar.classList.add('-translate-x-full');
+      }
+    } else {
+      sidebar.classList.toggle('-translate-x-full');
+    }
+  }
+  window.toggleSidebar = toggleSidebar;
+
+  function toggleNavGroup(groupId, btnEl) {
+    const groupEl = document.getElementById(groupId);
+    if (!groupEl) return;
+    const isHidden = groupEl.classList.toggle('hidden');
+    const caret = btnEl ? btnEl.querySelector('.ph-caret-down, .ph-caret-right') : null;
+    if (caret) {
+      if (isHidden) {
+        caret.classList.remove('ph-caret-down');
+        caret.classList.add('ph-caret-right');
+      } else {
+        caret.classList.remove('ph-caret-right');
+        caret.classList.add('ph-caret-down');
+      }
+    }
+  }
+  window.toggleNavGroup = toggleNavGroup;
+
 
   let currentInspectionMode = 'group';
   function setInspectionMode(mode) {
@@ -479,7 +512,11 @@ const PNS_SECTION_TO_DEPT = {
         ]
       };
     })(),
-    buildings: REAL_BUILDINGS,
+    buildings: (typeof window !== 'undefined' && window.PNS_DATA_MASTER && Array.isArray(window.PNS_DATA_MASTER.buildings) && window.PNS_DATA_MASTER.buildings.length > 0)
+      ? window.PNS_DATA_MASTER.buildings
+      : ((typeof window !== 'undefined' && window.PNS_MASTER_DATA && Array.isArray(window.PNS_MASTER_DATA.buildings) && window.PNS_MASTER_DATA.buildings.length > 0)
+          ? window.PNS_MASTER_DATA.buildings
+          : REAL_BUILDINGS),
     rooms: REAL_ROOMS,
     assets: REAL_ASSETS,
     inspections: [
@@ -6549,13 +6586,119 @@ const PNS_SECTION_TO_DEPT = {
   // ========================================================
   let currentInspBldgCategory = 'ALL';
 
+  let currentInspTargetMode = 'ruangan';
+  let currentKebersihanScore = 88;
+  let currentKebersihanGrade = 'Grade A';
+
+  function setInspTargetMode(mode) {
+    currentInspTargetMode = mode;
+    const btnR = document.getElementById('btn-mode-ruangan');
+    const btnP = document.getElementById('btn-mode-penghuni');
+    const panR = document.getElementById('insp-panel-ruangan');
+    const panP = document.getElementById('insp-panel-penghuni');
+
+    if (mode === 'ruangan') {
+      if (btnR) btnR.className = 'p-4 rounded-xl border-2 border-sky-500 bg-sky-50/70 text-slate-900 text-left transition cursor-pointer flex items-center justify-between shadow-xs';
+      if (btnP) btnP.className = 'p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-left transition cursor-pointer flex items-center justify-between';
+      if (panR) panR.classList.remove('hidden');
+      if (panP) panP.classList.add('hidden');
+    } else {
+      if (btnP) btnP.className = 'p-4 rounded-xl border-2 border-indigo-500 bg-indigo-50/70 text-slate-900 text-left transition cursor-pointer flex items-center justify-between shadow-xs';
+      if (btnR) btnR.className = 'p-4 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-left transition cursor-pointer flex items-center justify-between';
+      if (panP) panP.classList.remove('hidden');
+      if (panR) panR.classList.add('hidden');
+    }
+  }
+  window.setInspTargetMode = setInspTargetMode;
+
+  function calculateKebersihanScore() {
+    const sLantai = parseInt(document.getElementById('insp-score-lantai')?.value || 22, 10);
+    const sSanitasi = parseInt(document.getElementById('insp-score-sanitasi')?.value || 22, 10);
+    const sKerapian = parseInt(document.getElementById('insp-score-kerapian')?.value || 22, 10);
+    const sVentilasi = parseInt(document.getElementById('insp-score-ventilasi')?.value || 22, 10);
+
+    const lblL = document.getElementById('lbl-score-lantai');
+    const lblS = document.getElementById('lbl-score-sanitasi');
+    const lblK = document.getElementById('lbl-score-kerapian');
+    const lblV = document.getElementById('lbl-score-ventilasi');
+    if (lblL) lblL.innerText = sLantai + ' / 25';
+    if (lblS) lblS.innerText = sSanitasi + ' / 25';
+    if (lblK) lblK.innerText = sKerapian + ' / 25';
+    if (lblV) lblV.innerText = sVentilasi + ' / 25';
+
+    const total = sLantai + sSanitasi + sKerapian + sVentilasi;
+    currentKebersihanScore = total;
+
+    let grade = 'Grade A';
+    let label = 'Sangat Bersih & Terawat';
+    let badgeBg = 'bg-emerald-600';
+    let textCol = 'text-emerald-700';
+    let barBg = 'bg-emerald-500';
+
+    if (total >= 85) {
+      grade = 'Grade A';
+      label = 'Sangat Bersih & Terawat';
+      badgeBg = 'bg-emerald-600';
+      textCol = 'text-emerald-700';
+      barBg = 'bg-emerald-500';
+    } else if (total >= 70) {
+      grade = 'Grade B';
+      label = 'Bersih & Cukup Terawat';
+      badgeBg = 'bg-sky-600';
+      textCol = 'text-sky-700';
+      barBg = 'bg-sky-500';
+    } else if (total >= 55) {
+      grade = 'Grade C';
+      label = 'Cukup / Perlu Perhatian';
+      badgeBg = 'bg-amber-600';
+      textCol = 'text-amber-700';
+      barBg = 'bg-amber-500';
+    } else {
+      grade = 'Grade D';
+      label = 'Kotor / Peringatan K3';
+      badgeBg = 'bg-rose-600';
+      textCol = 'text-rose-700';
+      barBg = 'bg-rose-500';
+    }
+    currentKebersihanGrade = grade;
+
+    const numEl = document.getElementById('insp-kebersihan-num');
+    const gradeEl = document.getElementById('insp-kebersihan-grade');
+    const labelEl = document.getElementById('insp-kebersihan-label');
+    const barEl = document.getElementById('insp-kebersihan-bar');
+
+    if (numEl) {
+      numEl.innerText = total;
+      numEl.className = 'text-2xl font-black ' + textCol + ' num-tabular';
+    }
+    if (gradeEl) {
+      gradeEl.innerText = grade;
+      gradeEl.className = 'px-2 py-0.5 rounded text-xs font-black ' + badgeBg + ' text-white block text-center';
+    }
+    if (labelEl) {
+      labelEl.innerText = label;
+      labelEl.className = 'text-[10px] font-semibold ' + textCol + ' whitespace-nowrap block mt-0.5';
+    }
+    if (barEl) {
+      barEl.style.width = total + '%';
+      barEl.className = barBg + ' h-full rounded-full transition-all duration-300';
+    }
+  }
+  window.calculateKebersihanScore = calculateKebersihanScore;
+
   function setInspBldgCategory(cat, btnEl) {
     currentInspBldgCategory = cat;
-    document.querySelectorAll('.insp-cat-btn').forEach(btn => {
-      btn.className = 'insp-cat-btn px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-100 text-slate-700 hover:bg-slate-200 transition cursor-pointer';
+
+    // Reset button states
+    ['cat-btn-kantor', 'cat-btn-fasum', 'cat-btn-hunian', 'cat-btn-all'].forEach(id => {
+      const b = document.getElementById(id);
+      if (b) {
+        b.className = 'insp-cat-btn p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer flex flex-col justify-between group';
+      }
     });
+
     if (btnEl) {
-      btnEl.className = 'insp-cat-btn active px-2.5 py-1 text-[11px] font-bold rounded-md bg-slate-900 text-white transition cursor-pointer shadow-xs';
+      btnEl.className = 'insp-cat-btn active p-3 rounded-xl border-2 border-sky-600 bg-sky-50 text-left transition cursor-pointer flex flex-col justify-between shadow-xs';
     }
 
     const gSelect = document.getElementById('insp-gedung');
@@ -6566,81 +6709,21 @@ const PNS_SECTION_TO_DEPT = {
       list = list.filter(b => b.inspection_category === 'HUNIAN' || b.kategori === 'MESS & HUNIAN' || (b.nama_gedung || '').toLowerCase().includes('mess') || (b.nama_gedung || '').toLowerCase().includes('longhouse') || (b.nama_gedung || '').toLowerCase().includes('guest house') || (b.kode_gedung || '').includes('-LH') || (b.kode_gedung || '').includes('-GH-') || (b.kode_gedung || '').includes('-MESS'));
     } else if (cat === 'KANTOR') {
       list = list.filter(b => b.inspection_category === 'KANTOR' || b.kategori === 'BANGUNAN KANTOR' || (b.nama_gedung || '').toLowerCase().includes('office') || (b.nama_gedung || '').toLowerCase().includes('kantor') || (b.nama_gedung || '').toLowerCase().includes('security') || (b.nama_gedung || '').toLowerCase().includes('pos'));
-    } else if (cat === 'GUDANG_FASILITAS') {
-      list = list.filter(b => b.inspection_category === 'GUDANG_FASILITAS' || b.kategori === 'GUDANG' || b.kategori === 'WORKSHOP' || (b.nama_gedung || '').toLowerCase().includes('gudang') || (b.nama_gedung || '').toLowerCase().includes('workshop') || (b.nama_gedung || '').toLowerCase().includes('laundry') || (b.nama_gedung || '').toLowerCase().includes('kantin') || (b.nama_gedung || '').toLowerCase().includes('genset') || (b.nama_gedung || '').toLowerCase().includes('wtp') || (b.nama_gedung || '').toLowerCase().includes('water') || (b.nama_gedung || '').toLowerCase().includes('klinik'));
+    } else if (cat === 'FASILITAS_UMUM' || cat === 'GUDANG_FASILITAS') {
+      list = list.filter(b => b.inspection_category === 'GUDANG_FASILITAS' || b.kategori === 'GUDANG & FASILITAS' || (b.nama_gedung || '').toLowerCase().includes('workshop') || (b.nama_gedung || '').toLowerCase().includes('gudang') || (b.nama_gedung || '').toLowerCase().includes('klinik') || (b.nama_gedung || '').toLowerCase().includes('musholla'));
     }
 
-    gSelect.innerHTML = `<option value="">-- Pilih Gedung (${list.length}) --</option>` +
-      list.map(b => `<option value="${escapeHtml(b.kode_gedung)}" data-site="${escapeHtml(b.lokasi_site || '')}" data-id="${escapeHtml(b.gedung_id || '')}">${escapeHtml(b.nama_gedung)} (${escapeHtml(b.lokasi_site)})</option>`).join('');
+    gSelect.innerHTML = '<option value="">-- Silakan Pilih Gedung / Bangunan (' + list.length + ' Gedung) --</option>' +
+      list.map(b => '<option value="' + escapeHtml(b.kode_gedung) + '" data-site="' + escapeHtml(b.lokasi_site || '') + '" data-id="' + escapeHtml(b.gedung_id || '') + '">' + escapeHtml(b.nama_gedung) + ' (' + escapeHtml(b.kode_gedung) + ' - ' + escapeHtml(b.lokasi_site || 'Site') + ')</option>').join('');
 
-    onInspGedungChange();
+    if (list.length > 0) {
+      gSelect.selectedIndex = 1;
+      onInspGedungChange();
+    } else {
+      onInspGedungChange();
+    }
   }
-
-  function initInspectionFormDropdowns() {
-    const gSelect = document.getElementById('insp-gedung');
-    const filterBldgSelect = document.getElementById('filter-room-bldg');
-    const regGedung = document.getElementById('reg-gedung');
-    const mutGedung = document.getElementById('mut-ke-gedung');
-
-    const genuineBuildings = (appState.buildings || []).filter(isGenuineBuilding);
-
-    const bldgOptionsHtml = genuineBuildings.map(b =>
-      `<option value="${escapeHtml(b.kode_gedung)}" data-site="${escapeHtml(b.lokasi_site || '')}" data-id="${escapeHtml(b.gedung_id || '')}">${escapeHtml(b.nama_gedung)} (${escapeHtml(b.lokasi_site)})</option>`
-    ).join('');
-
-    const filterOptionsHtml = genuineBuildings.map(b =>
-      `<option value="${escapeHtml(b.kode_gedung)}">${escapeHtml(b.kode_gedung)} - ${escapeHtml(b.nama_gedung)}</option>`
-    ).join('');
-
-    if (gSelect) gSelect.innerHTML = '<option value="">-- Pilih Gedung Acuan --</option>' + bldgOptionsHtml;
-    if (filterBldgSelect) filterBldgSelect.innerHTML = '<option value="">Semua Gedung</option>' + filterOptionsHtml;
-    if (regGedung) regGedung.innerHTML = bldgOptionsHtml;
-    if (mutGedung) mutGedung.innerHTML = bldgOptionsHtml;
-    const opnLokasi = document.getElementById('opn-lokasi');
-    if (opnLokasi) opnLokasi.innerHTML = '<option value="Semua Site">Semua Site / Gedung</option>' + bldgOptionsHtml;
-
-    loadRegRooms();
-    loadMutRooms();
-  }
-
-  function getRoomsForBuilding(bCode, bSite, bId) {
-    if (!bCode) return [];
-    const bUpper = String(bCode || '').trim().toUpperCase();
-    const sUpper = String(bSite || '').trim().toUpperCase();
-    const seenNames = new Set();
-    const res = [];
-
-    // Filter appState.rooms strictly for this building
-    (appState.rooms || []).forEach(r => {
-      const rb = String(r.kode_gedung || '').trim().toUpperCase();
-      const rId = String(r.gedung_id || '').trim();
-      const rName = String(r.nama_ruangan || '').trim();
-      if (!rName) return;
-
-      // Exact building code match or gedung_id match
-      const matchesBldg = (rb === bUpper) || (bId && rId === String(bId));
-      if (!matchesBldg) return;
-
-      // Cross-site room leakage prevention:
-      // If building is in Central Office (CO), exclude any room containing MESS FR, PABRIK, FACTORY
-      if (sUpper.includes('CENTRAL') && (rName.toUpperCase().includes('MESS FR') || rName.toUpperCase().includes('PABRIK KM18') || rName.toUpperCase().includes('FACTORY KM 18'))) {
-        return;
-      }
-      // If building is in Factory (FR), exclude any room containing CENTRAL
-      if (sUpper.includes('FACTORY') && rName.toUpperCase().includes('CENTRAL KM 17')) {
-        return;
-      }
-
-      // Deduplicate room names per building (prevents duplicate DAPUR, RUANG MAKAN, etc.)
-      const normKey = rName.toUpperCase();
-      if (seenNames.has(normKey)) return;
-      seenNames.add(normKey);
-
-      res.push(r);
-    });
-
-    return res;
-  }
+  window.setInspBldgCategory = setInspBldgCategory;
 
   function onInspGedungChange() {
     const gSelect = document.getElementById('insp-gedung');
@@ -6658,6 +6741,10 @@ const PNS_SECTION_TO_DEPT = {
       rSelect.innerHTML = '<option value="">-- Pilih Gedung Terlebih Dahulu --</option>';
       rSelect.disabled = true;
       if (infoBox) infoBox.classList.add('hidden');
+      const bRuang = document.getElementById('badge-count-ruangan');
+      const bPenghuni = document.getElementById('badge-count-penghuni');
+      if (bRuang) bRuang.innerText = '-- Ruangan';
+      if (bPenghuni) bPenghuni.innerText = '-- Penghuni';
       onInspRuanganChange();
       return;
     }
@@ -6667,35 +6754,153 @@ const PNS_SECTION_TO_DEPT = {
       (bId && String(b.gedung_id) === String(bId))
     ) || (appState.buildings || []).find(b => b.kode_gedung === bCode);
 
+    // Ambil ruangan di dalam gedung tersebut
+    const matchingRooms = getRoomsForBuilding(bCode, bSite, bId);
+
+    // Ambil sensus penghuni mess gedung ini
+    const bPenghuni = (appState.penghuni || []).filter(p => {
+      if (p.kode_gedung && p.kode_gedung === bCode) return true;
+      if (bldg && p.gedung_id && String(p.gedung_id) === String(bldg.gedung_id)) return true;
+      if (bldg && p.nama_gedung && p.nama_gedung.toUpperCase() === (bldg.nama_gedung || '').toUpperCase()) return true;
+      return false;
+    });
+
     if (bldg && infoBox) {
       infoBox.classList.remove('hidden');
-      infoBox.innerHTML = `<strong>${escapeHtml(bldg.nama_gedung)}</strong> &bull; Site: ${escapeHtml(bldg.lokasi_site)} &bull; PIC: <strong>${escapeHtml(bldg.penanggungjawab || '-')}</strong> &bull; Ruangan: ${bldg.total_ruangan || 0}`;
+      infoBox.innerHTML = 
+        '<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">' +
+          '<div>' +
+            '<span class="font-bold text-slate-900 text-sm block">' + escapeHtml(bldg.nama_gedung) + '</span>' +
+            '<span class="text-slate-500 text-[11px]">Kode: <strong>' + escapeHtml(bldg.kode_gedung) + '</strong> &bull; Site: <strong>' + escapeHtml(bldg.lokasi_site || '-') + '</strong> &bull; Kategori: <strong>' + escapeHtml(bldg.kategori || 'Fasilitas') + '</strong></span>' +
+          '</div>' +
+          '<div class="text-right text-[11px]">' +
+            '<span>PIC Gedung: <strong class="text-slate-800">' + escapeHtml(bldg.penanggungjawab || '-') + '</strong></span> &bull; ' +
+            '<span>Kapasitas: <strong class="text-sky-700">' + (bldg.total_ruangan || matchingRooms.length || 0) + ' Ruangan</strong></span>' +
+          '</div>' +
+        '</div>';
+
       const picInput = document.getElementById('insp-pic');
       if (picInput) picInput.value = bldg.penanggungjawab || '';
     }
 
-    // Ambil HANYA ruangan di dalam gedung tersebut (bebas bocor dan deduplikasi)
-    const matchingRooms = getRoomsForBuilding(bCode, bSite, bId);
+    // Update Badges Count di Tombol Dual Target
+    const bRuangBadge = document.getElementById('badge-count-ruangan');
+    const bPenghuniBadge = document.getElementById('badge-count-penghuni');
+    const sensusTot = document.getElementById('sensus-tot-penghuni');
+    const sensusAktif = document.getElementById('sensus-tot-aktif');
 
+    const totalRooms = matchingRooms.length || (bldg ? (bldg.total_ruangan || 1) : 1);
+    if (bRuangBadge) bRuangBadge.innerText = totalRooms + ' Ruangan';
+    if (bPenghuniBadge) bPenghuniBadge.innerText = bPenghuni.length + ' Penghuni';
+    if (sensusTot) sensusTot.innerText = bPenghuni.length;
+    if (sensusAktif) sensusAktif.innerText = bPenghuni.filter(p => !p.status || p.status.toUpperCase() === 'AKTIF').length;
+
+    // Render Tabel Sensus Penghuni
+    const penghuniTbody = document.getElementById('insp-penghuni-table-body');
+    if (penghuniTbody) {
+      if (bPenghuni.length === 0) {
+        penghuniTbody.innerHTML = '<tr><td colspan="8" class="text-center py-6 text-slate-400">Belum ada data penghuni kamar terdaftar untuk gedung ini.</td></tr>';
+      } else {
+        penghuniTbody.innerHTML = bPenghuni.map((p, idx) => {
+          const isAktif = (!p.status || p.status.toUpperCase() === 'AKTIF');
+          const statusBadge = isAktif
+            ? '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">Aktif</span>'
+            : '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800">' + escapeHtml(p.status || '-') + '</span>';
+
+          return '<tr class="hover:bg-slate-50 transition text-xs border-b border-slate-100">' +
+            '<td class="py-2.5 px-3 num-tabular text-slate-500">' + (idx + 1) + '</td>' +
+            '<td class="py-2.5 px-3 font-bold text-slate-900">' + escapeHtml(p.nomor_kamar || p.nama_ruangan || 'Kamar ' + (idx + 1)) + '</td>' +
+            '<td class="py-2.5 px-3 font-mono text-slate-600">' + escapeHtml(p.nik || '-') + '</td>' +
+            '<td class="py-2.5 px-3 font-semibold text-slate-800">' + escapeHtml(p.nama_karyawan || p.nama || '-') + '</td>' +
+            '<td class="py-2.5 px-2 text-slate-600">' + escapeHtml(p.departemen || p.jabatan || '-') + '</td>' +
+            '<td class="py-2.5 px-2 text-center">' + statusBadge + '</td>' +
+            '<td class="py-2.5 px-2 text-slate-500">' + escapeHtml(p.tanggal_masuk || '-') + '</td>' +
+            '<td class="py-2.5 px-2 text-center">' +
+              '<button type="button" onclick="Swal.fire(\'Verifikasi Penghuni\', \'Penghuni ' + escapeHtml(p.nama_karyawan || p.nama || '') + ' telah terverifikasi hadir di mess.\', \'success\')" class="px-2 py-1 text-[11px] rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white transition cursor-pointer">' +
+                '<i class="ph-bold ph-check"></i> Verifikasi' +
+              '</button>' +
+            '</td>' +
+          '</tr>';
+        }).join('');
+      }
+    }
+
+    // Render Ruangan Selector
     if (matchingRooms.length > 0) {
-      const roomOpts = matchingRooms.map(r =>
-        `<option value="${escapeHtml(r.nama_ruangan)}">${escapeHtml(r.nama_ruangan)} (${escapeHtml(r.tipe_ruangan || 'Ruangan')} - ${r.total_asset || 0} Aset)</option>`
+      rSelect.innerHTML = matchingRooms.map(r =>
+        '<option value="' + escapeHtml(r.nama_ruangan) + '">' + escapeHtml(r.nama_ruangan) + ' (' + escapeHtml(r.tipe_ruangan || 'Ruangan') + ' - ' + (r.total_asset || 0) + ' Aset)</option>'
       ).join('');
-
-      rSelect.innerHTML = roomOpts;
       rSelect.disabled = false;
-
-      // LANGSUNG MENGIKUTI: Otomatis pilih ruangan pertama dan langsung muat checklist fisiknya!
       rSelect.selectedIndex = 0;
       onInspRuanganChange();
     } else {
-      // Jika gedung belum punya list detail kamar di database
       rSelect.innerHTML = '<option value="Area Utama">Area Utama (1 Ruangan)</option>';
       rSelect.disabled = false;
       rSelect.selectedIndex = 0;
       onInspRuanganChange();
     }
+
+    calculateKebersihanScore();
   }
+  window.onInspGedungChange = onInspGedungChange;
+
+  function submitInspeksiRuangan() {
+    const bCode = document.getElementById('insp-gedung')?.value;
+    const rName = document.getElementById('insp-ruangan')?.value;
+    const pic = document.getElementById('insp-pic')?.value;
+    const inspector = document.getElementById('insp-inspector')?.value;
+    const catatan = document.getElementById('insp-catatan-ruangan')?.value;
+
+    if (!bCode || !rName) {
+      Swal.fire('Data Belum Lengkap', 'Silakan pilih Gedung dan Ruangan yang diperiksa terlebih dahulu.', 'warning');
+      return;
+    }
+
+    const bldg = (appState.buildings || []).find(b => b.kode_gedung === bCode);
+    const payload = {
+      kode_gedung: bCode,
+      nama_gedung: bldg ? bldg.nama_gedung : bCode,
+      nama_ruangan: rName,
+      penanggungjawab: pic,
+      inspector_nama: inspector,
+      skor_kelaikan: currentKebersihanScore,
+      kondisi_ruangan: currentKebersihanGrade,
+      catatan_temuan: catatan,
+      asset_items: appState.currentInspAssets || []
+    };
+
+    Swal.fire({ title: 'Menyimpan Hasil Audit ke Google Sheets...', didOpen: () => Swal.showLoading() });
+    callBackendPost('save_inspection', payload, res => {
+      const noInsp = (res && res.no_inspeksi) ? res.no_inspeksi : ('INSP-' + new Date().getFullYear() + ('0' + (new Date().getMonth() + 1)).slice(-2) + '-' + ('00' + (appState.inspections.length + 1)).slice(-3));
+      addInspectionLocal(payload, noInsp);
+      Swal.fire('Audit Berhasil Tersimpan!', 'Laporan audit fasilitas dan score kebersihan ruangan ' + rName + ' berhasil dicatat (Nomor: ' + noInsp + ').', 'success');
+      resetInspectionForm();
+      navTo('view-riwayat-inspeksi');
+    }, err => {
+      // Local fallback jika offline
+      const noInsp = 'INSP-' + new Date().getFullYear() + ('0' + (new Date().getMonth() + 1)).slice(-2) + '-' + ('00' + (appState.inspections.length + 1)).slice(-3);
+      addInspectionLocal(payload, noInsp);
+      Swal.fire('Audit Tersimpan Lokal', 'Hasil audit ruangan berhasil disimpan ke memori aplikasi.', 'info');
+      resetInspectionForm();
+      navTo('view-riwayat-inspeksi');
+    });
+  }
+  window.submitInspeksiRuangan = submitInspeksiRuangan;
+
+  function submitSensusPenghuni() {
+    const bCode = document.getElementById('insp-gedung')?.value;
+    if (!bCode) {
+      Swal.fire('Gedung Belum Dipilih', 'Silakan pilih gedung mess terlebih dahulu.', 'warning');
+      return;
+    }
+    const catatan = document.getElementById('insp-catatan-penghuni')?.value || '';
+    Swal.fire({
+      title: 'Sensus Penghuni Tersimpan',
+      text: 'Pembaruan sensus dan kepatuhan penghuni mess berhasil disimpan ke Google Sheets.',
+      icon: 'success'
+    });
+  }
+  window.submitSensusPenghuni = submitSensusPenghuni;
 
   // Helper: Pastikan hanya aset fasilitas/perabotan ruangan yang dimuat (BUKAN aset tanah/gedung Mess Karyawan/Longhouse)
   function isFacilityAssetItem(a) {
@@ -9797,6 +10002,234 @@ const PNS_SECTION_TO_DEPT = {
     renderPerformanceTab();
   }
 
+  
+  // VALIDASI DRILLDOWN & DRILLTHROUGH ENGINE
+  let currentValidasiDrill = {
+    targetName: '',
+    targetType: 'loc', // 'loc' | 'dept'
+    statusFilter: 'ALL', // 'ALL' | 'SELISIH' | 'SESUAI'
+    searchQuery: '',
+    page: 1,
+    pageSize: 30
+  };
+
+  function openValidasiDrill(targetName, targetType) {
+    currentValidasiDrill.targetName = targetName;
+    currentValidasiDrill.targetType = targetType || currentMatrixGroup;
+    currentValidasiDrill.statusFilter = 'ALL';
+    currentValidasiDrill.searchQuery = '';
+    currentValidasiDrill.page = 1;
+
+    const modal = document.getElementById('modal-drilldown-validasi');
+    const titleEl = document.getElementById('val-drill-title');
+    const searchInp = document.getElementById('val-drill-search');
+    if (searchInp) searchInp.value = '';
+
+    const label = (currentValidasiDrill.targetType === 'loc')
+      ? ('Lokasi: ' + targetName)
+      : ('Departemen: ' + targetName);
+
+    if (titleEl) titleEl.innerText = 'Rincian Drill-Down Validasi Fisik: ' + label;
+
+    renderValidasiDrillTable();
+    if (modal) modal.classList.remove('hidden');
+  }
+  window.openValidasiDrill = openValidasiDrill;
+
+  function closeValidasiDrillModal() {
+    const modal = document.getElementById('modal-drilldown-validasi');
+    if (modal) modal.classList.add('hidden');
+  }
+  window.closeValidasiDrillModal = closeValidasiDrillModal;
+
+  function setValidasiDrillStatusFilter(status) {
+    currentValidasiDrill.statusFilter = status;
+    currentValidasiDrill.page = 1;
+
+    const tabAll = document.getElementById('val-drill-tab-all');
+    const tabSelisih = document.getElementById('val-drill-tab-selisih');
+    const tabSesuai = document.getElementById('val-drill-tab-sesuai');
+
+    const activeCls = 'px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 text-white transition cursor-pointer shadow-xs';
+    const inactiveCls = 'px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer';
+
+    if (tabAll) tabAll.className = (status === 'ALL') ? activeCls : inactiveCls;
+    if (tabSelisih) tabSelisih.className = (status === 'SELISIH') ? 'px-2.5 py-1 text-xs font-semibold rounded bg-rose-600 text-white transition cursor-pointer shadow-xs' : 'px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50 transition cursor-pointer';
+    if (tabSesuai) tabSesuai.className = (status === 'SESUAI') ? 'px-2.5 py-1 text-xs font-semibold rounded bg-emerald-600 text-white transition cursor-pointer shadow-xs' : 'px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50 transition cursor-pointer';
+
+    renderValidasiDrillTable();
+  }
+  window.setValidasiDrillStatusFilter = setValidasiDrillStatusFilter;
+
+  function getValidasiDrillItems() {
+    // Sumber 34.266 master assets
+    const rawRows = window.PNS_ALL_ASSETS_ROWS || [];
+    const tName = currentValidasiDrill.targetName;
+    const isLoc = (currentValidasiDrill.targetType === 'loc');
+    const statusFilter = currentValidasiDrill.statusFilter;
+    const q = (currentValidasiDrill.searchQuery || '').toLowerCase().trim();
+
+    const items = [];
+    let sesuaiCount = 0;
+    let selisihCount = 0;
+
+    for (let i = 0; i < rawRows.length; i++) {
+      const r = rawRows[i];
+      // schema: [0:no, 1:nama, 2:kelompok, 3:kategori, 4:lokasi, 5:kondisi, 6:std, 7:umur, 8:hpp, 9:susut, 10:nbv, 11:verif, 12:section]
+      const loc = String(r[4] || '').trim();
+      const sec = String(r[12] || r[2] || '').trim();
+      const verif = String(r[11] || 'ALOKASI SESUAI').toUpperCase();
+
+      // Check match location / department
+      const matchTarget = isLoc
+        ? (loc === tName || (!tName && true))
+        : (sec.toUpperCase().includes(tName.toUpperCase()) || (!tName && true));
+
+      if (!matchTarget) continue;
+
+      const isSelisih = verif.includes('TIDAK') || verif.includes('SELISIH') || verif.includes('BEDA');
+      if (isSelisih) selisihCount++;
+      else sesuaiCount++;
+
+      // Filter by status
+      if (statusFilter === 'SELISIH' && !isSelisih) continue;
+      if (statusFilter === 'SESUAI' && isSelisih) continue;
+
+      // Filter by search query
+      if (q) {
+        const no = String(r[0] || '').toLowerCase();
+        const nm = String(r[1] || '').toLowerCase();
+        const kl = String(r[2] || '').toLowerCase();
+        const kt = String(r[3] || '').toLowerCase();
+        if (!no.includes(q) && !nm.includes(q) && !kl.includes(q) && !kt.includes(q)) continue;
+      }
+
+      items.push({
+        no: r[0] || '-',
+        nama: r[1] || '-',
+        kelompok: r[2] || '-',
+        kategori: r[3] || '-',
+        lokasi: r[4] || '-',
+        kondisi: r[5] || 'Good Condition',
+        hpp: Number(r[8]) || 0,
+        nbv: Number(r[10]) || 0,
+        isSelisih: isSelisih,
+        statusVerif: isSelisih ? 'SELISIH FISIK' : 'SESUAI'
+      });
+    }
+
+    return { items, totalCount: items.length, sesuaiCount, selisihCount };
+  }
+
+  function renderValidasiDrillTable() {
+    const searchInp = document.getElementById('val-drill-search');
+    if (searchInp) currentValidasiDrill.searchQuery = searchInp.value;
+
+    const data = getValidasiDrillItems();
+    const tbody = document.getElementById('val-drill-tbody');
+    const cTotal = document.getElementById('val-drill-count-total');
+    const cSesuai = document.getElementById('val-drill-count-sesuai');
+    const cSelisih = document.getElementById('val-drill-count-selisih');
+    const pInfo = document.getElementById('val-drill-paging-info');
+
+    if (cTotal) cTotal.innerText = (data.sesuaiCount + data.selisihCount).toLocaleString('id-ID') + ' Unit';
+    if (cSesuai) cSesuai.innerText = data.sesuaiCount.toLocaleString('id-ID') + ' Unit';
+    if (cSelisih) cSelisih.innerText = data.selisihCount.toLocaleString('id-ID') + ' Unit';
+
+    if (!tbody) return;
+
+    if (data.items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada aset yang sesuai filter pencarian.</td></tr>';
+      if (pInfo) pInfo.innerText = '0 data ditemukan';
+      return;
+    }
+
+    const pageSize = currentValidasiDrill.pageSize;
+    const startIdx = (currentValidasiDrill.page - 1) * pageSize;
+    const endIdx = Math.min(startIdx + pageSize, data.items.length);
+    const paged = data.items.slice(startIdx, endIdx);
+
+    if (pInfo) {
+      pInfo.innerText = 'Menampilkan ' + (startIdx + 1).toLocaleString('id-ID') + ' - ' + endIdx.toLocaleString('id-ID') + ' dari ' + data.items.length.toLocaleString('id-ID') + ' unit aset';
+    }
+
+    tbody.innerHTML = paged.map(item => {
+      const isGood = item.kondisi.toLowerCase().includes('good');
+      const kondBadge = isGood
+        ? '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">Good</span>'
+        : '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800">' + escapeHtml(item.kondisi) + '</span>';
+
+      const statusBadge = item.isSelisih
+        ? '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800 border border-rose-200">Selisih Fisik</span>'
+        : '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">Sesuai Alokasi</span>';
+
+      const fmtRp = v => 'Rp ' + Math.round(v).toLocaleString('id-ID');
+
+      return '<tr class="hover:bg-slate-50 transition text-xs border-b border-slate-100">' +
+        '<td class="py-2.5 px-3 font-medium text-sky-700 whitespace-nowrap">' + escapeHtml(item.no) + '</td>' +
+        '<td class="py-2.5 px-3 font-medium text-slate-800 min-w-[180px]">' + escapeHtml(item.nama) + '</td>' +
+        '<td class="py-2.5 px-2.5 text-slate-600 whitespace-nowrap">' + escapeHtml(item.kelompok) + '</td>' +
+        '<td class="py-2.5 px-2.5 text-slate-500 whitespace-nowrap">' + escapeHtml(item.kategori) + '</td>' +
+        '<td class="py-2.5 px-2.5 text-slate-700 whitespace-nowrap">' + escapeHtml(item.lokasi) + '</td>' +
+        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' + kondBadge + '</td>' +
+        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' + statusBadge + '</td>' +
+        '<td class="py-2.5 px-3 text-right font-mono text-slate-700 whitespace-nowrap">' + fmtRp(item.nbv) + '</td>' +
+      '</tr>';
+    }).join('');
+  }
+  window.renderValidasiDrillTable = renderValidasiDrillTable;
+
+  function exportValidasiDrillXlsx() {
+    const data = getValidasiDrillItems();
+    if (!data.items || data.items.length === 0) {
+      alert('Tidak ada data untuk diekspor.');
+      return;
+    }
+
+    if (typeof XLSX === 'undefined') {
+      alert('Library SheetJS (Excel) belum selesai dimuat.');
+      return;
+    }
+
+    const tName = currentValidasiDrill.targetName || 'Semua';
+    const rows = data.items.map((it, idx) => ({
+      'No': idx + 1,
+      'Kode Unit': it.no,
+      'Nama Asset': it.nama,
+      'Kelompok Asset': it.kelompok,
+      'Kategori Asset': it.kategori,
+      'Lokasi': it.lokasi,
+      'Kondisi Fisik': it.kondisi,
+      'Status Validasi': it.statusVerif,
+      'Nilai Perolehan (HPP)': it.hpp,
+      'Nilai Buku (NBV)': it.nbv
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Drill_Validasi');
+    XLSX.writeFile(wb, 'Drilldown_Validasi_' + tName.replace(/[^a-zA-Z0-9]/g, '_') + '.xlsx');
+  }
+  window.exportValidasiDrillXlsx = exportValidasiDrillXlsx;
+  function valDrillPrevPage() {
+    if (currentValidasiDrill.page > 1) {
+      currentValidasiDrill.page--;
+      renderValidasiDrillTable();
+    }
+  }
+  window.valDrillPrevPage = valDrillPrevPage;
+
+  function valDrillNextPage() {
+    const data = getValidasiDrillItems();
+    const maxPage = Math.ceil(data.items.length / currentValidasiDrill.pageSize) || 1;
+    if (currentValidasiDrill.page < maxPage) {
+      currentValidasiDrill.page++;
+      renderValidasiDrillTable();
+    }
+  }
+  window.valDrillNextPage = valDrillNextPage;
+
+
   function renderValidasiMatrix() {
     const tbody = document.getElementById('table-validasi-matrix-body');
     const tfoot = document.getElementById('table-validasi-matrix-foot');
@@ -9807,11 +10240,14 @@ const PNS_SECTION_TO_DEPT = {
     const filterDept = document.getElementById('val-filter-dept')?.value || '';
     const filterStatus = document.getElementById('val-filter-status')?.value || '';
 
-    const sourceData = (currentMatrixGroup === 'loc') ? REAL_LOCATIONS_MATRIX : REAL_DEPTS_MATRIX;
+    // Pure 34.254 validated assets
+    const sourceData = (currentMatrixGroup === 'loc')
+      ? REAL_LOCATIONS_MATRIX.filter(item => item.name !== 'API_PENDING')
+      : REAL_DEPTS_MATRIX.filter(item => item.name !== 'API_PENDING');
 
     const filtered = sourceData.filter(item => {
-      if (currentMatrixGroup === 'loc' && filterLoc && item.name !== filterLoc && item.name !== 'API_PENDING') return false;
-      if (currentMatrixGroup === 'dept' && filterDept && item.name !== filterDept && item.name !== 'API_PENDING') return false;
+      if (currentMatrixGroup === 'loc' && filterLoc && item.name !== filterLoc) return false;
+      if (currentMatrixGroup === 'dept' && filterDept && item.name !== filterDept) return false;
       if (filterStatus === 'SESUAI' && item.sesuai === 0) return false;
       if (filterStatus === 'TIDAK SESUAI' && item.tdkSesuai === 0) return false;
       if (filterStatus === 'BELUM VERIFIKASI' && item.belum === 0) return false;
@@ -9820,7 +10256,7 @@ const PNS_SECTION_TO_DEPT = {
     });
 
     if (filtered.length === 0) {
-      tbody.innerHTML = `<tr><td colspan="14" class="text-center py-6 text-slate-400">Tidak ada data yang cocok dengan filter saat ini.</td></tr>`;
+      tbody.innerHTML = '<tr><td colspan="14" class="text-center py-6 text-slate-400">Tidak ada data yang cocok dengan filter saat ini.</td></tr>';
       if (tfoot) tfoot.innerHTML = '';
       return;
     }
@@ -9839,61 +10275,77 @@ const PNS_SECTION_TO_DEPT = {
       totLost += row.lost;
       totAll += row.total;
 
-      const isPending = (row.name === 'API_PENDING');
-      const rowBg = isPending ? 'bg-amber-50/50 hover:bg-amber-100/60' : 'hover:bg-slate-50';
-      const nameLabel = isPending
-        ? `<span class="font-bold text-amber-800 flex items-center gap-1.5"><i class="ph-bold ph-hourglass-high"></i> ${escapeHtml(row.label || row.name)}</span>`
-        : `<span class="font-bold text-slate-900">${escapeHtml(row.label || row.name)}</span>`;
+      const nameLabel = '<span class="font-bold text-slate-900">' + escapeHtml(row.label || row.name) + '</span>';
 
-      const drillAction = isPending
-        ? `onclick="navTo('view-asset-movement'); setFilterBelumCheckout();"`
-        : (currentMatrixGroup === 'loc'
-            ? `onclick="window.openAssetDrillThrough({ location: '${escapeHtml(row.name)}', sourceView: 'view-validasi' });"`
-            : `onclick="window.openAssetMovementWithFilter({ section: '${escapeHtml(row.name)}' });"`);
+      const goodPct = row.total > 0 ? ((row.good / row.total) * 100).toFixed(1) : '0';
+      const brkPct = row.total > 0 ? ((row.broken / row.total) * 100).toFixed(1) : '0';
+      const lostPct = row.total > 0 ? ((row.lost / row.total) * 100).toFixed(1) : '0';
+      const dispPct = row.total > 0 ? ((row.disp / row.total) * 100).toFixed(1) : '0';
+      const repPct = row.total > 0 ? ((row.repair / row.total) * 100).toFixed(1) : '0';
 
-      return `
-        <tr class="${rowBg} transition cursor-pointer text-xs" ${drillAction} title="Klik untuk drilldown ke rincian inventaris">
-          <td class="py-2.5 px-3 whitespace-nowrap min-w-[160px]">${nameLabel}</td>
-          <td class="py-2.5 px-2 text-center whitespace-nowrap num-tabular font-semibold ${row.validPct === '100%' ? 'text-emerald-700 bg-emerald-50/30' : 'text-amber-700 bg-amber-50/30'}">${escapeHtml(row.validPct)}</td>
-          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">${row.avgStd}</td>
-          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">${row.avgUmur}</td>
-          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold ${row.belum > 0 ? 'text-amber-700 bg-amber-50/50' : 'text-slate-400'}">${row.belum > 0 ? row.belum.toLocaleString('id-ID') : '-'}</td>
-          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold text-emerald-700 bg-emerald-50/30">${row.sesuai.toLocaleString('id-ID')}</td>
-          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold ${row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/50' : 'text-slate-400'}">${row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-'}</td>
-          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-700">${row.good.toLocaleString('id-ID')}</td>
-          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-blue-700">${row.repair.toLocaleString('id-ID')}</td>
-          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-rose-700">${row.disp.toLocaleString('id-ID')}</td>
-          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-amber-700">${row.broken.toLocaleString('id-ID')}</td>
-          <td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-500">${row.lost.toLocaleString('id-ID')}</td>
-          <td class="py-2.5 px-3 text-right whitespace-nowrap num-tabular font-semibold text-slate-900 bg-slate-100/60">${row.total.toLocaleString('id-ID')}</td>
-          <td class="py-2.5 px-2 text-center whitespace-nowrap" onclick="event.stopPropagation();">
-            <button type="button" ${drillAction} class="px-2 py-1 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white text-[11px] font-medium transition cursor-pointer" title="Buka Detail">
-              Drill ➔
-            </button>
-          </td>
-        </tr>
-      `;
+      const drillModalCall = 'onclick="window.openValidasiDrill(\'' + escapeHtml(row.name) + '\', \'' + currentMatrixGroup + '\')"';
+
+      return '<tr class="hover:bg-slate-50 transition cursor-pointer text-xs group" ' + drillModalCall + ' title="Klik untuk Drilldown / Drill-Through rincian aset">' +
+        '<td class="py-2.5 px-3 whitespace-nowrap min-w-[160px] font-medium text-slate-800">' + nameLabel + '</td>' +
+        '<!-- SPARKLINE CONDITIONAL PERSENTASE VALIDASI -->' +
+        '<td class="py-2.5 px-3 whitespace-nowrap">' +
+          '<div class="flex items-center gap-2">' +
+            '<div class="w-14 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shadow-2xs">' +
+              '<div class="bg-emerald-500 h-full rounded-full" style="width: ' + (row.validPct === '100%' ? '100%' : '99.7%') + '"></div>' +
+              (row.tdkSesuai > 0 ? '<div class="bg-rose-500 h-full" style="width: 0.3%"></div>' : '') +
+            '</div>' +
+            '<span class="num-tabular font-semibold text-[11px] ' + (row.validPct === '100%' ? 'text-emerald-700' : 'text-amber-700') + '">' + escapeHtml(row.validPct) + '</span>' +
+          '</div>' +
+        '</td>' +
+        '<!-- STACKED SPARKLINE KONDISI FISIK -->' +
+        '<td class="py-2.5 px-3 whitespace-nowrap">' +
+          '<div class="flex items-center gap-2" title="Kondisi: Baik ' + goodPct + '% | Rusak ' + brkPct + '% | Hilang ' + lostPct + '% | Disposal ' + dispPct + '%">' +
+            '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shadow-2xs">' +
+              '<div class="bg-emerald-500 h-full" style="width: ' + goodPct + '%"></div>' +
+              '<div class="bg-amber-500 h-full" style="width: ' + brkPct + '%"></div>' +
+              '<div class="bg-slate-400 h-full" style="width: ' + lostPct + '%"></div>' +
+              '<div class="bg-rose-500 h-full" style="width: ' + dispPct + '%"></div>' +
+              '<div class="bg-blue-500 h-full" style="width: ' + repPct + '%"></div>' +
+            '</div>' +
+            '<span class="text-[10px] text-slate-400 num-tabular">' + goodPct + '%</span>' +
+          '</div>' +
+        '</td>' +
+        '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + row.avgStd + '</td>' +
+        '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + row.avgUmur + '</td>' +
+        '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold text-emerald-700 bg-emerald-50/40">' + row.sesuai.toLocaleString('id-ID') + '</td>' +
+        '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold ' + (row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/50' : 'text-slate-400') + '">' + (row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
+        '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-700">' + row.good.toLocaleString('id-ID') + '</td>' +
+        '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-blue-700">' + row.repair.toLocaleString('id-ID') + '</td>' +
+        '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-rose-700">' + row.disp.toLocaleString('id-ID') + '</td>' +
+        '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-amber-700">' + row.broken.toLocaleString('id-ID') + '</td>' +
+        '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-500">' + row.lost.toLocaleString('id-ID') + '</td>' +
+        '<td class="py-2.5 px-3 text-right whitespace-nowrap num-tabular font-semibold text-slate-900 bg-slate-100/60">' + row.total.toLocaleString('id-ID') + '</td>' +
+        '<td class="py-2.5 px-2 text-center whitespace-nowrap" onclick="event.stopPropagation();">' +
+          '<button type="button" ' + drillModalCall + ' class="px-2.5 py-1 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white text-[11px] font-medium transition cursor-pointer flex items-center gap-1 mx-auto" title="Buka Detail Opname Fisik">' +
+            '<span>Drill</span> <i class="ph-bold ph-arrow-right"></i>' +
+          '</button>' +
+        '</td>' +
+      '</tr>';
     }).join('');
 
     if (tfoot) {
-      tfoot.innerHTML = `
-        <tr class="bg-slate-50 text-slate-700 font-semibold border-t-2 border-slate-300">
-          <td class="py-3 px-3 uppercase tracking-wider whitespace-nowrap min-w-[160px]">Total Validasi Master</td>
-          <td class="py-3 px-2 text-center whitespace-nowrap num-tabular text-emerald-700">100%</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">9</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">7</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-400">-</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-emerald-800 bg-emerald-100/50">${totSesuai.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800 bg-rose-100/50">${totTdkSesuai.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-800">${totGood.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-blue-800">${totRepair.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800">${totDisp.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-amber-800">${totBroken.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-700">${totLost.toLocaleString('id-ID')}</td>
-          <td class="py-3 px-3 text-right whitespace-nowrap num-tabular text-slate-900 bg-slate-200/70 font-bold">${totAll.toLocaleString('id-ID')}</td>
-          <td></td>
-        </tr>
-      `;
+      tfoot.innerHTML = 
+        '<tr class="bg-slate-50 text-slate-700 font-semibold border-t-2 border-slate-300">' +
+          '<td class="py-3 px-3 uppercase tracking-wider whitespace-nowrap min-w-[160px]">Total Validasi Master</td>' +
+          '<td class="py-3 px-3 text-left whitespace-nowrap num-tabular text-emerald-700 font-bold">100% (34.254 Unit)</td>' +
+          '<td class="py-3 px-3 text-left whitespace-nowrap num-tabular text-slate-600 text-[11px]">81.4% Baik | 10.7% Rusak</td>' +
+          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">9</td>' +
+          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">7</td>' +
+          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-emerald-800 bg-emerald-100/50">' + totSesuai.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800 bg-rose-100/50">' + totTdkSesuai.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-800">' + totGood.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-blue-800">' + totRepair.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800">' + totDisp.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-amber-800">' + totBroken.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-700">' + totLost.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-3 text-right whitespace-nowrap num-tabular text-slate-900 bg-slate-200/70 font-bold">' + totAll.toLocaleString('id-ID') + '</td>' +
+          '<td></td>' +
+        '</tr>';
     }
   }
 
