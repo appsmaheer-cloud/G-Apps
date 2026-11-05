@@ -734,6 +734,19 @@
               </select>
             </div>
 
+            <!-- Slicer: Urutan (Sort) Aset Prioritas -->
+            <div class="flex items-center bg-slate-50 rounded-xl px-3 py-1.5 border border-slate-200/90 shrink-0 shadow-2xs">
+              <span class="text-[10px] font-extrabold text-slate-400 uppercase mr-1.5">Urutan:</span>
+              <select id="slicer-asset-sort" onchange="window.onAssetCatalogSortChange(this.value)" class="bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer">
+                <option value="nbv_desc">Nilai Buku Tertinggi &darr;</option>
+                <option value="hpp_desc">Harga Perolehan Tertinggi &darr;</option>
+                <option value="nama_asc">Nama Aset (A - Z)</option>
+                <option value="kode_asc">Kode Unit (A - Z)</option>
+                <option value="kondisi_crit">Kondisi Kritis / Rusak Dahulu</option>
+                <option value="umur_desc">Umur Aset Tertua &darr;</option>
+              </select>
+            </div>
+
             <!-- Quick Search Box -->
             <div class="flex items-center bg-slate-50 rounded-xl px-3 py-1.5 border border-slate-200/90 max-w-[210px] w-full shadow-2xs">
               <i class="ph-bold ph-magnifying-glass text-slate-400 mr-2 text-xs"></i>
@@ -788,10 +801,10 @@
         </div>
 
         <!-- Visuals & Catalog Table -->
-        <div class="grid grid-cols-1 xl:grid-cols-12 gap-3.5 min-h-[480px]">
+        <div id="asset-catalog-grid" class="grid grid-cols-1 xl:grid-cols-12 gap-3.5 min-h-[480px]">
           
           <!-- Left Charts -->
-          <div class="xl:col-span-5 flex flex-col gap-3.5">
+          <div id="asset-catalog-left-col" class="xl:col-span-5 flex flex-col gap-3.5">
             <div class="clean-card p-4 flex flex-col min-h-[250px] shadow-xs">
               <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
                 <span class="text-xs sm:text-sm font-bold text-slate-800">Distribusi Kondisi Fisik Aset</span>
@@ -811,13 +824,17 @@
           </div>
 
           <!-- Right Catalog Table -->
-          <div class="clean-card xl:col-span-7 p-4 flex flex-col min-h-[500px] shadow-xs">
+          <div id="asset-catalog-right-col" class="clean-card xl:col-span-7 p-4 flex flex-col min-h-[500px] shadow-xs transition-all duration-300">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-slate-100 gap-2 shrink-0">
               <div>
                 <span class="text-xs sm:text-sm font-bold text-slate-800 block">Katalog Lengkap Master Aset</span>
                 <span class="text-[10.5px] text-slate-400 font-medium" id="all-asset-paging-info">Klik baris mana saja untuk melihat Dossier &amp; Spesifikasi Lengkap</span>
               </div>
-              <div class="flex items-center gap-1.5">
+              <div class="flex items-center gap-1.5 flex-wrap">
+                <button type="button" onclick="window.toggleAssetTableExpand()" id="btn-toggle-asset-table-expand" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 flex items-center gap-1 cursor-pointer transition shadow-2xs" title="Lebarkan Tabel Katalog ke Ukuran Penuh">
+                  <i class="ph-bold ph-arrows-out-simple"></i>
+                  <span id="txt-toggle-asset-table">Lebarkan</span>
+                </button>
                 <button type="button" onclick="changeAssetPage(-1)" id="btn-asset-prev" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 disabled:opacity-40 cursor-pointer">
                   &larr; Prev
                 </button>
@@ -827,19 +844,31 @@
                 </button>
               </div>
             </div>
-            <div class="flex-1 overflow-auto scrollbar-thin mt-2 max-h-[440px]">
+            <div class="flex-1 overflow-auto scrollbar-thin mt-2 max-h-[460px]">
               <table class="w-full text-left border-collapse whitespace-nowrap text-xs">
-                <thead class="sticky top-0 bg-slate-50/95 backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200">
+                <thead class="sticky top-0 bg-slate-50/95 backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200 select-none">
                   <tr>
-                    <th class="px-3 py-2.5 min-w-[130px]">Kode Unit</th>
-                    <th class="px-3 py-2.5 min-w-[180px]">Nama Asset</th>
+                    <th onclick="window.onAssetCatalogSortChange('kode_asc')" class="px-3 py-2.5 min-w-[130px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Kode Unit">
+                      <div class="flex items-center gap-1"><span>Kode Unit</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
+                    </th>
+                    <th onclick="window.onAssetCatalogSortChange('nama_asc')" class="px-3 py-2.5 min-w-[180px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Nama Aset (A-Z)">
+                      <div class="flex items-center gap-1"><span>Nama Asset</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
+                    </th>
                     <th class="px-3 py-2.5 min-w-[120px]">Kategori</th>
                     <th class="px-3 py-2.5 min-w-[130px]">Kelompok</th>
-                    <th class="px-3 py-2.5 text-center min-w-[100px]">Kondisi</th>
-                    <th class="px-3 py-2.5 text-center min-w-[90px]">Umur / Std</th>
+                    <th onclick="window.onAssetCatalogSortChange('kondisi_crit')" class="px-3 py-2.5 text-center min-w-[100px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Kondisi Fisik">
+                      <div class="flex items-center justify-center gap-1"><span>Kondisi</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
+                    </th>
+                    <th onclick="window.onAssetCatalogSortChange('umur_desc')" class="px-3 py-2.5 text-center min-w-[90px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Umur Aset">
+                      <div class="flex items-center justify-center gap-1"><span>Umur / Std</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
+                    </th>
                     <th class="px-3 py-2.5 text-center min-w-[90px]">Lifetime</th>
-                    <th class="px-3 py-2.5 text-right min-w-[120px]">Harga Perolehan</th>
-                    <th class="px-3 py-2.5 text-right font-bold text-cyan-600 min-w-[120px]">Nilai Buku</th>
+                    <th onclick="window.onAssetCatalogSortChange('hpp_desc')" class="px-3 py-2.5 text-right min-w-[120px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Harga Perolehan Tertinggi">
+                      <div class="flex items-center justify-end gap-1"><span>Harga Perolehan</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
+                    </th>
+                    <th onclick="window.onAssetCatalogSortChange('nbv_desc')" class="px-3 py-2.5 text-right font-bold text-cyan-600 min-w-[120px] hover:text-cyan-800 cursor-pointer" title="Urutkan berdasarkan Nilai Buku Tertinggi">
+                      <div class="flex items-center justify-end gap-1"><span>Nilai Buku</span><i class="ph-bold ph-arrows-down-up text-[10px] text-cyan-500"></i></div>
+                    </th>
                     <th class="px-3 py-2.5 text-center min-w-[70px]">Aksi</th>
                   </tr>
                 </thead>
@@ -1214,8 +1243,9 @@
                             <div>
                                 <div class="flex items-center gap-2.5 flex-wrap">
                                     <h2 id="dt-drill-title" class="text-base sm:text-lg font-black text-slate-900 tracking-tight uppercase">CENTRAL OFFICE</h2>
-                                    <button type="button" onclick="window.closeAssetDrillThrough()" class="w-7 h-7 rounded-full border-2 border-slate-600 hover:border-emerald-600 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 flex items-center justify-center transition cursor-pointer shadow-2xs" title="Kembali ke Halaman Sebelumnya (Back)">
-                                        <i class="ph-bold ph-arrow-left text-sm"></i>
+                                    <button type="button" id="btn-dt-drill-back" onclick="window.closeAssetDrillThrough()" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:border-emerald-600 bg-white text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 flex items-center gap-1.5 transition cursor-pointer shadow-2xs text-xs font-bold" title="Kembali ke Halaman Sebelumnya">
+                                        <i class="ph-bold ph-arrow-left text-xs"></i>
+                                        <span id="txt-dt-drill-back">Kembali</span>
                                     </button>
                                     <button type="button" onclick="window.drillFromDtToMovement()" class="px-2.5 py-1 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white flex items-center gap-1.5 shadow-2xs transition cursor-pointer" title="Gerbang Akhir Drill: Buka Detail Asset Movement dengan filter aktif saat ini">
                                         <i class="ph-bold ph-pulse text-xs"></i>
@@ -3058,6 +3088,30 @@
           </div>
         </div>
 
+        <!-- Executive Report Mode Banner (Auto-activated via ?report=validasi or Share Link) -->
+        <div id="validasi-report-mode-banner" class="hidden clean-card p-3.5 bg-gradient-to-r from-emerald-50/90 via-teal-50/70 to-white border-l-4 border-l-emerald-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-xs">
+          <div class="flex items-center gap-3">
+            <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shrink-0 shadow-xs">
+              <i class="ph-bold ph-file-text"></i>
+            </div>
+            <div>
+              <div class="flex items-center gap-2 flex-wrap">
+                <span class="font-bold text-slate-900 uppercase tracking-wide">Dokumen Resmi: Laporan Hasil Validasi &amp; Opname Fisik Aset</span>
+                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">34.840 Unit Terkonsolidasi</span>
+              </div>
+              <p class="text-slate-600 text-[11px] mt-0.5">PT Pratama Nusantara Sakti &bull; Status Validasi 99.7% Sesuai &bull; 0 Selisih Fisik Tidak Terdata &bull; Terverifikasi Akuntansi &amp; Lapangan</p>
+            </div>
+          </div>
+          <div class="flex items-center gap-2 shrink-0">
+            <button type="button" onclick="window.printValidasiReport()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
+              <i class="ph-bold ph-printer text-sm"></i> Cetak / Simpan PDF
+            </button>
+            <button type="button" onclick="document.getElementById('validasi-report-mode-banner').classList.add('hidden')" class="w-7 h-7 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition cursor-pointer" title="Tutup Banner">
+              <i class="ph-bold ph-x text-xs"></i>
+            </button>
+          </div>
+        </div>
+
         <!-- Filter Bar -->
         <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
           <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
@@ -3101,9 +3155,15 @@
             </select>
           </div>
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-wrap">
             <button type="button" onclick="triggerApiPullAndCompare()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium flex items-center gap-1.5 transition cursor-pointer" title="Tarik Data API &amp; Komparasi Otomatis dengan Sheet Asset">
               <i class="ph-bold ph-cloud-arrow-down text-sky-600"></i> Tarik &amp; Compare API
+            </button>
+            <button type="button" onclick="window.copyValidasiReportLink()" class="px-3 py-1.5 rounded-lg border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs" title="Salin link laporan khusus untuk dibagikan langsung ke direksi / tim">
+              <i class="ph-bold ph-share-network text-sky-600"></i> Share Link
+            </button>
+            <button type="button" onclick="window.printValidasiReport()" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs" title="Cetak atau Ekspor format PDF Resmi">
+              <i class="ph-bold ph-printer text-slate-600"></i> Cetak / PDF
             </button>
             <button type="button" onclick="exportValidasiReportXlsx()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1.5 shadow-xs transition cursor-pointer" title="Download Excel Laporan Validasi Lengkap">
               <i class="ph-bold ph-microsoft-excel-logo text-white"></i> Export Excel
@@ -4239,7 +4299,10 @@
         </div>
 
         <!-- Export Excel -->
-        <div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="closeValidasiDrillModal(); window.openAssetMovementView({ section: currentValidasiDrill.targetName, location: currentValidasiDrill.targetName, sourceView: 'view-validasi' })" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 shadow-xs" title="Buka data ini di Halaman Detail Asset Movement">
+            <i class="ph-bold ph-arrow-square-out"></i> Buka Detail Movement &rarr;
+          </button>
           <button type="button" onclick="exportValidasiDrillXlsx()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5 shadow-xs">
             <i class="ph-bold ph-file-xls"></i> Export Excel (.xlsx)
           </button>
@@ -4249,7 +4312,7 @@
       <!-- Drilldown Table Container -->
       <div class="flex-1 overflow-auto p-0 scrollbar-thin">
         <table class="w-full text-left border-collapse text-xs">
-          <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200 z-10">
+          <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200 z-10 select-none">
             <tr>
               <th class="py-2.5 px-3">Kode Unit</th>
               <th class="py-2.5 px-3">Nama Asset</th>
@@ -4259,6 +4322,7 @@
               <th class="py-2.5 px-2">Status Validasi</th>
               <th class="py-2.5 px-3 text-right">Nilai Perolehan (HPP)</th>
               <th class="py-2.5 px-3 text-right">Nilai Buku (NBV)</th>
+              <th class="py-2.5 px-2.5 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody id="val-drill-tbody" class="divide-y divide-slate-100 font-medium">

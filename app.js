@@ -955,7 +955,55 @@ const PNS_SECTION_TO_DEPT = {
     renderValidasiTable();
 
     syncAllFromBackend(false);
+
+    // Deep-Link & Executive Report Route Handler (?view=... / ?report=validasi)
+    try {
+      if (typeof window !== 'undefined' && window.location && window.location.search) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const rep = urlParams.get('report');
+        const view = urlParams.get('view');
+        if (rep === 'validasi' || view === 'view-validasi') {
+          setTimeout(() => {
+            navTo('view-validasi');
+            const repBanner = document.getElementById('validasi-report-mode-banner');
+            if (repBanner) repBanner.classList.remove('hidden');
+          }, 150);
+        } else if (view) {
+          setTimeout(() => { navTo(view); }, 150);
+        }
+      }
+    } catch (e) {}
   });
+
+  function copyValidasiReportLink() {
+    let url = window.location.href.split('?')[0].split('#')[0];
+    url += '?view=view-validasi&report=validasi';
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        if (typeof Swal !== 'undefined') {
+          Swal.fire({
+            icon: 'success',
+            title: 'Link Laporan Validasi Tersalin!',
+            html: '<p class="text-xs text-slate-600">Link laporan validasi berhasil disalin ke clipboard. Buka link tersebut untuk langsung mengakses Laporan Hasil Validasi Eksekutif PT PNS.</p>',
+            timer: 2500,
+            showConfirmButton: false
+          });
+        } else {
+          alert('Link laporan berhasil disalin: ' + url);
+        }
+      }).catch(() => {
+        prompt('Salin link laporan validasi berikut:', url);
+      });
+    } else {
+      prompt('Salin link laporan validasi berikut:', url);
+    }
+  }
+  window.copyValidasiReportLink = copyValidasiReportLink;
+
+  function printValidasiReport() {
+    window.print();
+  }
+  window.printValidasiReport = printValidasiReport;
 
   function initBrandLogos() {
     const fav = document.getElementById('app-favicon');
@@ -4280,6 +4328,12 @@ const PNS_SECTION_TO_DEPT = {
     dtDrillState.crossPerfKey = null;
     dtDrillState.expandedCategories.clear();
 
+    // Dynamic back button text update
+    const backTxt = document.getElementById('txt-dt-drill-back');
+    if (backTxt) {
+      backTxt.innerText = (dtDrillState.sourceView === 'view-validasi') ? 'Kembali ke Validasi' : 'Kembali';
+    }
+
     // Populate and sync slicers
     populateDtSlicers();
     const sType = document.getElementById('dt-slicer-type');
@@ -4410,12 +4464,64 @@ const PNS_SECTION_TO_DEPT = {
     renderAssetDrillThrough();
   }
 
+  // Universal Cross-View Filter Matchers for Enterprise Robustness
+  function matchesSectionOrDept(a, filterVal) {
+    if (!filterVal || filterVal === 'ALL') return true;
+    const q = String(filterVal).trim().toUpperCase();
+    const sec = String(a.section || '').toUpperCase();
+    const dept = String(a.department || '').toUpperCase();
+    const kSec = String(a.kode_section || '').toUpperCase();
+
+    if (sec === q || dept === q || kSec === q) return true;
+    if (dept.includes(q) || q.includes(dept)) return true;
+    if (sec.includes(q) || q.includes(sec)) return true;
+
+    // Check known department mappings
+    if (typeof PNS_SECTION_TO_DEPT !== 'undefined') {
+      const map1 = (PNS_SECTION_TO_DEPT[a.section] || '').toUpperCase();
+      const map2 = (PNS_SECTION_TO_DEPT[a.kode_section] || '').toUpperCase();
+      if (map1 && (map1 === q || map1.includes(q) || q.includes(map1))) return true;
+      if (map2 && (map2 === q || map2.includes(q) || q.includes(map2))) return true;
+    }
+    return false;
+  }
+  window.matchesSectionOrDept = matchesSectionOrDept;
+
+  function matchesLocation(a, filterLoc) {
+    if (!filterLoc || filterLoc === 'ALL') return true;
+    const q = String(filterLoc).trim().toUpperCase();
+    const loc = String(a.location || '').toUpperCase();
+    const rawLoc = String(a.lokasi_raw || '').toUpperCase();
+    let fullLoc = '';
+    if (typeof LOKASI_CODE_FULL_MAP !== 'undefined') {
+      fullLoc = String(LOKASI_CODE_FULL_MAP[rawLoc] || '').toUpperCase();
+    }
+    if (loc === q || rawLoc === q || fullLoc === q) return true;
+    if (loc.includes(q) || q.includes(loc)) return true;
+    return false;
+  }
+  window.matchesLocation = matchesLocation;
+
+  function matchesKondisi(a, filterKond) {
+    if (!filterKond || filterKond === 'ALL') return true;
+    const q = String(filterKond).trim().toLowerCase();
+    const k = String(a.kondisi || '').toLowerCase();
+    if (k === q) return true;
+    if (q.includes('good') || q.includes('baik')) return k.includes('good') || k.includes('baik');
+    if (q.includes('repair') || q.includes('perbaikan')) return k.includes('repair') || k.includes('perbaikan');
+    if (q.includes('broken') || q.includes('rusak')) return k.includes('broken') || k.includes('rusak');
+    if (q.includes('lost') || q.includes('hilang')) return k.includes('lost') || k.includes('hilang');
+    if (q.includes('disp') || q.includes('afkir')) return k.includes('disp') || k.includes('afkir');
+    return k.includes(q);
+  }
+  window.matchesKondisi = matchesKondisi;
+
   function getDtFilteredAssets(includeCrossFilter = true) {
     const allAssets = getAllNormalizedAssets();
     let list = allAssets;
 
     if (dtDrillState.location && dtDrillState.location !== 'ALL') {
-      list = list.filter(a => (a.location || 'CENTRAL OFFICE').toUpperCase() === dtDrillState.location.toUpperCase());
+      list = list.filter(a => matchesLocation(a, dtDrillState.location));
     }
     if (dtDrillState.type === 'VALUABLE') {
       list = list.filter(a => Number(a.total_harga_perolehan || 0) > 0);
@@ -4429,10 +4535,10 @@ const PNS_SECTION_TO_DEPT = {
       list = list.filter(a => (a.kategori_asset || '').toUpperCase() === dtDrillState.category.toUpperCase());
     }
     if (dtDrillState.section && dtDrillState.section !== 'ALL') {
-      list = list.filter(a => (a.section || '').toUpperCase() === dtDrillState.section.toUpperCase());
+      list = list.filter(a => matchesSectionOrDept(a, dtDrillState.section));
     }
     if (dtDrillState.kondisi && dtDrillState.kondisi !== 'ALL') {
-      list = list.filter(a => (a.kondisi || '').toLowerCase().includes(dtDrillState.kondisi.toLowerCase()));
+      list = list.filter(a => matchesKondisi(a, dtDrillState.kondisi));
     }
 
     if (includeCrossFilter) {
@@ -4445,7 +4551,7 @@ const PNS_SECTION_TO_DEPT = {
         } else if (dtDrillState.perfDim === 'name') {
           list = list.filter(a => (a.nama_asset || 'ASET') === dtDrillState.crossPerfKey);
         } else {
-          list = list.filter(a => (a.section || 'General Services') === dtDrillState.crossPerfKey);
+          list = list.filter(a => matchesSectionOrDept(a, dtDrillState.crossPerfKey));
         }
       }
     }
@@ -5229,7 +5335,7 @@ const PNS_SECTION_TO_DEPT = {
   function getMovBaseAssets() {
     let list = getAllNormalizedAssets();
     if (movState.location && movState.location !== 'ALL') {
-      list = list.filter(a => (a.lokasi_raw || '').toUpperCase() === movState.location.toUpperCase() || (a.location || '').toUpperCase() === movState.location.toUpperCase());
+      list = list.filter(a => matchesLocation(a, movState.location));
     }
     if (movState.jenis && movState.jenis !== 'ALL') {
       list = list.filter(a => (a.jenis_asset || '') === movState.jenis);
@@ -5241,7 +5347,7 @@ const PNS_SECTION_TO_DEPT = {
       list = list.filter(a => (a.kategori_asset || '').toUpperCase() === movState.category.toUpperCase());
     }
     if (movState.section && movState.section !== 'ALL') {
-      list = list.filter(a => (a.section || '').toUpperCase() === movState.section.toUpperCase());
+      list = list.filter(a => matchesSectionOrDept(a, movState.section));
     }
     return list;
   }
@@ -5249,7 +5355,7 @@ const PNS_SECTION_TO_DEPT = {
   function getMovTableFilteredAssets() {
     let list = getMovBaseAssets();
     if (movState.kondisi && movState.kondisi !== 'ALL') {
-      list = list.filter(a => (a.kondisi || '').toLowerCase().includes(movState.kondisi.toLowerCase()));
+      list = list.filter(a => matchesKondisi(a, movState.kondisi));
     }
     if (movState.selectedNamaAsset) {
       list = list.filter(a => (a.nama_asset || '').toUpperCase() === movState.selectedNamaAsset.toUpperCase());
@@ -9370,6 +9476,47 @@ const PNS_SECTION_TO_DEPT = {
     renderAllAssetsTable();
   }
 
+  window.currentAssetCatalogSort = 'nbv_desc';
+
+  function onAssetCatalogSortChange(sortKey) {
+    if (sortKey) window.currentAssetCatalogSort = sortKey;
+    const sortSelect = document.getElementById('slicer-asset-sort');
+    if (sortSelect && sortSelect.value !== window.currentAssetCatalogSort) {
+      sortSelect.value = window.currentAssetCatalogSort;
+    }
+    assetCurrentPage = 1;
+    renderAllAssetsTable();
+  }
+  window.onAssetCatalogSortChange = onAssetCatalogSortChange;
+
+  let isAssetTableExpanded = false;
+  function toggleAssetTableExpand() {
+    isAssetTableExpanded = !isAssetTableExpanded;
+    const leftCol = document.getElementById('asset-catalog-left-col');
+    const rightCol = document.getElementById('asset-catalog-right-col');
+    const btnTxt = document.getElementById('txt-toggle-asset-table');
+    const btn = document.getElementById('btn-toggle-asset-table-expand');
+
+    if (isAssetTableExpanded) {
+      if (leftCol) leftCol.classList.add('hidden');
+      if (rightCol) {
+        rightCol.classList.remove('xl:col-span-7');
+        rightCol.classList.add('xl:col-span-12');
+      }
+      if (btnTxt) btnTxt.innerText = 'Ciutkan';
+      if (btn) btn.classList.add('bg-slate-200');
+    } else {
+      if (leftCol) leftCol.classList.remove('hidden');
+      if (rightCol) {
+        rightCol.classList.remove('xl:col-span-12');
+        rightCol.classList.add('xl:col-span-7');
+      }
+      if (btnTxt) btnTxt.innerText = 'Lebarkan';
+      if (btn) btn.classList.remove('bg-slate-200');
+    }
+  }
+  window.toggleAssetTableExpand = toggleAssetTableExpand;
+
   
   // UNIFIED ASSET CATALOG PROVIDER: 34.266 Master + 574 Belum Checkout = 34.840 Unit
   window.currentAssetCatalogSegment = 'ALL'; // 'ALL' | 'MASTER' | 'BELUM_CHECKOUT'
@@ -9722,6 +9869,35 @@ const PNS_SECTION_TO_DEPT = {
     // 7. Render Master Matrix Table
     const tbody = document.getElementById('table-pbi-asset-matrix') || document.getElementById('table-all-assets-body');
     if (!tbody) return;
+
+    // Apply Intelligent Enterprise Sorting before Pagination
+    const currentSort = window.currentAssetCatalogSort || 'nbv_desc';
+    filtered.sort((a, b) => {
+      const hppA = Number(a[8]) || 0;
+      const hppB = Number(b[8]) || 0;
+      const nbvA = Number(a[10]) || 0;
+      const nbvB = Number(b[10]) || 0;
+      const umurA = Number(a[7]) || 0;
+      const umurB = Number(b[7]) || 0;
+
+      if (currentSort === 'nbv_desc') return nbvB - nbvA;
+      if (currentSort === 'hpp_desc') return hppB - hppA;
+      if (currentSort === 'nama_asc') return String(a[1] || '').localeCompare(String(b[1] || ''));
+      if (currentSort === 'kode_asc') return String(a[0] || '').localeCompare(String(b[0] || ''));
+      if (currentSort === 'umur_desc') return umurB - umurA;
+      if (currentSort === 'kondisi_crit') {
+        const score = k => {
+          const l = String(k || '').toLowerCase();
+          if (l.includes('lost')) return 1;
+          if (l.includes('broken')) return 2;
+          if (l.includes('disp')) return 3;
+          if (l.includes('repair')) return 4;
+          return 5;
+        };
+        return score(a[5]) - score(b[5]);
+      }
+      return nbvB - nbvA;
+    });
 
     const totalPages = Math.max(1, Math.ceil(filteredCount / assetPageSize));
     if (assetCurrentPage > totalPages) assetCurrentPage = totalPages;
@@ -10306,10 +10482,12 @@ const PNS_SECTION_TO_DEPT = {
       const sec = String(r[12] || r[2] || '').trim();
       const verif = String(r[11] || 'ALOKASI SESUAI').toUpperCase();
 
-      // Check match location / department
-      const matchTarget = isLoc
-        ? (loc === tName || (!tName && true))
-        : (sec.toUpperCase().includes(tName.toUpperCase()) || (!tName && true));
+      // Check match location / department with universal matchers
+      const matchTarget = !tName
+        ? true
+        : isLoc
+          ? matchesLocation({ location: LOKASI_CODE_FULL_MAP[loc] || loc, lokasi_raw: loc }, tName)
+          : matchesSectionOrDept({ section: sec, department: sec, kode_section: sec }, tName);
 
       if (!matchTarget) continue;
 
@@ -10365,7 +10543,7 @@ const PNS_SECTION_TO_DEPT = {
     if (!tbody) return;
 
     if (data.items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="8" class="text-center py-8 text-slate-400">Tidak ada aset yang sesuai filter pencarian.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Tidak ada aset yang sesuai filter pencarian.</td></tr>';
       if (pInfo) pInfo.innerText = '0 data ditemukan';
       return;
     }
@@ -10400,6 +10578,9 @@ const PNS_SECTION_TO_DEPT = {
         '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' + kondBadge + '</td>' +
         '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' + statusBadge + '</td>' +
         '<td class="py-2.5 px-3 text-right font-mono text-slate-700 whitespace-nowrap">' + fmtRp(item.nbv) + '</td>' +
+        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' +
+          '<button type="button" onclick="closeValidasiDrillModal(); window.drillToAssetDetail(\'' + escapeHtml(item.no) + '\')" class="px-2 py-1 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 text-[10px] font-bold border border-sky-200 transition cursor-pointer">Detail &rarr;</button>' +
+        '</td>' +
       '</tr>';
     }).join('');
   }
