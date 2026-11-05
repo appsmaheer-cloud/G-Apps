@@ -1,15 +1,30 @@
-  // Global Sidebar & Navigation Group Toggles
+// Global Sidebar & Navigation Group Toggles (Desktop Collapse + Mobile Drawer Parity)
   function toggleSidebar(forceState) {
-    const sidebar = document.getElementById('app-sidebar');
-    if (!sidebar) return;
-    if (typeof forceState === 'boolean') {
-      if (forceState) {
-        sidebar.classList.remove('-translate-x-full');
+    const sb = document.getElementById('app-sidebar');
+    const bd = document.getElementById('sidebar-backdrop');
+    if (!sb) return;
+    const isDesktop = window.innerWidth >= 768;
+
+    if (isDesktop) {
+      const isCollapsed = sb.classList.contains('desktop-collapsed');
+      const shouldCollapse = (typeof forceState === 'boolean') ? !forceState : !isCollapsed;
+      if (shouldCollapse) {
+        sb.classList.add('desktop-collapsed');
+        try { localStorage.setItem('pns_sidebar_collapsed', '1'); } catch (e) {}
       } else {
-        sidebar.classList.add('-translate-x-full');
+        sb.classList.remove('desktop-collapsed');
+        try { localStorage.removeItem('pns_sidebar_collapsed'); } catch (e) {}
       }
     } else {
-      sidebar.classList.toggle('-translate-x-full');
+      const isClosed = sb.classList.contains('-translate-x-full');
+      const shouldOpen = (typeof forceState === 'boolean') ? forceState : isClosed;
+      if (shouldOpen) {
+        sb.classList.remove('-translate-x-full');
+        if (bd) bd.classList.remove('hidden');
+      } else {
+        sb.classList.add('-translate-x-full');
+        if (bd) bd.classList.add('hidden');
+      }
     }
   }
   window.toggleSidebar = toggleSidebar;
@@ -30,7 +45,6 @@
     }
   }
   window.toggleNavGroup = toggleNavGroup;
-
 
   let currentInspectionMode = 'group';
   function setInspectionMode(mode) {
@@ -6584,11 +6598,82 @@ const PNS_SECTION_TO_DEPT = {
   // ========================================================
   // CATEGORY SLICER FOR INSPECTION STEP 1 (HUNIAN, KANTOR, GUDANG/FASILITAS)
   // ========================================================
-  let currentInspBldgCategory = 'ALL';
 
   let currentInspTargetMode = 'ruangan';
+  let currentInspBldgCategory = 'ALL';
+  let currentInspSiteFilter = 'ALL';
   let currentKebersihanScore = 88;
   let currentKebersihanGrade = 'Grade A';
+
+  function getRoomsForBuilding(bCode, bSite, bId) {
+    if (!bCode) return [];
+    const allRooms = [
+      ...(Array.isArray(appState.rooms) ? appState.rooms : []),
+      ...((typeof window !== 'undefined' && window.PNS_MASTER_DATA && Array.isArray(window.PNS_MASTER_DATA.rooms)) ? window.PNS_MASTER_DATA.rooms : []),
+      ...((typeof window !== 'undefined' && window.PNS_DATA_MASTER && Array.isArray(window.PNS_DATA_MASTER.rooms)) ? window.PNS_DATA_MASTER.rooms : [])
+    ];
+
+    const bldg = (appState.buildings || []).find(b => 
+      (b.kode_gedung === bCode && (!bSite || b.lokasi_site === bSite)) ||
+      (bId && String(b.gedung_id) === String(bId))
+    ) || (appState.buildings || []).find(b => b.kode_gedung === bCode);
+
+    const bName = bldg ? (bldg.nama_gedung || '') : '';
+    const bIdStr = (bldg && bldg.gedung_id) ? String(bldg.gedung_id) : (bId ? String(bId) : '');
+
+    const seenNames = new Set();
+    const matched = [];
+
+    for (let i = 0; i < allRooms.length; i++) {
+      const r = allRooms[i];
+      const rBCode = String(r.kode_gedung || '').trim();
+      const rBName = String(r.nama_gedung || '').trim();
+      const rBId = r.gedung_id ? String(r.gedung_id).trim() : '';
+
+      const isMatch = (rBCode && rBCode.toUpperCase() === bCode.toUpperCase()) ||
+                      (bIdStr && rBId && rBId === bIdStr) ||
+                      (bName && rBName && rBName.toUpperCase() === bName.toUpperCase());
+
+      if (isMatch) {
+        const rName = String(r.nama_ruangan || r.ruangan || '').trim();
+        if (rName && !seenNames.has(rName.toUpperCase())) {
+          seenNames.add(rName.toUpperCase());
+          matched.push({
+            ruangan_id: r.ruangan_id || ('RNG-' + (matched.length + 1)),
+            kode_gedung: bCode,
+            nama_ruangan: rName,
+            tipe_ruangan: r.tipe_ruangan || 'Ruangan',
+            kapasitas: r.kapasitas || 2,
+            penanggungjawab: r.penanggungjawab || (bldg ? bldg.penanggungjawab : '-'),
+            total_asset: Number(r.total_asset) || 0,
+            status_hunian: r.status_hunian || 'Tersedia'
+          });
+        }
+      }
+    }
+
+    // Fallback jika belum ada daftar spesifik ruangan di database: buat ruangan default sesuai total_ruangan gedung
+    if (matched.length === 0) {
+      const totalR = (bldg && Number(bldg.total_ruangan)) ? Number(bldg.total_ruangan) : 1;
+      const isMess = (bldg && (bldg.kategori === 'MESS & HUNIAN' || bldg.inspection_category === 'HUNIAN'));
+      for (let k = 1; k <= Math.min(totalR, 20); k++) {
+        const rName = isMess ? ('KAMAR NO.' + k) : (totalR === 1 ? 'Area Utama' : ('Ruangan ' + k));
+        matched.push({
+          ruangan_id: 'RNG-' + k,
+          kode_gedung: bCode,
+          nama_ruangan: rName,
+          tipe_ruangan: isMess ? 'Kamar Hunian' : 'Ruang Kerja',
+          kapasitas: 2,
+          penanggungjawab: (bldg ? bldg.penanggungjawab : '-'),
+          total_asset: 0,
+          status_hunian: 'Tersedia'
+        });
+      }
+    }
+
+    return matched;
+  }
+  window.getRoomsForBuilding = getRoomsForBuilding;
 
   function setInspTargetMode(mode) {
     currentInspTargetMode = mode;
@@ -6686,10 +6771,43 @@ const PNS_SECTION_TO_DEPT = {
   }
   window.calculateKebersihanScore = calculateKebersihanScore;
 
+  function filterAndPopulateInspGedung() {
+    const gSelect = document.getElementById('insp-gedung');
+    if (!gSelect) return;
+
+    let list = (appState.buildings || []).filter(isGenuineBuilding);
+
+    // Filter by Kategori
+    if (currentInspBldgCategory === 'HUNIAN') {
+      list = list.filter(b => b.inspection_category === 'HUNIAN' || b.kategori === 'MESS & HUNIAN' || (b.nama_gedung || '').toLowerCase().includes('mess') || (b.nama_gedung || '').toLowerCase().includes('longhouse') || (b.nama_gedung || '').toLowerCase().includes('guest house') || (b.kode_gedung || '').includes('-LH') || (b.kode_gedung || '').includes('-GH-') || (b.kode_gedung || '').includes('-MESS'));
+    } else if (currentInspBldgCategory === 'KANTOR') {
+      list = list.filter(b => b.inspection_category === 'KANTOR' || b.kategori === 'BANGUNAN KANTOR' || (b.nama_gedung || '').toLowerCase().includes('office') || (b.nama_gedung || '').toLowerCase().includes('kantor') || (b.nama_gedung || '').toLowerCase().includes('security') || (b.nama_gedung || '').toLowerCase().includes('pos'));
+    } else if (currentInspBldgCategory === 'FASILITAS_UMUM' || currentInspBldgCategory === 'GUDANG_FASILITAS') {
+      list = list.filter(b => b.inspection_category === 'GUDANG_FASILITAS' || b.kategori === 'GUDANG & FASILITAS' || (b.nama_gedung || '').toLowerCase().includes('workshop') || (b.nama_gedung || '').toLowerCase().includes('gudang') || (b.nama_gedung || '').toLowerCase().includes('klinik') || (b.nama_gedung || '').toLowerCase().includes('musholla'));
+    }
+
+    // Filter by Site / Lokasi
+    if (currentInspSiteFilter && currentInspSiteFilter !== 'ALL') {
+      list = list.filter(b => {
+        const s = (b.lokasi_site || '').toUpperCase();
+        return s.includes(currentInspSiteFilter.toUpperCase());
+      });
+    }
+
+    gSelect.innerHTML = '<option value="">-- Silakan Pilih Gedung / Bangunan (' + list.length + ' Gedung Tersedia) --</option>' +
+      list.map(b => '<option value="' + escapeHtml(b.kode_gedung) + '" data-site="' + escapeHtml(b.lokasi_site || '') + '" data-id="' + escapeHtml(b.gedung_id || '') + '">' + escapeHtml(b.nama_gedung) + ' (' + escapeHtml(b.kode_gedung) + ' - ' + escapeHtml(b.lokasi_site || 'Site') + ')</option>').join('');
+
+    if (list.length > 0) {
+      gSelect.selectedIndex = 1;
+      onInspGedungChange();
+    } else {
+      onInspGedungChange();
+    }
+  }
+
   function setInspBldgCategory(cat, btnEl) {
     currentInspBldgCategory = cat;
 
-    // Reset button states
     ['cat-btn-kantor', 'cat-btn-fasum', 'cat-btn-hunian', 'cat-btn-all'].forEach(id => {
       const b = document.getElementById(id);
       if (b) {
@@ -6701,29 +6819,15 @@ const PNS_SECTION_TO_DEPT = {
       btnEl.className = 'insp-cat-btn active p-3 rounded-xl border-2 border-sky-600 bg-sky-50 text-left transition cursor-pointer flex flex-col justify-between shadow-xs';
     }
 
-    const gSelect = document.getElementById('insp-gedung');
-    if (!gSelect) return;
-
-    let list = (appState.buildings || []).filter(isGenuineBuilding);
-    if (cat === 'HUNIAN') {
-      list = list.filter(b => b.inspection_category === 'HUNIAN' || b.kategori === 'MESS & HUNIAN' || (b.nama_gedung || '').toLowerCase().includes('mess') || (b.nama_gedung || '').toLowerCase().includes('longhouse') || (b.nama_gedung || '').toLowerCase().includes('guest house') || (b.kode_gedung || '').includes('-LH') || (b.kode_gedung || '').includes('-GH-') || (b.kode_gedung || '').includes('-MESS'));
-    } else if (cat === 'KANTOR') {
-      list = list.filter(b => b.inspection_category === 'KANTOR' || b.kategori === 'BANGUNAN KANTOR' || (b.nama_gedung || '').toLowerCase().includes('office') || (b.nama_gedung || '').toLowerCase().includes('kantor') || (b.nama_gedung || '').toLowerCase().includes('security') || (b.nama_gedung || '').toLowerCase().includes('pos'));
-    } else if (cat === 'FASILITAS_UMUM' || cat === 'GUDANG_FASILITAS') {
-      list = list.filter(b => b.inspection_category === 'GUDANG_FASILITAS' || b.kategori === 'GUDANG & FASILITAS' || (b.nama_gedung || '').toLowerCase().includes('workshop') || (b.nama_gedung || '').toLowerCase().includes('gudang') || (b.nama_gedung || '').toLowerCase().includes('klinik') || (b.nama_gedung || '').toLowerCase().includes('musholla'));
-    }
-
-    gSelect.innerHTML = '<option value="">-- Silakan Pilih Gedung / Bangunan (' + list.length + ' Gedung) --</option>' +
-      list.map(b => '<option value="' + escapeHtml(b.kode_gedung) + '" data-site="' + escapeHtml(b.lokasi_site || '') + '" data-id="' + escapeHtml(b.gedung_id || '') + '">' + escapeHtml(b.nama_gedung) + ' (' + escapeHtml(b.kode_gedung) + ' - ' + escapeHtml(b.lokasi_site || 'Site') + ')</option>').join('');
-
-    if (list.length > 0) {
-      gSelect.selectedIndex = 1;
-      onInspGedungChange();
-    } else {
-      onInspGedungChange();
-    }
+    filterAndPopulateInspGedung();
   }
   window.setInspBldgCategory = setInspBldgCategory;
+
+  function setInspSiteFilter(site) {
+    currentInspSiteFilter = site;
+    filterAndPopulateInspGedung();
+  }
+  window.setInspSiteFilter = setInspSiteFilter;
 
   function onInspGedungChange() {
     const gSelect = document.getElementById('insp-gedung');
@@ -6758,8 +6862,14 @@ const PNS_SECTION_TO_DEPT = {
     const matchingRooms = getRoomsForBuilding(bCode, bSite, bId);
 
     // Ambil sensus penghuni mess gedung ini
-    const bPenghuni = (appState.penghuni || []).filter(p => {
-      if (p.kode_gedung && p.kode_gedung === bCode) return true;
+    const allPenghuni = [
+      ...(Array.isArray(appState.penghuni) ? appState.penghuni : []),
+      ...((typeof window !== 'undefined' && window.PNS_MASTER_DATA && Array.isArray(window.PNS_MASTER_DATA.penghuni)) ? window.PNS_MASTER_DATA.penghuni : []),
+      ...((typeof window !== 'undefined' && window.PNS_DATA_MASTER && Array.isArray(window.PNS_DATA_MASTER.penghuni)) ? window.PNS_DATA_MASTER.penghuni : [])
+    ];
+
+    const bPenghuni = allPenghuni.filter(p => {
+      if (p.kode_gedung && p.kode_gedung.toUpperCase() === bCode.toUpperCase()) return true;
       if (bldg && p.gedung_id && String(p.gedung_id) === String(bldg.gedung_id)) return true;
       if (bldg && p.nama_gedung && p.nama_gedung.toUpperCase() === (bldg.nama_gedung || '').toUpperCase()) return true;
       return false;
@@ -6811,12 +6921,12 @@ const PNS_SECTION_TO_DEPT = {
             '<td class="py-2.5 px-3 num-tabular text-slate-500">' + (idx + 1) + '</td>' +
             '<td class="py-2.5 px-3 font-bold text-slate-900">' + escapeHtml(p.nomor_kamar || p.nama_ruangan || 'Kamar ' + (idx + 1)) + '</td>' +
             '<td class="py-2.5 px-3 font-mono text-slate-600">' + escapeHtml(p.nik || '-') + '</td>' +
-            '<td class="py-2.5 px-3 font-semibold text-slate-800">' + escapeHtml(p.nama_karyawan || p.nama || '-') + '</td>' +
+            '<td class="py-2.5 px-3 font-semibold text-slate-800">' + escapeHtml(p.nama_karyawan || p.nama_penghuni || p.nama || '-') + '</td>' +
             '<td class="py-2.5 px-2 text-slate-600">' + escapeHtml(p.departemen || p.jabatan || '-') + '</td>' +
             '<td class="py-2.5 px-2 text-center">' + statusBadge + '</td>' +
             '<td class="py-2.5 px-2 text-slate-500">' + escapeHtml(p.tanggal_masuk || '-') + '</td>' +
             '<td class="py-2.5 px-2 text-center">' +
-              '<button type="button" onclick="Swal.fire(\'Verifikasi Penghuni\', \'Penghuni ' + escapeHtml(p.nama_karyawan || p.nama || '') + ' telah terverifikasi hadir di mess.\', \'success\')" class="px-2 py-1 text-[11px] rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white transition cursor-pointer">' +
+              '<button type="button" onclick="Swal.fire(\'Verifikasi Penghuni\', \'Penghuni ' + escapeHtml(p.nama_karyawan || p.nama_penghuni || p.nama || '') + ' telah terverifikasi hadir di mess.\', \'success\')" class="px-2 py-1 text-[11px] rounded bg-indigo-50 text-indigo-700 hover:bg-indigo-600 hover:text-white transition cursor-pointer">' +
                 '<i class="ph-bold ph-check"></i> Verifikasi' +
               '</button>' +
             '</td>' +
@@ -6877,7 +6987,6 @@ const PNS_SECTION_TO_DEPT = {
       resetInspectionForm();
       navTo('view-riwayat-inspeksi');
     }, err => {
-      // Local fallback jika offline
       const noInsp = 'INSP-' + new Date().getFullYear() + ('0' + (new Date().getMonth() + 1)).slice(-2) + '-' + ('00' + (appState.inspections.length + 1)).slice(-3);
       addInspectionLocal(payload, noInsp);
       Swal.fire('Audit Tersimpan Lokal', 'Hasil audit ruangan berhasil disimpan ke memori aplikasi.', 'info');
@@ -7555,7 +7664,7 @@ const PNS_SECTION_TO_DEPT = {
   }
 
   function renderInspectionChecklistTable() {
-    const tbody = document.getElementById('insp-asset-checklist');
+    const tbody = document.getElementById('insp-asset-checklist-body') || document.getElementById('insp-asset-checklist');
     const badge = document.getElementById('insp-asset-count-badge');
     const list = appState.currentInspAssets || [];
 
@@ -7563,132 +7672,62 @@ const PNS_SECTION_TO_DEPT = {
     if (!tbody) return;
 
     if (list.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-center py-8 text-slate-500">
-            <i class="ph-bold ph-cube text-xl mb-1 block text-slate-400"></i>
-            Tidak ada aset tercatat di ruangan ini. Klik <strong>Tambah Item Aset Baru</strong> jika menemukan barang fisik saat audit.
-          </td>
-        </tr>
-      `;
-      calcInspectionScore();
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-400">Pilih gedung dan ruangan di atas untuk memuat inventaris fasilitas.</td></tr>';
       return;
     }
 
-    // Filter by type if active
-    const filtered = list.map((ast, idx) => ({ ast, idx })).filter(item => {
-      if (!activeInspTypeFilter) return true;
-      return classifyAssetType(item.ast.nama_asset).key === activeInspTypeFilter;
-    });
+    tbody.innerHTML = list.map((ast, idx) => {
+      const isGood = (ast.kondisi_inspeksi === 'Baik' || ast.kondisi === 'Baik');
+      const isRusak = (ast.kondisi_inspeksi === 'Rusak' || ast.kondisi === 'Rusak' || ast.kondisi === 'Rusak Berat' || ast.kondisi === 'Rusak Ringan');
+      const isHilang = (ast.kondisi_inspeksi === 'Hilang' || ast.kondisi === 'Hilang');
 
-    if (filtered.length === 0) {
-      tbody.innerHTML = `
-        <tr>
-          <td colspan="8" class="text-center py-8 text-slate-500">
-            <i class="ph-bold ph-funnel text-xl mb-1 block text-slate-400"></i>
-            Tidak ada aset jenis ${escapeHtml(activeInspTypeFilter)} di ruangan ini.
-            <button type="button" onclick="resetInspectionAssetFilter()" class="block mx-auto mt-2 text-indigo-600 font-bold hover:underline">Tampilkan Semua Aset</button>
-          </td>
-        </tr>
-      `;
-      calcInspectionScore();
-      return;
+      return '<tr class="hover:bg-slate-50 transition text-xs border-b border-slate-100">' +
+        '<td class="py-2.5 px-3 num-tabular text-slate-500 font-medium">' + (idx + 1) + '</td>' +
+        '<td class="py-2.5 px-3 font-mono font-semibold text-sky-800">' + escapeHtml(ast.no_asset || '-') + '</td>' +
+        '<td class="py-2.5 px-3">' +
+          '<span class="font-bold text-slate-900 block">' + escapeHtml(ast.nama_asset || 'Fasilitas') + '</span>' +
+          '<span class="text-[10px] text-slate-400">' + escapeHtml(ast.qty || '1 Unit') + ' &bull; ' + escapeHtml(ast.jenis_aset || 'Fasilitas') + '</span>' +
+        '</td>' +
+        '<td class="py-2.5 px-2 text-slate-600">' + escapeHtml(ast.kategori_asset || 'FASILITAS') + '</td>' +
+        '<td class="py-2.5 px-3 text-center">' +
+          '<div class="inline-flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">' +
+            '<button type="button" onclick="setAssetInspectionKondisi(' + idx + ', \'Baik\')" class="px-2 py-0.5 text-[10px] font-bold rounded ' + (isGood ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-emerald-700') + ' transition cursor-pointer">Baik</button>' +
+            '<button type="button" onclick="setAssetInspectionKondisi(' + idx + ', \'Rusak\')" class="px-2 py-0.5 text-[10px] font-bold rounded ' + (isRusak ? 'bg-amber-600 text-white shadow-xs' : 'text-slate-600 hover:text-amber-700') + ' transition cursor-pointer">Rusak</button>' +
+            '<button type="button" onclick="setAssetInspectionKondisi(' + idx + ', \'Hilang\')" class="px-2 py-0.5 text-[10px] font-bold rounded ' + (isHilang ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 hover:text-rose-700') + ' transition cursor-pointer">Hilang</button>' +
+          '</div>' +
+        '</td>' +
+        '<td class="py-2.5 px-3">' +
+          '<input type="text" value="' + escapeHtml(ast.catatan_inspeksi || '') + '" onchange="updateAssetNote(' + idx + ', this.value)" placeholder="Catatan kondisi fisik..." class="w-full px-2 py-1 text-xs rounded border border-slate-200 bg-white text-slate-800">' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  }
+  window.renderInspectionChecklistTable = renderInspectionChecklistTable;
+
+  function setAssetInspectionKondisi(idx, val) {
+    if (appState.currentInspAssets && appState.currentInspAssets[idx]) {
+      appState.currentInspAssets[idx].kondisi_inspeksi = val;
+      renderInspectionChecklistTable();
     }
-
-    tbody.innerHTML = filtered.map(({ ast, idx }) => `
-      <tr class="hover:bg-slate-50/70 transition">
-        <td class="py-2.5 px-3">
-          <span class="font-mono font-bold text-slate-800 text-xs block">${escapeHtml(ast.no_asset)}</span>
-          ${ast.is_new ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-emerald-100 text-emerald-800 inline-block mt-0.5">BARU</span>' : ''}
-        </td>
-        <td class="py-2.5 px-3">
-          <span class="font-bold text-slate-900 text-xs block leading-tight">${escapeHtml(ast.nama_asset)}</span>
-          <span class="text-[10px] text-slate-500 font-medium">${escapeHtml(ast.kategori_asset || 'Fasilitas')}</span>
-        </td>
-        <td class="py-2.5 px-3 whitespace-nowrap">
-          <div class="flex flex-col gap-1 items-start">
-            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold ${ast.jenis_aset === 'Non-Valuable' ? 'bg-amber-50 text-amber-700 border border-amber-200' : 'bg-blue-50 text-blue-700 border border-blue-200'}">
-              ${ast.jenis_aset === 'Non-Valuable' ? '📦 Non-Valuable' : '💎 Valuable Aset'}
-            </span>
-            <span class="inline-flex items-center gap-1 text-[11px] font-bold text-slate-700">
-              <i class="ph-bold ph-stack text-slate-500"></i> ${escapeHtml(ast.qty || '1 Unit')}
-            </span>
-          </div>
-        </td>
-        <td class="py-2.5 px-3 space-y-1 whitespace-nowrap">
-          <label class="flex items-center gap-1.5 cursor-pointer text-[11px]">
-            <input type="checkbox" ${ast.kode_sesuai ? 'checked' : ''} onchange="toggleVerifyCode(${idx}, this.checked)" class="rounded text-emerald-600 focus:ring-emerald-500">
-            <span class="${ast.kode_sesuai ? 'text-emerald-700 font-semibold' : 'text-slate-500'}">Kode Sesuai</span>
-          </label>
-          <label class="flex items-center gap-1.5 cursor-pointer text-[11px]">
-            <input type="checkbox" ${ast.lokasi_sesuai ? 'checked' : ''} onchange="toggleVerifyLocation(${idx}, this.checked)" class="rounded text-emerald-600 focus:ring-emerald-500">
-            <span class="${ast.lokasi_sesuai ? 'text-emerald-700 font-semibold' : 'text-slate-500'}">Lokasi Sesuai</span>
-          </label>
-        </td>
-        <td class="py-2.5 px-3">
-          <select onchange="setAssetStatus(${idx}, this.value)" class="px-2.5 py-1.5 bg-white border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 focus:border-emerald-500">
-            <option value="Baik" ${ast.kondisi_inspeksi === 'Baik' ? 'selected' : ''}>✅ Baik</option>
-            <option value="Rusak Ringan" ${ast.kondisi_inspeksi === 'Rusak Ringan' ? 'selected' : ''}>⚠️ Rusak Ringan</option>
-            <option value="Rusak Berat" ${ast.kondisi_inspeksi === 'Rusak Berat' ? 'selected' : ''}>❌ Rusak Berat</option>
-            <option value="Hilang" ${ast.kondisi_inspeksi === 'Hilang' ? 'selected' : ''}>🚫 Hilang</option>
-          </select>
-        </td>
-        <!-- FOTO LANGSUNG DARI KAMERA HP (NATIVE CAPTURE) & GALERI FILE -->
-        <td class="py-2.5 px-3">
-          <div class="flex items-center gap-1.5 flex-wrap">
-            ${ast.foto_asset ? `
-              <div class="relative group">
-                <img src="${ast.foto_asset}" class="w-8 h-8 rounded-lg object-cover border border-emerald-300 shadow-2xs shrink-0 cursor-pointer" onclick="Swal.fire({imageUrl: '${ast.foto_asset}', imageAlt: 'Foto Fisik Aset', showConfirmButton: false})" title="Klik perbesar foto">
-                <button type="button" onclick="removeAssetPhoto(${idx}, event)" class="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-600 text-white text-[9px] font-bold flex items-center justify-center hover:bg-rose-700 shadow-xs" title="Hapus foto">&times;</button>
-              </div>
-            ` : ''}
-            <!-- Tombol Buka Kamera HP Langsung -->
-            <label class="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-[10px] font-bold flex items-center gap-1 cursor-pointer transition shadow-2xs" title="Buka Kamera HP Langsung">
-              <i class="ph-bold ph-camera text-xs"></i> <span>Kamera</span>
-              <input type="file" accept="image/*" capture="environment" onchange="uploadAssetPhotoDirect(${idx}, event)" class="hidden">
-            </label>
-            <!-- Tombol Pilih dari Galeri / File -->
-            <label class="p-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] flex items-center cursor-pointer transition border border-slate-200" title="Pilih dari Galeri Foto">
-              <i class="ph-bold ph-image text-xs"></i>
-              <input type="file" accept="image/*" onchange="uploadAssetPhotoDirect(${idx}, event)" class="hidden">
-            </label>
-          </div>
-        </td>
-        <td class="py-2.5 px-3">
-          <input type="text" oninput="updateAssetNote(${idx}, this.value)" value="${escapeHtml(ast.catatan_inspeksi || '')}" placeholder="Catatan fisik..." class="w-full px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800">
-        </td>
-        <td class="py-2.5 px-2 text-center">
-          <button type="button" onclick="deleteAssetItem(${idx})" class="p-1.5 rounded-lg text-rose-500 hover:bg-rose-50 transition" title="Hapus dari checklist">
-            <i class="ph-bold ph-trash text-sm"></i>
-          </button>
-        </td>
-      </tr>
-    `).join('');
-
-    calcInspectionScore();
   }
+  window.setAssetInspectionKondisi = setAssetInspectionKondisi;
 
-  function loadRoomAssetsChecklist(assets) {
-    appState.currentInspAssets = (assets || []).map(a => ({
-      no_asset: a.no_asset || '',
-      nama_asset: a.nama_asset || '',
-      qty: a.qty || '1 Unit',
-      jenis_aset: a.jenis_aset || (String(a.no_asset || '').startsWith('NVA-') ? 'Non-Valuable' : 'Valuable'),
-      kategori_asset: a.kategori_asset || 'FASILITAS',
-      kondisi: a.kondisi || 'Baik',
-      kondisi_inspeksi: a.kondisi_inspeksi || a.kondisi || 'Baik',
-      kode_sesuai: a.kode_sesuai !== false,
-      lokasi_sesuai: a.lokasi_sesuai !== false,
-      foto_asset: a.foto_asset || '',
-      catatan_inspeksi: a.catatan_inspeksi || a.catatan || '',
-      is_new: !!a.is_new
-    }));
-
-    activeInspTypeFilter = null;
-    renderInspectionVisualCards();
-    renderInspectionChecklistTable();
-    renderInspectionFieldCards();
+  function markAllAssetsGood() {
+    if (appState.currentInspAssets) {
+      appState.currentInspAssets.forEach(a => {
+        a.kondisi_inspeksi = 'Baik';
+      });
+      renderInspectionChecklistTable();
+      Swal.fire({
+        title: 'Semua Aset Baik',
+        text: 'Seluruh perabotan dan aset ruangan ditandai dalam kondisi Baik.',
+        icon: 'success',
+        timer: 1500,
+        showConfirmButton: false
+      });
+    }
   }
+  window.markAllAssetsGood = markAllAssetsGood;
 
   function toggleVerifyCode(idx, checked) {
     if (appState.currentInspAssets[idx]) {
@@ -10275,7 +10314,7 @@ const PNS_SECTION_TO_DEPT = {
       totLost += row.lost;
       totAll += row.total;
 
-      const nameLabel = '<span class="font-bold text-slate-900">' + escapeHtml(row.label || row.name) + '</span>';
+      const nameLabel = '<span class="font-bold text-slate-900 group-hover:text-emerald-700 transition">' + escapeHtml(row.label || row.name) + '</span>';
 
       const goodPct = row.total > 0 ? ((row.good / row.total) * 100).toFixed(1) : '0';
       const brkPct = row.total > 0 ? ((row.broken / row.total) * 100).toFixed(1) : '0';
@@ -10283,10 +10322,19 @@ const PNS_SECTION_TO_DEPT = {
       const dispPct = row.total > 0 ? ((row.disp / row.total) * 100).toFixed(1) : '0';
       const repPct = row.total > 0 ? ((row.repair / row.total) * 100).toFixed(1) : '0';
 
-      const drillModalCall = 'onclick="window.openValidasiDrill(\'' + escapeHtml(row.name) + '\', \'' + currentMatrixGroup + '\')"';
+      const drillThroughCall = (currentMatrixGroup === 'loc')
+        ? 'onclick="window.openAssetDrillThrough({ location: \'' + escapeHtml(row.name) + '\', sourceView: \'view-validasi\' })"'
+        : 'onclick="window.openAssetDrillThrough({ section: \'' + escapeHtml(row.name) + '\', sourceView: \'view-validasi\' })"';
 
-      return '<tr class="hover:bg-slate-50 transition cursor-pointer text-xs group" ' + drillModalCall + ' title="Klik untuk Drilldown / Drill-Through rincian aset">' +
-        '<td class="py-2.5 px-3 whitespace-nowrap min-w-[160px] font-medium text-slate-800">' + nameLabel + '</td>' +
+      const drillModalCall = 'onclick="event.stopPropagation(); window.openValidasiDrill(\'' + escapeHtml(row.name) + '\', \'' + currentMatrixGroup + '\')"';
+
+      return '<tr class="hover:bg-slate-50 transition cursor-pointer text-xs group" ' + drillThroughCall + ' title="Klik untuk Drill-Through ke Halaman Detail">' +
+        '<td class="py-2.5 px-3 whitespace-nowrap min-w-[160px] font-medium text-slate-800">' +
+          '<div class="flex items-center justify-between gap-1">' +
+            nameLabel +
+            '<span class="opacity-0 group-hover:opacity-100 text-[10px] text-emerald-600 font-bold transition">Drill ➔</span>' +
+          '</div>' +
+        '</td>' +
         '<!-- SPARKLINE CONDITIONAL PERSENTASE VALIDASI -->' +
         '<td class="py-2.5 px-3 whitespace-nowrap">' +
           '<div class="flex items-center gap-2">' +
@@ -10321,9 +10369,14 @@ const PNS_SECTION_TO_DEPT = {
         '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-500">' + row.lost.toLocaleString('id-ID') + '</td>' +
         '<td class="py-2.5 px-3 text-right whitespace-nowrap num-tabular font-semibold text-slate-900 bg-slate-100/60">' + row.total.toLocaleString('id-ID') + '</td>' +
         '<td class="py-2.5 px-2 text-center whitespace-nowrap" onclick="event.stopPropagation();">' +
-          '<button type="button" ' + drillModalCall + ' class="px-2.5 py-1 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-600 hover:text-white text-[11px] font-medium transition cursor-pointer flex items-center gap-1 mx-auto" title="Buka Detail Opname Fisik">' +
-            '<span>Drill</span> <i class="ph-bold ph-arrow-right"></i>' +
-          '</button>' +
+          '<div class="flex items-center gap-1 justify-center">' +
+            '<button type="button" ' + drillThroughCall + ' class="px-2 py-0.5 rounded-md bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white text-[11px] font-semibold transition cursor-pointer flex items-center gap-0.5" title="Buka Halaman Detail Drill-Through">' +
+              '<span>Detail</span> <i class="ph-bold ph-arrow-right"></i>' +
+            '</button>' +
+            '<button type="button" ' + drillModalCall + ' class="px-1.5 py-0.5 rounded text-[10px] text-slate-400 hover:text-sky-600 hover:bg-sky-50 transition cursor-pointer" title="Popup Modal Cepat">' +
+              '<i class="ph-bold ph-rows"></i>' +
+            '</button>' +
+          '</div>' +
         '</td>' +
       '</tr>';
     }).join('');
@@ -10360,17 +10413,20 @@ const PNS_SECTION_TO_DEPT = {
         const brkPct = ((d.broken / d.total) * 100).toFixed(2) + '%';
         const lostPct = ((d.lost / d.total) * 100).toFixed(2) + '%';
 
-        return `
-          <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="window.openAssetMovementWithFilter({ section: '${escapeHtml(d.name)}' })" title="Klik untuk lihat rincian aset">
-            <td class="py-2.5 px-3 font-medium text-slate-800 whitespace-nowrap min-w-[160px]">${escapeHtml(d.name)}</td>
-            <td class="py-2 px-2 text-right num-tabular font-bold text-slate-900">${d.total.toLocaleString('id-ID')}</td>
-            <td class="py-2 px-1.5 text-right num-tabular text-emerald-700">${goodPct}</td>
-            <td class="py-2 px-1.5 text-right num-tabular text-blue-700">${repPct}</td>
-            <td class="py-2 px-1.5 text-right num-tabular text-rose-700">${dispPct}</td>
-            <td class="py-2 px-1.5 text-right num-tabular text-amber-700">${brkPct}</td>
-            <td class="py-2 px-1.5 text-right num-tabular text-slate-600">${lostPct}</td>
-          </tr>
-        `;
+        return '<tr class="hover:bg-slate-50 transition cursor-pointer group" onclick="window.openAssetDrillThrough({ section: \'' + escapeHtml(d.name) + '\', sourceView: \'view-validasi\' })" title="Klik untuk Drill-Through detail aset ' + escapeHtml(d.name) + '">' +
+          '<td class="py-2.5 px-3 font-medium text-slate-800 whitespace-nowrap min-w-[160px]">' +
+            '<div class="flex items-center justify-between">' +
+              '<span>' + escapeHtml(d.name) + '</span>' +
+              '<span class="opacity-0 group-hover:opacity-100 text-[10px] text-emerald-600 font-bold transition">Drill ➔</span>' +
+            '</div>' +
+          '</td>' +
+          '<td class="py-2 px-2 text-right num-tabular font-bold text-slate-900">' + d.total.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-2 px-1.5 text-right num-tabular text-emerald-700">' + goodPct + '</td>' +
+          '<td class="py-2 px-1.5 text-right num-tabular text-blue-700">' + repPct + '</td>' +
+          '<td class="py-2 px-1.5 text-right num-tabular text-rose-700">' + dispPct + '</td>' +
+          '<td class="py-2 px-1.5 text-right num-tabular text-amber-700">' + brkPct + '</td>' +
+          '<td class="py-2 px-1.5 text-right num-tabular text-slate-600">' + lostPct + '</td>' +
+        '</tr>';
       }).join('');
     }
 
@@ -10379,21 +10435,19 @@ const PNS_SECTION_TO_DEPT = {
     if (kelContainer) {
       kelContainer.innerHTML = REAL_KELOMPOK_STATS.map(k => {
         const widthPct = Math.min(100, Math.max(8, (k.count / 22696) * 100)).toFixed(1);
-        return `
-          <div class="space-y-1">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-slate-800 truncate pr-2">${escapeHtml(k.name)}</span>
-              <span class="num-tabular font-semibold text-slate-800">${k.count.toLocaleString('id-ID')}</span>
-            </div>
-            <div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden flex cursor-pointer" onclick="window.openAssetMovementWithFilter({ kelompok: '${escapeHtml(k.name)}' })" title="Klik untuk filter ${escapeHtml(k.name)}">
-              <div class="bg-sky-600 h-2.5 rounded-full transition-all duration-300" style="width: ${widthPct}%"></div>
-            </div>
-            <div class="flex justify-between text-[10px] text-slate-400">
-              <span>Good: ${k.goodPct} | Broken: ${k.brkPct}</span>
-              <span>${k.pct} dari total</span>
-            </div>
-          </div>
-        `;
+        return '<div class="space-y-1">' +
+          '<div class="flex justify-between items-center text-xs">' +
+            '<span class="font-bold text-slate-800 truncate pr-2">' + escapeHtml(k.name) + '</span>' +
+            '<span class="num-tabular font-semibold text-slate-800">' + k.count.toLocaleString('id-ID') + '</span>' +
+          '</div>' +
+          '<div class="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden flex cursor-pointer group" onclick="window.openAssetDrillThrough({ group: \'' + escapeHtml(k.name) + '\', sourceView: \'view-validasi\' })" title="Klik untuk Drill-Through ' + escapeHtml(k.name) + '">' +
+            '<div class="bg-sky-600 group-hover:bg-emerald-600 h-2.5 rounded-full transition-all duration-300" style="width: ' + widthPct + '%"></div>' +
+          '</div>' +
+          '<div class="flex justify-between text-[10px] text-slate-400">' +
+            '<span>Good: ' + k.goodPct + ' | Broken: ' + k.brkPct + '</span>' +
+            '<span>' + k.pct + ' dari total</span>' +
+          '</div>' +
+        '</div>';
       }).join('');
     }
 
@@ -10401,14 +10455,17 @@ const PNS_SECTION_TO_DEPT = {
     const katBody = document.getElementById('table-perf-kat-body');
     if (katBody) {
       katBody.innerHTML = REAL_TOP_KATEGORI.map(k => {
-        return `
-          <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="window.openAssetMovementWithFilter({ kategori: '${escapeHtml(k.name)}' })">
-            <td class="py-2.5 px-3 font-medium text-slate-800 whitespace-nowrap min-w-[160px]">${escapeHtml(k.name)}</td>
-            <td class="py-2 px-1.5 text-right num-tabular font-semibold text-slate-800">${k.total}</td>
-            <td class="py-2 px-1.5 text-right num-tabular font-bold text-emerald-700">${k.goodPct}</td>
-            <td class="py-2 px-1.5 text-right num-tabular font-bold text-amber-700">${k.brkPct}</td>
-          </tr>
-        `;
+        return '<tr class="hover:bg-slate-50 transition cursor-pointer group" onclick="window.openAssetDrillThrough({ category: \'' + escapeHtml(k.name) + '\', sourceView: \'view-validasi\' })" title="Klik untuk Drill-Through kategori ' + escapeHtml(k.name) + '">' +
+          '<td class="py-2.5 px-3 font-medium text-slate-800 whitespace-nowrap min-w-[160px]">' +
+            '<div class="flex items-center justify-between">' +
+              '<span>' + escapeHtml(k.name) + '</span>' +
+              '<span class="opacity-0 group-hover:opacity-100 text-[10px] text-emerald-600 font-bold transition">Drill ➔</span>' +
+            '</div>' +
+          '</td>' +
+          '<td class="py-2 px-1.5 text-right num-tabular font-semibold text-slate-800">' + k.total + '</td>' +
+          '<td class="py-2 px-1.5 text-right num-tabular font-bold text-emerald-700">' + k.goodPct + '</td>' +
+          '<td class="py-2 px-1.5 text-right num-tabular font-bold text-amber-700">' + k.brkPct + '</td>' +
+        '</tr>';
       }).join('');
     }
   }

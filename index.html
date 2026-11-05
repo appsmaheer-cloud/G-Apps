@@ -2576,14 +2576,38 @@
           </div>
 
           <!-- Selector Gedung / Bangunan -->
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-            <div class="md:col-span-2 space-y-1.5">
-              <label for="insp-gedung" class="font-bold text-xs text-slate-800 block">Pilih Gedung / Bangunan Acuan:</label>
+          <!-- Selector Lokasi Site & Gedung Bangunan (2 Pilihan Gedung Tersusun Rapi) -->
+          <div class="grid grid-cols-1 md:grid-cols-12 gap-3.5 pt-2">
+            <!-- Pilihan 1: Lokasi Site -->
+            <div class="md:col-span-4 space-y-1.5">
+              <label for="insp-filter-site" class="font-bold text-xs text-slate-800 block">
+                <span class="text-sky-700 font-black">Pilihan 1:</span> Filter Lokasi / Site:
+              </label>
+              <select id="insp-filter-site" onchange="setInspSiteFilter(this.value)" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500">
+                <option value="ALL">Semua Lokasi Site (416 Gedung)</option>
+                <option value="Central Office">Central Office (CO)</option>
+                <option value="Factory">Factory / Pabrik (FR)</option>
+                <option value="Estate 1">Estate 1 (E1)</option>
+                <option value="Estate 2">Estate 2 (E2)</option>
+                <option value="Estate 3">Estate 3 (E3)</option>
+                <option value="Mess Residence">Mess Residence (MR)</option>
+                <option value="Regional Office">Regional Office (RO)</option>
+                <option value="Head Office">Head Office (HO)</option>
+              </select>
+            </div>
+
+            <!-- Pilihan 2: Gedung / Bangunan Acuan -->
+            <div class="md:col-span-5 space-y-1.5">
+              <label for="insp-gedung" class="font-bold text-xs text-slate-800 block">
+                <span class="text-sky-700 font-black">Pilihan 2:</span> Pilih Gedung / Bangunan Acuan:
+              </label>
               <select id="insp-gedung" onchange="onInspGedungChange()" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-sky-500/20 focus:border-sky-500">
                 <option value="">-- Silakan Pilih Gedung / Bangunan --</option>
               </select>
             </div>
-            <div class="space-y-1.5">
+
+            <!-- Auditor Info -->
+            <div class="md:col-span-3 space-y-1.5">
               <label for="insp-inspector" class="font-bold text-xs text-slate-800 block">Nama Auditor (Inspector):</label>
               <input type="text" id="insp-inspector" value="Miftahul Khoiry (Admin)" class="w-full px-3.5 py-2.5 text-xs rounded-xl border border-slate-300 bg-white text-slate-800 font-medium">
             </div>
@@ -3239,7 +3263,7 @@
           <!-- 5 TOP CONDITION CARDS (MATCHING SCREENSHOT 1) -->
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
             <!-- GOOD CONDITION -->
-            <div class="clean-card p-4 border-t-4 border-t-emerald-500 space-y-2">
+            <div onclick="window.openAssetDrillThrough({ kondisi: 'Good Condition', sourceView: 'view-validasi' })" class="clean-card p-4 border-t-4 border-t-emerald-500 space-y-2 cursor-pointer hover:shadow-md transition group" title="Klik untuk Drill-Through detail aset Good Condition">
               <div class="flex justify-between items-start">
                 <span class="text-xs font-black text-emerald-700 tracking-wider uppercase">GOOD CONDITION</span>
                 <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">81.34%</span>
@@ -3254,7 +3278,7 @@
             </div>
 
             <!-- REPAIR -->
-            <div class="clean-card p-4 border-t-4 border-t-blue-500 space-y-2">
+            <div onclick="window.openAssetDrillThrough({ kondisi: 'Repair', sourceView: 'view-validasi' })" class="clean-card p-4 border-t-4 border-t-blue-500 space-y-2 cursor-pointer hover:shadow-md transition group" title="Klik untuk Drill-Through detail aset Repair">
               <div class="flex justify-between items-start">
                 <span class="text-xs font-black text-blue-700 tracking-wider uppercase">REPAIR</span>
                 <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">0.24%</span>
@@ -3269,7 +3293,7 @@
             </div>
 
             <!-- DISPOSAL -->
-            <div class="clean-card p-4 border-t-4 border-t-rose-500 space-y-2">
+            <div onclick="window.openAssetDrillThrough({ kondisi: 'Disposal', sourceView: 'view-validasi' })" class="clean-card p-4 border-t-4 border-t-rose-500 space-y-2 cursor-pointer hover:shadow-md transition group" title="Klik untuk Drill-Through detail aset Disposal">
               <div class="flex justify-between items-start">
                 <span class="text-xs font-black text-rose-700 tracking-wider uppercase">DISPOSAL</span>
                 <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800">0.46%</span>
@@ -3284,7 +3308,7 @@
             </div>
 
             <!-- BROKEN -->
-            <div class="clean-card p-4 border-t-4 border-t-amber-500 space-y-2">
+            <div onclick="window.openAssetDrillThrough({ kondisi: 'Broken', sourceView: 'view-validasi' })" class="clean-card p-4 border-t-4 border-t-amber-500 space-y-2 cursor-pointer hover:shadow-md transition group" title="Klik untuk Drill-Through detail aset Broken">
               <div class="flex justify-between items-start">
                 <span class="text-xs font-black text-amber-700 tracking-wider uppercase">BROKEN</span>
                 <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">10.69%</span>
@@ -3299,7 +3323,7 @@
             </div>
 
             <!-- LOST -->
-            <div class="clean-card p-4 border-t-4 border-t-slate-500 space-y-2">
+            <div onclick="window.openAssetDrillThrough({ kondisi: 'Lost', sourceView: 'view-validasi' })" class="clean-card p-4 border-t-4 border-t-slate-500 space-y-2 cursor-pointer hover:shadow-md transition group" title="Klik untuk Drill-Through detail aset Lost">
               <div class="flex justify-between items-start">
                 <span class="text-xs font-black text-slate-700 tracking-wider uppercase">LOST</span>
                 <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-800">7.27%</span>
