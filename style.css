@@ -506,3 +506,27 @@ textarea:focus-visible {
   }
 }
 
+/* Standalone Validation Report Mode (Laporan Validasi Saja Sendiri) */
+body.validasi-standalone-view #app-sidebar,
+body.validasi-standalone-view #sidebar-backdrop,
+body.validasi-standalone-view #app-main-header {
+  display: none !important;
+}
+body.validasi-standalone-view #main-content-scroll {
+  padding: 0 !important;
+  margin: 0 !important;
+  background: #f8fafc !important;
+  height: 100vh !important;
+  overflow-y: auto !important;
+}
+body.validasi-standalone-view #view-validasi {
+  display: block !important;
+  max-width: 1440px !important;
+  margin: 0 auto !important;
+  padding: 1.5rem 1rem 3rem 1rem !important;
+}
+body.validasi-standalone-view #validasi-standalone-topbar {
+  display: flex !important;
+}
+
+

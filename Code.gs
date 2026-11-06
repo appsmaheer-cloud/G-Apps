@@ -50,9 +50,18 @@ function doGet(e) {
     return handleApiGet(e.parameter);
   }
 
+  var reportParam = (e && e.parameter && (e.parameter.report || e.parameter.view || e.parameter.page)) || '';
+  var isReportValidasi = (reportParam === 'validasi' || reportParam === 'view-validasi');
+
   var template = HtmlService.createTemplateFromFile('Index');
+  template.initialView = reportParam;
+
+  var pageTitle = isReportValidasi
+    ? 'Laporan Hasil Validasi Aset - PT Pratama Nusantara Sakti'
+    : 'PNS Asset Enterprise - PT Pratama Nusantara Sakti';
+
   return template.evaluate()
-    .setTitle('PNS Asset Enterprise - PT Pratama Nusantara Sakti')
+    .setTitle(pageTitle)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
