@@ -1,3 +1,22 @@
+  const OUTDOOR_FACILITY_PATTERNS = [
+    /speed\s*boat/i, /ponton/i, /perahu/i, /kapal/i, /jukung/i, /ketinting/i,
+    /traktor/i, /excavator/i, /bulldozer/i, /loader/i, /grader/i, /compactor/i,
+    /dump\s*truck/i, /truk/i, /mobil/i, /motor/i, /kendaraan/i, /trailer/i,
+    /canal/i, /saluran/i, /parit/i, /jembatan/i, /jalan/i, /gorong/i, /helipad/i,
+    /dermaga/i, /landscaping/i, /taman/i, /pagar/i, /kolam/i, /nursery/i,
+    /rumah\s*apung/i, /pancang/i, /tiang/i, /tower/i, /pipa\s*induk/i,
+    /pos\s*jaga/i, /pos\s*security/i, /drainase/i, /culvert/i
+  ];
+
+  function isGenuineRoomFacility(item) {
+    if (!item) return false;
+    const name = String(item.nama_asset || item.nama_barang || '').toLowerCase();
+    const kat = String(item.kategori_asset || '').toLowerCase();
+    const kel = String(item.kelompok_asset || '').toLowerCase();
+    return !OUTDOOR_FACILITY_PATTERNS.some(p => p.test(name) || p.test(kat) || p.test(kel));
+  }
+  window.isGenuineRoomFacility = isGenuineRoomFacility;
+
 // Global Sidebar & Navigation Group Toggles (Desktop Collapse + Mobile Drawer Parity)
   function toggleSidebar(forceState) {
     const sb = document.getElementById('app-sidebar');
@@ -934,44 +953,13 @@ const PNS_SECTION_TO_DEPT = {
   // ==========================================
   // INITIALIZATION & BOOTSTRAP SYNC
   // ==========================================
-  document.addEventListener('DOMContentLoaded', () => {
-    initAppMasterData();
-    initBrandLogos();
-    initTheme();
-    initNavigation();
-    initInspectionFormDropdowns();
-    renderDashboardCharts();
-    renderPortfolioSites();
-    renderBuildingsCards();
-    renderRoomsTable();
-    renderAssetsTable();
-    renderHistoryTable();
-    renderWorkOrdersKanban();
-    renderAllAssetsTable();
-    renderPortfolioComposition();
-    renderAssetSebaran();
-    renderPenghuniTable();
-    renderPortfolioAllTable();
-    renderValidasiTable();
-
-    syncAllFromBackend(false);
-
-    // Deep-Link & Executive Report Route Handler (?view=... / ?report=validasi)
-    try {
-      if (typeof window !== 'undefined' && window.location && window.location.search) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const rep = urlParams.get('report');
-        const view = urlParams.get('view');
-        if (rep === 'validasi' || view === 'view-validasi') {
-          setTimeout(() => {
-            navTo('view-validasi');
-          }, 150);
-        } else if (view) {
-          setTimeout(() => { navTo(view); }, 150);
-        }
-      }
-    } catch (e) {}
-  });
+  // Inspection form initializer
+  function initInspectionFormDropdowns() {
+    if (typeof filterAndPopulateInspGedung === 'function') {
+      try { filterAndPopulateInspGedung(); } catch (e) {}
+    }
+  }
+  window.initInspectionFormDropdowns = initInspectionFormDropdowns;
 
   function copyValidasiReportLink() {
     let url = window.location.href.split('?')[0].split('#')[0];
@@ -1856,12 +1844,12 @@ const PNS_SECTION_TO_DEPT = {
       `;
     }
 
-    if (typeof ApexCharts === 'undefined') {
-      setTimeout(renderDashboardCharts, 150);
+    if (typeof ApexCharts === 'undefined' || !barEl || barEl.offsetWidth < 50) {
+      setTimeout(renderDashboardCharts, 250);
       return;
     }
 
-    if (barEl) {
+    if (barEl && barEl.offsetWidth >= 50) {
       try {
         if (chartSiteBarInstance) {
           try { chartSiteBarInstance.destroy(); } catch (e) {}
@@ -1897,7 +1885,7 @@ const PNS_SECTION_TO_DEPT = {
       }
     }
 
-    if (donutEl) {
+    if (donutEl && donutEl.offsetWidth >= 50) {
       try {
         if (chartCondDonutInstance) {
           try { chartCondDonutInstance.destroy(); } catch (e) {}
@@ -1953,10 +1941,10 @@ const PNS_SECTION_TO_DEPT = {
   // =========================================================
   // REMINDER: DATA BELUM CHECKOUT & EXCEL EXPORT CONTROLLER
   // =========================================================
-  let remCheckoutMode = 'asset'; // 'asset' | 'penghuni'
-  let remCheckoutPage = 1;
+  var remCheckoutMode = 'asset'; // 'asset' | 'penghuni'
+  var remCheckoutPage = 1;
   const REM_CHECKOUT_PAGE_SIZE = 20;
-  let remCheckoutFiltersInitialized = false;
+  var remCheckoutFiltersInitialized = false;
 
   function getBelumCheckoutAssetsList() {
     if (typeof window !== 'undefined' && Array.isArray(window.PNS_BELUM_CHECKOUT_ASSETS) && window.PNS_BELUM_CHECKOUT_ASSETS.length > 0) {
@@ -3555,24 +3543,37 @@ const PNS_SECTION_TO_DEPT = {
           nama_asset_detail: namaDetail,
           jenis_asset: jenisAsset,
           kelompok_asset: kel,
+          kel: kel,
           kategori_asset: kat,
+          kat: kat,
           location: loc,
+          loc: loc,
           lokasi_raw: locRaw,
+          locRaw: locRaw,
           kondisi: kond,
+          kond: kond,
           standar_umur: std,
+          std: std,
           umur_asset: umur,
+          umur: umur,
           total_harga_perolehan: hpp,
+          hpp: hpp,
           akumulasi_penyusutan: susut,
+          susut: susut,
           Nilai_buku: nbv,
+          nbv: nbv,
           status_aktif: statusDisp,
           status_verifikasi: statusVerif,
+          statusVerif: statusVerif,
           lifetime: lifetime,
           is_in_building: isInBldg,
           building_status: isInBldg ? 'IN_BUILDING' : 'OUTDOOR',
           maintenance_cost: maintNom,
           kode_section: rawSec,
+          rawSec: rawSec,
           section: secFull,
-          department: deptFull
+          department: deptFull,
+          deptKey: deptFull
         };
       });
       return _pnsCachedNormalizedAssets;
@@ -3615,22 +3616,34 @@ const PNS_SECTION_TO_DEPT = {
               nama_asset_detail: `${dept.name} Operational Asset ${assetNum}`,
               jenis_asset: 'Asset',
               kelompok_asset: 'INVENTARIS DAN PERALATAN',
+              kel: 'INVENTARIS DAN PERALATAN',
               kategori_asset: 'PERALATAN KANTOR',
+              kat: 'PERALATAN KANTOR',
               location: 'CENTRAL OFFICE',
+              loc: 'CENTRAL OFFICE',
               lokasi_raw: 'CO',
+              locRaw: 'CO',
               kondisi: alloc.kond,
+              kond: alloc.kond,
               standar_umur: std,
+              std: std,
               umur_asset: umur,
+              umur: umur,
               total_harga_perolehan: hpp,
+              hpp: hpp,
               akumulasi_penyusutan: susut,
+              susut: susut,
               Nilai_buku: nbv,
+              nbv: nbv,
               status_aktif: (alloc.kond === 'Disposal') ? 'Disposal / Dihapuskan' : 'Aktif / Digunakan',
               status_verifikasi: isSelisih ? 'SELISIH ALOKASI' : 'ALOKASI SESUAI',
+              statusVerif: isSelisih ? 'SELISIH ALOKASI' : 'ALOKASI SESUAI',
               lifetime: (umur >= std) ? '↑ DIATAS' : '↓ DIBAWAH',
               is_in_building: true,
               building_status: 'IN_BUILDING',
               maintenance_cost: 0,
               kode_section: dept.name,
+              rawSec: dept.name,
               section: dept.name,
               department: dept.name,
               deptKey: dept.name
@@ -6928,7 +6941,8 @@ const PNS_SECTION_TO_DEPT = {
       });
     }
 
-    const filtered = appState.assets.filter(a => {
+    const filtered = (appState.assets || []).filter(a => {
+      if (!isGenuineRoomFacility(a)) return false;
       const matchBldg = (facilityBldgFilter === 'ALL' || a.kode_gedung === facilityBldgFilter);
       const matchKondisi = (facilityKondisiFilter === 'ALL' || (a.kondisi || '').toLowerCase() === facilityKondisiFilter.toLowerCase());
       const q = facilitySearchQuery.toLowerCase();
@@ -8755,7 +8769,7 @@ const PNS_SECTION_TO_DEPT = {
 
     ['Baru', 'Ditugaskan', 'Dikerjakan', 'Selesai'].forEach(st => {
       const col = document.getElementById(`col-${st}`);
-      if (col && col.children.length === 0) {
+      if (col && (!col.children || col.children.length === 0)) {
         col.innerHTML = '<div class="py-8 text-center text-xs text-slate-500 font-medium">Tidak ada tiket di tahap ini</div>';
       }
     });
@@ -9008,6 +9022,65 @@ const PNS_SECTION_TO_DEPT = {
   function renderWorkOrdersTable() {
     renderWorkOrdersKanban();
   }
+  window.renderWorkOrdersTable = renderWorkOrdersTable;
+  window.renderWorkOrdersKanban = renderWorkOrdersKanban;
+
+  function exportWorkOrdersExcel(format) {
+    const list = appState.workOrders || [];
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const aoa = [
+      ['PT PRATAMA NUSANTARA SAKTI - DAFTAR TIKET WORK ORDER & PEMELIHARAAN FASILITAS'],
+      [`Tanggal Ekspor: ${dateStr} | Total Tiket: ${list.length}`],
+      [],
+      ['No', 'No. Tiket (WO)', 'Gedung / Lokasi', 'Ruangan', 'Kategori', 'Uraian Masalah', 'Prioritas', 'Teknisi PIC', 'Target Selesai', 'Status']
+    ];
+    list.forEach((w, idx) => {
+      aoa.push([
+        idx + 1,
+        w.no_wo || '-',
+        w.kode_gedung || '-',
+        w.nama_ruangan || '-',
+        w.kategori || '-',
+        w.deskripsi || w.judul || '-',
+        w.prioritas || 'Sedang',
+        w.teknisi || '-',
+        w.target_selesai || '-',
+        w.status || 'Baru'
+      ]);
+    });
+
+    if (format === 'csv') {
+      let csv = '\uFEFF';
+      aoa.forEach(row => {
+        csv += row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';') + '\r\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Work_Orders_PNS_${dateStr}.csv`;
+      link.click();
+      return;
+    }
+
+    if (typeof XLSX !== 'undefined') {
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      ws['!cols'] = [ {wch:6}, {wch:18}, {wch:22}, {wch:20}, {wch:18}, {wch:35}, {wch:12}, {wch:20}, {wch:15}, {wch:15} ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Work Orders');
+      XLSX.writeFile(wb, `Work_Orders_PNS_${dateStr}.xlsx`);
+    } else {
+      let csv = '\uFEFF';
+      aoa.forEach(row => {
+        csv += row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';') + '\r\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Work_Orders_PNS_${dateStr}.csv`;
+      link.click();
+    }
+  }
+  window.exportWorkOrdersExcel = exportWorkOrdersExcel;
 
   // ==========================================
   // ==========================================
@@ -10665,18 +10738,35 @@ const PNS_SECTION_TO_DEPT = {
   };
 
   const VALIDASI_DEPTS_CONFIG = [
-    { key: 'HRGA', label: 'HRGA', icon: 'ph-users', keywords: ['HRGA', 'GENERAL SERVICE', 'SECURITY', 'PEOPLE', 'TALENT', 'COMPENSATION', 'ASSESSEMENT', 'HUMAN RESOURCE'] },
-    { key: 'BUSINESS SUPPORT', label: 'Business Support', icon: 'ph-buildings', keywords: ['BUSINESS SUPPORT', 'WAREHOUSE', 'LOGISTIC', 'PLANNING, INVENTORY', 'ADMINISTRATION', 'COMMUNITY', 'OPERATION SUPPORT'] },
-    { key: 'PLANTATION', label: 'Plantation', icon: 'ph-tree', keywords: ['WATER MANAGEMENT', 'PLANTING', 'CANE SUPPLY', 'AGRONOMY', 'PROTECTION', 'PLANTATION'] },
-    { key: 'WORKSHOP & ENGINERING', label: 'Workshop & Engineering', icon: 'ph-wrench', keywords: ['WORKSHOP', 'ENGINEERING', 'MAINTENANCE', 'CIVIL', 'ELECTRICAL'] },
-    { key: 'PRODUCTION', label: 'Production', icon: 'ph-factory', keywords: ['PRODUCTION', 'PROCESS', 'MILL', 'CANE YARD', 'OPERATION'] },
-    { key: 'QUALITY HEALTH & SAFETY ENVIRONMENT', label: 'QHSE', icon: 'ph-shield-check', keywords: ['HSE', 'QC', 'LAB', 'MEDICAL', 'SAFETY', 'QUALITY'] },
-    { key: 'FINANCIAL & INFORMATION', label: 'Financial & Information', icon: 'ph-currency-dollar', keywords: ['FINANCE', 'ACCOUNTING', 'INFORMATION', 'IT', 'LEGAL', 'TAX', 'BUDGET'] },
+    { key: 'HRGA', label: 'HRGA', icon: 'ph-users', keywords: ['HRGA', 'GENERAL SERVICE', 'SECURITY', 'PEOPLE', 'TALENT', 'COMPENSATION', 'ASSESSEMENT', 'HUMAN RESOURCE', 'FACILITY'] },
+    { key: 'BUSINESS SUPPORT', label: 'Business Support', icon: 'ph-buildings', keywords: ['BUSINESS SUPPORT', 'WAREHOUSE', 'LOGISTIC', 'PLANNING, INVENTORY', 'ADMINISTRATION', 'COMMUNITY', 'OPERATION SUPPORT', 'CANAL'] },
+    { key: 'PLANTATION', label: 'Plantation', icon: 'ph-tree', keywords: ['WATER MANAGEMENT', 'PLANTING', 'CANE SUPPLY', 'AGRONOMY', 'PROTECTION', 'PLANTATION', 'ESTATE'] },
+    { key: 'WORKSHOP & ENGINERING', label: 'Workshop & Engineering', icon: 'ph-wrench', keywords: ['WORKSHOP', 'ENGINEERING', 'ENGINERING', 'MAINTENANCE', 'CIVIL', 'ELECTRICAL'] },
+    { key: 'PRODUCTION', label: 'Production', icon: 'ph-factory', keywords: ['PRODUCTION', 'PROCESS', 'MILL', 'CANE YARD', 'OPERATION', 'BOILER', 'POWER'] },
+    { key: 'QUALITY HEALTH & SAFETY ENVIRONMENT', label: 'QHSE', icon: 'ph-shield-check', keywords: ['HSE', 'QC', 'LAB', 'MEDICAL', 'SAFETY', 'QUALITY', 'ENVIRONMENT'] },
+    { key: 'FINANCIAL & INFORMATION SYSTEM', label: 'Financial & Information', icon: 'ph-currency-dollar', keywords: ['FINANCE', 'ACCOUNTING', 'INFORMATION', 'IT', 'LEGAL', 'TAX', 'BUDGET', 'ASSET'] },
     { key: 'HARVESTING', label: 'Harvesting', icon: 'ph-plant', keywords: ['HARVESTING'] },
-    { key: 'PROCUREMENT & PURCHASING', label: 'Procurement & Purchasing', icon: 'ph-shopping-cart', keywords: ['PROCUREMENT', 'PURCHASING'] },
     { key: 'RESEARCH & DEVELOPMENT', label: 'Research & Development', icon: 'ph-flask', keywords: ['RESEARCH', 'DEVELOPMENT', 'R&D'] },
+    { key: 'PROCUREMENT & PURCHASING', label: 'Procurement & Purchasing', icon: 'ph-shopping-cart', keywords: ['PROCUREMENT', 'PURCHASING'] },
     { key: 'SALES & MARKETING', label: 'Sales & Marketing', icon: 'ph-chart-line-up', keywords: ['SALES', 'MARKETING'] }
   ];
+
+  function getDeptKeyForAsset(rawSec) {
+    if (!rawSec) return 'HRGA';
+    const s = String(rawSec).trim().toUpperCase();
+    if (typeof PNS_OFFICIAL_SEC_DEPT !== 'undefined' && PNS_OFFICIAL_SEC_DEPT[rawSec]) {
+      return PNS_OFFICIAL_SEC_DEPT[rawSec];
+    }
+    for (const d of VALIDASI_DEPTS_CONFIG) {
+      if (s === d.key.toUpperCase()) return d.key;
+      for (const kw of d.keywords) {
+        if (s.includes(kw)) return d.key;
+      }
+    }
+    return 'BUSINESS SUPPORT';
+  }
+
+  window.VALIDASI_DEPTS_CONFIG = VALIDASI_DEPTS_CONFIG;
 
   const VALIDASI_LOCS_CONFIG = [
     { key: 'CO', label: 'Central Office (CO)', icon: 'ph-buildings' },
@@ -10688,16 +10778,8 @@ const PNS_SECTION_TO_DEPT = {
     { key: 'HO', label: 'Head Office (HO)', icon: 'ph-city' },
     { key: 'RO', label: 'Regional Office (RO)', icon: 'ph-map-pin' }
   ];
-
-  function getDeptKeyForAsset(rawSec) {
-    const s = String(rawSec || '').toUpperCase();
-    for (const d of VALIDASI_DEPTS_CONFIG) {
-      for (const kw of d.keywords) {
-        if (s.includes(kw)) return d.key;
-      }
-    }
-    return 'BUSINESS SUPPORT';
-  }
+  window.VALIDASI_LOCS_CONFIG = VALIDASI_LOCS_CONFIG;
+  window.getDeptKeyForAsset = getDeptKeyForAsset;
 
   // Get dynamically filtered subset of all 34.266 assets
   function getFilteredValidasiAssets() {
@@ -10755,14 +10837,17 @@ const PNS_SECTION_TO_DEPT = {
     for (let i = 0; i < assets.length; i++) {
       const a = assets[i];
       total++;
-      totalHpp += (a.hpp || 0);
-      totalNbv += (a.nbv || 0);
+      const itemHpp = Number(a.hpp != null ? a.hpp : (a.total_harga_perolehan || 0));
+      const itemNbv = Number(a.nbv != null ? a.nbv : (a.Nilai_buku || 0));
+      totalHpp += itemHpp;
+      totalNbv += itemNbv;
 
-      const isSesuai = !String(a.statusVerif || '').toUpperCase().includes('TIDAK') && !String(a.statusVerif || '').toUpperCase().includes('SELISIH');
+      const rawStatus = String(a.statusVerif || a.status_verifikasi || '').toUpperCase();
+      const isSesuai = !rawStatus.includes('TIDAK') && !rawStatus.includes('SELISIH') && !rawStatus.includes('BELUM');
       if (isSesuai) sesuai++;
       else tdkSesuai++;
 
-      const c = String(a.kond || '').toUpperCase();
+      const c = String(a.kond || a.kondisi || '').toUpperCase();
       if (c.includes('BAIK') || c.includes('GOOD')) good++;
       else if (c.includes('REPAIR') || c.includes('PERBAIKAN')) repair++;
       else if (c.includes('DISPOSAL') || c.includes('AFKIR')) disp++;
@@ -12290,3 +12375,166 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     if (titleEl) titleEl.innerText = 'Foto Penghuni / Kamar Mess';
   }
   window.triggerPenghuniCamera = triggerPenghuniCamera;
+
+
+  // ==========================================
+  // RESET FILTER CONTROLLERS (ENTERPRISE UX)
+  // ==========================================
+  function resetMasterCatalogFilters() {
+    const sType = document.getElementById('slicer-asset-type-cat');
+    const sKat = document.getElementById('slicer-asset-kat');
+    const sKond = document.getElementById('slicer-asset-kondisi');
+    const sSort = document.getElementById('slicer-asset-sort');
+    const sSearch = document.getElementById('slicer-asset-search');
+
+    if (sType) sType.value = 'ALL';
+    if (sKat) sKat.value = 'ALL';
+    if (sKond) sKond.value = 'ALL';
+    if (sSort) sSort.value = 'nbv_desc';
+    if (sSearch) sSearch.value = '';
+
+    if (typeof window.setAssetCatalogSegment === 'function') {
+      window.setAssetCatalogSegment('ALL');
+    }
+    if (window.pns && typeof window.pns.onAssetFilterChange === 'function') {
+      window.pns.onAssetFilterChange();
+    } else if (typeof renderPortfolioAllTable === 'function') {
+      renderPortfolioAllTable();
+    }
+  }
+  window.resetMasterCatalogFilters = resetMasterCatalogFilters;
+
+  function resetFacilityFilters() {
+    facilityBldgFilter = 'ALL';
+    facilityKondisiFilter = 'ALL';
+    facilitySearchQuery = '';
+    facilityCurrentPage = 1;
+
+    const bldgSel = document.getElementById('filter-facility-bldg');
+    const kondSel = document.getElementById('filter-facility-kondisi');
+    const searchInp = document.getElementById('search-asset');
+
+    if (bldgSel) bldgSel.value = 'ALL';
+    if (kondSel) kondSel.value = 'ALL';
+    if (searchInp) searchInp.value = '';
+
+    renderAssetsTable();
+  }
+  window.resetFacilityFilters = resetFacilityFilters;
+
+  function resetPenghuniFilters() {
+    penghuniSearchQuery = '';
+    penghuniBldgFilter = '';
+    penghuniRoomFilter = '';
+    penghuniStatusFilter = '';
+    penghuniCurrentPage = 1;
+
+    const sInp = document.getElementById('search-penghuni');
+    const bSel = document.getElementById('filter-penghuni-bldg');
+    const rSel = document.getElementById('filter-penghuni-room');
+    const stSel = document.getElementById('filter-penghuni-status');
+
+    if (sInp) sInp.value = '';
+    if (bSel) bSel.value = '';
+    if (rSel) rSel.value = '';
+    if (stSel) stSel.value = '';
+
+    renderPenghuniTable();
+  }
+  window.resetPenghuniFilters = resetPenghuniFilters;
+
+  function resetWoFilters() {
+    woFilterStatus = 'ALL';
+    woFilterPriority = 'ALL';
+    woSearchQuery = '';
+
+    const stSel = document.getElementById('filter-wo-status');
+    const prSel = document.getElementById('filter-wo-priority');
+    const srInp = document.getElementById('search-wo');
+
+    if (stSel) stSel.value = 'ALL';
+    if (prSel) prSel.value = 'ALL';
+    if (srInp) srInp.value = '';
+
+    if (typeof renderWorkOrdersKanban === 'function') renderWorkOrdersKanban();
+    if (typeof renderWorkOrdersTable === 'function') renderWorkOrdersTable();
+  }
+  window.resetWoFilters = resetWoFilters;
+
+  // Dual Tab Switcher for Penghuni Mess vs Hunian Slots
+  let currentPenghuniTab = 'penghuni';
+  function switchPenghuniTab(tab) {
+    currentPenghuniTab = tab;
+    const tabPenghuniBtn = document.getElementById('tab-penghuni-aktif');
+    const tabKamarBtn = document.getElementById('tab-penghuni-kamar');
+    const filterStatus = document.getElementById('filter-penghuni-status');
+
+    if (tab === 'kamar') {
+      if (tabKamarBtn) tabKamarBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-indigo-700 shadow-2xs transition flex items-center gap-1.5 cursor-pointer';
+      if (tabPenghuniBtn) tabPenghuniBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5 cursor-pointer';
+      if (filterStatus) filterStatus.value = '';
+      penghuniStatusFilter = '';
+    } else {
+      if (tabPenghuniBtn) tabPenghuniBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-indigo-700 shadow-2xs transition flex items-center gap-1.5 cursor-pointer';
+      if (tabKamarBtn) tabKamarBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5 cursor-pointer';
+      if (filterStatus) filterStatus.value = 'Aktif';
+      penghuniStatusFilter = 'Aktif';
+    }
+    renderPenghuniTable();
+  }
+  window.switchPenghuniTab = switchPenghuniTab;
+
+  // ==========================================
+  // APPLICATION BOOTSTRAP (RUNS AFTER ALL SCRIPTS READY)
+  // ==========================================
+  function bootApp() {
+    initAppMasterData();
+    initBrandLogos();
+    initTheme();
+    initNavigation();
+    initInspectionFormDropdowns();
+    renderDashboardCharts();
+    renderPortfolioSites();
+    renderBuildingsCards();
+    renderRoomsTable();
+    renderAssetsTable();
+    renderHistoryTable();
+    renderWorkOrdersKanban();
+    renderAllAssetsTable();
+    renderPortfolioComposition();
+    renderAssetSebaran();
+    renderPenghuniTable();
+    renderPortfolioAllTable();
+    renderValidasiTable();
+    renderValidasiMatrix();
+
+    syncAllFromBackend(false);
+
+    // Deep-Link & Executive Report Route Handler (?view=... / ?report=validasi)
+    try {
+      if (typeof window !== 'undefined' && window.location && window.location.search) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const rep = urlParams.get('report');
+        const view = urlParams.get('view');
+        if (rep === 'validasi' || view === 'view-validasi') {
+          setTimeout(() => { navTo('view-validasi'); }, 100);
+        } else if (view) {
+          setTimeout(() => { navTo(view); }, 100);
+        }
+      }
+    } catch (e) {}
+  }
+  window.bootApp = bootApp;
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootApp);
+    } else {
+      bootApp();
+    }
+  }
+  if (typeof window !== 'undefined') {
+    window.addEventListener('load', () => {
+      renderDashboardCharts();
+    });
+  }

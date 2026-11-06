@@ -658,18 +658,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
       </div>
     </div>
 
-    <!-- 3 MAIN DOMAINS SWITCHER PILLS -->
-    <div class="hidden lg:flex items-center gap-1.5 bg-slate-100 p-1 rounded-xl border border-slate-200 shadow-2xs">
-      <button type="button" onclick="navTo('view-inspeksi')" id="top-pill-hrga" class="top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 hover:bg-white shadow-2xs cursor-pointer">
-        <i class="ph-bold ph-buildings text-amber-500"></i> Asset Dept. HRGA
-      </button>
-      <button type="button" onclick="navTo('view-portfolio-all')" id="top-pill-all" class="top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 hover:bg-white shadow-2xs cursor-pointer">
-        <i class="ph-bold ph-database text-sky-500"></i> All Asset (Katalog Master)
-      </button>
-      <button type="button" onclick="navTo('view-wo')" id="top-pill-wo" class="top-nav-pill px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-700 hover:bg-white shadow-2xs cursor-pointer">
-        <i class="ph-bold ph-wrench text-emerald-500"></i> Maintenance &amp; Work Order
-      </button>
-    </div>
+    <!-- Top Pills Removed Per Request -->
 
     <!-- Right Controls -->
     <div class="flex items-center gap-2">
@@ -833,8 +822,8 @@ body.validasi-standalone-view #validasi-standalone-topbar {
             <span class="flex items-center gap-2 min-w-0"><i class="ph ph-kanban text-base text-amber-500 shrink-0"></i> <span class="truncate">Work Order Kanban</span></span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium shrink-0" id="sidebar-wo-count">15</span>
           </button>
-          <button type="button" onclick="navTo('view-validasi'); switchValidasiTab('rekon');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Analisis Biaya Pemeliharaan Rp 27,65 Miliar">
-            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-wrench text-base text-slate-500 shrink-0"></i> <span class="truncate">Maintenance Analytics</span></span>
+          <button type="button" onclick="navTo('view-wo'); if (typeof switchWoViewMode === 'function') switchWoViewMode('history');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Riwayat Biaya Pemeliharaan & Transaksi Servis (Rp 27,65 Miliar)">
+            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-wrench text-base text-slate-500 shrink-0"></i> <span class="truncate">Riwayat Maintenance</span></span>
             <span class="text-[10px] text-slate-500 font-medium px-1.5 py-0.5 rounded bg-slate-100 shrink-0">27,65 M</span>
           </button>
           </div>
@@ -3018,8 +3007,16 @@ body.validasi-standalone-view #validasi-standalone-topbar {
           </div>
 
           <div class="flex items-center gap-2 shrink-0">
+            <button type="button" onclick="resetFacilityFilters()" class="px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Reset Filter Fasilitas">
+              <i class="ph-bold ph-arrows-counter-clockwise"></i>
+              <span>Reset</span>
+            </button>
+            <button type="button" onclick="if(typeof exportAssetsExcel==='function') exportAssetsExcel('xlsx');" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Download Excel Fasilitas Ruangan">
+              <i class="ph-bold ph-file-xls"></i>
+              <span>Excel</span>
+            </button>
             <span class="text-[11px] font-mono font-bold text-slate-600 bg-slate-50 px-3 py-1.5 rounded-xl border border-slate-200">
-              <span id="facilities-total-badge">15.886</span> Unit Aset
+              <span id="facilities-total-badge">15.055</span> Unit Ruangan
             </span>
           </div>
         </div>
@@ -4445,13 +4442,16 @@ body.validasi-standalone-view #validasi-standalone-topbar {
               </select>
             </div>
 
-            <!-- Filter Status Hunian -->
-            <div class="lg:col-span-2">
+            <!-- Filter Status Hunian & Reset -->
+            <div class="lg:col-span-2 flex items-center gap-1.5">
               <select id="filter-penghuni-status" onchange="renderPenghuniTable()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition cursor-pointer">
                 <option value="">Semua Status</option>
                 <option value="Aktif">Aktif (Terisi)</option>
                 <option value="Vacant">Vacant (Kosong)</option>
               </select>
+              <button type="button" onclick="resetPenghuniFilters()" class="px-2.5 py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1 shadow-2xs" title="Reset Filter Penghuni">
+                <i class="ph-bold ph-arrows-counter-clockwise"></i>
+              </button>
             </div>
           </div>
         </div>
@@ -4764,7 +4764,162 @@ body.validasi-standalone-view #validasi-standalone-topbar {
     </div>
   </div>
 
-  <!-- Modular JS Included from JS.html -->
+  
+
+
+  <!-- MODAL: TAMBAH DATA OPNAME / VALIDASI ASET -->
+    <!-- MODAL: DRILLDOWN & DRILL-THROUGH VALIDASI FISIK (DETAIL PER ITEM ASET) -->
+  <div id="modal-drilldown-validasi" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="clean-card w-full max-w-5xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in">
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-base">
+            <i class="ph-bold ph-list-magnifying-glass"></i>
+          </div>
+          <div>
+            <h3 id="val-drill-title" class="text-sm font-bold text-slate-900">Rincian Drill-Down Validasi Fisik</h3>
+            <p class="text-[11px] text-slate-500">Audit item-level master aset, kondisi fisik, dan status verifikasi lapangan</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeValidasiDrillModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer">
+          <i class="ph-bold ph-x text-base"></i>
+        </button>
+      </div>
+
+      <!-- Filter Bar & Slicers -->
+      <div class="p-4 border-b border-slate-200 bg-white flex flex-wrap items-center justify-between gap-3 text-xs">
+        <!-- Search -->
+        <div class="relative min-w-[240px] flex-1 max-w-md">
+          <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+          <input type="text" id="val-drill-search" oninput="renderValidasiDrillTable()" placeholder="Cari Kode Unit, Nama Aset, Kelompok..." class="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <!-- Filter Chips / Tabs -->
+        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+          <button type="button" id="val-drill-tab-all" onclick="setValidasiDrillStatusFilter('ALL')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 text-white transition cursor-pointer shadow-xs">
+            Semua (<span id="val-drill-count-total">0</span>)
+          </button>
+          <button type="button" id="val-drill-tab-selisih" onclick="setValidasiDrillStatusFilter('SELISIH')" class="px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50 transition cursor-pointer rounded">
+            Selisih Fisik (<span id="val-drill-count-selisih">0</span>)
+          </button>
+          <button type="button" id="val-drill-tab-sesuai" onclick="setValidasiDrillStatusFilter('SESUAI')" class="px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50 transition cursor-pointer rounded">
+            Sesuai (<span id="val-drill-count-sesuai">0</span>)
+          </button>
+        </div>
+
+        <!-- Export Excel -->
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="closeValidasiDrillModal(); window.openAssetMovementView({ section: currentValidasiDrill.targetName, location: currentValidasiDrill.targetName, sourceView: 'view-validasi' })" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 shadow-xs" title="Buka data ini di Halaman Detail Asset Movement">
+            <i class="ph-bold ph-arrow-square-out"></i> Buka Detail Movement &rarr;
+          </button>
+          <button type="button" onclick="exportValidasiDrillXlsx()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5 shadow-xs">
+            <i class="ph-bold ph-file-xls"></i> Export Excel (.xlsx)
+          </button>
+        </div>
+      </div>
+
+      <!-- Drilldown Table Container -->
+      <div class="flex-1 overflow-auto p-0 scrollbar-thin">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200 z-10 select-none">
+            <tr>
+              <th class="py-2.5 px-3">Kode Unit</th>
+              <th class="py-2.5 px-3">Nama Asset</th>
+              <th class="py-2.5 px-2">Kelompok / Kategori</th>
+              <th class="py-2.5 px-2">Lokasi</th>
+              <th class="py-2.5 px-2">Kondisi Fisik</th>
+              <th class="py-2.5 px-2">Status Validasi</th>
+              <th class="py-2.5 px-3 text-right">Nilai Perolehan (HPP)</th>
+              <th class="py-2.5 px-3 text-right">Nilai Buku (NBV)</th>
+              <th class="py-2.5 px-2.5 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="val-drill-tbody" class="divide-y divide-slate-100 font-medium">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal Footer with Pagination -->
+      <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-between items-center text-xs">
+        <span id="val-drill-paging-info" class="text-slate-500 text-[11px]">Memuat data...</span>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="valDrillPrevPage()" class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs transition cursor-pointer">
+            <i class="ph-bold ph-caret-left"></i> Prev
+          </button>
+          <button type="button" onclick="valDrillNextPage()" class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs transition cursor-pointer">
+            Next <i class="ph-bold ph-caret-right"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+<div id="modal-tambah-opname" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
+    <div class="clean-card w-full max-w-lg bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden animate-in">
+      <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i class="ph-bold ph-seal-check text-sky-500"></i> Catat Validasi &amp; Opname Fisik Aset
+        </h3>
+        <button type="button" onclick="closeModalTambahOpname()" class="text-slate-500 hover:text-slate-600">
+          <i class="ph-bold ph-x text-base"></i>
+        </button>
+      </div>
+      <form id="form-tambah-opname" onsubmit="event.preventDefault(); submitTambahOpname(event); return false;" class="p-4 space-y-3 text-xs">
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">ID Opname (Auto / Nomor Dokumen):</label>
+          <input type="text" id="opn-id" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono" placeholder="Auto / OPN-202610-006">
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Lokasi Gedung / Ruangan Audit:</label>
+          <select id="opn-lokasi" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white">
+            <!-- Populated via genuine buildings -->
+          </select>
+        </div>
+        <div class="grid grid-cols-3 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Total Terdaftar:</label>
+            <input type="number" id="opn-total" min="0" value="10" oninput="calcOpnSelisih()" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" required>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Fisik Ditemukan:</label>
+            <input type="number" id="opn-sesuai" min="0" value="10" oninput="calcOpnSelisih()" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" required>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Selisih:</label>
+            <input type="number" id="opn-selisih" min="0" value="0" readonly class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-slate-100 font-bold">
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Status Validasi:</label>
+            <select id="opn-status" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white">
+              <option value="Valid">Valid (Sesuai)</option>
+              <option value="Ada Selisih">Ada Selisih</option>
+              <option value="Proses">Dalam Proses</option>
+            </select>
+          </div>
+          <div>
+            <label class="block font-semibold text-slate-700 mb-1">Nama Petugas Auditor:</label>
+            <input type="text" id="opn-auditor" value="Miftahul Khoiry (Admin)" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" required>
+          </div>
+        </div>
+        <div>
+          <label class="block font-semibold text-slate-700 mb-1">Catatan Hasil Opname:</label>
+          <textarea id="opn-catatan" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" placeholder="Keterangan fisik temuan / kondisi"></textarea>
+        </div>
+        <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
+          <button type="button" onclick="closeModalTambahOpname()" class="px-3.5 py-2 text-xs font-semibold rounded-lg border border-slate-300 text-slate-600">Batal</button>
+          <button type="submit" class="px-4 py-2 text-xs font-semibold rounded-lg bg-sky-600 hover:bg-sky-500 text-white flex items-center gap-1.5 shadow-xs transition">
+            <i class="ph-bold ph-floppy-disk"></i> Simpan ke Google Sheets
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Modular Core Scripts -->
 <script>
     window.CONFIG = window.CONFIG || { API_BASE_URL: '' };
     window.INITIAL_VIEW_PARAM = "";
@@ -4779,6 +4934,25 @@ body.validasi-standalone-view #validasi-standalone-topbar {
     }
   </script>
   <script>
+  const OUTDOOR_FACILITY_PATTERNS = [
+    /speed\s*boat/i, /ponton/i, /perahu/i, /kapal/i, /jukung/i, /ketinting/i,
+    /traktor/i, /excavator/i, /bulldozer/i, /loader/i, /grader/i, /compactor/i,
+    /dump\s*truck/i, /truk/i, /mobil/i, /motor/i, /kendaraan/i, /trailer/i,
+    /canal/i, /saluran/i, /parit/i, /jembatan/i, /jalan/i, /gorong/i, /helipad/i,
+    /dermaga/i, /landscaping/i, /taman/i, /pagar/i, /kolam/i, /nursery/i,
+    /rumah\s*apung/i, /pancang/i, /tiang/i, /tower/i, /pipa\s*induk/i,
+    /pos\s*jaga/i, /pos\s*security/i, /drainase/i, /culvert/i
+  ];
+
+  function isGenuineRoomFacility(item) {
+    if (!item) return false;
+    const name = String(item.nama_asset || item.nama_barang || '').toLowerCase();
+    const kat = String(item.kategori_asset || '').toLowerCase();
+    const kel = String(item.kelompok_asset || '').toLowerCase();
+    return !OUTDOOR_FACILITY_PATTERNS.some(p => p.test(name) || p.test(kat) || p.test(kel));
+  }
+  window.isGenuineRoomFacility = isGenuineRoomFacility;
+
 // Global Sidebar & Navigation Group Toggles (Desktop Collapse + Mobile Drawer Parity)
   function toggleSidebar(forceState) {
     const sb = document.getElementById('app-sidebar');
@@ -5715,44 +5889,13 @@ const PNS_SECTION_TO_DEPT = {
   // ==========================================
   // INITIALIZATION & BOOTSTRAP SYNC
   // ==========================================
-  document.addEventListener('DOMContentLoaded', () => {
-    initAppMasterData();
-    initBrandLogos();
-    initTheme();
-    initNavigation();
-    initInspectionFormDropdowns();
-    renderDashboardCharts();
-    renderPortfolioSites();
-    renderBuildingsCards();
-    renderRoomsTable();
-    renderAssetsTable();
-    renderHistoryTable();
-    renderWorkOrdersKanban();
-    renderAllAssetsTable();
-    renderPortfolioComposition();
-    renderAssetSebaran();
-    renderPenghuniTable();
-    renderPortfolioAllTable();
-    renderValidasiTable();
-
-    syncAllFromBackend(false);
-
-    // Deep-Link & Executive Report Route Handler (?view=... / ?report=validasi)
-    try {
-      if (typeof window !== 'undefined' && window.location && window.location.search) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const rep = urlParams.get('report');
-        const view = urlParams.get('view');
-        if (rep === 'validasi' || view === 'view-validasi') {
-          setTimeout(() => {
-            navTo('view-validasi');
-          }, 150);
-        } else if (view) {
-          setTimeout(() => { navTo(view); }, 150);
-        }
-      }
-    } catch (e) {}
-  });
+  // Inspection form initializer
+  function initInspectionFormDropdowns() {
+    if (typeof filterAndPopulateInspGedung === 'function') {
+      try { filterAndPopulateInspGedung(); } catch (e) {}
+    }
+  }
+  window.initInspectionFormDropdowns = initInspectionFormDropdowns;
 
   function copyValidasiReportLink() {
     let url = window.location.href.split('?')[0].split('#')[0];
@@ -6637,12 +6780,12 @@ const PNS_SECTION_TO_DEPT = {
       `;
     }
 
-    if (typeof ApexCharts === 'undefined') {
-      setTimeout(renderDashboardCharts, 150);
+    if (typeof ApexCharts === 'undefined' || !barEl || barEl.offsetWidth < 50) {
+      setTimeout(renderDashboardCharts, 250);
       return;
     }
 
-    if (barEl) {
+    if (barEl && barEl.offsetWidth >= 50) {
       try {
         if (chartSiteBarInstance) {
           try { chartSiteBarInstance.destroy(); } catch (e) {}
@@ -6678,7 +6821,7 @@ const PNS_SECTION_TO_DEPT = {
       }
     }
 
-    if (donutEl) {
+    if (donutEl && donutEl.offsetWidth >= 50) {
       try {
         if (chartCondDonutInstance) {
           try { chartCondDonutInstance.destroy(); } catch (e) {}
@@ -6734,10 +6877,10 @@ const PNS_SECTION_TO_DEPT = {
   // =========================================================
   // REMINDER: DATA BELUM CHECKOUT & EXCEL EXPORT CONTROLLER
   // =========================================================
-  let remCheckoutMode = 'asset'; // 'asset' | 'penghuni'
-  let remCheckoutPage = 1;
+  var remCheckoutMode = 'asset'; // 'asset' | 'penghuni'
+  var remCheckoutPage = 1;
   const REM_CHECKOUT_PAGE_SIZE = 20;
-  let remCheckoutFiltersInitialized = false;
+  var remCheckoutFiltersInitialized = false;
 
   function getBelumCheckoutAssetsList() {
     if (typeof window !== 'undefined' && Array.isArray(window.PNS_BELUM_CHECKOUT_ASSETS) && window.PNS_BELUM_CHECKOUT_ASSETS.length > 0) {
@@ -8336,24 +8479,37 @@ const PNS_SECTION_TO_DEPT = {
           nama_asset_detail: namaDetail,
           jenis_asset: jenisAsset,
           kelompok_asset: kel,
+          kel: kel,
           kategori_asset: kat,
+          kat: kat,
           location: loc,
+          loc: loc,
           lokasi_raw: locRaw,
+          locRaw: locRaw,
           kondisi: kond,
+          kond: kond,
           standar_umur: std,
+          std: std,
           umur_asset: umur,
+          umur: umur,
           total_harga_perolehan: hpp,
+          hpp: hpp,
           akumulasi_penyusutan: susut,
+          susut: susut,
           Nilai_buku: nbv,
+          nbv: nbv,
           status_aktif: statusDisp,
           status_verifikasi: statusVerif,
+          statusVerif: statusVerif,
           lifetime: lifetime,
           is_in_building: isInBldg,
           building_status: isInBldg ? 'IN_BUILDING' : 'OUTDOOR',
           maintenance_cost: maintNom,
           kode_section: rawSec,
+          rawSec: rawSec,
           section: secFull,
-          department: deptFull
+          department: deptFull,
+          deptKey: deptFull
         };
       });
       return _pnsCachedNormalizedAssets;
@@ -8396,22 +8552,34 @@ const PNS_SECTION_TO_DEPT = {
               nama_asset_detail: `${dept.name} Operational Asset ${assetNum}`,
               jenis_asset: 'Asset',
               kelompok_asset: 'INVENTARIS DAN PERALATAN',
+              kel: 'INVENTARIS DAN PERALATAN',
               kategori_asset: 'PERALATAN KANTOR',
+              kat: 'PERALATAN KANTOR',
               location: 'CENTRAL OFFICE',
+              loc: 'CENTRAL OFFICE',
               lokasi_raw: 'CO',
+              locRaw: 'CO',
               kondisi: alloc.kond,
+              kond: alloc.kond,
               standar_umur: std,
+              std: std,
               umur_asset: umur,
+              umur: umur,
               total_harga_perolehan: hpp,
+              hpp: hpp,
               akumulasi_penyusutan: susut,
+              susut: susut,
               Nilai_buku: nbv,
+              nbv: nbv,
               status_aktif: (alloc.kond === 'Disposal') ? 'Disposal / Dihapuskan' : 'Aktif / Digunakan',
               status_verifikasi: isSelisih ? 'SELISIH ALOKASI' : 'ALOKASI SESUAI',
+              statusVerif: isSelisih ? 'SELISIH ALOKASI' : 'ALOKASI SESUAI',
               lifetime: (umur >= std) ? '↑ DIATAS' : '↓ DIBAWAH',
               is_in_building: true,
               building_status: 'IN_BUILDING',
               maintenance_cost: 0,
               kode_section: dept.name,
+              rawSec: dept.name,
               section: dept.name,
               department: dept.name,
               deptKey: dept.name
@@ -11709,7 +11877,8 @@ const PNS_SECTION_TO_DEPT = {
       });
     }
 
-    const filtered = appState.assets.filter(a => {
+    const filtered = (appState.assets || []).filter(a => {
+      if (!isGenuineRoomFacility(a)) return false;
       const matchBldg = (facilityBldgFilter === 'ALL' || a.kode_gedung === facilityBldgFilter);
       const matchKondisi = (facilityKondisiFilter === 'ALL' || (a.kondisi || '').toLowerCase() === facilityKondisiFilter.toLowerCase());
       const q = facilitySearchQuery.toLowerCase();
@@ -13536,7 +13705,7 @@ const PNS_SECTION_TO_DEPT = {
 
     ['Baru', 'Ditugaskan', 'Dikerjakan', 'Selesai'].forEach(st => {
       const col = document.getElementById(`col-${st}`);
-      if (col && col.children.length === 0) {
+      if (col && (!col.children || col.children.length === 0)) {
         col.innerHTML = '<div class="py-8 text-center text-xs text-slate-500 font-medium">Tidak ada tiket di tahap ini</div>';
       }
     });
@@ -13789,6 +13958,65 @@ const PNS_SECTION_TO_DEPT = {
   function renderWorkOrdersTable() {
     renderWorkOrdersKanban();
   }
+  window.renderWorkOrdersTable = renderWorkOrdersTable;
+  window.renderWorkOrdersKanban = renderWorkOrdersKanban;
+
+  function exportWorkOrdersExcel(format) {
+    const list = appState.workOrders || [];
+    const dateStr = new Date().toISOString().slice(0, 10);
+    const aoa = [
+      ['PT PRATAMA NUSANTARA SAKTI - DAFTAR TIKET WORK ORDER & PEMELIHARAAN FASILITAS'],
+      [`Tanggal Ekspor: ${dateStr} | Total Tiket: ${list.length}`],
+      [],
+      ['No', 'No. Tiket (WO)', 'Gedung / Lokasi', 'Ruangan', 'Kategori', 'Uraian Masalah', 'Prioritas', 'Teknisi PIC', 'Target Selesai', 'Status']
+    ];
+    list.forEach((w, idx) => {
+      aoa.push([
+        idx + 1,
+        w.no_wo || '-',
+        w.kode_gedung || '-',
+        w.nama_ruangan || '-',
+        w.kategori || '-',
+        w.deskripsi || w.judul || '-',
+        w.prioritas || 'Sedang',
+        w.teknisi || '-',
+        w.target_selesai || '-',
+        w.status || 'Baru'
+      ]);
+    });
+
+    if (format === 'csv') {
+      let csv = '\uFEFF';
+      aoa.forEach(row => {
+        csv += row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';') + '\r\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Work_Orders_PNS_${dateStr}.csv`;
+      link.click();
+      return;
+    }
+
+    if (typeof XLSX !== 'undefined') {
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      ws['!cols'] = [ {wch:6}, {wch:18}, {wch:22}, {wch:20}, {wch:18}, {wch:35}, {wch:12}, {wch:20}, {wch:15}, {wch:15} ];
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, 'Work Orders');
+      XLSX.writeFile(wb, `Work_Orders_PNS_${dateStr}.xlsx`);
+    } else {
+      let csv = '\uFEFF';
+      aoa.forEach(row => {
+        csv += row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(';') + '\r\n';
+      });
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Work_Orders_PNS_${dateStr}.csv`;
+      link.click();
+    }
+  }
+  window.exportWorkOrdersExcel = exportWorkOrdersExcel;
 
   // ==========================================
   // ==========================================
@@ -15446,18 +15674,35 @@ const PNS_SECTION_TO_DEPT = {
   };
 
   const VALIDASI_DEPTS_CONFIG = [
-    { key: 'HRGA', label: 'HRGA', icon: 'ph-users', keywords: ['HRGA', 'GENERAL SERVICE', 'SECURITY', 'PEOPLE', 'TALENT', 'COMPENSATION', 'ASSESSEMENT', 'HUMAN RESOURCE'] },
-    { key: 'BUSINESS SUPPORT', label: 'Business Support', icon: 'ph-buildings', keywords: ['BUSINESS SUPPORT', 'WAREHOUSE', 'LOGISTIC', 'PLANNING, INVENTORY', 'ADMINISTRATION', 'COMMUNITY', 'OPERATION SUPPORT'] },
-    { key: 'PLANTATION', label: 'Plantation', icon: 'ph-tree', keywords: ['WATER MANAGEMENT', 'PLANTING', 'CANE SUPPLY', 'AGRONOMY', 'PROTECTION', 'PLANTATION'] },
-    { key: 'WORKSHOP & ENGINERING', label: 'Workshop & Engineering', icon: 'ph-wrench', keywords: ['WORKSHOP', 'ENGINEERING', 'MAINTENANCE', 'CIVIL', 'ELECTRICAL'] },
-    { key: 'PRODUCTION', label: 'Production', icon: 'ph-factory', keywords: ['PRODUCTION', 'PROCESS', 'MILL', 'CANE YARD', 'OPERATION'] },
-    { key: 'QUALITY HEALTH & SAFETY ENVIRONMENT', label: 'QHSE', icon: 'ph-shield-check', keywords: ['HSE', 'QC', 'LAB', 'MEDICAL', 'SAFETY', 'QUALITY'] },
-    { key: 'FINANCIAL & INFORMATION', label: 'Financial & Information', icon: 'ph-currency-dollar', keywords: ['FINANCE', 'ACCOUNTING', 'INFORMATION', 'IT', 'LEGAL', 'TAX', 'BUDGET'] },
+    { key: 'HRGA', label: 'HRGA', icon: 'ph-users', keywords: ['HRGA', 'GENERAL SERVICE', 'SECURITY', 'PEOPLE', 'TALENT', 'COMPENSATION', 'ASSESSEMENT', 'HUMAN RESOURCE', 'FACILITY'] },
+    { key: 'BUSINESS SUPPORT', label: 'Business Support', icon: 'ph-buildings', keywords: ['BUSINESS SUPPORT', 'WAREHOUSE', 'LOGISTIC', 'PLANNING, INVENTORY', 'ADMINISTRATION', 'COMMUNITY', 'OPERATION SUPPORT', 'CANAL'] },
+    { key: 'PLANTATION', label: 'Plantation', icon: 'ph-tree', keywords: ['WATER MANAGEMENT', 'PLANTING', 'CANE SUPPLY', 'AGRONOMY', 'PROTECTION', 'PLANTATION', 'ESTATE'] },
+    { key: 'WORKSHOP & ENGINERING', label: 'Workshop & Engineering', icon: 'ph-wrench', keywords: ['WORKSHOP', 'ENGINEERING', 'ENGINERING', 'MAINTENANCE', 'CIVIL', 'ELECTRICAL'] },
+    { key: 'PRODUCTION', label: 'Production', icon: 'ph-factory', keywords: ['PRODUCTION', 'PROCESS', 'MILL', 'CANE YARD', 'OPERATION', 'BOILER', 'POWER'] },
+    { key: 'QUALITY HEALTH & SAFETY ENVIRONMENT', label: 'QHSE', icon: 'ph-shield-check', keywords: ['HSE', 'QC', 'LAB', 'MEDICAL', 'SAFETY', 'QUALITY', 'ENVIRONMENT'] },
+    { key: 'FINANCIAL & INFORMATION SYSTEM', label: 'Financial & Information', icon: 'ph-currency-dollar', keywords: ['FINANCE', 'ACCOUNTING', 'INFORMATION', 'IT', 'LEGAL', 'TAX', 'BUDGET', 'ASSET'] },
     { key: 'HARVESTING', label: 'Harvesting', icon: 'ph-plant', keywords: ['HARVESTING'] },
-    { key: 'PROCUREMENT & PURCHASING', label: 'Procurement & Purchasing', icon: 'ph-shopping-cart', keywords: ['PROCUREMENT', 'PURCHASING'] },
     { key: 'RESEARCH & DEVELOPMENT', label: 'Research & Development', icon: 'ph-flask', keywords: ['RESEARCH', 'DEVELOPMENT', 'R&D'] },
+    { key: 'PROCUREMENT & PURCHASING', label: 'Procurement & Purchasing', icon: 'ph-shopping-cart', keywords: ['PROCUREMENT', 'PURCHASING'] },
     { key: 'SALES & MARKETING', label: 'Sales & Marketing', icon: 'ph-chart-line-up', keywords: ['SALES', 'MARKETING'] }
   ];
+
+  function getDeptKeyForAsset(rawSec) {
+    if (!rawSec) return 'HRGA';
+    const s = String(rawSec).trim().toUpperCase();
+    if (typeof PNS_OFFICIAL_SEC_DEPT !== 'undefined' && PNS_OFFICIAL_SEC_DEPT[rawSec]) {
+      return PNS_OFFICIAL_SEC_DEPT[rawSec];
+    }
+    for (const d of VALIDASI_DEPTS_CONFIG) {
+      if (s === d.key.toUpperCase()) return d.key;
+      for (const kw of d.keywords) {
+        if (s.includes(kw)) return d.key;
+      }
+    }
+    return 'BUSINESS SUPPORT';
+  }
+
+  window.VALIDASI_DEPTS_CONFIG = VALIDASI_DEPTS_CONFIG;
 
   const VALIDASI_LOCS_CONFIG = [
     { key: 'CO', label: 'Central Office (CO)', icon: 'ph-buildings' },
@@ -15469,16 +15714,8 @@ const PNS_SECTION_TO_DEPT = {
     { key: 'HO', label: 'Head Office (HO)', icon: 'ph-city' },
     { key: 'RO', label: 'Regional Office (RO)', icon: 'ph-map-pin' }
   ];
-
-  function getDeptKeyForAsset(rawSec) {
-    const s = String(rawSec || '').toUpperCase();
-    for (const d of VALIDASI_DEPTS_CONFIG) {
-      for (const kw of d.keywords) {
-        if (s.includes(kw)) return d.key;
-      }
-    }
-    return 'BUSINESS SUPPORT';
-  }
+  window.VALIDASI_LOCS_CONFIG = VALIDASI_LOCS_CONFIG;
+  window.getDeptKeyForAsset = getDeptKeyForAsset;
 
   // Get dynamically filtered subset of all 34.266 assets
   function getFilteredValidasiAssets() {
@@ -15536,14 +15773,17 @@ const PNS_SECTION_TO_DEPT = {
     for (let i = 0; i < assets.length; i++) {
       const a = assets[i];
       total++;
-      totalHpp += (a.hpp || 0);
-      totalNbv += (a.nbv || 0);
+      const itemHpp = Number(a.hpp != null ? a.hpp : (a.total_harga_perolehan || 0));
+      const itemNbv = Number(a.nbv != null ? a.nbv : (a.Nilai_buku || 0));
+      totalHpp += itemHpp;
+      totalNbv += itemNbv;
 
-      const isSesuai = !String(a.statusVerif || '').toUpperCase().includes('TIDAK') && !String(a.statusVerif || '').toUpperCase().includes('SELISIH');
+      const rawStatus = String(a.statusVerif || a.status_verifikasi || '').toUpperCase();
+      const isSesuai = !rawStatus.includes('TIDAK') && !rawStatus.includes('SELISIH') && !rawStatus.includes('BELUM');
       if (isSesuai) sesuai++;
       else tdkSesuai++;
 
-      const c = String(a.kond || '').toUpperCase();
+      const c = String(a.kond || a.kondisi || '').toUpperCase();
       if (c.includes('BAIK') || c.includes('GOOD')) good++;
       else if (c.includes('REPAIR') || c.includes('PERBAIKAN')) repair++;
       else if (c.includes('DISPOSAL') || c.includes('AFKIR')) disp++;
@@ -17072,160 +17312,169 @@ window.updateSingleAssetNote = updateSingleAssetNote;
   }
   window.triggerPenghuniCamera = triggerPenghuniCamera;
 
+
+  // ==========================================
+  // RESET FILTER CONTROLLERS (ENTERPRISE UX)
+  // ==========================================
+  function resetMasterCatalogFilters() {
+    const sType = document.getElementById('slicer-asset-type-cat');
+    const sKat = document.getElementById('slicer-asset-kat');
+    const sKond = document.getElementById('slicer-asset-kondisi');
+    const sSort = document.getElementById('slicer-asset-sort');
+    const sSearch = document.getElementById('slicer-asset-search');
+
+    if (sType) sType.value = 'ALL';
+    if (sKat) sKat.value = 'ALL';
+    if (sKond) sKond.value = 'ALL';
+    if (sSort) sSort.value = 'nbv_desc';
+    if (sSearch) sSearch.value = '';
+
+    if (typeof window.setAssetCatalogSegment === 'function') {
+      window.setAssetCatalogSegment('ALL');
+    }
+    if (window.pns && typeof window.pns.onAssetFilterChange === 'function') {
+      window.pns.onAssetFilterChange();
+    } else if (typeof renderPortfolioAllTable === 'function') {
+      renderPortfolioAllTable();
+    }
+  }
+  window.resetMasterCatalogFilters = resetMasterCatalogFilters;
+
+  function resetFacilityFilters() {
+    facilityBldgFilter = 'ALL';
+    facilityKondisiFilter = 'ALL';
+    facilitySearchQuery = '';
+    facilityCurrentPage = 1;
+
+    const bldgSel = document.getElementById('filter-facility-bldg');
+    const kondSel = document.getElementById('filter-facility-kondisi');
+    const searchInp = document.getElementById('search-asset');
+
+    if (bldgSel) bldgSel.value = 'ALL';
+    if (kondSel) kondSel.value = 'ALL';
+    if (searchInp) searchInp.value = '';
+
+    renderAssetsTable();
+  }
+  window.resetFacilityFilters = resetFacilityFilters;
+
+  function resetPenghuniFilters() {
+    penghuniSearchQuery = '';
+    penghuniBldgFilter = '';
+    penghuniRoomFilter = '';
+    penghuniStatusFilter = '';
+    penghuniCurrentPage = 1;
+
+    const sInp = document.getElementById('search-penghuni');
+    const bSel = document.getElementById('filter-penghuni-bldg');
+    const rSel = document.getElementById('filter-penghuni-room');
+    const stSel = document.getElementById('filter-penghuni-status');
+
+    if (sInp) sInp.value = '';
+    if (bSel) bSel.value = '';
+    if (rSel) rSel.value = '';
+    if (stSel) stSel.value = '';
+
+    renderPenghuniTable();
+  }
+  window.resetPenghuniFilters = resetPenghuniFilters;
+
+  function resetWoFilters() {
+    woFilterStatus = 'ALL';
+    woFilterPriority = 'ALL';
+    woSearchQuery = '';
+
+    const stSel = document.getElementById('filter-wo-status');
+    const prSel = document.getElementById('filter-wo-priority');
+    const srInp = document.getElementById('search-wo');
+
+    if (stSel) stSel.value = 'ALL';
+    if (prSel) prSel.value = 'ALL';
+    if (srInp) srInp.value = '';
+
+    if (typeof renderWorkOrdersKanban === 'function') renderWorkOrdersKanban();
+    if (typeof renderWorkOrdersTable === 'function') renderWorkOrdersTable();
+  }
+  window.resetWoFilters = resetWoFilters;
+
+  // Dual Tab Switcher for Penghuni Mess vs Hunian Slots
+  let currentPenghuniTab = 'penghuni';
+  function switchPenghuniTab(tab) {
+    currentPenghuniTab = tab;
+    const tabPenghuniBtn = document.getElementById('tab-penghuni-aktif');
+    const tabKamarBtn = document.getElementById('tab-penghuni-kamar');
+    const filterStatus = document.getElementById('filter-penghuni-status');
+
+    if (tab === 'kamar') {
+      if (tabKamarBtn) tabKamarBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-indigo-700 shadow-2xs transition flex items-center gap-1.5 cursor-pointer';
+      if (tabPenghuniBtn) tabPenghuniBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5 cursor-pointer';
+      if (filterStatus) filterStatus.value = '';
+      penghuniStatusFilter = '';
+    } else {
+      if (tabPenghuniBtn) tabPenghuniBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-indigo-700 shadow-2xs transition flex items-center gap-1.5 cursor-pointer';
+      if (tabKamarBtn) tabKamarBtn.className = 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition flex items-center gap-1.5 cursor-pointer';
+      if (filterStatus) filterStatus.value = 'Aktif';
+      penghuniStatusFilter = 'Aktif';
+    }
+    renderPenghuniTable();
+  }
+  window.switchPenghuniTab = switchPenghuniTab;
+
+  // ==========================================
+  // APPLICATION BOOTSTRAP (RUNS AFTER ALL SCRIPTS READY)
+  // ==========================================
+  function bootApp() {
+    initAppMasterData();
+    initBrandLogos();
+    initTheme();
+    initNavigation();
+    initInspectionFormDropdowns();
+    renderDashboardCharts();
+    renderPortfolioSites();
+    renderBuildingsCards();
+    renderRoomsTable();
+    renderAssetsTable();
+    renderHistoryTable();
+    renderWorkOrdersKanban();
+    renderAllAssetsTable();
+    renderPortfolioComposition();
+    renderAssetSebaran();
+    renderPenghuniTable();
+    renderPortfolioAllTable();
+    renderValidasiTable();
+    renderValidasiMatrix();
+
+    syncAllFromBackend(false);
+
+    // Deep-Link & Executive Report Route Handler (?view=... / ?report=validasi)
+    try {
+      if (typeof window !== 'undefined' && window.location && window.location.search) {
+        const urlParams = new URLSearchParams(window.location.search);
+        const rep = urlParams.get('report');
+        const view = urlParams.get('view');
+        if (rep === 'validasi' || view === 'view-validasi') {
+          setTimeout(() => { navTo('view-validasi'); }, 100);
+        } else if (view) {
+          setTimeout(() => { navTo(view); }, 100);
+        }
+      }
+    } catch (e) {}
+  }
+  window.bootApp = bootApp;
+
+  if (typeof document !== 'undefined') {
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', bootApp);
+    } else {
+      bootApp();
+    }
+  }
+  if (typeof window !== 'undefined') {
+    window.addEventListener('load', () => {
+      renderDashboardCharts();
+    });
+  }
+
 </script>
-
-
-  <!-- MODAL: TAMBAH DATA OPNAME / VALIDASI ASET -->
-    <!-- MODAL: DRILLDOWN & DRILL-THROUGH VALIDASI FISIK (DETAIL PER ITEM ASET) -->
-  <div id="modal-drilldown-validasi" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
-    <div class="clean-card w-full max-w-5xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in">
-      <!-- Modal Header -->
-      <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
-        <div class="flex items-center gap-2.5">
-          <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-base">
-            <i class="ph-bold ph-list-magnifying-glass"></i>
-          </div>
-          <div>
-            <h3 id="val-drill-title" class="text-sm font-bold text-slate-900">Rincian Drill-Down Validasi Fisik</h3>
-            <p class="text-[11px] text-slate-500">Audit item-level master aset, kondisi fisik, dan status verifikasi lapangan</p>
-          </div>
-        </div>
-        <button type="button" onclick="closeValidasiDrillModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer">
-          <i class="ph-bold ph-x text-base"></i>
-        </button>
-      </div>
-
-      <!-- Filter Bar & Slicers -->
-      <div class="p-4 border-b border-slate-200 bg-white flex flex-wrap items-center justify-between gap-3 text-xs">
-        <!-- Search -->
-        <div class="relative min-w-[240px] flex-1 max-w-md">
-          <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
-          <input type="text" id="val-drill-search" oninput="renderValidasiDrillTable()" placeholder="Cari Kode Unit, Nama Aset, Kelompok..." class="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:border-sky-500">
-        </div>
-
-        <!-- Filter Chips / Tabs -->
-        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
-          <button type="button" id="val-drill-tab-all" onclick="setValidasiDrillStatusFilter('ALL')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 text-white transition cursor-pointer shadow-xs">
-            Semua (<span id="val-drill-count-total">0</span>)
-          </button>
-          <button type="button" id="val-drill-tab-selisih" onclick="setValidasiDrillStatusFilter('SELISIH')" class="px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50 transition cursor-pointer rounded">
-            Selisih Fisik (<span id="val-drill-count-selisih">0</span>)
-          </button>
-          <button type="button" id="val-drill-tab-sesuai" onclick="setValidasiDrillStatusFilter('SESUAI')" class="px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50 transition cursor-pointer rounded">
-            Sesuai (<span id="val-drill-count-sesuai">0</span>)
-          </button>
-        </div>
-
-        <!-- Export Excel -->
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="closeValidasiDrillModal(); window.openAssetMovementView({ section: currentValidasiDrill.targetName, location: currentValidasiDrill.targetName, sourceView: 'view-validasi' })" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 shadow-xs" title="Buka data ini di Halaman Detail Asset Movement">
-            <i class="ph-bold ph-arrow-square-out"></i> Buka Detail Movement &rarr;
-          </button>
-          <button type="button" onclick="exportValidasiDrillXlsx()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5 shadow-xs">
-            <i class="ph-bold ph-file-xls"></i> Export Excel (.xlsx)
-          </button>
-        </div>
-      </div>
-
-      <!-- Drilldown Table Container -->
-      <div class="flex-1 overflow-auto p-0 scrollbar-thin">
-        <table class="w-full text-left border-collapse text-xs">
-          <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200 z-10 select-none">
-            <tr>
-              <th class="py-2.5 px-3">Kode Unit</th>
-              <th class="py-2.5 px-3">Nama Asset</th>
-              <th class="py-2.5 px-2">Kelompok / Kategori</th>
-              <th class="py-2.5 px-2">Lokasi</th>
-              <th class="py-2.5 px-2">Kondisi Fisik</th>
-              <th class="py-2.5 px-2">Status Validasi</th>
-              <th class="py-2.5 px-3 text-right">Nilai Perolehan (HPP)</th>
-              <th class="py-2.5 px-3 text-right">Nilai Buku (NBV)</th>
-              <th class="py-2.5 px-2.5 text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody id="val-drill-tbody" class="divide-y divide-slate-100 font-medium">
-            <!-- Dynamically populated -->
-          </tbody>
-        </table>
-      </div>
-
-      <!-- Modal Footer with Pagination -->
-      <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-between items-center text-xs">
-        <span id="val-drill-paging-info" class="text-slate-500 text-[11px]">Memuat data...</span>
-        <div class="flex items-center gap-2">
-          <button type="button" onclick="valDrillPrevPage()" class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs transition cursor-pointer">
-            <i class="ph-bold ph-caret-left"></i> Prev
-          </button>
-          <button type="button" onclick="valDrillNextPage()" class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs transition cursor-pointer">
-            Next <i class="ph-bold ph-caret-right"></i>
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-
-<div id="modal-tambah-opname" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-4">
-    <div class="clean-card w-full max-w-lg bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden animate-in">
-      <div class="p-4 border-b border-slate-200 flex justify-between items-center bg-slate-50">
-        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-          <i class="ph-bold ph-seal-check text-sky-500"></i> Catat Validasi &amp; Opname Fisik Aset
-        </h3>
-        <button type="button" onclick="closeModalTambahOpname()" class="text-slate-500 hover:text-slate-600">
-          <i class="ph-bold ph-x text-base"></i>
-        </button>
-      </div>
-      <form id="form-tambah-opname" onsubmit="event.preventDefault(); submitTambahOpname(event); return false;" class="p-4 space-y-3 text-xs">
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">ID Opname (Auto / Nomor Dokumen):</label>
-          <input type="text" id="opn-id" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono" placeholder="Auto / OPN-202610-006">
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Lokasi Gedung / Ruangan Audit:</label>
-          <select id="opn-lokasi" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white">
-            <!-- Populated via genuine buildings -->
-          </select>
-        </div>
-        <div class="grid grid-cols-3 gap-2">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Total Terdaftar:</label>
-            <input type="number" id="opn-total" min="0" value="10" oninput="calcOpnSelisih()" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" required>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Fisik Ditemukan:</label>
-            <input type="number" id="opn-sesuai" min="0" value="10" oninput="calcOpnSelisih()" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" required>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Selisih:</label>
-            <input type="number" id="opn-selisih" min="0" value="0" readonly class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-slate-100 font-bold">
-          </div>
-        </div>
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Status Validasi:</label>
-            <select id="opn-status" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white">
-              <option value="Valid">Valid (Sesuai)</option>
-              <option value="Ada Selisih">Ada Selisih</option>
-              <option value="Proses">Dalam Proses</option>
-            </select>
-          </div>
-          <div>
-            <label class="block font-semibold text-slate-700 mb-1">Nama Petugas Auditor:</label>
-            <input type="text" id="opn-auditor" value="Miftahul Khoiry (Admin)" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" required>
-          </div>
-        </div>
-        <div>
-          <label class="block font-semibold text-slate-700 mb-1">Catatan Hasil Opname:</label>
-          <textarea id="opn-catatan" rows="2" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white" placeholder="Keterangan fisik temuan / kondisi"></textarea>
-        </div>
-        <div class="pt-3 border-t border-slate-200 flex justify-end gap-2">
-          <button type="button" onclick="closeModalTambahOpname()" class="px-3.5 py-2 text-xs font-semibold rounded-lg border border-slate-300 text-slate-600">Batal</button>
-          <button type="submit" class="px-4 py-2 text-xs font-semibold rounded-lg bg-sky-600 hover:bg-sky-500 text-white flex items-center gap-1.5 shadow-xs transition">
-            <i class="ph-bold ph-floppy-disk"></i> Simpan ke Google Sheets
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-
 </body>
 </html>
