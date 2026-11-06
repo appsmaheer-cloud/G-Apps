@@ -2257,6 +2257,30 @@
           </div>
         </div>
 
+        <!-- Quick Category Filter Buttons (Persis Inspeksi) -->
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+          <div class="flex flex-wrap items-center gap-1.5" role="group" aria-label="Filter kategori bangunan">
+            <button type="button" onclick="filterBuildingByCategory('ALL', this)" class="bldg-cat-btn active px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-900 text-white shadow-2xs cursor-pointer flex items-center gap-1.5 transition">
+              <i class="ph-bold ph-squares-four"></i> Semua Kategori (416)
+            </button>
+            <button type="button" onclick="filterBuildingByCategory('HUNIAN', this)" class="bldg-cat-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer flex items-center gap-1.5 transition">
+              <i class="ph-bold ph-house-line text-emerald-600"></i> Mess &amp; Hunian (113)
+            </button>
+            <button type="button" onclick="filterBuildingByCategory('KANTOR', this)" class="bldg-cat-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer flex items-center gap-1.5 transition">
+              <i class="ph-bold ph-buildings text-indigo-600"></i> Bangunan Kantor &amp; Pos (21)
+            </button>
+            <button type="button" onclick="filterBuildingByCategory('PABRIK', this)" class="bldg-cat-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer flex items-center gap-1.5 transition">
+              <i class="ph-bold ph-factory text-blue-600"></i> Pabrik &amp; Workshop (32)
+            </button>
+            <button type="button" onclick="filterBuildingByCategory('GUDANG', this)" class="bldg-cat-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer flex items-center gap-1.5 transition">
+              <i class="ph-bold ph-warehouse text-amber-600"></i> Gudang &amp; Fasilitas Umum (250)
+            </button>
+          </div>
+          <button type="button" onclick="resetBldgFilters()" class="px-2.5 py-1.5 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-100 cursor-pointer flex items-center gap-1 shadow-2xs transition" title="Reset Filter Gedung">
+            <i class="ph-bold ph-arrows-counter-clockwise"></i> Reset Filter
+          </button>
+        </div>
+
         <!-- Filter & Search Toolbar -->
         <div class="flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
           <!-- Site Filter Pills -->
@@ -2267,6 +2291,7 @@
             <button type="button" onclick="setBldgSiteFilter('Estate 1 (E1)', this)" class="bldg-site-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Estate 1 (1)</button>
             <button type="button" onclick="setBldgSiteFilter('Estate 2 (E2)', this)" class="bldg-site-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Estate 2 (12)</button>
             <button type="button" onclick="setBldgSiteFilter('Estate 3 (E3)', this)" class="bldg-site-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Estate 3 (16)</button>
+            <button type="button" onclick="setBldgSiteFilter('Marunda', this)" class="bldg-site-pill px-3 py-1 text-xs font-medium rounded-full bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer">Gudang Marunda (MR)</button>
           </div>
 
           <!-- Search Input -->
@@ -2428,6 +2453,37 @@
               <i class="ph-bold ph-warning-circle"></i>
             </div>
           </div>
+        </div>
+
+        <!-- Quick Facility Type Filter Buttons (Persis Inspeksi) -->
+        <div class="flex flex-wrap items-center gap-1.5 bg-white p-3 rounded-xl border border-slate-200 shadow-2xs">
+          <span class="text-xs font-bold text-slate-700 mr-1 flex items-center gap-1">
+            <i class="ph-bold ph-funnel text-emerald-600"></i> Kategori Cepat:
+          </span>
+          <button type="button" onclick="filterFacilityByType('ALL', this)" class="fac-type-pill active px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-900 text-white shadow-2xs cursor-pointer flex items-center gap-1 transition">
+            Semua (15.778)
+          </button>
+          <button type="button" onclick="filterFacilityByType('Kasur', this)" class="fac-type-pill px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center gap-1 transition">
+            <i class="ph-bold ph-bed text-indigo-500"></i> Kasur / Bed
+          </button>
+          <button type="button" onclick="filterFacilityByType('Lemari', this)" class="fac-type-pill px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center gap-1 transition">
+            <i class="ph-bold ph-archive text-amber-600"></i> Lemari &amp; Loker
+          </button>
+          <button type="button" onclick="filterFacilityByType('Bantal', this)" class="fac-type-pill px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center gap-1 transition">
+            <i class="ph-bold ph-pillow text-sky-500"></i> Bantal &amp; Sprei
+          </button>
+          <button type="button" onclick="filterFacilityByType('AC', this)" class="fac-type-pill px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center gap-1 transition">
+            <i class="ph-bold ph-snowflake text-cyan-600"></i> AC &amp; Kipas
+          </button>
+          <button type="button" onclick="filterFacilityByType('MejaKursi', this)" class="fac-type-pill px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center gap-1 transition">
+            <i class="ph-bold ph-chair text-emerald-600"></i> Meja &amp; Kursi
+          </button>
+          <button type="button" onclick="filterFacilityByType('Lampu', this)" class="fac-type-pill px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center gap-1 transition">
+            <i class="ph-bold ph-lightbulb text-yellow-500"></i> Lampu &amp; Listrik
+          </button>
+          <button type="button" onclick="filterFacilityByType('Elektronik', this)" class="fac-type-pill px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center gap-1 transition">
+            <i class="ph-bold ph-television text-purple-600"></i> Elektronik / Dispenser
+          </button>
         </div>
 
         <!-- Filter & Slicer Bar for Facilities -->
@@ -2619,7 +2675,7 @@
                 <option value="Estate 1">Estate 1 (E1)</option>
                 <option value="Estate 2">Estate 2 (E2)</option>
                 <option value="Estate 3">Estate 3 (E3)</option>
-                <option value="Mess Residence">Mess Residence (MR)</option>
+                <option value="Gudang Marunda">Gudang Marunda (MR)</option>
                 <option value="Regional Office">Regional Office (RO)</option>
                 <option value="Head Office">Head Office (HO)</option>
               </select>
@@ -3139,9 +3195,14 @@
               <div class="w-full sm:w-auto min-w-[140px]">
                 <select id="val-filter-location" onchange="onFilterValidasiReport()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-medium">
                   <option value="">Semua Lokasi</option>
-                  <option value="SITE">Site Camp &amp; Mill</option>
-                  <option value="RO">Regional Office (RO)</option>
+                  <option value="CO">Central Office (CO)</option>
+                  <option value="FR">Factory / Pabrik (FR)</option>
+                  <option value="E1">Estate 1 (E1)</option>
+                  <option value="E2">Estate 2 (E2)</option>
+                  <option value="E3">Estate 3 (E3)</option>
+                  <option value="MR">Gudang Marunda (MR)</option>
                   <option value="HO">Head Office (HO)</option>
+                  <option value="RO">Regional Office (RO)</option>
                 </select>
               </div>
 
@@ -3155,10 +3216,11 @@
                   <option value="WORKSHOP & ENGINERING">Workshop &amp; Engineering</option>
                   <option value="PRODUCTION">Production</option>
                   <option value="QUALITY HEALTH & SAFETY ENVIRONMENT">QHSE</option>
-                  <option value="FINANCIAL & INFORMATION">Finance &amp; IT</option>
+                  <option value="FINANCIAL & INFORMATION SYSTEM">Financial &amp; IT</option>
                   <option value="HARVESTING">Harvesting</option>
-                  <option value="COMMERCIAL">Commercial</option>
-                  <option value="INTERNAL AUDIT">Internal Audit</option>
+                  <option value="RESEARCH & DEVELOPMENT">Research &amp; Development</option>
+                  <option value="PROCUREMENT & PURCHASING">Procurement &amp; Purchasing</option>
+                  <option value="SALES & MARKETING">Sales &amp; Marketing</option>
                 </select>
               </div>
 

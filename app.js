@@ -240,17 +240,33 @@
 
   function filterPenghuniByHouse(code) {
     if (!code) return;
-    const searchInput = document.getElementById('search-penghuni');
-    if (searchInput) {
-      searchInput.value = code;
-      if (typeof onSearchPenghuni === 'function') onSearchPenghuni();
-    }
     const filterBldg = document.getElementById('filter-penghuni-bldg');
     if (filterBldg) {
       filterBldg.value = code;
-      if (typeof onFilterPenghuniChange === 'function') onFilterPenghuniChange();
+      if (typeof onPenghuniBldgFilterChange === 'function') {
+        onPenghuniBldgFilterChange();
+      }
+    }
+    const searchInput = document.getElementById('search-penghuni');
+    if (searchInput) searchInput.value = '';
+
+    renderPenghuniTable();
+
+    // Visual feedback on card
+    document.querySelectorAll('.hunian-house-card').forEach(c => {
+      if (c.getAttribute('data-house-code') === code) {
+        c.classList.add('ring-2', 'ring-indigo-600', 'bg-indigo-50/40');
+      } else {
+        c.classList.remove('ring-2', 'ring-indigo-600', 'bg-indigo-50/40');
+      }
+    });
+
+    const tableCard = document.getElementById('table-penghuni-body');
+    if (tableCard) {
+      tableCard.closest('.clean-card')?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
   }
+  window.filterPenghuniByHouse = filterPenghuniByHouse;
   
 const PNS_SECTION_TO_DEPT = {
   "Accounting": "FINANCIAL & INFORMATION SYSTEM",
@@ -1510,18 +1526,26 @@ const PNS_SECTION_TO_DEPT = {
         appState.rooms = d.rooms;
       }
       
+      if (Array.isArray(d.penghuni) && d.penghuni.length > 0) {
+        appState.penghuni = d.penghuni;
+      }
       try {
         const savedPenghuni = localStorage.getItem('pns_custom_penghuni');
         if (savedPenghuni) {
           const parsed = JSON.parse(savedPenghuni);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            appState.penghuni = parsed;
+            const customMap = new Map();
+            parsed.forEach(p => { if (p && p.id != null) customMap.set(String(p.id), p); });
+            appState.penghuni = (appState.penghuni || []).map(p => customMap.get(String(p.id)) || p);
+            parsed.forEach(p => {
+              if (p && !appState.penghuni.some(ex => String(ex.id) === String(p.id))) {
+                appState.penghuni.push(p);
+              }
+            });
+            console.log('Merged ' + parsed.length + ' custom penghuni updates from localStorage.');
           }
         }
       } catch (e) {}
-      if (Array.isArray(d.penghuni) && d.penghuni.length > 0) {
-        appState.penghuni = d.penghuni;
-      }
       if (Array.isArray(d.workOrders) && d.workOrders.length > 0) {
         appState.workOrders = d.workOrders;
       }
@@ -3183,6 +3207,72 @@ const PNS_SECTION_TO_DEPT = {
     }
   }
 
+  // ==========================================
+  // QUICK FILTERS: GEDUNG & FASILITAS RUANGAN
+  // ==========================================
+  let currentBldgCategoryFilter = 'ALL';
+  function filterBuildingByCategory(cat, btn) {
+    currentBldgCategoryFilter = cat || 'ALL';
+    
+    // Update button styles
+    document.querySelectorAll('.bldg-cat-btn').forEach(b => {
+      b.className = 'bldg-cat-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer flex items-center gap-1.5 transition';
+    });
+    if (btn) {
+      btn.className = 'bldg-cat-btn active px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-900 text-white shadow-2xs cursor-pointer flex items-center gap-1.5 transition';
+    }
+
+    buildingCurrentPage = 1;
+    filterBuildings();
+  }
+  window.filterBuildingByCategory = filterBuildingByCategory;
+
+  function resetBldgFilters() {
+    appState.currentBldgFilterSite = '';
+    currentBldgCategoryFilter = 'ALL';
+    const sInp = document.getElementById('search-bldg');
+    if (sInp) sInp.value = '';
+
+    document.querySelectorAll('.bldg-site-pill').forEach(b => {
+      b.classList.remove('active', 'bg-slate-900', 'text-white');
+      b.classList.add('bg-slate-100', 'text-slate-600');
+    });
+    const firstPill = document.querySelector('.bldg-site-pill');
+    if (firstPill) {
+      firstPill.classList.remove('bg-slate-100', 'text-slate-600');
+      firstPill.classList.add('active', 'bg-slate-900', 'text-white');
+    }
+
+    document.querySelectorAll('.bldg-cat-btn').forEach(b => {
+      b.className = 'bldg-cat-btn px-3 py-1.5 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 cursor-pointer flex items-center gap-1.5 transition';
+    });
+    const firstCat = document.querySelector('.bldg-cat-btn');
+    if (firstCat) {
+      firstCat.className = 'bldg-cat-btn active px-3 py-1.5 text-xs font-bold rounded-lg bg-slate-900 text-white shadow-2xs cursor-pointer flex items-center gap-1.5 transition';
+    }
+
+    buildingCurrentPage = 1;
+    filterBuildings();
+  }
+  window.resetBldgFilters = resetBldgFilters;
+
+  let currentFacilityTypeFilter = 'ALL';
+  function filterFacilityByType(type, btn) {
+    currentFacilityTypeFilter = type || 'ALL';
+
+    // Update button styles
+    document.querySelectorAll('.fac-type-pill').forEach(b => {
+      b.className = 'fac-type-pill px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200 cursor-pointer flex items-center gap-1 transition';
+    });
+    if (btn) {
+      btn.className = 'fac-type-pill active px-2.5 py-1 text-xs font-bold rounded-lg bg-slate-900 text-white shadow-2xs cursor-pointer flex items-center gap-1 transition';
+    }
+
+    facilityCurrentPage = 1;
+    renderAssetsTable();
+  }
+  window.filterFacilityByType = filterFacilityByType;
+
   function changeBuildingPage(delta) {
     const totalCount = currentFilteredBuildings.length;
     const totalPages = Math.max(1, Math.ceil(totalCount / BUILDINGS_PER_PAGE));
@@ -3230,6 +3320,21 @@ const PNS_SECTION_TO_DEPT = {
       const bSite = String(b.lokasi_site || '');
       const bKode = String(b.kode_gedung || '');
       
+      // Filter Kategori Gedung
+      if (typeof currentBldgCategoryFilter !== 'undefined' && currentBldgCategoryFilter !== 'ALL') {
+        const cat = String(b.kategori || b.kategori_fungsi || '').toUpperCase();
+        const n = String(b.nama_gedung || b.kode_gedung || '').toUpperCase();
+        if (currentBldgCategoryFilter === 'HUNIAN') {
+          if (!cat.includes('HUNIAN') && !cat.includes('MESS') && !n.includes('MESS') && !n.includes('LONGHOUSE') && !n.includes('LH') && !n.includes('BARAK') && !n.includes('GUEST')) return false;
+        } else if (currentBldgCategoryFilter === 'KANTOR') {
+          if (!cat.includes('KANTOR') && !cat.includes('OFFICE') && !n.includes('OFFICE') && !n.includes('KANTOR') && !n.includes('SECURITY') && !n.includes('POS')) return false;
+        } else if (currentBldgCategoryFilter === 'PABRIK') {
+          if (!cat.includes('PABRIK') && !cat.includes('MILL') && !n.includes('MILL') && !n.includes('PABRIK') && !n.includes('BOILER') && !n.includes('WORKSHOP')) return false;
+        } else if (currentBldgCategoryFilter === 'GUDANG') {
+          if (!cat.includes('GUDANG') && !cat.includes('WAREHOUSE') && !n.includes('GUDANG') && !n.includes('STORAGE') && !n.includes('MARUNDA') && !n.includes('KLINIK')) return false;
+        }
+      }
+
       let matchSite = true;
       if (selSite) {
         if (selSite.includes('Central')) {
@@ -3242,6 +3347,8 @@ const PNS_SECTION_TO_DEPT = {
           matchSite = bSite.includes('Estate 2') || bKode.includes('E2');
         } else if (selSite.includes('Estate 3')) {
           matchSite = bSite.includes('Estate 3') || bKode.includes('E3');
+        } else if (selSite.includes('Marunda')) {
+          matchSite = bSite.includes('Marunda') || bSite.includes('MR') || bKode.includes('MR') || bKode.includes('MARUNDA');
         } else {
           matchSite = (bSite === selSite || bSite.includes(selSite));
         }
@@ -6943,6 +7050,28 @@ const PNS_SECTION_TO_DEPT = {
 
     const filtered = (appState.assets || []).filter(a => {
       if (!isGenuineRoomFacility(a)) return false;
+
+      // Filter Cepat Jenis Fasilitas Ruangan
+      if (currentFacilityTypeFilter && currentFacilityTypeFilter !== 'ALL') {
+        const name = (a.nama_asset || a.nama_barang || '').toLowerCase();
+        const kat = (a.kategori_asset || '').toLowerCase();
+        if (currentFacilityTypeFilter === 'Kasur') {
+          if (!name.includes('kasur') && !name.includes('bed') && !name.includes('spring')) return false;
+        } else if (currentFacilityTypeFilter === 'Lemari') {
+          if (!name.includes('lemari') && !name.includes('loker') && !name.includes('cabinet') && !name.includes('wardrobe')) return false;
+        } else if (currentFacilityTypeFilter === 'Bantal') {
+          if (!name.includes('bantal') && !name.includes('guling') && !name.includes('sprei') && !name.includes('pillow')) return false;
+        } else if (currentFacilityTypeFilter === 'AC') {
+          if (!name.includes('ac ') && !name.includes('air conditioner') && !name.includes('kipas') && !name.includes('exhaust')) return false;
+        } else if (currentFacilityTypeFilter === 'MejaKursi') {
+          if (!name.includes('meja') && !name.includes('kursi') && !name.includes('table') && !name.includes('chair') && !name.includes('sofa')) return false;
+        } else if (currentFacilityTypeFilter === 'Lampu') {
+          if (!name.includes('lampu') && !name.includes('light') && !name.includes('saklar') && !name.includes('stop kontak')) return false;
+        } else if (currentFacilityTypeFilter === 'Elektronik') {
+          if (!name.includes('kulkas') && !name.includes('dispenser') && !name.includes('tv') && !name.includes('printer') && !name.includes('fingerprint')) return false;
+        }
+      }
+
       const matchBldg = (facilityBldgFilter === 'ALL' || a.kode_gedung === facilityBldgFilter);
       const matchKondisi = (facilityKondisiFilter === 'ALL' || (a.kondisi || '').toLowerCase() === facilityKondisiFilter.toLowerCase());
       const q = facilitySearchQuery.toLowerCase();
@@ -9175,6 +9304,7 @@ const PNS_SECTION_TO_DEPT = {
     const sourceData = (appState.penghuni && appState.penghuni.length > 0)
       ? appState.penghuni
       : (window.PNS_MASTER_DATA && window.PNS_MASTER_DATA.penghuni ? window.PNS_MASTER_DATA.penghuni : []);
+    appState.penghuni = sourceData;
 
     // Filter
     let filtered = sourceData.filter(p => {
@@ -9368,6 +9498,7 @@ const PNS_SECTION_TO_DEPT = {
     const sourceData = (appState.penghuni && appState.penghuni.length > 0)
       ? appState.penghuni
       : (window.PNS_MASTER_DATA && window.PNS_MASTER_DATA.penghuni ? window.PNS_MASTER_DATA.penghuni : []);
+    appState.penghuni = sourceData;
     
     const p = sourceData.find(item => String(item.id) === String(id));
     if (!p) {
@@ -9462,7 +9593,14 @@ const PNS_SECTION_TO_DEPT = {
         p.foto = res.value.foto;
         p.updated_at = new Date().toISOString().replace('T', ' ').substring(0, 19);
 
+        try {
+          localStorage.setItem('pns_custom_penghuni', JSON.stringify(appState.penghuni));
+        } catch (e) {
+          console.warn('localStorage capacity reached:', e);
+        }
+
         renderPenghuniTable();
+        renderHunianHouseCards();
 
         callBackendPost('save_penghuni', {
           id: p.id,
@@ -9577,8 +9715,17 @@ const PNS_SECTION_TO_DEPT = {
           tgl_masuk: new Date().toISOString().split('T')[0]
         };
 
+        if (!Array.isArray(appState.penghuni)) {
+          appState.penghuni = (window.PNS_MASTER_DATA && window.PNS_MASTER_DATA.penghuni) ? [...window.PNS_MASTER_DATA.penghuni] : [];
+        }
         appState.penghuni.unshift(newRecord);
+        try {
+          localStorage.setItem('pns_custom_penghuni', JSON.stringify(appState.penghuni));
+        } catch (e) {
+          console.warn('localStorage capacity reached:', e);
+        }
         renderPenghuniTable();
+        renderHunianHouseCards();
 
         callBackendPost('save_penghuni', newRecord, () => {
           Swal.fire({ icon: 'success', title: 'Berhasil Didaftarkan', text: 'Penghuni baru berhasil disimpan ke Google Sheets.', timer: 1400, showConfirmButton: false });
@@ -10633,7 +10780,7 @@ const PNS_SECTION_TO_DEPT = {
     { name: 'E3', label: 'Estate 3 (E3)', validPct: '100%', avgStd: 7, avgUmur: 6, belum: 0, sesuai: 2399, tdkSesuai: 4, good: 1535, repair: 4, disp: 2, broken: 405, lost: 457, total: 2403 },
     { name: 'FR', label: 'Factory / Pabrik (FR)', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 10359, tdkSesuai: 46, good: 9656, repair: 41, disp: 16, broken: 522, lost: 170, total: 10405 },
     { name: 'HO', label: 'Head Office (HO)', validPct: '100%', avgStd: 4, avgUmur: 9, belum: 0, sesuai: 869, tdkSesuai: 2, good: 794, repair: 0, disp: 0, broken: 22, lost: 55, total: 871 },
-    { name: 'MR', label: 'Mess Residence (MR)', validPct: '100%', avgStd: 6, avgUmur: 4, belum: 0, sesuai: 1602, tdkSesuai: 0, good: 1577, repair: 0, disp: 0, broken: 25, lost: 0, total: 1602 },
+    { name: 'MR', label: 'Gudang Marunda (MR)', validPct: '100%', avgStd: 6, avgUmur: 4, belum: 0, sesuai: 1602, tdkSesuai: 0, good: 1577, repair: 0, disp: 0, broken: 25, lost: 0, total: 1602 },
     { name: 'RO', label: 'Regional Office (RO)', validPct: '100%', avgStd: 5, avgUmur: 12, belum: 0, sesuai: 139, tdkSesuai: 0, good: 120, repair: 0, disp: 0, broken: 4, lost: 16, total: 139 }
   ];
 
@@ -10774,7 +10921,7 @@ const PNS_SECTION_TO_DEPT = {
     { key: 'E1', label: 'Estate 1 (E1)', icon: 'ph-tree' },
     { key: 'E2', label: 'Estate 2 (E2)', icon: 'ph-tree' },
     { key: 'E3', label: 'Estate 3 (E3)', icon: 'ph-tree' },
-    { key: 'MR', label: 'Mess Residence (MR)', icon: 'ph-house-line' },
+    { key: 'MR', label: 'Gudang Marunda (MR)', icon: 'ph-warehouse' },
     { key: 'HO', label: 'Head Office (HO)', icon: 'ph-city' },
     { key: 'RO', label: 'Regional Office (RO)', icon: 'ph-map-pin' }
   ];
@@ -12323,6 +12470,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     const sourceData = (appState.penghuni && appState.penghuni.length > 0)
       ? appState.penghuni
       : (window.PNS_MASTER_DATA && window.PNS_MASTER_DATA.penghuni ? window.PNS_MASTER_DATA.penghuni : []);
+    appState.penghuni = sourceData;
     const p = sourceData.find(item => String(item.id) === String(id));
     if (!p) return;
 
@@ -12337,6 +12485,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     const sourceData = (appState.penghuni && appState.penghuni.length > 0)
       ? appState.penghuni
       : (window.PNS_MASTER_DATA && window.PNS_MASTER_DATA.penghuni ? window.PNS_MASTER_DATA.penghuni : []);
+    appState.penghuni = sourceData;
     const p = sourceData.find(item => String(item.id) === String(id));
     if (p) {
       p.foto = photoUrl;
@@ -12488,27 +12637,27 @@ window.updateSingleAssetNote = updateSingleAssetNote;
   // APPLICATION BOOTSTRAP (RUNS AFTER ALL SCRIPTS READY)
   // ==========================================
   function bootApp() {
-    initAppMasterData();
-    initBrandLogos();
-    initTheme();
-    initNavigation();
-    initInspectionFormDropdowns();
-    renderDashboardCharts();
-    renderPortfolioSites();
-    renderBuildingsCards();
-    renderRoomsTable();
-    renderAssetsTable();
-    renderHistoryTable();
-    renderWorkOrdersKanban();
-    renderAllAssetsTable();
-    renderPortfolioComposition();
-    renderAssetSebaran();
-    renderPenghuniTable();
-    renderPortfolioAllTable();
-    renderValidasiTable();
-    renderValidasiMatrix();
+    try { initAppMasterData(); } catch (e) { console.warn('initAppMasterData error:', e); }
+    try { initBrandLogos(); } catch (e) { console.warn('initBrandLogos error:', e); }
+    try { initTheme(); } catch (e) { console.warn('initTheme error:', e); }
+    try { initNavigation(); } catch (e) { console.warn('initNavigation error:', e); }
+    try { initInspectionFormDropdowns(); } catch (e) { console.warn('initInspectionFormDropdowns error:', e); }
+    try { renderDashboardCharts(); } catch (e) { console.warn('renderDashboardCharts error:', e); }
+    try { renderPortfolioSites(); } catch (e) { console.warn('renderPortfolioSites error:', e); }
+    try { renderBuildingsCards(); } catch (e) { console.warn('renderBuildingsCards error:', e); }
+    try { renderRoomsTable(); } catch (e) { console.warn('renderRoomsTable error:', e); }
+    try { renderAssetsTable(); } catch (e) { console.warn('renderAssetsTable error:', e); }
+    try { renderHistoryTable(); } catch (e) { console.warn('renderHistoryTable error:', e); }
+    try { renderWorkOrdersKanban(); } catch (e) { console.warn('renderWorkOrdersKanban error:', e); }
+    try { renderAllAssetsTable(); } catch (e) { console.warn('renderAllAssetsTable error:', e); }
+    try { renderPortfolioComposition(); } catch (e) { console.warn('renderPortfolioComposition error:', e); }
+    try { renderAssetSebaran(); } catch (e) { console.warn('renderAssetSebaran error:', e); }
+    try { renderPenghuniTable(); } catch (e) { console.warn('renderPenghuniTable error:', e); }
+    try { renderPortfolioAllTable(); } catch (e) { console.warn('renderPortfolioAllTable error:', e); }
+    try { renderValidasiTable(); } catch (e) { console.warn('renderValidasiTable error:', e); }
+    try { renderValidasiMatrix(); } catch (e) { console.warn('renderValidasiMatrix error:', e); }
 
-    syncAllFromBackend(false);
+    try { syncAllFromBackend(false); } catch (e) { console.warn('syncAllFromBackend error:', e); }
 
     // Deep-Link & Executive Report Route Handler (?view=... / ?report=validasi)
     try {
@@ -12535,6 +12684,6 @@ window.updateSingleAssetNote = updateSingleAssetNote;
   }
   if (typeof window !== 'undefined') {
     window.addEventListener('load', () => {
-      renderDashboardCharts();
+      try { renderDashboardCharts(); } catch (e) {}
     });
   }
