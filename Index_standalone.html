@@ -567,6 +567,18 @@ body.validasi-standalone-view #validasi-standalone-topbar {
 
 
 
+/* Laporan Validasi Fit-To-Layout & Zero Horizontal Scroll */
+#table-validasi-matrix {
+  table-layout: fixed !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+#table-validasi-matrix th,
+#table-validasi-matrix td {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}
+
 </style>
   <script>
     window.toggleSidebar = function(forceState) {
@@ -3598,559 +3610,294 @@ body.validasi-standalone-view #validasi-standalone-topbar {
       <!-- ======================================================== -->
       <!-- VIEW: ENTERPRISE VALIDATION & PERFORMANCE REPORT (POWER BI EQUIVALENT) -->
       <!-- ======================================================== -->
-      <div id="view-validasi" class="page-view hidden space-y-5">
-        <!-- STANDALONE EXECUTIVE TOPBAR (Hanya Tampil Saat Mode Laporan Mandiri / ?report=validasi) -->
-        <div id="validasi-standalone-topbar" class="hidden p-4 bg-white border border-slate-200/90 shadow-xs rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-xl shadow-xs shrink-0 font-bold">
-              <i class="ph-bold ph-seal-check"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="text-[11px] font-black uppercase tracking-widest text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">PT PRATAMA NUSANTARA SAKTI</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">Dokumen Resmi Lapangan</span>
-              </div>
-              <h1 class="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-0.5">Laporan Hasil Validasi &amp; Rekonsiliasi Aset Fisik</h1>
-              <p class="text-xs text-slate-500">Hasil opname inventaris fisik lapangan: 34.159 unit alokasi sesuai, 95 unit selisih fisik.</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2 flex-wrap">
-            <button type="button" onclick="window.exitValidasiStandaloneMode()" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold text-xs flex items-center gap-1.5 shadow-2xs transition cursor-pointer">
-              <i class="ph-bold ph-arrow-u-up-left"></i> Buka Portal Lengkap
-            </button>
-            <button type="button" onclick="window.printValidasiReport()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-900 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition cursor-pointer">
-              <i class="ph-bold ph-printer"></i> Cetak / PDF
-            </button>
-            <button type="button" onclick="exportValidasiReportXlsx()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs flex items-center gap-1.5 shadow-2xs transition cursor-pointer">
-              <i class="ph-bold ph-microsoft-excel-logo"></i> Export Excel
-            </button>
-          </div>
-        </div>
+      <!-- ==========================================
+     LAPORAN HASIL VALIDASI & REKONSILIASI ASET
+     (ENTERPRISE EXECUTIVE DASHBOARD - FIT LAYOUT, ZERO HORIZONTAL SCROLL)
+     ========================================== -->
+<div id="view-validasi" class="page-view hidden space-y-4 pb-8">
 
-        <!-- Top Title & Navigation Toolbar -->
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 bg-white p-4 rounded-xl border border-slate-200/80 shadow-xs">
-          <div>
-            <div class="flex items-center gap-2 mb-1">
-              <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="text-xs font-medium text-slate-500">Rekonsiliasi &amp; Opname Fisik Lapangan</span>
-              <span class="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 border border-slate-200">Hasil Validasi 34.254 Unit</span>
-            </div>
-            <h2 class="text-xl sm:text-2xl font-semibold text-slate-800 tracking-tight flex items-center gap-2">
-              <i class="ph ph-seal-check text-sky-600"></i> Laporan Hasil Validasi Aset
-            </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Ringkasan hasil validasi fisik lapangan: 34.159 unit sesuai alokasi, 95 unit selisih fisik. Aset belum validasi/checkout dialihkan ke Master Katalog Aset.</p>
-          </div>
+  <!-- TOP EXECUTIVE TITLE & ACTION BAR -->
+  <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+    <div>
+      <div class="flex items-center gap-2 mb-1 flex-wrap">
+        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+          <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+          Hasil Validasi Fisik Lapangan
+        </span>
+        <span class="text-xs text-slate-400">&bull;</span>
+        <span class="text-xs text-slate-500 font-medium">34.266 Aset Fisik &bull; 99.7% Alokasi Sesuai &bull; 95 Selisih</span>
+      </div>
+      <h2 class="text-xl sm:text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+        <i class="ph-bold ph-seal-check text-emerald-600"></i> Laporan Hasil Validasi &amp; Rekonsiliasi Aset
+      </h2>
+      <p class="text-xs text-slate-500 mt-0.5">
+        Ringkasan audit inventaris fisik lapangan, akurasi alokasi unit kerja, serta komparasi kondisi aktual aset PT Pratama Nusantara Sakti.
+      </p>
+    </div>
 
-          <!-- Dual Tab Switcher -->
-          <div class="flex items-center gap-1.5 bg-slate-100 p-1.5 rounded-xl border border-slate-200 shrink-0 shadow-inner">
-            <button type="button" id="tab-btn-validasi-rekon" onclick="switchValidasiTab('rekon')" class="px-3.5 py-1.5 rounded-lg text-xs font-semibold transition flex items-center gap-1.5 bg-white text-slate-800 shadow-xs border border-slate-200 cursor-pointer">
-              <i class="ph ph-chart-line-up text-sky-600"></i> Laporan Hasil Validasi (34.254)
-            </button>
-            <button type="button" id="tab-btn-validasi-perf" onclick="switchValidasiTab('perf')" class="px-3.5 py-1.5 rounded-lg text-xs font-medium transition flex items-center gap-1.5 text-slate-500 hover:text-slate-800 cursor-pointer">
-              <i class="ph ph-pulse text-emerald-600"></i> Performance Kondisi &amp; Departemen
-            </button>
-          </div>
-        </div>
+    <!-- Quick Action Buttons -->
+    <div class="flex items-center gap-2 flex-wrap w-full md:w-auto justify-end">
+      <button type="button" onclick="triggerApiPullAndCompare()" class="px-3 py-2 text-xs font-bold rounded-xl border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 transition cursor-pointer flex items-center gap-1.5 shadow-2xs" title="Tarik &amp; Komparasi Data API dengan Database Master">
+        <i class="ph-bold ph-cloud-arrow-down text-sky-600"></i>
+        <span>Tarik &amp; Compare API</span>
+      </button>
+      <button type="button" onclick="window.printValidasiReport()" class="px-3 py-2 text-xs font-bold rounded-xl border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition cursor-pointer flex items-center gap-1.5 shadow-2xs" title="Cetak atau Simpan PDF Laporan">
+        <i class="ph-bold ph-printer text-slate-600"></i>
+        <span>Cetak / PDF</span>
+      </button>
+      <button type="button" onclick="exportValidasiReportXlsx()" class="px-3.5 py-2 text-xs font-bold rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition cursor-pointer flex items-center gap-1.5 shadow-xs" title="Download Excel Laporan Validasi Lengkap">
+        <i class="ph-bold ph-microsoft-excel-logo text-white"></i>
+        <span>Export Excel</span>
+      </button>
+    </div>
+  </div>
 
-        <!-- Executive Report Mode Banner (Auto-activated via ?report=validasi or Share Link) -->
-        <div id="validasi-report-mode-banner" class="hidden clean-card p-3.5 bg-gradient-to-r from-emerald-50/90 via-teal-50/70 to-white border-l-4 border-l-emerald-600 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs shadow-xs">
-          <div class="flex items-center gap-3">
-            <div class="w-9 h-9 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-lg shrink-0 shadow-xs">
-              <i class="ph-bold ph-file-text"></i>
-            </div>
-            <div>
-              <div class="flex items-center gap-2 flex-wrap">
-                <span class="font-bold text-slate-900 uppercase tracking-wide">Dokumen Resmi: Laporan Hasil Validasi &amp; Opname Fisik Aset</span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300">34.840 Unit Terkonsolidasi</span>
-              </div>
-              <p class="text-slate-600 text-[11px] mt-0.5">PT Pratama Nusantara Sakti &bull; Status Validasi 99.7% Sesuai &bull; 0 Selisih Fisik Tidak Terdata &bull; Terverifikasi Akuntansi &amp; Lapangan</p>
-            </div>
-          </div>
-          <div class="flex items-center gap-2 shrink-0">
-            <button type="button" onclick="window.printValidasiReport()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
-              <i class="ph-bold ph-printer text-sm"></i> Cetak / Simpan PDF
-            </button>
-            <button type="button" onclick="document.getElementById('validasi-report-mode-banner').classList.add('hidden')" class="w-7 h-7 rounded-lg hover:bg-slate-200 text-slate-400 hover:text-slate-700 flex items-center justify-center transition cursor-pointer" title="Tutup Banner">
-              <i class="ph-bold ph-x text-xs"></i>
-            </button>
-          </div>
-        </div>
-
-        <!-- Filter Bar -->
-        <div class="bg-white p-3 rounded-xl border border-slate-200 flex flex-wrap items-center justify-between gap-3 text-xs shadow-xs">
-          <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-[280px]">
-            <div class="relative w-full sm:w-64">
-              <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
-              <input type="text" id="val-global-search" oninput="onFilterValidasiReport()" placeholder="Cari unit, aset, kode, atau PIC..." class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50/50 text-slate-800 placeholder-slate-400 focus:bg-white focus:border-sky-500 transition">
-            </div>
-
-            <select id="val-filter-location" onchange="onFilterValidasiReport()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium text-slate-700">
-              <option value="">Semua Lokasi Site</option>
-              <option value="CO">CO - Central Office</option>
-              <option value="FR">FR - Factory (Pabrik)</option>
-              <option value="E1">E1 - Estate 1</option>
-              <option value="E2">E2 - Estate 2</option>
-              <option value="E3">E3 - Estate 3</option>
-              <option value="MR">MR - Mess Residence</option>
-              <option value="HO">HO - Head Office</option>
-              <option value="RO">RO - Regional Office</option>
-            </select>
-
-            <select id="val-filter-dept" onchange="onFilterValidasiReport()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium text-slate-700">
-              <option value="">Semua Departemen</option>
-              <option value="HRGA">HRGA</option>
-              <option value="BUSINESS SUPPORT">BUSINESS SUPPORT</option>
-              <option value="PRODUCTION">PRODUCTION</option>
-              <option value="WORKSHOP & ENGINERING">WORKSHOP &amp; ENGINERING</option>
-              <option value="PLANTATION">PLANTATION</option>
-              <option value="HARVESTING">HARVESTING</option>
-              <option value="QUALITY HEALTH & SAFETY ENVIRONMENT">QHSE</option>
-              <option value="FINANCIAL & INFORMATION">FINANCIAL &amp; INFORMATION</option>
-              <option value="RESEARCH & DEVELOPMENT">RESEARCH &amp; DEVELOPMENT</option>
-              <option value="PROCUREMENT & PURCHASING">PROCUREMENT &amp; PURCHASING</option>
-              <option value="SALES & MARKETING">SALES &amp; MARKETING</option>
-            </select>
-
-            <select id="val-filter-status" onchange="onFilterValidasiReport()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white font-medium text-slate-700">
-              <option value="">Semua Status Validasi</option>
-              <option value="SESUAI">Sesuai (34.159)</option>
-              <option value="TIDAK SESUAI">Tidak Sesuai (95)</option>
-              <option value="BELUM VERIFIKASI">Belum Verifikasi / Pending (586)</option>
-            </select>
-          </div>
-
-          <div class="flex items-center gap-2 flex-wrap">
-            <button type="button" onclick="triggerApiPullAndCompare()" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium flex items-center gap-1.5 transition cursor-pointer" title="Tarik Data API &amp; Komparasi Otomatis dengan Sheet Asset">
-              <i class="ph-bold ph-cloud-arrow-down text-sky-600"></i> Tarik &amp; Compare API
-            </button>
-            <button type="button" onclick="window.enterValidasiStandaloneMode()" class="px-3 py-1.5 rounded-lg border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs" title="Buka dalam tampilan dokumen laporan mandiri tanpa sidebar portal">
-              <i class="ph-bold ph-file-text text-emerald-600"></i> Mode Laporan Mandiri
-            </button>
-            <button type="button" onclick="window.copyValidasiReportLink()" class="px-3 py-1.5 rounded-lg border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs" title="Salin link laporan khusus untuk dibagikan langsung ke direksi / tim">
-              <i class="ph-bold ph-share-network text-sky-600"></i> Share Link
-            </button>
-            <button type="button" onclick="window.printValidasiReport()" class="px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 font-semibold flex items-center gap-1.5 transition cursor-pointer shadow-2xs" title="Cetak atau Ekspor format PDF Resmi">
-              <i class="ph-bold ph-printer text-slate-600"></i> Cetak / PDF
-            </button>
-            <button type="button" onclick="exportValidasiReportXlsx()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold flex items-center gap-1.5 shadow-xs transition cursor-pointer" title="Download Excel Laporan Validasi Lengkap">
-              <i class="ph-bold ph-microsoft-excel-logo text-white"></i> Export Excel
-            </button>
-          </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- TAB 1: VALIDASI REPORT (REKONSILIASI 34.840) -->
-        <!-- ========================================== -->
-        <div id="validasi-tab-rekon" class="space-y-5">
-          <!-- TOP 6 EXECUTIVE FINANCIAL & PORTFOLIO CARDS -->
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
-            <div class="clean-card p-3.5 border-l-4 border-l-sky-500">
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">TOTAL ASSET</div>
-              <div class="text-xl sm:text-2xl font-semibold text-slate-800 mt-1 num-tabular" id="val-kpi-total">34.254</div>
-              <div class="text-[10px] text-sky-600 font-medium mt-0.5">34.159 Sesuai + 95 Selisih</div>
-            </div>
-            <div class="clean-card p-3.5 border-l-4 border-l-indigo-500">
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">ACQUISITION (HPP)</div>
-              <div class="text-lg sm:text-xl font-semibold text-slate-800 mt-1 num-tabular" id="val-kpi-acq">Rp 1.120,27 M</div>
-              <div class="text-[10px] text-slate-500 mt-0.5">Nilai Perolehan Historis</div>
-            </div>
-            <div class="clean-card p-3.5 border-l-4 border-l-rose-500">
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">DISPOSAL ASSET</div>
-              <div class="text-lg sm:text-xl font-semibold text-rose-700 mt-1 num-tabular" id="val-kpi-disp">Rp 4,61 M</div>
-              <div class="text-[10px] text-rose-600 font-semibold mt-0.5">157 Unit Dihapuskan</div>
-            </div>
-            <div class="clean-card p-3.5 border-l-4 border-l-amber-500">
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">DEPRECIATION</div>
-              <div class="text-lg sm:text-xl font-semibold text-amber-700 mt-1 num-tabular" id="val-kpi-depr">Rp 438,48 M</div>
-              <div class="text-[10px] text-slate-500 mt-0.5">Akumulasi Penyusutan</div>
-            </div>
-            <div class="clean-card p-3.5 border-l-4 border-l-emerald-500">
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">NET BOOK VALUE (NBV)</div>
-              <div class="text-lg sm:text-xl font-semibold text-emerald-700 mt-1 num-tabular" id="val-kpi-nbv">Rp 681,78 M</div>
-              <div class="text-[10px] text-emerald-600 font-semibold mt-0.5">Nilai Buku Aktif</div>
-            </div>
-            <div class="clean-card p-3.5 border-l-4 border-l-purple-500">
-              <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">MAINTENANCE COST</div>
-              <div class="text-lg sm:text-xl font-semibold text-purple-700 mt-1 num-tabular" id="val-kpi-mtc">Rp 27,65 M</div>
-              <div class="text-[10px] text-slate-500 mt-0.5">Total Historical Perbaikan</div>
-            </div>
-          </div>
-
-          <!-- MAIN 2-COLUMN RECONCILIATION SECTION -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            <!-- LEFT COLUMN: STATUS VERIFIKASI & JENIS ASET (4 COLS) -->
-            <div class="lg:col-span-4 space-y-4">
-              <!-- STATUS VERIFIKASI PROGRESS CARDS -->
-              <div class="clean-card p-4 space-y-3.5">
-                <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                  <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
-                    <i class="ph-bold ph-shield-check text-emerald-600"></i> Status Rekonsiliasi Aset
-                  </span>
-                  <span class="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-                    99.7% Terverifikasi
-                  </span>
-                </div>
-
-                <!-- Sesuai -->
-                <div class="space-y-1">
-                  <div class="flex justify-between items-center text-xs">
-                    <span class="font-bold text-emerald-700 flex items-center gap-1.5">
-                      <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> SESUAI (ALOKASI VALID)
-                    </span>
-                    <span class="font-semibold text-slate-800 num-tabular" id="val-card-sesuai">34.159 (99,69%)</span>
-                  </div>
-                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div class="bg-emerald-500 h-2 rounded-full" style="width: 99.69%"></div>
-                  </div>
-                  <div class="text-[10px] text-slate-400">Data fisik lapangan &amp; master akuntansi cocok 100%</div>
-                </div>
-
-                <!-- Tidak Sesuai -->
-                <div class="space-y-1">
-                  <div class="flex justify-between items-center text-xs">
-                    <span class="font-bold text-rose-700 flex items-center gap-1.5">
-                      <span class="w-2.5 h-2.5 rounded-full bg-rose-500"></span> TIDAK SESUAI (SELISIH FISIK)
-                    </span>
-                    <span class="font-semibold text-rose-700 num-tabular" id="val-card-tdk-sesuai">95 (0,28%)</span>
-                  </div>
-                  <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                    <div class="bg-rose-500 h-2 rounded-full" style="width: 0.28%"></div>
-                  </div>
-                  <div class="text-[10px] text-slate-400">Perbedaan alokasi lokasi / penanggung jawab saat audit</div>
-                </div>
-
-                <!-- Belum Verifikasi -->
-                <div class="space-y-1">
-                  <div class="flex justify-between items-center text-xs">
-                    <span class="font-medium text-slate-500 flex items-center gap-1.5">
-                      <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span> ASET BELUM DIVALIDASI
-                    </span>
-                    <span class="font-medium text-slate-500 num-tabular" id="val-card-belum">Dialihkan ke All Asset</span>
-                  </div>
-                  <div class="text-[10px] text-slate-400">586 unit aset yang belum divalidasi/checkout kini dimuat lengkap di menu Master Katalog Aset (All Asset).</div>
-                </div>
-              </div>
-
-              <!-- JENIS ASSET TABLE -->
-              <div class="clean-card p-4 space-y-2.5">
-                <div class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between border-b border-slate-100 pb-2">
-                  <span>Klasifikasi Jenis Aset</span>
-                  <span class="text-[10px] text-slate-500 font-semibold">% Validasi</span>
-                </div>
-                <table class="w-full text-xs">
-                  <tbody class="divide-y divide-slate-100">
-                    <tr class="hover:bg-slate-50 transition">
-                      <td class="py-2 font-semibold text-slate-800">Asset (Fixed Asset)</td>
-                      <td class="py-2 text-right num-tabular font-bold text-emerald-600">100%</td>
-                      <td class="py-2 text-right num-tabular font-black text-slate-900 pl-3">21.648</td>
-                    </tr>
-                    <tr class="hover:bg-slate-50 transition">
-                      <td class="py-2 font-semibold text-slate-800">Non-Valueable Asset</td>
-                      <td class="py-2 text-right num-tabular font-bold text-emerald-600">100%</td>
-                      <td class="py-2 text-right num-tabular font-black text-slate-900 pl-3">12.618</td>
-                    </tr>
-                    <tr class="font-semibold bg-slate-50 text-slate-800">
-                      <td class="py-2 pl-2">Total Hasil Validasi</td>
-                      <td class="py-2 text-right num-tabular text-emerald-700">100%</td>
-                      <td class="py-2 text-right num-tabular pl-3 pr-2">34.254</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-
-              <!-- KONDISI FISIK ASET HORIZONTAL BARS -->
-              <div class="clean-card p-4 space-y-3">
-                <div class="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-slate-100 pb-2 flex items-center justify-between">
-                  <span>Total Asset by Kondisi Fisik</span>
-                  <span class="text-[10px] text-slate-400">Master 34.266</span>
-                </div>
-                <div class="space-y-2 text-xs">
-                  <div>
-                    <div class="flex justify-between items-center mb-1">
-                      <span class="font-semibold text-emerald-700">Good Condition</span>
-                      <span class="num-tabular font-black text-emerald-700">27.872 (81.34%)</span>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                      <div class="bg-emerald-500 h-2 rounded-full" style="width: 81.34%"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="flex justify-between items-center mb-1">
-                      <span class="font-semibold text-amber-700">Broken (Rusak)</span>
-                      <span class="num-tabular font-black text-amber-700">3.663 (10.69%)</span>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                      <div class="bg-amber-500 h-2 rounded-full" style="width: 10.69%"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="flex justify-between items-center mb-1">
-                      <span class="font-semibold text-slate-600">Lost (Hilang)</span>
-                      <span class="num-tabular font-black text-slate-700">2.492 (7.27%)</span>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                      <div class="bg-slate-400 h-2 rounded-full" style="width: 7.27%"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="flex justify-between items-center mb-1">
-                      <span class="font-semibold text-rose-700">Disposal</span>
-                      <span class="num-tabular font-black text-rose-700">157 (0.46%)</span>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                      <div class="bg-rose-500 h-2 rounded-full" style="width: 0.46%"></div>
-                    </div>
-                  </div>
-                  <div>
-                    <div class="flex justify-between items-center mb-1">
-                      <span class="font-semibold text-blue-700">Repair (Perbaikan)</span>
-                      <span class="num-tabular font-black text-blue-700">82 (0.24%)</span>
-                    </div>
-                    <div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
-                      <div class="bg-blue-500 h-2 rounded-full" style="width: 0.24%"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <!-- RIGHT COLUMN: DETAILED MATRIX BY LOCATION / DEPT (8 COLS) -->
-            <div class="lg:col-span-8 space-y-4">
-              <div class="clean-card overflow-hidden">
-                <!-- Matrix Table Header & Toggle -->
-                <div class="p-3.5 border-b border-slate-200 bg-slate-50/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
-                  <div>
-                    <div class="text-xs font-black text-slate-900 tracking-tight flex items-center gap-2">
-                      <i class="ph-bold ph-table text-sky-600"></i> Matriks Validasi &amp; Kondisi Komprehensif
-                    </div>
-                    <p class="text-[11px] text-slate-500">Klik baris mana saja untuk drill-through ke rincian inventaris fisik di Detail Asset Movement</p>
-                  </div>
-                  <!-- Matrix Toggle Pills -->
-                  <div class="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200 shadow-2xs">
-                    <button type="button" id="btn-val-matrix-loc" onclick="switchMatrixGroup('loc')" class="px-2.5 py-1 rounded text-xs font-bold bg-sky-50 text-sky-700 border border-sky-200 transition cursor-pointer">
-                      Lokasi Site (8 Area)
-                    </button>
-                    <button type="button" id="btn-val-matrix-dept" onclick="switchMatrixGroup('dept')" class="px-2.5 py-1 rounded text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer">
-                      Departemen (11 Dept)
-                    </button>
-                  </div>
-                </div>
-
-                <!-- In-Table Level Drill Breadcrumb & Up Button (Tetap Pada Tabel) -->
-                <div id="val-table-drill-nav" class="hidden px-4 py-2.5 bg-emerald-50/90 border-y border-emerald-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs">
-                  <div class="flex items-center gap-2 flex-wrap">
-                    <span class="text-[10px] font-black text-slate-500 uppercase tracking-widest">NAVIGASI TABEL:</span>
-                    <button type="button" onclick="window.validasiDrillUp()" class="px-2.5 py-1 rounded-md bg-white hover:bg-slate-100 text-slate-700 font-bold border border-slate-200 shadow-2xs flex items-center gap-1 transition cursor-pointer">
-                      <i class="ph-bold ph-house-line text-slate-500"></i> <span id="val-drill-parent-label">Semua Departemen</span>
-                    </button>
-                    <i class="ph-bold ph-caret-right text-slate-400 text-xs"></i>
-                    <span id="val-drill-current-label" class="px-2.5 py-1 rounded-md font-bold bg-emerald-600 text-white border border-emerald-700 flex items-center gap-1 shadow-2xs">
-                      <i class="ph-bold ph-folder-open text-xs"></i> <span id="val-drill-current-name">Level 2</span>
-                    </span>
-                    <span class="text-[11px] text-slate-500 italic">(Breakdown Kelompok Aset langsung di dalam tabel)</span>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <button type="button" onclick="window.validasiDrillUp()" class="px-3 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs transition shadow-2xs flex items-center gap-1.5 cursor-pointer">
-                      <i class="ph-bold ph-arrow-up"></i> Drill Up (Kembali ke Level 1)
-                    </button>
-                  </div>
-                </div>
-
-                <!-- Matrix Table Container -->
-                <div class="overflow-x-auto">
-                  <table class="w-full text-left text-xs border-collapse">
-                    <thead>
-                      <tr class="bg-slate-50 text-slate-600 text-[11px] font-semibold tracking-wider border-b border-slate-200">
-                        <th class="py-2.5 px-3 whitespace-nowrap min-w-[160px]" id="matrix-th-name">Lokasi Site</th>
-                        <th class="py-2.5 px-3 text-left whitespace-nowrap min-w-[120px]">% Validasi</th>
-                        <th class="py-2.5 px-3 text-left whitespace-nowrap min-w-[130px]">Distribusi Kondisi</th>
-                        <th class="py-2.5 px-2 text-right whitespace-nowrap">Avg Std</th>
-                        <th class="py-2.5 px-2 text-right whitespace-nowrap">Avg Umur</th>
-                        <th class="py-2.5 px-2 text-right whitespace-nowrap bg-emerald-50/80 text-emerald-800 font-semibold">Sesuai</th>
-                        <th class="py-2.5 px-2 text-right whitespace-nowrap bg-rose-50/80 text-rose-800 font-semibold">Selisih</th>
-                        <th class="py-2.5 px-2 text-right whitespace-nowrap text-emerald-700">Baik</th>
-                        <th class="py-2.5 px-2 text-right whitespace-nowrap text-blue-700">Perbaikan</th>
-                        <th class="py-2.5 px-2 text-right whitespace-nowrap text-rose-700">Disposal</th>
-                        <th class="py-2.5 px-2 text-right whitespace-nowrap text-amber-700">Rusak</th>
-                        <th class="py-2.5 px-2 text-right whitespace-nowrap text-slate-500">Hilang</th>
-                        <th class="py-2.5 px-3 text-right whitespace-nowrap font-semibold bg-slate-100 text-slate-800">Total Validasi</th>
-                        <th class="py-2.5 px-3 text-center whitespace-nowrap min-w-[140px]">Aksi Tabel &amp; Sheet</th>
-                      </tr>
-                    </thead>
-                    <tbody id="table-validasi-matrix-body" class="divide-y divide-slate-100 font-medium">
-                      <!-- Rendered dynamically via JS -->
-                    </tbody>
-                    <tfoot id="table-validasi-matrix-foot" class="bg-slate-100 font-black text-slate-900 border-t-2 border-slate-300">
-                      <!-- Rendered dynamically via JS -->
-                    </tfoot>
-                  </table>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- ========================================== -->
-        <!-- TAB 2: PERFORMANCE VALIDASI (KONDISI & KELOMPOK) -->
-        <!-- ========================================== -->
-        <div id="validasi-tab-perf" class="hidden space-y-5">
-          <!-- 5 TOP CONDITION CARDS (MATCHING SCREENSHOT 1) -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
-            <!-- GOOD CONDITION -->
-            <div onclick="window.openAssetDrillThrough({ kondisi: 'Good Condition', sourceView: 'view-validasi' })" class="clean-card p-4 border-t-4 border-t-emerald-500 space-y-2 cursor-pointer hover:shadow-md transition group" title="Klik untuk Drill-Through detail aset Good Condition">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-black text-emerald-700 tracking-wider uppercase">GOOD CONDITION</span>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">81.34%</span>
-              </div>
-              <div class="text-2xl font-black text-slate-900 num-tabular">27.872</div>
-              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
-                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">16.998</span></div>
-                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">10.874</span></div>
-                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 935,10 M</span></div>
-                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-emerald-600 num-tabular">Rp 663,74 M</span></div>
-              </div>
-            </div>
-
-            <!-- REPAIR -->
-            <div onclick="window.openAssetDrillThrough({ kondisi: 'Repair', sourceView: 'view-validasi' })" class="clean-card p-4 border-t-4 border-t-blue-500 space-y-2 cursor-pointer hover:shadow-md transition group" title="Klik untuk Drill-Through detail aset Repair">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-black text-blue-700 tracking-wider uppercase">REPAIR</span>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-blue-100 text-blue-800">0.24%</span>
-              </div>
-              <div class="text-2xl font-black text-slate-900 num-tabular">82</div>
-              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
-                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">80</span></div>
-                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">2</span></div>
-                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 4,27 M</span></div>
-                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-blue-600 num-tabular">Rp 1,18 M</span></div>
-              </div>
-            </div>
-
-            <!-- DISPOSAL -->
-            <div onclick="window.openAssetDrillThrough({ kondisi: 'Disposal', sourceView: 'view-validasi' })" class="clean-card p-4 border-t-4 border-t-rose-500 space-y-2 cursor-pointer hover:shadow-md transition group" title="Klik untuk Drill-Through detail aset Disposal">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-black text-rose-700 tracking-wider uppercase">DISPOSAL</span>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-rose-100 text-rose-800">0.46%</span>
-              </div>
-              <div class="text-2xl font-black text-slate-900 num-tabular">157</div>
-              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
-                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">151</span></div>
-                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">6</span></div>
-                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 4,61 M</span></div>
-                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-rose-600 num-tabular">Rp 119,55 Jt</span></div>
-              </div>
-            </div>
-
-            <!-- BROKEN -->
-            <div onclick="window.openAssetDrillThrough({ kondisi: 'Broken', sourceView: 'view-validasi' })" class="clean-card p-4 border-t-4 border-t-amber-500 space-y-2 cursor-pointer hover:shadow-md transition group" title="Klik untuk Drill-Through detail aset Broken">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-black text-amber-700 tracking-wider uppercase">BROKEN</span>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-amber-100 text-amber-800">10.69%</span>
-              </div>
-              <div class="text-2xl font-black text-slate-900 num-tabular">3.663</div>
-              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
-                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">2.958</span></div>
-                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">705</span></div>
-                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 166,31 M</span></div>
-                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-amber-600 num-tabular">Rp 16,32 M</span></div>
-              </div>
-            </div>
-
-            <!-- LOST -->
-            <div onclick="window.openAssetDrillThrough({ kondisi: 'Lost', sourceView: 'view-validasi' })" class="clean-card p-4 border-t-4 border-t-slate-500 space-y-2 cursor-pointer hover:shadow-md transition group" title="Klik untuk Drill-Through detail aset Lost">
-              <div class="flex justify-between items-start">
-                <span class="text-xs font-black text-slate-700 tracking-wider uppercase">LOST</span>
-                <span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-slate-200 text-slate-800">7.27%</span>
-              </div>
-              <div class="text-2xl font-black text-slate-900 num-tabular">2.492</div>
-              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
-                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">1.461</span></div>
-                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">1.031</span></div>
-                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 9,99 M</span></div>
-                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-slate-700 num-tabular">Rp 422,20 Jt</span></div>
-              </div>
-            </div>
-          </div>
-
-          <!-- THREE COLUMN ANALYTICAL GRID -->
-          <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-            <!-- COL 1: DEPARTEMENT CONDITION MATRIX (5 COLS) -->
-            <div class="lg:col-span-5 clean-card overflow-hidden">
-              <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Kondisi per Departemen</span>
-                <span class="text-[10px] text-slate-400">11 Departemen</span>
-              </div>
-              <div class="overflow-x-auto max-h-[480px] scrollbar-thin">
-                <table class="w-full text-left text-xs border-collapse">
-                  <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200">
-                    <tr>
-                      <th class="py-2 px-2.5">Departemen</th>
-                      <th class="py-2 px-2 text-right">Total</th>
-                      <th class="py-2 px-1.5 text-right text-emerald-700">% Good</th>
-                      <th class="py-2 px-1.5 text-right text-blue-700">% Rep</th>
-                      <th class="py-2 px-1.5 text-right text-rose-700">% Disp</th>
-                      <th class="py-2 px-1.5 text-right text-amber-700">% Brk</th>
-                      <th class="py-2 px-1.5 text-right text-slate-600">% Lost</th>
-                    </tr>
-                  </thead>
-                  <tbody id="table-perf-dept-body" class="divide-y divide-slate-100">
-                    <!-- Rendered via JS -->
-                  </tbody>
-                  <tfoot class="sticky bottom-0 bg-slate-100 font-bold border-t-2 border-slate-300">
-                    <tr>
-                      <td class="py-2 px-2.5">Total</td>
-                      <td class="py-2 px-2 text-right num-tabular">34.266</td>
-                      <td class="py-2 px-1.5 text-right text-emerald-700 num-tabular">81.34%</td>
-                      <td class="py-2 px-1.5 text-right text-blue-700 num-tabular">0.24%</td>
-                      <td class="py-2 px-1.5 text-right text-rose-700 num-tabular">0.46%</td>
-                      <td class="py-2 px-1.5 text-right text-amber-700 num-tabular">10.69%</td>
-                      <td class="py-2 px-1.5 text-right text-slate-600 num-tabular">7.27%</td>
-                    </tr>
-                  </tfoot>
-                </table>
-              </div>
-            </div>
-
-            <!-- COL 2: KELOMPOK ASSET RANKING BARS (4 COLS) -->
-            <div class="lg:col-span-4 clean-card p-4 space-y-3">
-              <div class="flex items-center justify-between border-b border-slate-100 pb-2">
-                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Total Asset by Kelompok</span>
-                <span class="text-[10px] text-slate-400">8 Kelompok</span>
-              </div>
-              <div class="space-y-2.5 text-xs" id="perf-kelompok-bars">
-                <!-- Dynamically rendered or static high precision -->
-              </div>
-            </div>
-
-            <!-- COL 3: KELOMPOK & KATEGORI MATRICES (3 COLS) -->
-            <div class="lg:col-span-3 clean-card overflow-hidden">
-              <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Top Kategori Aset</span>
-                <span class="text-[10px] text-slate-400">Kondisi Dominan</span>
-              </div>
-              <div class="overflow-x-auto max-h-[480px] scrollbar-thin">
-                <table class="w-full text-left text-xs border-collapse">
-                  <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200">
-                    <tr>
-                      <th class="py-2 px-2.5">Kategori</th>
-                      <th class="py-2 px-1.5 text-right">Total</th>
-                      <th class="py-2 px-1.5 text-right text-emerald-700">% Good</th>
-                      <th class="py-2 px-1.5 text-right text-amber-700">% Brk</th>
-                    </tr>
-                  </thead>
-                  <tbody id="table-perf-kat-body" class="divide-y divide-slate-100">
-                    <!-- Rendered via JS -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- SMART REACTIVE FILTER BAR -->
+  <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-3 flex flex-wrap items-center justify-between gap-2.5 text-xs">
+    <div class="flex flex-wrap items-center gap-2 flex-1 min-w-[300px]">
+      <!-- Global Search -->
+      <div class="relative w-full sm:w-64">
+        <i class="ph ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+        <input type="text" id="val-global-search" oninput="onFilterValidasiReport()" placeholder="Cari unit, nama aset, dept, lokasi..." class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50 text-slate-800 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
       </div>
 
-      <!-- ======================================================== -->
-      <!-- VIEW: REGISTRASI ASET BARU -->
-      <!-- ======================================================== -->
+      <!-- Slicer Lokasi Site -->
+      <select id="val-filter-location" onchange="onFilterValidasiReport()" class="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+        <option value="">Semua Lokasi Site (8 Area)</option>
+        <option value="CO">CO — Central Office</option>
+        <option value="FR">FR — Factory Office</option>
+        <option value="E1">E1 — Estate 1</option>
+        <option value="E2">E2 — Estate 2</option>
+        <option value="E3">E3 — Estate 3</option>
+        <option value="MR">MR — Mess Residence</option>
+        <option value="HO">HO — Head Office</option>
+        <option value="RO">RO — Regional Office</option>
+      </select>
+
+      <!-- Slicer Departemen -->
+      <select id="val-filter-dept" onchange="onFilterValidasiReport()" class="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer max-w-[200px]">
+        <option value="">Semua Departemen (11 Dept)</option>
+        <option value="HRGA">HRGA</option>
+        <option value="BUSINESS SUPPORT">Business Support</option>
+        <option value="PLANTATION">Plantation</option>
+        <option value="WORKSHOP & ENGINERING">Workshop &amp; Engineering</option>
+        <option value="PRODUCTION">Production</option>
+        <option value="QUALITY HEALTH & SAFETY ENVIRONMENT">QHSE</option>
+        <option value="FINANCIAL & INFORMATION">Financial &amp; Information</option>
+        <option value="HARVESTING">Harvesting</option>
+        <option value="PROCUREMENT & PURCHASING">Procurement &amp; Purchasing</option>
+        <option value="RESEARCH & DEVELOPMENT">Research &amp; Development</option>
+        <option value="SALES & MARKETING">Sales &amp; Marketing</option>
+      </select>
+
+      <!-- Slicer Status Validasi -->
+      <select id="val-filter-status" onchange="onFilterValidasiReport()" class="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+        <option value="">Semua Status Validasi</option>
+        <option value="SESUAI">Alokasi Sesuai (34.171)</option>
+        <option value="TIDAK SESUAI">Selisih Fisik (95)</option>
+      </select>
+
+      <!-- Slicer Kondisi Fisik -->
+      <select id="val-filter-kondisi" onchange="onFilterValidasiReport()" class="px-3 py-2 text-xs rounded-xl border border-slate-200 bg-white font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+        <option value="">Semua Kondisi Fisik</option>
+        <option value="GOOD">Good Condition</option>
+        <option value="BROKEN">Broken (Rusak)</option>
+        <option value="LOST">Lost (Hilang)</option>
+        <option value="REPAIR">Repair (Perbaikan)</option>
+        <option value="DISPOSAL">Disposal (Afkir)</option>
+      </select>
+    </div>
+
+    <!-- Reset Filter Button -->
+    <div class="flex items-center gap-2">
+      <button type="button" onclick="resetValidasiFilters()" class="px-3 py-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold transition flex items-center gap-1 cursor-pointer" title="Reset Semua Filter">
+        <i class="ph-bold ph-arrow-counter-clockwise"></i> Reset
+      </button>
+    </div>
+  </div>
+
+  <!-- 6 TOP DYNAMIC EXECUTIVE KPI CARDS -->
+  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+    <!-- Card 1: Total Aset -->
+    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs border-l-4 border-l-slate-700">
+      <div class="text-[10px] font-black uppercase tracking-wider text-slate-500">TOTAL ASET FISIK</div>
+      <div class="text-xl sm:text-2xl font-black text-slate-900 mt-1 num-tabular" id="val-kpi-total">34.266</div>
+      <div class="text-[11px] font-semibold text-slate-600 mt-0.5 truncate" id="val-kpi-sub-total">34.171 Sesuai &bull; 95 Selisih</div>
+    </div>
+
+    <!-- Card 2: Akurasi Validasi -->
+    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs border-l-4 border-l-emerald-500">
+      <div class="text-[10px] font-black uppercase tracking-wider text-emerald-700">AKURASI ALOKASI</div>
+      <div class="text-xl sm:text-2xl font-black text-emerald-700 mt-1 num-tabular" id="val-kpi-akurasi">99.7%</div>
+      <div class="text-[11px] font-semibold text-emerald-600 mt-0.5 truncate" id="val-kpi-sub-akurasi">34.171 Unit Sesuai Fisik</div>
+    </div>
+
+    <!-- Card 3: Selisih Fisik -->
+    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs border-l-4 border-l-rose-500">
+      <div class="text-[10px] font-black uppercase tracking-wider text-rose-700">SELISIH FISIK</div>
+      <div class="text-xl sm:text-2xl font-black text-rose-600 mt-1 num-tabular" id="val-kpi-selisih">95 Unit</div>
+      <div class="text-[11px] font-semibold text-rose-600 mt-0.5 truncate" id="val-kpi-sub-selisih">0.3% Selisih Alokasi Lapangan</div>
+    </div>
+
+    <!-- Card 4: Good Condition -->
+    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs border-l-4 border-l-teal-500">
+      <div class="text-[10px] font-black uppercase tracking-wider text-teal-700">GOOD CONDITION</div>
+      <div class="text-xl sm:text-2xl font-black text-teal-700 mt-1 num-tabular" id="val-kpi-good">27.872</div>
+      <div class="text-[11px] font-semibold text-teal-600 mt-0.5 truncate" id="val-kpi-sub-good">81.4% Siap Operasional</div>
+    </div>
+
+    <!-- Card 5: Rusak & Perbaikan -->
+    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs border-l-4 border-l-amber-500">
+      <div class="text-[10px] font-black uppercase tracking-wider text-amber-700">RUSAK &amp; PERBAIKAN</div>
+      <div class="text-xl sm:text-2xl font-black text-amber-600 mt-1 num-tabular" id="val-kpi-broken">3.745</div>
+      <div class="text-[11px] font-semibold text-amber-600 mt-0.5 truncate" id="val-kpi-sub-broken">3.663 Rusak &bull; 82 Repair</div>
+    </div>
+
+    <!-- Card 6: Nilai Buku Bersih (NBV) -->
+    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs border-l-4 border-l-indigo-500">
+      <div class="text-[10px] font-black uppercase tracking-wider text-indigo-700">NILAI BUKU (NBV)</div>
+      <div class="text-lg sm:text-xl font-black text-indigo-900 mt-1 num-tabular truncate" id="val-kpi-nbv">Rp 681,78 M</div>
+      <div class="text-[11px] font-semibold text-slate-500 mt-0.5 truncate" id="val-kpi-sub-acq">HPP: Rp 1,12 T</div>
+    </div>
+  </div>
+
+  <!-- VISUAL ANALYTICS: DUAL PROPORTION BARS -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+    <!-- Visual 1: Akurasi Status Validasi -->
+    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2">
+      <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+        <span class="flex items-center gap-1.5">
+          <i class="ph-bold ph-shield-check text-emerald-600"></i> Akurasi Validasi Fisik Lapangan
+        </span>
+        <span id="val-visual-akurasi-pct" class="text-emerald-700 num-tabular">99.7% Sesuai</span>
+      </div>
+      <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden flex shadow-inner">
+        <div id="val-bar-sesuai" class="bg-emerald-500 h-full transition-all duration-300" style="width: 99.7%" title="Sesuai Alokasi: 34.171 Unit (99.7%)"></div>
+        <div id="val-bar-selisih" class="bg-rose-500 h-full transition-all duration-300" style="width: 0.3%" title="Selisih Fisik: 95 Unit (0.3%)"></div>
+      </div>
+      <div class="flex items-center justify-between text-[11px] text-slate-500">
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Sesuai Alokasi: <strong id="val-bar-sesuai-lbl" class="text-slate-700">34.171</strong></span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Selisih Fisik: <strong id="val-bar-selisih-lbl" class="text-rose-700">95</strong></span>
+      </div>
+    </div>
+
+    <!-- Visual 2: Proporsi Kondisi Fisik Portofolio -->
+    <div class="bg-white p-3.5 rounded-2xl border border-slate-200/90 shadow-2xs space-y-2">
+      <div class="flex items-center justify-between text-xs font-bold text-slate-800">
+        <span class="flex items-center gap-1.5">
+          <i class="ph-bold ph-chart-bar text-teal-600"></i> Proporsi Kelayakan Kondisi Fisik
+        </span>
+        <span id="val-visual-good-pct" class="text-teal-700 num-tabular">81.4% Baik</span>
+      </div>
+      <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden flex shadow-inner">
+        <div id="val-cond-good" class="bg-emerald-500 h-full transition-all duration-300" style="width: 81.4%" title="Good Condition: 27.872 Unit"></div>
+        <div id="val-cond-broken" class="bg-amber-500 h-full transition-all duration-300" style="width: 10.7%" title="Broken: 3.663 Unit"></div>
+        <div id="val-cond-lost" class="bg-slate-400 h-full transition-all duration-300" style="width: 7.3%" title="Lost: 2.492 Unit"></div>
+        <div id="val-cond-disp" class="bg-rose-500 h-full transition-all duration-300" style="width: 0.4%" title="Disposal: 157 Unit"></div>
+        <div id="val-cond-rep" class="bg-blue-500 h-full transition-all duration-300" style="width: 0.2%" title="Repair: 82 Unit"></div>
+      </div>
+      <div class="flex items-center justify-between text-[11px] text-slate-500 flex-wrap gap-1">
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Baik: <strong id="val-cond-good-lbl" class="text-slate-700">81.4%</strong></span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Rusak: <strong id="val-cond-broken-lbl" class="text-amber-700">10.7%</strong></span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-400"></span> Hilang: <strong id="val-cond-lost-lbl" class="text-slate-700">7.3%</strong></span>
+        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Disp: <strong id="val-cond-disp-lbl" class="text-slate-700">0.4%</strong></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABLE CONTROLS & IN-TABLE DRILL NAVIGATION (FIT LAYOUT - TIDAK ADA HORIZONTAL SCROLL) -->
+  <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
+
+    <!-- Top Table Header: Group Switcher & In-Table Breadcrumbs -->
+    <div class="p-3.5 bg-slate-50/70 border-b border-slate-200/80 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+      <!-- Left: Group Switcher -->
+      <div class="flex items-center gap-1.5 bg-slate-200/70 p-1 rounded-xl">
+        <button type="button" id="btn-val-matrix-dept" onclick="switchMatrixGroup('dept')" class="px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-2xs transition cursor-pointer flex items-center gap-1.5">
+          <i class="ph-bold ph-buildings"></i> Berdasarkan Departemen (11 Dept)
+        </button>
+        <button type="button" id="btn-val-matrix-loc" onclick="switchMatrixGroup('loc')" class="px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer flex items-center gap-1.5">
+          <i class="ph-bold ph-map-pin"></i> Berdasarkan Lokasi Site (8 Area)
+        </button>
+      </div>
+
+      <!-- Right: In-Table Drill Breadcrumbs & Drill Up Button -->
+      <div class="flex items-center gap-2">
+        <div id="val-table-drill-nav" class="hidden flex items-center gap-1.5 text-xs">
+          <span class="text-slate-400">Tabel:</span>
+          <span class="font-bold text-slate-600" id="val-drill-parent-label">Semua Departemen</span>
+          <i class="ph-bold ph-caret-right text-slate-400 text-xs"></i>
+          <span class="px-2 py-0.5 rounded-md font-bold bg-emerald-100 text-emerald-800 border border-emerald-300" id="val-drill-current-name">Level 2</span>
+          <button type="button" onclick="validasiDrillUp()" class="ml-2 px-2.5 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs shadow-2xs transition flex items-center gap-1 cursor-pointer">
+            <i class="ph-bold ph-arrow-up"></i> ^ Kembali (Drill Up)
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MATRIX TABLE: 100% FIT LAYOUT (ZERO HORIZONTAL SCROLL) -->
+    <div class="w-full overflow-hidden">
+      <table id="table-validasi-matrix" class="w-full table-fixed text-xs text-left border-collapse">
+        <thead>
+          <tr class="bg-slate-100/90 text-slate-700 text-[11px] font-black uppercase tracking-wider border-b border-slate-200">
+            <!-- Col 1: Entitas Name (30%) -->
+            <th class="py-3 px-3.5 w-[30%]">
+              <span id="matrix-th-name">Departemen</span>
+            </th>
+            <!-- Col 2: Akurasi Validasi (18%) -->
+            <th class="py-3 px-2.5 w-[18%]">
+              Akurasi Validasi
+            </th>
+            <!-- Col 3: Distribusi Kondisi (20%) -->
+            <th class="py-3 px-2.5 w-[20%]">
+              Distribusi Kondisi
+            </th>
+            <!-- Col 4: Sesuai (9%) -->
+            <th class="py-3 px-2.5 w-[9%] text-right text-emerald-800">
+              Sesuai
+            </th>
+            <!-- Col 5: Selisih (7%) -->
+            <th class="py-3 px-2.5 w-[7%] text-right text-rose-700">
+              Selisih
+            </th>
+            <!-- Col 6: Total Unit (7%) -->
+            <th class="py-3 px-2.5 w-[7%] text-right text-slate-900">
+              Total
+            </th>
+            <!-- Col 7: Aksi (9%) -->
+            <th class="py-3 px-2.5 w-[9%] text-center">
+              Aksi
+            </th>
+          </tr>
+        </thead>
+        <tbody id="table-validasi-matrix-body" class="divide-y divide-slate-100 font-medium">
+          <!-- Rendered dynamically via renderValidasiMatrix() -->
+        </tbody>
+        <tfoot id="table-validasi-matrix-foot" class="bg-slate-100/90 font-black text-slate-900 border-t-2 border-slate-300">
+          <!-- Rendered dynamically via renderValidasiMatrix() -->
+        </tfoot>
+      </table>
+    </div>
+
+    <!-- Table Footer Legend & Help -->
+    <div class="p-3 bg-slate-50 border-t border-slate-200 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 text-[11px] text-slate-500">
+      <div class="flex items-center gap-3 flex-wrap">
+        <span class="font-bold text-slate-700">Keterangan:</span>
+        <span class="flex items-center gap-1"><span class="w-4 h-4 rounded bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-[10px]">+</span> Buka Kelompok Aset</span>
+        <span class="flex items-center gap-1"><span class="px-1.5 py-0.5 rounded bg-slate-200 text-slate-700 font-bold text-[10px]">↓ Drill</span> Drill Down di Tabel</span>
+        <span class="flex items-center gap-1"><span class="px-1.5 py-0.5 rounded bg-emerald-600 text-white font-bold text-[10px]">➔ Sheet</span> Drill Through ke Sheet Detail</span>
+      </div>
+      <div class="text-slate-400">
+        Menampilkan data hasil validasi fisik terverifikasi PT PNS
+      </div>
+    </div>
+
+  </div>
+
+</div>
+<!-- ==========================================
+     END LAPORAN HASIL VALIDASI
+     ========================================== -->
+
       <div id="view-reg-asset" class="page-view hidden space-y-4">
         <div class="clean-card p-5 max-w-2xl mx-auto space-y-4">
           <div>
@@ -5819,9 +5566,6 @@ const PNS_SECTION_TO_DEPT = {
         if (rep === 'validasi' || view === 'view-validasi') {
           setTimeout(() => {
             navTo('view-validasi');
-            enterValidasiStandaloneMode();
-            const repBanner = document.getElementById('validasi-report-mode-banner');
-            if (repBanner) repBanner.classList.remove('hidden');
           }, 150);
         } else if (view) {
           setTimeout(() => { navTo(view); }, 150);
@@ -15293,21 +15037,236 @@ const PNS_SECTION_TO_DEPT = {
   }
 
   
-  // IN-TABLE DRILL DOWN & DRILL UP STATE (Tetap Pada Tabel)
-  window.validasiTableDrill = window.validasiTableDrill || {
+  // =========================================================================
+  // LAPORAN VALIDASI & REKONSILIASI ENTERPRISE ENGINE
+  // Dynamic Real-Time Filtering, 6 Reactive KPIs, Fit-To-Layout (No Horizontal Scroll)
+  // In-Table Drill-Down (Level 1 <-> Level 2) & In-Place Accordion [+] / [-]
+  // =========================================================================
+
+  currentMatrixGroup = 'dept'; // 'dept' | 'loc'
+
+  window.validasiTableDrill = {
     level: 1, // 1: Main matrix (Dept / Loc), 2: Kelompok Aset breakdown
     selectedKey: null,
     selectedLabel: null,
-    expandedRowKeys: new Set() // for in-place accordion [+] / [-]
+    expandedRowKeys: new Set()
   };
 
+  const VALIDASI_DEPTS_CONFIG = [
+    { key: 'HRGA', label: 'HRGA', icon: 'ph-users', keywords: ['HRGA', 'GENERAL SERVICE', 'SECURITY', 'PEOPLE', 'TALENT', 'COMPENSATION', 'ASSESSEMENT', 'HUMAN RESOURCE'] },
+    { key: 'BUSINESS SUPPORT', label: 'Business Support', icon: 'ph-buildings', keywords: ['BUSINESS SUPPORT', 'WAREHOUSE', 'LOGISTIC', 'PLANNING, INVENTORY', 'ADMINISTRATION', 'COMMUNITY', 'OPERATION SUPPORT'] },
+    { key: 'PLANTATION', label: 'Plantation', icon: 'ph-tree', keywords: ['WATER MANAGEMENT', 'PLANTING', 'CANE SUPPLY', 'AGRONOMY', 'PROTECTION', 'PLANTATION'] },
+    { key: 'WORKSHOP & ENGINERING', label: 'Workshop & Engineering', icon: 'ph-wrench', keywords: ['WORKSHOP', 'ENGINEERING', 'MAINTENANCE', 'CIVIL', 'ELECTRICAL'] },
+    { key: 'PRODUCTION', label: 'Production', icon: 'ph-factory', keywords: ['PRODUCTION', 'PROCESS', 'MILL', 'CANE YARD', 'OPERATION'] },
+    { key: 'QUALITY HEALTH & SAFETY ENVIRONMENT', label: 'QHSE', icon: 'ph-shield-check', keywords: ['HSE', 'QC', 'LAB', 'MEDICAL', 'SAFETY', 'QUALITY'] },
+    { key: 'FINANCIAL & INFORMATION', label: 'Financial & Information', icon: 'ph-currency-dollar', keywords: ['FINANCE', 'ACCOUNTING', 'INFORMATION', 'IT', 'LEGAL', 'TAX', 'BUDGET'] },
+    { key: 'HARVESTING', label: 'Harvesting', icon: 'ph-plant', keywords: ['HARVESTING'] },
+    { key: 'PROCUREMENT & PURCHASING', label: 'Procurement & Purchasing', icon: 'ph-shopping-cart', keywords: ['PROCUREMENT', 'PURCHASING'] },
+    { key: 'RESEARCH & DEVELOPMENT', label: 'Research & Development', icon: 'ph-flask', keywords: ['RESEARCH', 'DEVELOPMENT', 'R&D'] },
+    { key: 'SALES & MARKETING', label: 'Sales & Marketing', icon: 'ph-chart-line-up', keywords: ['SALES', 'MARKETING'] }
+  ];
+
+  const VALIDASI_LOCS_CONFIG = [
+    { key: 'CO', label: 'Central Office (CO)', icon: 'ph-buildings' },
+    { key: 'FR', label: 'Factory (FR)', icon: 'ph-factory' },
+    { key: 'E1', label: 'Estate 1 (E1)', icon: 'ph-tree' },
+    { key: 'E2', label: 'Estate 2 (E2)', icon: 'ph-tree' },
+    { key: 'E3', label: 'Estate 3 (E3)', icon: 'ph-tree' },
+    { key: 'MR', label: 'Mess Residence (MR)', icon: 'ph-house-line' },
+    { key: 'HO', label: 'Head Office (HO)', icon: 'ph-city' },
+    { key: 'RO', label: 'Regional Office (RO)', icon: 'ph-map-pin' }
+  ];
+
+  function getDeptKeyForAsset(rawSec) {
+    const s = String(rawSec || '').toUpperCase();
+    for (const d of VALIDASI_DEPTS_CONFIG) {
+      for (const kw of d.keywords) {
+        if (s.includes(kw)) return d.key;
+      }
+    }
+    return 'BUSINESS SUPPORT';
+  }
+
+  // Get dynamically filtered subset of all 34.266 assets
+  function getFilteredValidasiAssets() {
+    const all = (typeof getAllNormalizedAssets === 'function') ? getAllNormalizedAssets() : [];
+    const q = (document.getElementById('val-global-search')?.value || '').toLowerCase().trim();
+    const loc = document.getElementById('val-filter-location')?.value || '';
+    const dept = document.getElementById('val-filter-dept')?.value || '';
+    const status = document.getElementById('val-filter-status')?.value || '';
+    const kond = document.getElementById('val-filter-kondisi')?.value || '';
+
+    return all.filter(a => {
+      // 1. Filter Location
+      if (loc && a.locRaw !== loc && a.loc !== loc) return false;
+
+      // 2. Filter Dept
+      if (dept) {
+        const aDeptKey = a.deptKey || getDeptKeyForAsset(a.rawSec);
+        if (aDeptKey !== dept && a.rawSec !== dept) return false;
+      }
+
+      // 3. Filter Status Validasi
+      if (status) {
+        const isSesuai = !String(a.statusVerif || '').toUpperCase().includes('TIDAK') && !String(a.statusVerif || '').toUpperCase().includes('SELISIH');
+        if (status === 'SESUAI' && !isSesuai) return false;
+        if (status === 'TIDAK SESUAI' && isSesuai) return false;
+      }
+
+      // 4. Filter Kondisi Fisik
+      if (kond) {
+        const c = String(a.kond || '').toUpperCase();
+        if (!c.includes(kond.toUpperCase())) return false;
+      }
+
+      // 5. Global Search
+      if (q) {
+        const match = (a.kodeUnit && a.kodeUnit.toLowerCase().includes(q)) ||
+                      (a.namaAsset && a.namaAsset.toLowerCase().includes(q)) ||
+                      (a.kel && a.kel.toLowerCase().includes(q)) ||
+                      (a.kat && a.kat.toLowerCase().includes(q)) ||
+                      (a.rawSec && a.rawSec.toLowerCase().includes(q)) ||
+                      (a.locRaw && a.locRaw.toLowerCase().includes(q));
+        if (!match) return false;
+      }
+
+      return true;
+    });
+  }
+
+  // Calculate metrics for any set of assets
+  function computeValidasiMetrics(assets) {
+    let total = 0, sesuai = 0, tdkSesuai = 0;
+    let good = 0, repair = 0, disp = 0, broken = 0, lost = 0;
+    let totalHpp = 0, totalNbv = 0;
+
+    for (let i = 0; i < assets.length; i++) {
+      const a = assets[i];
+      total++;
+      totalHpp += (a.hpp || 0);
+      totalNbv += (a.nbv || 0);
+
+      const isSesuai = !String(a.statusVerif || '').toUpperCase().includes('TIDAK') && !String(a.statusVerif || '').toUpperCase().includes('SELISIH');
+      if (isSesuai) sesuai++;
+      else tdkSesuai++;
+
+      const c = String(a.kond || '').toUpperCase();
+      if (c.includes('BAIK') || c.includes('GOOD')) good++;
+      else if (c.includes('REPAIR') || c.includes('PERBAIKAN')) repair++;
+      else if (c.includes('DISPOSAL') || c.includes('AFKIR')) disp++;
+      else if (c.includes('BROKEN') || c.includes('RUSAK')) broken++;
+      else if (c.includes('LOST') || c.includes('HILANG')) lost++;
+      else good++;
+    }
+
+    const akurasiPct = total > 0 ? ((sesuai / total) * 100).toFixed(1) : '100.0';
+    const goodPct = total > 0 ? ((good / total) * 100).toFixed(1) : '0.0';
+    const brokenPct = total > 0 ? ((broken / total) * 100).toFixed(1) : '0.0';
+    const lostPct = total > 0 ? ((lost / total) * 100).toFixed(1) : '0.0';
+    const dispPct = total > 0 ? ((disp / total) * 100).toFixed(1) : '0.0';
+    const repPct = total > 0 ? ((repair / total) * 100).toFixed(1) : '0.0';
+
+    return {
+      total, sesuai, tdkSesuai, good, repair, disp, broken, lost,
+      totalHpp, totalNbv,
+      akurasiPct, goodPct, brokenPct, lostPct, dispPct, repPct
+    };
+  }
+
+  // Reactive KPI & Visual Updater
+  function updateValidasiKpisAndVisuals(metrics) {
+    // 1. KPI Cards
+    const kpiTotal = document.getElementById('val-kpi-total');
+    const kpiSubTotal = document.getElementById('val-kpi-sub-total');
+    if (kpiTotal) kpiTotal.innerText = metrics.total.toLocaleString('id-ID');
+    if (kpiSubTotal) kpiSubTotal.innerText = `${metrics.sesuai.toLocaleString('id-ID')} Sesuai • ${metrics.tdkSesuai.toLocaleString('id-ID')} Selisih`;
+
+    const kpiAkurasi = document.getElementById('val-kpi-akurasi');
+    const kpiSubAkurasi = document.getElementById('val-kpi-sub-akurasi');
+    if (kpiAkurasi) kpiAkurasi.innerText = metrics.akurasiPct + '%';
+    if (kpiSubAkurasi) kpiSubAkurasi.innerText = metrics.sesuai.toLocaleString('id-ID') + ' Unit Sesuai Fisik';
+
+    const kpiSelisih = document.getElementById('val-kpi-selisih');
+    const kpiSubSelisih = document.getElementById('val-kpi-sub-selisih');
+    if (kpiSelisih) kpiSelisih.innerText = metrics.tdkSesuai.toLocaleString('id-ID') + ' Unit';
+    if (kpiSubSelisih) {
+      const selPct = metrics.total > 0 ? ((metrics.tdkSesuai / metrics.total) * 100).toFixed(1) : '0.0';
+      kpiSubSelisih.innerText = selPct + '% Selisih Alokasi Lapangan';
+    }
+
+    const kpiGood = document.getElementById('val-kpi-good');
+    const kpiSubGood = document.getElementById('val-kpi-sub-good');
+    if (kpiGood) kpiGood.innerText = metrics.good.toLocaleString('id-ID');
+    if (kpiSubGood) kpiSubGood.innerText = metrics.goodPct + '% Siap Operasional';
+
+    const kpiBroken = document.getElementById('val-kpi-broken');
+    const kpiSubBroken = document.getElementById('val-kpi-sub-broken');
+    if (kpiBroken) kpiBroken.innerText = (metrics.broken + metrics.repair).toLocaleString('id-ID');
+    if (kpiSubBroken) kpiSubBroken.innerText = `${metrics.broken.toLocaleString('id-ID')} Rusak • ${metrics.repair.toLocaleString('id-ID')} Repair`;
+
+    const kpiNbv = document.getElementById('val-kpi-nbv');
+    const kpiSubAcq = document.getElementById('val-kpi-sub-acq');
+    if (kpiNbv) kpiNbv.innerText = formatRupiahAbbr(metrics.totalNbv);
+    if (kpiSubAcq) kpiSubAcq.innerText = 'HPP: ' + formatRupiahAbbr(metrics.totalHpp);
+
+    // 2. Visual 1: Akurasi Status Validasi
+    const visAkurasiPct = document.getElementById('val-visual-akurasi-pct');
+    const barSesuai = document.getElementById('val-bar-sesuai');
+    const barSelisih = document.getElementById('val-bar-selisih');
+    const barSesuaiLbl = document.getElementById('val-bar-sesuai-lbl');
+    const barSelisihLbl = document.getElementById('val-bar-selisih-lbl');
+
+    if (visAkurasiPct) visAkurasiPct.innerText = metrics.akurasiPct + '% Sesuai';
+    if (barSesuai) barSesuai.style.width = metrics.akurasiPct + '%';
+    if (barSelisih) {
+      const selPct = metrics.total > 0 ? (100 - parseFloat(metrics.akurasiPct)).toFixed(1) : '0.0';
+      barSelisih.style.width = selPct + '%';
+    }
+    if (barSesuaiLbl) barSesuaiLbl.innerText = metrics.sesuai.toLocaleString('id-ID');
+    if (barSelisihLbl) barSelisihLbl.innerText = metrics.tdkSesuai.toLocaleString('id-ID');
+
+    // 3. Visual 2: Proporsi Kondisi Fisik
+    const visGoodPct = document.getElementById('val-visual-good-pct');
+    const condGood = document.getElementById('val-cond-good');
+    const condBroken = document.getElementById('val-cond-broken');
+    const condLost = document.getElementById('val-cond-lost');
+    const condDisp = document.getElementById('val-cond-disp');
+    const condRep = document.getElementById('val-cond-rep');
+
+    const condGoodLbl = document.getElementById('val-cond-good-lbl');
+    const condBrokenLbl = document.getElementById('val-cond-broken-lbl');
+    const condLostLbl = document.getElementById('val-cond-lost-lbl');
+    const condDispLbl = document.getElementById('val-cond-disp-lbl');
+
+    if (visGoodPct) visGoodPct.innerText = metrics.goodPct + '% Baik';
+    if (condGood) condGood.style.width = metrics.goodPct + '%';
+    if (condBroken) condBroken.style.width = metrics.brokenPct + '%';
+    if (condLost) condLost.style.width = metrics.lostPct + '%';
+    if (condDisp) condDisp.style.width = metrics.dispPct + '%';
+    if (condRep) condRep.style.width = metrics.repPct + '%';
+
+    if (condGoodLbl) condGoodLbl.innerText = metrics.goodPct + '%';
+    if (condBrokenLbl) condBrokenLbl.innerText = metrics.brokenPct + '%';
+    if (condLostLbl) condLostLbl.innerText = metrics.lostPct + '%';
+    if (condDispLbl) condDispLbl.innerText = metrics.dispPct + '%';
+  }
+
+  function formatRupiahAbbr(num) {
+    if (!num || isNaN(num)) return 'Rp 0';
+    if (num >= 1e12) return 'Rp ' + (num / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (num >= 1e9) return 'Rp ' + (num / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (num >= 1e6) return 'Rp ' + (num / 1e6).toFixed(1).replace('.', ',') + ' Jt';
+    return 'Rp ' + Math.round(num).toLocaleString('id-ID');
+  }
+
+  // In-Table Drill Down & Up Controllers
   function validasiDrillDown(key, label) {
     window.validasiTableDrill.level = 2;
     window.validasiTableDrill.selectedKey = key;
     window.validasiTableDrill.selectedLabel = label || key;
     renderValidasiMatrix();
-    const tbl = document.getElementById('table-validasi-matrix-body');
-    if (tbl) tbl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const matrixCard = document.getElementById('table-validasi-matrix');
+    if (matrixCard) matrixCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
   window.validasiDrillDown = validasiDrillDown;
 
@@ -15332,46 +15291,52 @@ const PNS_SECTION_TO_DEPT = {
   }
   window.toggleValidasiRowExpand = toggleValidasiRowExpand;
 
-  function enterValidasiStandaloneMode() {
-    document.body.classList.add('validasi-standalone-view');
-    if (typeof navTo === 'function') navTo('view-validasi');
-    const topbar = document.getElementById('validasi-standalone-topbar');
-    if (topbar) topbar.classList.remove('hidden');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  window.enterValidasiStandaloneMode = enterValidasiStandaloneMode;
+  function switchMatrixGroup(group) {
+    currentMatrixGroup = group;
 
-  function exitValidasiStandaloneMode() {
-    document.body.classList.remove('validasi-standalone-view');
-    const topbar = document.getElementById('validasi-standalone-topbar');
-    if (topbar) topbar.classList.add('hidden');
-  }
-  window.exitValidasiStandaloneMode = exitValidasiStandaloneMode;
+    const btnDept = document.getElementById('btn-val-matrix-dept');
+    const btnLoc = document.getElementById('btn-val-matrix-loc');
+    const thName = document.getElementById('matrix-th-name');
 
-  function copyValidasiReportLink() {
-    try {
-      const url = window.location.origin + window.location.pathname + '?report=validasi';
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(() => {
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({
-              icon: 'success',
-              title: 'Link Laporan Mandiri Tersalin!',
-              html: '<p class="text-xs text-slate-600 mb-2">Gunakan link ini untuk membuka atau membagikan Laporan Validasi langsung tanpa portal navigasi:</p><code class="text-xs bg-slate-100 p-2 rounded block break-all font-mono text-emerald-700">' + escapeHtml(url) + '</code>',
-              confirmButtonText: 'Tutup'
-            });
-          } else {
-            alert('Link Laporan Validasi Tersalin: ' + url);
-          }
-        });
-      } else {
-        prompt('Salin link laporan validasi:', url);
-      }
-    } catch (e) {
-      console.warn('Copy link error:', e);
+    if (group === 'loc') {
+      if (btnLoc) btnLoc.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-2xs transition cursor-pointer flex items-center gap-1.5';
+      if (btnDept) btnDept.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer flex items-center gap-1.5';
+      if (thName) thName.innerText = 'Lokasi Site';
+    } else {
+      if (btnDept) btnDept.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-2xs transition cursor-pointer flex items-center gap-1.5';
+      if (btnLoc) btnLoc.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer flex items-center gap-1.5';
+      if (thName) thName.innerText = 'Departemen';
     }
+
+    validasiDrillUp();
   }
-  window.copyValidasiReportLink = copyValidasiReportLink;
+  window.switchMatrixGroup = switchMatrixGroup;
+
+  function onFilterValidasiReport() {
+    renderValidasiMatrix();
+  }
+  window.onFilterValidasiReport = onFilterValidasiReport;
+
+  function resetValidasiFilters() {
+    const sInp = document.getElementById('val-global-search');
+    const locSel = document.getElementById('val-filter-location');
+    const deptSel = document.getElementById('val-filter-dept');
+    const statSel = document.getElementById('val-filter-status');
+    const kondSel = document.getElementById('val-filter-kondisi');
+
+    if (sInp) sInp.value = '';
+    if (locSel) locSel.value = '';
+    if (deptSel) deptSel.value = '';
+    if (statSel) statSel.value = '';
+    if (kondSel) kondSel.value = '';
+
+    validasiDrillUp();
+    if (window.validasiTableDrill.expandedRowKeys) {
+      window.validasiTableDrill.expandedRowKeys.clear();
+    }
+    renderValidasiMatrix();
+  }
+  window.resetValidasiFilters = resetValidasiFilters;
 
   function drillThroughValidasiToMovement(opts = {}) {
     const params = {
@@ -15387,421 +15352,144 @@ const PNS_SECTION_TO_DEPT = {
   }
   window.drillThroughValidasiToMovement = drillThroughValidasiToMovement;
 
-  function getKelompokBreakdownForGroup(groupType, groupValue) {
-    const allAssets = (typeof getAllNormalizedAssets === 'function') ? getAllNormalizedAssets() : [];
-    const kelompokMap = {};
-
-    allAssets.forEach(a => {
-      let isMatch = false;
-      if (groupType === 'loc') {
-        isMatch = (typeof matchesLocation === 'function') ? matchesLocation(a, groupValue) : (a.locRaw === groupValue || a.loc === groupValue);
-      } else {
-        isMatch = (typeof matchesSectionOrDept === 'function') ? matchesSectionOrDept(a, groupValue) : ((a.rawSec || '').toUpperCase().includes(groupValue.toUpperCase()));
-      }
-      if (!isMatch) return;
-
-      const kelName = a.kel || 'INVENTARIS DAN PERALATAN';
-      if (!kelompokMap[kelName]) {
-        kelompokMap[kelName] = {
-          name: kelName,
-          label: kelName,
-          total: 0,
-          sesuai: 0,
-          tdkSesuai: 0,
-          good: 0,
-          repair: 0,
-          disp: 0,
-          broken: 0,
-          lost: 0,
-          sumStd: 0,
-          sumUmur: 0
-        };
-      }
-      const k = kelompokMap[kelName];
-      k.total++;
-      k.sumStd += (a.std || 0);
-      k.sumUmur += (a.umur || 0);
-
-      const v = (a.statusVerif || '').toUpperCase();
-      if (v.includes('TIDAK') || v.includes('SELISIH')) k.tdkSesuai++;
-      else k.sesuai++;
-
-      const c = (a.kond || '').toUpperCase();
-      if (c.includes('BAIK') || c.includes('GOOD')) k.good++;
-      else if (c.includes('REPAIR') || c.includes('PERBAIKAN')) k.repair++;
-      else if (c.includes('DISPOSAL') || c.includes('AFKIR')) k.disp++;
-      else if (c.includes('BROKEN') || c.includes('RUSAK')) k.broken++;
-      else if (c.includes('LOST') || c.includes('HILANG')) k.lost++;
-      else k.good++;
-    });
-
-    const list = Object.values(kelompokMap).map(k => {
-      k.avgStd = k.total > 0 ? Math.round(k.sumStd / k.total) : 0;
-      k.avgUmur = k.total > 0 ? Math.round(k.sumUmur / k.total) : 0;
-      k.validPct = k.total > 0 ? ((k.sesuai / k.total) * 100).toFixed(1) + '%' : '100%';
-      return k;
-    });
-
-    list.sort((a, b) => b.total - a.total);
-    return list;
-  }
-  window.getKelompokBreakdownForGroup = getKelompokBreakdownForGroup;
-
-  // VALIDASI DRILLDOWN & DRILLTHROUGH ENGINE
-  let currentValidasiDrill = {
-    targetName: '',
-    targetType: 'loc', // 'loc' | 'dept'
-    statusFilter: 'ALL', // 'ALL' | 'SELISIH' | 'SESUAI'
-    searchQuery: '',
-    page: 1,
-    pageSize: 30
-  };
-
   function openValidasiDrill(targetName, targetType) {
-    currentValidasiDrill.targetName = targetName;
-    currentValidasiDrill.targetType = targetType || currentMatrixGroup;
-    currentValidasiDrill.statusFilter = 'ALL';
-    currentValidasiDrill.searchQuery = '';
-    currentValidasiDrill.page = 1;
-
-    const modal = document.getElementById('modal-drilldown-validasi');
-    const titleEl = document.getElementById('val-drill-title');
-    const searchInp = document.getElementById('val-drill-search');
-    if (searchInp) searchInp.value = '';
-
-    const label = (currentValidasiDrill.targetType === 'loc')
-      ? ('Lokasi: ' + targetName)
-      : ('Departemen: ' + targetName);
-
-    if (titleEl) titleEl.innerText = 'Rincian Drill-Down Validasi Fisik: ' + label;
-
-    renderValidasiDrillTable();
-    if (modal) modal.classList.remove('hidden');
+    drillThroughValidasiToMovement({
+      [targetType === 'loc' ? 'location' : 'section']: targetName,
+      filterLabel: targetName
+    });
   }
   window.openValidasiDrill = openValidasiDrill;
 
-  function closeValidasiDrillModal() {
-    const modal = document.getElementById('modal-drilldown-validasi');
-    if (modal) modal.classList.add('hidden');
-  }
-  window.closeValidasiDrillModal = closeValidasiDrillModal;
 
-  function setValidasiDrillStatusFilter(status) {
-    currentValidasiDrill.statusFilter = status;
-    currentValidasiDrill.page = 1;
-
-    const tabAll = document.getElementById('val-drill-tab-all');
-    const tabSelisih = document.getElementById('val-drill-tab-selisih');
-    const tabSesuai = document.getElementById('val-drill-tab-sesuai');
-
-    const activeCls = 'px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 text-white transition cursor-pointer shadow-xs';
-    const inactiveCls = 'px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer';
-
-    if (tabAll) tabAll.className = (status === 'ALL') ? activeCls : inactiveCls;
-    if (tabSelisih) tabSelisih.className = (status === 'SELISIH') ? 'px-2.5 py-1 text-xs font-semibold rounded bg-rose-600 text-white transition cursor-pointer shadow-xs' : 'px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50 transition cursor-pointer';
-    if (tabSesuai) tabSesuai.className = (status === 'SESUAI') ? 'px-2.5 py-1 text-xs font-semibold rounded bg-emerald-600 text-white transition cursor-pointer shadow-xs' : 'px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50 transition cursor-pointer';
-
-    renderValidasiDrillTable();
-  }
-  window.setValidasiDrillStatusFilter = setValidasiDrillStatusFilter;
-
-  function getValidasiDrillItems() {
-    // Sumber 34.266 master assets
-    const rawRows = window.PNS_ALL_ASSETS_ROWS || [];
-    const tName = currentValidasiDrill.targetName;
-    const isLoc = (currentValidasiDrill.targetType === 'loc');
-    const statusFilter = currentValidasiDrill.statusFilter;
-    const q = (currentValidasiDrill.searchQuery || '').toLowerCase().trim();
-
-    const items = [];
-    let sesuaiCount = 0;
-    let selisihCount = 0;
-
-    for (let i = 0; i < rawRows.length; i++) {
-      const r = rawRows[i];
-      // schema: [0:no, 1:nama, 2:kelompok, 3:kategori, 4:lokasi, 5:kondisi, 6:std, 7:umur, 8:hpp, 9:susut, 10:nbv, 11:verif, 12:section]
-      const loc = String(r[4] || '').trim();
-      const sec = String(r[12] || r[2] || '').trim();
-      const verif = String(r[11] || 'ALOKASI SESUAI').toUpperCase();
-
-      // Check match location / department with universal matchers
-      const matchTarget = !tName
-        ? true
-        : isLoc
-          ? matchesLocation({ location: LOKASI_CODE_FULL_MAP[loc] || loc, lokasi_raw: loc }, tName)
-          : matchesSectionOrDept({ section: sec, department: sec, kode_section: sec }, tName);
-
-      if (!matchTarget) continue;
-
-      const isSelisih = verif.includes('TIDAK') || verif.includes('SELISIH') || verif.includes('BEDA');
-      if (isSelisih) selisihCount++;
-      else sesuaiCount++;
-
-      // Filter by status
-      if (statusFilter === 'SELISIH' && !isSelisih) continue;
-      if (statusFilter === 'SESUAI' && isSelisih) continue;
-
-      // Filter by search query
-      if (q) {
-        const no = String(r[0] || '').toLowerCase();
-        const nm = String(r[1] || '').toLowerCase();
-        const kl = String(r[2] || '').toLowerCase();
-        const kt = String(r[3] || '').toLowerCase();
-        if (!no.includes(q) && !nm.includes(q) && !kl.includes(q) && !kt.includes(q)) continue;
-      }
-
-      items.push({
-        no: r[0] || '-',
-        nama: r[1] || '-',
-        kelompok: r[2] || '-',
-        kategori: r[3] || '-',
-        lokasi: r[4] || '-',
-        kondisi: r[5] || 'Good Condition',
-        hpp: Number(r[8]) || 0,
-        nbv: Number(r[10]) || 0,
-        isSelisih: isSelisih,
-        statusVerif: isSelisih ? 'SELISIH FISIK' : 'SESUAI'
-      });
-    }
-
-    return { items, totalCount: items.length, sesuaiCount, selisihCount };
-  }
-
-  function renderValidasiDrillTable() {
-    const searchInp = document.getElementById('val-drill-search');
-    if (searchInp) currentValidasiDrill.searchQuery = searchInp.value;
-
-    const data = getValidasiDrillItems();
-    const tbody = document.getElementById('val-drill-tbody');
-    const cTotal = document.getElementById('val-drill-count-total');
-    const cSesuai = document.getElementById('val-drill-count-sesuai');
-    const cSelisih = document.getElementById('val-drill-count-selisih');
-    const pInfo = document.getElementById('val-drill-paging-info');
-
-    if (cTotal) cTotal.innerText = (data.sesuaiCount + data.selisihCount).toLocaleString('id-ID') + ' Unit';
-    if (cSesuai) cSesuai.innerText = data.sesuaiCount.toLocaleString('id-ID') + ' Unit';
-    if (cSelisih) cSelisih.innerText = data.selisihCount.toLocaleString('id-ID') + ' Unit';
-
-    if (!tbody) return;
-
-    if (data.items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Tidak ada aset yang sesuai filter pencarian.</td></tr>';
-      if (pInfo) pInfo.innerText = '0 data ditemukan';
-      return;
-    }
-
-    const pageSize = currentValidasiDrill.pageSize;
-    const startIdx = (currentValidasiDrill.page - 1) * pageSize;
-    const endIdx = Math.min(startIdx + pageSize, data.items.length);
-    const paged = data.items.slice(startIdx, endIdx);
-
-    if (pInfo) {
-      pInfo.innerText = 'Menampilkan ' + (startIdx + 1).toLocaleString('id-ID') + ' - ' + endIdx.toLocaleString('id-ID') + ' dari ' + data.items.length.toLocaleString('id-ID') + ' unit aset';
-    }
-
-    tbody.innerHTML = paged.map(item => {
-      const isGood = item.kondisi.toLowerCase().includes('good');
-      const kondBadge = isGood
-        ? '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">Good</span>'
-        : '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800">' + escapeHtml(item.kondisi) + '</span>';
-
-      const statusBadge = item.isSelisih
-        ? '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800 border border-rose-200">Selisih Fisik</span>'
-        : '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">Sesuai Alokasi</span>';
-
-      const fmtRp = v => 'Rp ' + Math.round(v).toLocaleString('id-ID');
-
-      return '<tr class="hover:bg-slate-50 transition text-xs border-b border-slate-100">' +
-        '<td class="py-2.5 px-3 font-medium text-sky-700 whitespace-nowrap">' + escapeHtml(item.no) + '</td>' +
-        '<td class="py-2.5 px-3 font-medium text-slate-800 min-w-[180px]">' + escapeHtml(item.nama) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-slate-600 whitespace-nowrap">' + escapeHtml(item.kelompok) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-slate-500 whitespace-nowrap">' + escapeHtml(item.kategori) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-slate-700 whitespace-nowrap">' + escapeHtml(item.lokasi) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' + kondBadge + '</td>' +
-        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' + statusBadge + '</td>' +
-        '<td class="py-2.5 px-3 text-right font-mono text-slate-700 whitespace-nowrap">' + fmtRp(item.nbv) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' +
-          '<button type="button" onclick="closeValidasiDrillModal(); window.drillToAssetDetail(\'' + escapeHtml(item.no) + '\')" class="px-2 py-1 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 text-[10px] font-bold border border-sky-200 transition cursor-pointer">Detail &rarr;</button>' +
-        '</td>' +
-      '</tr>';
-    }).join('');
-  }
-  window.renderValidasiDrillTable = renderValidasiDrillTable;
-
-  function exportValidasiDrillXlsx() {
-    const data = getValidasiDrillItems();
-    if (!data.items || data.items.length === 0) {
-      alert('Tidak ada data untuk diekspor.');
-      return;
-    }
-
-    if (typeof XLSX === 'undefined') {
-      alert('Library SheetJS (Excel) belum selesai dimuat.');
-      return;
-    }
-
-    const tName = currentValidasiDrill.targetName || 'Semua';
-    const rows = data.items.map((it, idx) => ({
-      'No': idx + 1,
-      'Kode Unit': it.no,
-      'Nama Asset': it.nama,
-      'Kelompok Asset': it.kelompok,
-      'Kategori Asset': it.kategori,
-      'Lokasi': it.lokasi,
-      'Kondisi Fisik': it.kondisi,
-      'Status Validasi': it.statusVerif,
-      'Nilai Perolehan (HPP)': it.hpp,
-      'Nilai Buku (NBV)': it.nbv
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Drill_Validasi');
-    XLSX.writeFile(wb, 'Drilldown_Validasi_' + tName.replace(/[^a-zA-Z0-9]/g, '_') + '.xlsx');
-  }
-  window.exportValidasiDrillXlsx = exportValidasiDrillXlsx;
-  function valDrillPrevPage() {
-    if (currentValidasiDrill.page > 1) {
-      currentValidasiDrill.page--;
-      renderValidasiDrillTable();
-    }
-  }
-  window.valDrillPrevPage = valDrillPrevPage;
-
-  function valDrillNextPage() {
-    const data = getValidasiDrillItems();
-    const maxPage = Math.ceil(data.items.length / currentValidasiDrill.pageSize) || 1;
-    if (currentValidasiDrill.page < maxPage) {
-      currentValidasiDrill.page++;
-      renderValidasiDrillTable();
-    }
-  }
-  window.valDrillNextPage = valDrillNextPage;
-
-
+  // MAIN MATRIX RENDERER (100% FIT LAYOUT - ZERO HORIZONTAL SCROLL)
   function renderValidasiMatrix() {
     const tbody = document.getElementById('table-validasi-matrix-body');
     const tfoot = document.getElementById('table-validasi-matrix-foot');
     if (!tbody) return;
 
-    const query = (document.getElementById('val-global-search')?.value || '').toLowerCase().trim();
-    const filterLoc = document.getElementById('val-filter-location')?.value || '';
-    const filterDept = document.getElementById('val-filter-dept')?.value || '';
-    const filterStatus = document.getElementById('val-filter-status')?.value || '';
+    // 1. Get filtered assets dynamically
+    const filteredAssets = getFilteredValidasiAssets();
 
-    // Handle Breadcrumb & Controls for In-Table Drill Level 2
-    const drillNavEl = document.getElementById('val-table-drill-nav');
+    // 2. Compute & Update 6 Reactive KPIs & Both Visual Bars
+    const metrics = computeValidasiMetrics(filteredAssets);
+    updateValidasiKpisAndVisuals(metrics);
+
+    // 3. Handle In-Table Drill Navigation (Level 1 <-> Level 2)
+    const drillNav = document.getElementById('val-table-drill-nav');
     const drillParentLabel = document.getElementById('val-drill-parent-label');
     const drillCurrentName = document.getElementById('val-drill-current-name');
 
-    if (window.validasiTableDrill && window.validasiTableDrill.level === 2 && window.validasiTableDrill.selectedKey) {
-      if (drillNavEl) drillNavEl.classList.remove('hidden');
-      if (drillParentLabel) drillParentLabel.innerText = 'Semua ' + (currentMatrixGroup === 'loc' ? 'Lokasi Site' : 'Departemen');
+    if (window.validasiTableDrill.level === 2 && window.validasiTableDrill.selectedKey) {
+      if (drillNav) drillNav.classList.remove('hidden');
+      if (drillParentLabel) drillParentLabel.innerText = 'Semua ' + (currentMatrixGroup === 'loc' ? 'Lokasi' : 'Departemen');
       if (drillCurrentName) drillCurrentName.innerText = (window.validasiTableDrill.selectedLabel || window.validasiTableDrill.selectedKey);
 
-      // Render Level 2: Kelompok Aset breakdown on the table
-      const kelompokRows = getKelompokBreakdownForGroup(currentMatrixGroup, window.validasiTableDrill.selectedKey);
+      // Filter assets for this selected entity in Level 2
+      const targetKey = window.validasiTableDrill.selectedKey;
+      const entityAssets = filteredAssets.filter(a => {
+        if (currentMatrixGroup === 'loc') {
+          return a.locRaw === targetKey || a.loc === targetKey;
+        } else {
+          const aDept = a.deptKey || getDeptKeyForAsset(a.rawSec);
+          return aDept === targetKey || a.rawSec === targetKey;
+        }
+      });
 
-      if (kelompokRows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="14" class="text-center py-6 text-slate-400">Tidak ada rincian kelompok aset untuk ' + escapeHtml(window.validasiTableDrill.selectedLabel || window.validasiTableDrill.selectedKey) + '.</td></tr>';
+      // Group by Kelompok Aset
+      const kelompokMap = {};
+      entityAssets.forEach(a => {
+        const k = a.kel || 'INVENTARIS DAN PERALATAN';
+        if (!kelompokMap[k]) kelompokMap[k] = [];
+        kelompokMap[k].push(a);
+      });
+
+      const kelompokEntries = Object.keys(kelompokMap).map(kName => {
+        const m = computeValidasiMetrics(kelompokMap[kName]);
+        return { name: kName, ...m };
+      }).sort((a, b) => b.total - a.total);
+
+      if (kelompokEntries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-slate-400 font-medium">Tidak ada kelompok aset yang cocok dengan filter.</td></tr>';
         if (tfoot) tfoot.innerHTML = '';
         return;
       }
 
-      let totSesuai = 0, totTdkSesuai = 0;
-      let totGood = 0, totRepair = 0, totDisp = 0, totBroken = 0, totLost = 0, totAll = 0;
+      tbody.innerHTML = kelompokEntries.map(k => {
+        const safeKey = escapeHtml(targetKey);
+        const safeLabel = escapeHtml(window.validasiTableDrill.selectedLabel || targetKey);
+        const safeKName = escapeHtml(k.name);
 
-      tbody.innerHTML = kelompokRows.map(function(row, idx) {
-        totSesuai += row.sesuai;
-        totTdkSesuai += row.tdkSesuai;
-        totGood += row.good;
-        totRepair += row.repair;
-        totDisp += row.disp;
-        totBroken += row.broken;
-        totLost += row.lost;
-        totAll += row.total;
+        const drillThroughOpts = (currentMatrixGroup === 'loc')
+          ? "{ location: '" + safeKey + "', group: '" + safeKName + "', filterLabel: '" + safeLabel + " - " + safeKName + "' }"
+          : "{ section: '" + safeKey + "', group: '" + safeKName + "', filterLabel: '" + safeLabel + " - " + safeKName + "' }";
 
-        const goodPct = row.total > 0 ? ((row.good / row.total) * 100).toFixed(1) : '0';
-        const brkPct = row.total > 0 ? ((row.broken / row.total) * 100).toFixed(1) : '0';
-        const lostPct = row.total > 0 ? ((row.lost / row.total) * 100).toFixed(1) : '0';
-        const dispPct = row.total > 0 ? ((row.disp / row.total) * 100).toFixed(1) : '0';
-        const repPct = row.total > 0 ? ((row.repair / row.total) * 100).toFixed(1) : '0';
-
-        const safeKey = escapeHtml(window.validasiTableDrill.selectedKey);
-        const safeLabel = escapeHtml(window.validasiTableDrill.selectedLabel || window.validasiTableDrill.selectedKey);
-        const safeGroup = escapeHtml(row.name);
-
-        const filterParam = (currentMatrixGroup === 'loc')
-          ? "{ location: '" + safeKey + "', group: '" + safeGroup + "', filterLabel: '" + safeLabel + " - " + safeGroup + "' }"
-          : "{ section: '" + safeKey + "', group: '" + safeGroup + "', filterLabel: '" + safeLabel + " - " + safeGroup + "' }";
-
-        return '<tr class="hover:bg-emerald-50/40 transition text-xs border-b border-slate-100 group">' +
-          '<td class="py-2.5 px-3 whitespace-nowrap min-w-[180px] font-medium text-slate-800">' +
+        return '<tr class="hover:bg-emerald-50/30 transition text-xs border-b border-slate-100">' +
+          '<!-- Col 1: Name -->' +
+          '<td class="py-2.5 px-3.5 truncate">' +
             '<div class="flex items-center gap-2">' +
-              '<span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center shrink-0">' + (idx + 1) + '</span>' +
-              '<div>' +
-                '<span class="font-bold text-slate-900 block">' + escapeHtml(row.name) + '</span>' +
+              '<i class="ph-bold ph-folder text-emerald-600 text-sm shrink-0"></i>' +
+              '<div class="truncate">' +
+                '<span class="font-bold text-slate-900 block truncate" title="' + safeKName + '">' + safeKName + '</span>' +
                 '<span class="text-[10px] text-slate-400">Level 2: Kelompok Aset</span>' +
               '</div>' +
             '</div>' +
           '</td>' +
-          '<td class="py-2.5 px-3 whitespace-nowrap">' +
-            '<div class="flex items-center gap-2">' +
-              '<div class="w-14 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shadow-2xs">' +
-                '<div class="bg-emerald-500 h-full rounded-full" style="width: ' + (row.validPct === '100%' ? '100%' : '99.7%') + '"></div>' +
-                (row.tdkSesuai > 0 ? '<div class="bg-rose-500 h-full" style="width: 0.3%"></div>' : '') +
+          '<!-- Col 2: Akurasi Validasi -->' +
+          '<td class="py-2.5 px-2.5">' +
+            '<div class="flex items-center gap-1.5">' +
+              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shrink-0 shadow-2xs">' +
+                '<div class="bg-emerald-500 h-full rounded-full" style="width: ' + k.akurasiPct + '%"></div>' +
+                (k.tdkSesuai > 0 ? '<div class="bg-rose-500 h-full" style="width: ' + (100 - parseFloat(k.akurasiPct)) + '%"></div>' : '') +
               '</div>' +
-              '<span class="num-tabular font-semibold text-[11px] ' + (row.validPct === '100%' ? 'text-emerald-700' : 'text-amber-700') + '">' + escapeHtml(row.validPct) + '</span>' +
+              '<span class="num-tabular font-bold text-[11px] ' + (k.akurasiPct === '100.0' ? 'text-emerald-700' : 'text-amber-700') + '">' + k.akurasiPct + '%</span>' +
             '</div>' +
           '</td>' +
-          '<td class="py-2.5 px-3 whitespace-nowrap">' +
-            '<div class="flex items-center gap-2" title="Baik ' + goodPct + '% | Rusak ' + brkPct + '% | Hilang ' + lostPct + '%">' +
-              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shadow-2xs">' +
-                '<div class="bg-emerald-500 h-full" style="width: ' + goodPct + '%"></div>' +
-                '<div class="bg-amber-500 h-full" style="width: ' + brkPct + '%"></div>' +
-                '<div class="bg-slate-400 h-full" style="width: ' + lostPct + '%"></div>' +
-                '<div class="bg-rose-500 h-full" style="width: ' + dispPct + '%"></div>' +
-                '<div class="bg-blue-500 h-full" style="width: ' + repPct + '%"></div>' +
+          '<!-- Col 3: Distribusi Kondisi -->' +
+          '<td class="py-2.5 px-2.5">' +
+            '<div class="flex items-center gap-1.5" title="Baik ' + k.goodPct + '% | Rusak ' + k.brokenPct + '% | Hilang ' + k.lostPct + '%">' +
+              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shrink-0 shadow-2xs">' +
+                '<div class="bg-emerald-500 h-full" style="width: ' + k.goodPct + '%"></div>' +
+                '<div class="bg-amber-500 h-full" style="width: ' + k.brokenPct + '%"></div>' +
+                '<div class="bg-slate-400 h-full" style="width: ' + k.lostPct + '%"></div>' +
+                '<div class="bg-rose-500 h-full" style="width: ' + k.dispPct + '%"></div>' +
+                '<div class="bg-blue-500 h-full" style="width: ' + k.repPct + '%"></div>' +
               '</div>' +
-              '<span class="text-[10px] text-slate-400 num-tabular">' + goodPct + '%</span>' +
+              '<span class="text-[10px] font-semibold text-slate-500 num-tabular truncate">' + k.goodPct + '% Baik</span>' +
             '</div>' +
           '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + row.avgStd + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + row.avgUmur + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold text-emerald-700 bg-emerald-50/40">' + row.sesuai.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold ' + (row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/50' : 'text-slate-400') + '">' + (row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-700">' + row.good.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-blue-700">' + row.repair.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-rose-700">' + row.disp.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-amber-700">' + row.broken.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-500">' + row.lost.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-3 text-right whitespace-nowrap num-tabular font-bold text-slate-900 bg-slate-100/60">' + row.total.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-center whitespace-nowrap">' +
-            '<button type="button" onclick="window.drillThroughValidasiToMovement(' + filterParam + ')" class="px-2.5 py-1 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 text-[11px] font-bold shadow-2xs transition flex items-center gap-1 cursor-pointer mx-auto" title="Buka Detail Asset di Sheet Baru (Drill Through)">' +
-              '<i class="ph-bold ph-table text-xs"></i> <span>Drill Through ➔</span>' +
+          '<!-- Col 4: Sesuai -->' +
+          '<td class="py-2.5 px-2.5 text-right font-bold text-emerald-700 bg-emerald-50/30 num-tabular">' +
+            k.sesuai.toLocaleString('id-ID') +
+          '</td>' +
+          '<!-- Col 5: Selisih -->' +
+          '<td class="py-2.5 px-2.5 text-right font-bold ' + (k.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/40' : 'text-slate-400') + ' num-tabular">' +
+            (k.tdkSesuai > 0 ? k.tdkSesuai.toLocaleString('id-ID') : '-') +
+          '</td>' +
+          '<!-- Col 6: Total -->' +
+          '<td class="py-2.5 px-2.5 text-right font-black text-slate-900 bg-slate-100/60 num-tabular">' +
+            k.total.toLocaleString('id-ID') +
+          '</td>' +
+          '<!-- Col 7: Aksi -->' +
+          '<td class="py-2.5 px-2.5 text-center">' +
+            '<button type="button" onclick="window.drillThroughValidasiToMovement(' + drillThroughOpts + ')" class="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-2xs transition flex items-center gap-1 mx-auto cursor-pointer" title="Buka Detail Asset di Sheet Baru (Drill Through)">' +
+              '<span>Sheet</span> <i class="ph-bold ph-arrow-right text-[10px]"></i>' +
             '</button>' +
           '</td>' +
         '</tr>';
       }).join('');
 
       if (tfoot) {
+        const entMetrics = computeValidasiMetrics(entityAssets);
         tfoot.innerHTML = 
-          '<tr class="bg-emerald-50 text-slate-800 font-bold border-t-2 border-emerald-300">' +
-            '<td class="py-3 px-3 uppercase tracking-wider whitespace-nowrap">Total Kelompok (' + kelompokRows.length + ' Kelompok)</td>' +
-            '<td class="py-3 px-3 text-left whitespace-nowrap num-tabular text-emerald-800 font-bold">' + ((totSesuai / (totAll || 1)) * 100).toFixed(1) + '%</td>' +
-            '<td class="py-3 px-3 text-left whitespace-nowrap num-tabular text-slate-600 text-[11px]">' + ((totGood / (totAll || 1)) * 100).toFixed(1) + '% Baik</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">-</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">-</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-emerald-800 bg-emerald-100/50">' + totSesuai.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800 bg-rose-100/50">' + (totTdkSesuai > 0 ? totTdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-800">' + totGood.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-blue-800">' + totRepair.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800">' + totDisp.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-amber-800">' + totBroken.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-700">' + totLost.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-3 text-right whitespace-nowrap num-tabular text-slate-900 bg-slate-200/70 font-bold">' + totAll.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-center">' +
-              '<button type="button" onclick="window.validasiDrillUp()" class="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 cursor-pointer">' +
+          '<tr class="bg-emerald-50 text-slate-800 font-bold border-t-2 border-emerald-300 text-xs">' +
+            '<td class="py-3 px-3.5 uppercase tracking-wider truncate">Total (' + kelompokEntries.length + ' Kelompok)</td>' +
+            '<td class="py-3 px-2.5 text-emerald-800 font-bold num-tabular">' + entMetrics.akurasiPct + '% Sesuai</td>' +
+            '<td class="py-3 px-2.5 text-slate-600 text-[11px] font-semibold num-tabular">' + entMetrics.goodPct + '% Baik</td>' +
+            '<td class="py-3 px-2.5 text-right font-bold text-emerald-800 num-tabular">' + entMetrics.sesuai.toLocaleString('id-ID') + '</td>' +
+            '<td class="py-3 px-2.5 text-right font-bold text-rose-800 num-tabular">' + (entMetrics.tdkSesuai > 0 ? entMetrics.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
+            '<td class="py-3 px-2.5 text-right font-black text-slate-900 bg-emerald-100/60 num-tabular">' + entMetrics.total.toLocaleString('id-ID') + '</td>' +
+            '<td class="py-3 px-2.5 text-center">' +
+              '<button type="button" onclick="validasiDrillUp()" class="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 cursor-pointer shadow-2xs">' +
                 '^ Drill Up' +
               '</button>' +
             '</td>' +
@@ -15811,166 +15499,174 @@ const PNS_SECTION_TO_DEPT = {
     }
 
     // LEVEL 1: Main Matrix (Departemen / Lokasi)
-    if (drillNavEl) drillNavEl.classList.add('hidden');
+    if (drillNav) drillNav.classList.add('hidden');
 
-    const sourceData = (currentMatrixGroup === 'loc')
-      ? REAL_LOCATIONS_MATRIX.filter(function(item) { return item.name !== 'API_PENDING'; })
-      : REAL_DEPTS_MATRIX.filter(function(item) { return item.name !== 'API_PENDING'; });
+    // Group filtered assets by Dept or Location
+    const configList = (currentMatrixGroup === 'loc') ? VALIDASI_LOCS_CONFIG : VALIDASI_DEPTS_CONFIG;
 
-    const filtered = sourceData.filter(function(item) {
-      if (currentMatrixGroup === 'loc' && filterLoc && item.name !== filterLoc) return false;
-      if (currentMatrixGroup === 'dept' && filterDept && item.name !== filterDept) return false;
-      if (filterStatus === 'SESUAI' && item.sesuai === 0) return false;
-      if (filterStatus === 'TIDAK SESUAI' && item.tdkSesuai === 0) return false;
-      if (filterStatus === 'BELUM VERIFIKASI' && item.belum === 0) return false;
-      if (query && !item.name.toLowerCase().includes(query) && !(item.label || '').toLowerCase().includes(query)) return false;
-      return true;
+    const groupMap = {};
+    configList.forEach(c => {
+      groupMap[c.key] = { config: c, assets: [] };
     });
 
-    if (filtered.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="14" class="text-center py-6 text-slate-400">Tidak ada data yang cocok dengan filter saat ini.</td></tr>';
+    filteredAssets.forEach(a => {
+      const gKey = (currentMatrixGroup === 'loc')
+        ? (a.locRaw || 'CO')
+        : (a.deptKey || getDeptKeyForAsset(a.rawSec));
+
+      if (groupMap[gKey]) {
+        groupMap[gKey].assets.push(a);
+      } else {
+        // fallback
+        const fbKey = configList[0].key;
+        if (groupMap[fbKey]) groupMap[fbKey].assets.push(a);
+      }
+    });
+
+    const rowsData = configList.map(c => {
+      const gAssets = groupMap[c.key]?.assets || [];
+      const m = computeValidasiMetrics(gAssets);
+      return { config: c, assets: gAssets, ...m };
+    }).filter(r => r.total > 0).sort((a, b) => b.total - a.total);
+
+    if (rowsData.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-slate-400 font-medium">Tidak ada data aset yang cocok dengan filter saat ini.</td></tr>';
       if (tfoot) tfoot.innerHTML = '';
       return;
     }
 
-    let totSesuai = 0, totTdkSesuai = 0, totBelum = 0;
-    let totGood = 0, totRepair = 0, totDisp = 0, totBroken = 0, totLost = 0, totAll = 0;
-
     const rowsHtml = [];
 
-    filtered.forEach(function(row) {
-      totSesuai += row.sesuai;
-      totTdkSesuai += row.tdkSesuai;
-      totBelum += row.belum;
-      totGood += row.good;
-      totRepair += row.repair;
-      totDisp += row.disp;
-      totBroken += row.broken;
-      totLost += row.lost;
-      totAll += row.total;
+    rowsData.forEach(row => {
+      const isExpanded = window.validasiTableDrill.expandedRowKeys && window.validasiTableDrill.expandedRowKeys.has(row.config.key);
+      const safeKey = escapeHtml(row.config.key);
+      const safeLabel = escapeHtml(row.config.label || row.config.key);
 
-      const isExpanded = window.validasiTableDrill && window.validasiTableDrill.expandedRowKeys && window.validasiTableDrill.expandedRowKeys.has(row.name);
-      const safeRowName = escapeHtml(row.name);
-      const safeRowLabel = escapeHtml(row.label || row.name);
-
-      const expandToggleBtn = '<button type="button" onclick="window.toggleValidasiRowExpand(\'' + safeRowName + '\')" class="w-5 h-5 rounded flex items-center justify-center font-bold text-xs shrink-0 transition cursor-pointer ' +
+      const expandToggleBtn = '<button type="button" onclick="window.toggleValidasiRowExpand(\'' + safeKey + '\')" class="w-5 h-5 rounded flex items-center justify-center font-bold text-xs shrink-0 transition cursor-pointer ' +
         (isExpanded ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-slate-200 text-slate-700 hover:bg-slate-300') + '" title="' +
         (isExpanded ? 'Tutup Rincian Kelompok' : 'Buka Rincian Kelompok Langsung di Tabel') + '">' +
         (isExpanded ? '−' : '+') +
       '</button>';
 
-      const nameLabel = '<div class="flex items-center gap-2">' +
-        expandToggleBtn +
-        '<div>' +
-          '<span class="font-bold text-slate-900 group-hover:text-emerald-700 transition cursor-pointer" onclick="window.validasiDrillDown(\'' + safeRowName + '\', \'' + safeRowLabel + '\')">' +
-            safeRowLabel +
-          '</span>' +
-        '</div>' +
-      '</div>';
-
-      const goodPct = row.total > 0 ? ((row.good / row.total) * 100).toFixed(1) : '0';
-      const brkPct = row.total > 0 ? ((row.broken / row.total) * 100).toFixed(1) : '0';
-      const lostPct = row.total > 0 ? ((row.lost / row.total) * 100).toFixed(1) : '0';
-      const dispPct = row.total > 0 ? ((row.disp / row.total) * 100).toFixed(1) : '0';
-      const repPct = row.total > 0 ? ((row.repair / row.total) * 100).toFixed(1) : '0';
-
+      const drillDownCall = "window.validasiDrillDown('" + safeKey + "', '" + safeLabel + "')";
       const drillThroughCall = (currentMatrixGroup === 'loc')
-        ? "window.drillThroughValidasiToMovement({ location: '" + safeRowName + "', filterLabel: '" + safeRowLabel + "' })"
-        : "window.drillThroughValidasiToMovement({ section: '" + safeRowName + "', filterLabel: '" + safeRowLabel + "' })";
-
-      const drillDownCall = "window.validasiDrillDown('" + safeRowName + "', '" + safeRowLabel + "')";
+        ? "window.drillThroughValidasiToMovement({ location: '" + safeKey + "', filterLabel: '" + safeLabel + "' })"
+        : "window.drillThroughValidasiToMovement({ section: '" + safeKey + "', filterLabel: '" + safeLabel + "' })";
 
       rowsHtml.push(
-        '<tr class="hover:bg-slate-50/80 transition text-xs border-b border-slate-100 group ' + (isExpanded ? 'bg-emerald-50/20' : '') + '">' +
-          '<td class="py-2.5 px-3 whitespace-nowrap min-w-[170px] font-medium text-slate-800">' +
-            nameLabel +
-          '</td>' +
-          '<!-- SPARKLINE CONDITIONAL PERSENTASE VALIDASI -->' +
-          '<td class="py-2.5 px-3 whitespace-nowrap">' +
+        '<tr class="hover:bg-slate-50/80 transition text-xs border-b border-slate-100 ' + (isExpanded ? 'bg-emerald-50/20' : '') + '">' +
+          '<!-- Col 1: Name -->' +
+          '<td class="py-2.5 px-3.5 truncate">' +
             '<div class="flex items-center gap-2">' +
-              '<div class="w-14 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shadow-2xs">' +
-                '<div class="bg-emerald-500 h-full rounded-full" style="width: ' + (row.validPct === '100%' ? '100%' : '99.7%') + '"></div>' +
-                (row.tdkSesuai > 0 ? '<div class="bg-rose-500 h-full" style="width: 0.3%"></div>' : '') +
+              expandToggleBtn +
+              '<div class="truncate cursor-pointer" onclick="' + drillDownCall + '">' +
+                '<span class="font-bold text-slate-900 hover:text-emerald-700 transition block truncate" title="' + safeLabel + '">' +
+                  safeLabel +
+                '</span>' +
               '</div>' +
-              '<span class="num-tabular font-semibold text-[11px] ' + (row.validPct === '100%' ? 'text-emerald-700' : 'text-amber-700') + '">' + escapeHtml(row.validPct) + '</span>' +
             '</div>' +
           '</td>' +
-          '<!-- STACKED SPARKLINE KONDISI FISIK -->' +
-          '<td class="py-2.5 px-3 whitespace-nowrap">' +
-            '<div class="flex items-center gap-2" title="Kondisi: Baik ' + goodPct + '% | Rusak ' + brkPct + '% | Hilang ' + lostPct + '% | Disposal ' + dispPct + '%">' +
-              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shadow-2xs">' +
-                '<div class="bg-emerald-500 h-full" style="width: ' + goodPct + '%"></div>' +
-                '<div class="bg-amber-500 h-full" style="width: ' + brkPct + '%"></div>' +
-                '<div class="bg-slate-400 h-full" style="width: ' + lostPct + '%"></div>' +
-                '<div class="bg-rose-500 h-full" style="width: ' + dispPct + '%"></div>' +
-                '<div class="bg-blue-500 h-full" style="width: ' + repPct + '%"></div>' +
+          '<!-- Col 2: Akurasi Validasi -->' +
+          '<td class="py-2.5 px-2.5">' +
+            '<div class="flex items-center gap-1.5">' +
+              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shrink-0 shadow-2xs">' +
+                '<div class="bg-emerald-500 h-full rounded-full" style="width: ' + row.akurasiPct + '%"></div>' +
+                (row.tdkSesuai > 0 ? '<div class="bg-rose-500 h-full" style="width: ' + (100 - parseFloat(row.akurasiPct)) + '%"></div>' : '') +
               '</div>' +
-              '<span class="text-[10px] text-slate-400 num-tabular">' + goodPct + '%</span>' +
+              '<span class="num-tabular font-bold text-[11px] ' + (row.akurasiPct === '100.0' ? 'text-emerald-700' : 'text-amber-700') + '">' + row.akurasiPct + '%</span>' +
             '</div>' +
           '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + row.avgStd + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + row.avgUmur + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold text-emerald-700 bg-emerald-50/40">' + row.sesuai.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold ' + (row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/50' : 'text-slate-400') + '">' + (row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-700">' + row.good.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-blue-700">' + row.repair.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-rose-700">' + row.disp.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-amber-700">' + row.broken.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-500">' + row.lost.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-3 text-right whitespace-nowrap num-tabular font-semibold text-slate-900 bg-slate-100/60">' + row.total.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-center whitespace-nowrap">' +
-            '<div class="flex items-center gap-1.5 justify-center">' +
-              '<!-- In-Table Drill Down Button -->' +
-              '<button type="button" onclick="' + drillDownCall + '" class="px-2 py-1 rounded bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 text-[11px] font-bold transition cursor-pointer flex items-center gap-1 shadow-2xs" title="Drill Down Tetap Pada Tabel (Buka Level Kelompok)">' +
-                '<i class="ph-bold ph-arrow-down text-xs text-emerald-600"></i> Drill Down' +
+          '<!-- Col 3: Distribusi Kondisi -->' +
+          '<td class="py-2.5 px-2.5">' +
+            '<div class="flex items-center gap-1.5" title="Baik ' + row.goodPct + '% | Rusak ' + row.brokenPct + '% | Hilang ' + row.lostPct + '%">' +
+              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shrink-0 shadow-2xs">' +
+                '<div class="bg-emerald-500 h-full" style="width: ' + row.goodPct + '%"></div>' +
+                '<div class="bg-amber-500 h-full" style="width: ' + row.brokenPct + '%"></div>' +
+                '<div class="bg-slate-400 h-full" style="width: ' + row.lostPct + '%"></div>' +
+                '<div class="bg-rose-500 h-full" style="width: ' + row.dispPct + '%"></div>' +
+                '<div class="bg-blue-500 h-full" style="width: ' + row.repPct + '%"></div>' +
+              '</div>' +
+              '<span class="text-[10px] font-semibold text-slate-500 num-tabular truncate">' + row.goodPct + '% Baik</span>' +
+            '</div>' +
+          '</td>' +
+          '<!-- Col 4: Sesuai -->' +
+          '<td class="py-2.5 px-2.5 text-right font-bold text-emerald-700 bg-emerald-50/30 num-tabular">' +
+            row.sesuai.toLocaleString('id-ID') +
+          '</td>' +
+          '<!-- Col 5: Selisih -->' +
+          '<td class="py-2.5 px-2.5 text-right font-bold ' + (row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/40' : 'text-slate-400') + ' num-tabular">' +
+            (row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-') +
+          '</td>' +
+          '<!-- Col 6: Total -->' +
+          '<td class="py-2.5 px-2.5 text-right font-black text-slate-900 bg-slate-100/60 num-tabular">' +
+            row.total.toLocaleString('id-ID') +
+          '</td>' +
+          '<!-- Col 7: Aksi -->' +
+          '<td class="py-2.5 px-2.5 text-center">' +
+            '<div class="flex items-center gap-1 justify-center">' +
+              '<button type="button" onclick="' + drillDownCall + '" class="p-1 rounded-md bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition cursor-pointer shadow-2xs" title="Drill Down di Tabel">' +
+                '<i class="ph-bold ph-arrow-down text-xs text-emerald-600"></i>' +
               '</button>' +
-              '<!-- Drill Through Button to Sheet Detail -->' +
-              '<button type="button" onclick="' + drillThroughCall + '" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition cursor-pointer flex items-center gap-1 shadow-2xs" title="Drill Through ke Sheet Baru / View Detail Aset">' +
-                '<i class="ph-bold ph-table text-xs"></i> Drill Through ➔' +
+              '<button type="button" onclick="' + drillThroughCall + '" class="px-1.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold shadow-2xs transition flex items-center gap-0.5 cursor-pointer" title="Drill Through ke Sheet Detail">' +
+                '<span>Sheet</span> <i class="ph-bold ph-arrow-right text-[9px]"></i>' +
               '</button>' +
             '</div>' +
           '</td>' +
         '</tr>'
       );
 
-      // If this row is accordion-expanded in-place, render child rows
+      // Render In-Place Accordion Child Rows
       if (isExpanded) {
-        const childKelompoks = getKelompokBreakdownForGroup(currentMatrixGroup, row.name);
-        childKelompoks.forEach(function(k) {
-          const cGoodPct = k.total > 0 ? ((k.good / k.total) * 100).toFixed(1) : '0';
+        const kelompokMap = {};
+        row.assets.forEach(a => {
+          const k = a.kel || 'INVENTARIS DAN PERALATAN';
+          if (!kelompokMap[k]) kelompokMap[k] = [];
+          kelompokMap[k].push(a);
+        });
+
+        const kList = Object.keys(kelompokMap).map(kName => {
+          const km = computeValidasiMetrics(kelompokMap[kName]);
+          return { name: kName, ...km };
+        }).sort((a, b) => b.total - a.total);
+
+        kList.forEach(k => {
           const safeKName = escapeHtml(k.name);
           const cDrillThrough = (currentMatrixGroup === 'loc')
-            ? "window.drillThroughValidasiToMovement({ location: '" + safeRowName + "', group: '" + safeKName + "', filterLabel: '" + safeRowLabel + " - " + safeKName + "' })"
-            : "window.drillThroughValidasiToMovement({ section: '" + safeRowName + "', group: '" + safeKName + "', filterLabel: '" + safeRowLabel + " - " + safeKName + "' })";
+            ? "window.drillThroughValidasiToMovement({ location: '" + safeKey + "', group: '" + safeKName + "', filterLabel: '" + safeLabel + " - " + safeKName + "' })"
+            : "window.drillThroughValidasiToMovement({ section: '" + safeKey + "', group: '" + safeKName + "', filterLabel: '" + safeLabel + " - " + safeKName + "' })";
 
           rowsHtml.push(
-            '<tr class="bg-emerald-50/25 hover:bg-emerald-50/50 transition text-xs border-b border-emerald-100/60 font-normal">' +
-              '<td class="py-2 pl-9 pr-3 whitespace-nowrap font-medium text-slate-700">' +
-                '<div class="flex items-center gap-1.5">' +
+            '<tr class="bg-emerald-50/20 hover:bg-emerald-50/40 transition text-xs border-b border-emerald-100/50">' +
+              '<!-- Col 1: Indented Name -->' +
+              '<td class="py-2 pl-9 pr-3.5 truncate">' +
+                '<div class="flex items-center gap-1.5 truncate">' +
                   '<i class="ph-bold ph-arrow-elbow-down-right text-emerald-600 text-xs shrink-0"></i>' +
-                  '<span class="text-slate-800 font-semibold">' + safeKName + '</span>' +
+                  '<span class="text-slate-800 font-semibold truncate" title="' + safeKName + '">' + safeKName + '</span>' +
                 '</div>' +
               '</td>' +
-              '<td class="py-2 px-3 whitespace-nowrap">' +
-                '<div class="flex items-center gap-2">' +
-                  '<span class="num-tabular font-medium text-[11px] text-emerald-700">' + escapeHtml(k.validPct) + '</span>' +
-                '</div>' +
+              '<!-- Col 2: Akurasi -->' +
+              '<td class="py-2 px-2.5">' +
+                '<span class="num-tabular font-medium text-[11px] text-emerald-700">' + k.akurasiPct + '%</span>' +
               '</td>' +
-              '<td class="py-2 px-3 whitespace-nowrap">' +
-                '<span class="text-[10px] text-slate-500 num-tabular">' + cGoodPct + '% Baik</span>' +
+              '<!-- Col 3: Kondisi -->' +
+              '<td class="py-2 px-2.5 truncate">' +
+                '<span class="text-[10px] text-slate-500 num-tabular truncate">' + k.goodPct + '% Baik</span>' +
               '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-slate-500">' + k.avgStd + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-slate-500">' + k.avgUmur + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-emerald-700 font-medium">' + k.sesuai.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular ' + (k.tdkSesuai > 0 ? 'text-rose-600 font-semibold' : 'text-slate-300') + '">' + (k.tdkSesuai > 0 ? k.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + k.good.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-blue-600">' + k.repair.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-rose-600">' + k.disp.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-amber-600">' + k.broken.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-slate-400">' + k.lost.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-3 text-right whitespace-nowrap num-tabular font-semibold text-slate-800">' + k.total.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-center whitespace-nowrap">' +
-                '<button type="button" onclick="' + cDrillThrough + '" class="px-2 py-0.5 rounded bg-white hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-300 text-[10px] font-bold transition shadow-2xs flex items-center gap-1 mx-auto cursor-pointer" title="Drill Through ke Sheet Baru">' +
+              '<!-- Col 4: Sesuai -->' +
+              '<td class="py-2 px-2.5 text-right font-medium text-emerald-700 num-tabular">' +
+                k.sesuai.toLocaleString('id-ID') +
+              '</td>' +
+              '<!-- Col 5: Selisih -->' +
+              '<td class="py-2 px-2.5 text-right ' + (k.tdkSesuai > 0 ? 'text-rose-600 font-bold' : 'text-slate-300') + ' num-tabular">' +
+                (k.tdkSesuai > 0 ? k.tdkSesuai.toLocaleString('id-ID') : '-') +
+              '</td>' +
+              '<!-- Col 6: Total -->' +
+              '<td class="py-2 px-2.5 text-right font-semibold text-slate-800 num-tabular">' +
+                k.total.toLocaleString('id-ID') +
+              '</td>' +
+              '<!-- Col 7: Aksi -->' +
+              '<td class="py-2 px-2.5 text-center">' +
+                '<button type="button" onclick="' + cDrillThrough + '" class="px-2 py-0.5 rounded bg-white hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-300 text-[10px] font-bold transition shadow-2xs flex items-center gap-1 mx-auto cursor-pointer" title="Drill Through ke Sheet Detail">' +
                   '<span>Detail</span> ➔' +
                 '</button>' +
               '</td>' +
@@ -15982,28 +15678,35 @@ const PNS_SECTION_TO_DEPT = {
 
     tbody.innerHTML = rowsHtml.join('');
 
+    // 4. Update TFOOT Total Row
     if (tfoot) {
       tfoot.innerHTML = 
-        '<tr class="bg-slate-50 text-slate-700 font-semibold border-t-2 border-slate-300">' +
-          '<td class="py-3 px-3 uppercase tracking-wider whitespace-nowrap min-w-[170px]">Total Validasi Master</td>' +
-          '<td class="py-3 px-3 text-left whitespace-nowrap num-tabular text-emerald-700 font-bold">100% (34.254 Unit)</td>' +
-          '<td class="py-3 px-3 text-left whitespace-nowrap num-tabular text-slate-600 text-[11px]">81.4% Baik | 10.7% Rusak</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">9</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">7</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-emerald-800 bg-emerald-100/50">' + totSesuai.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800 bg-rose-100/50">' + totTdkSesuai.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-800">' + totGood.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-blue-800">' + totRepair.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800">' + totDisp.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-amber-800">' + totBroken.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-700">' + totLost.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-3 text-right whitespace-nowrap num-tabular text-slate-900 bg-slate-200/70 font-bold">' + totAll.toLocaleString('id-ID') + '</td>' +
-          '<td></td>' +
+        '<tr class="bg-slate-100/90 text-slate-900 font-bold border-t-2 border-slate-300 text-xs">' +
+          '<td class="py-3 px-3.5 uppercase tracking-wider truncate">Total Validasi Master</td>' +
+          '<td class="py-3 px-2.5 text-emerald-800 font-bold num-tabular">' + metrics.akurasiPct + '% Sesuai</td>' +
+          '<td class="py-3 px-2.5 text-slate-700 font-semibold text-[11px] num-tabular">' + metrics.goodPct + '% Baik</td>' +
+          '<td class="py-3 px-2.5 text-right font-bold text-emerald-800 num-tabular">' + metrics.sesuai.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-2.5 text-right font-bold text-rose-800 num-tabular">' + (metrics.tdkSesuai > 0 ? metrics.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
+          '<td class="py-3 px-2.5 text-right font-black text-slate-900 bg-slate-200/80 num-tabular">' + metrics.total.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-2.5 text-center text-slate-400 font-normal text-[10px]">-</td>' +
         '</tr>';
     }
   }
 
-  function renderPerformanceTab() {
+  function renderEnterpriseValidasiReport() {
+    renderValidasiMatrix();
+  }
+
+  function renderValidasiTable() {
+    renderValidasiMatrix();
+  }
+
+  function onSearchValidasi() {
+    renderValidasiMatrix();
+  }
+
+
+    function renderPerformanceTab() {
     // 1. Render Department breakdown table in Tab 2
     const tbodyDept = document.getElementById('table-perf-dept-body');
     if (tbodyDept) {

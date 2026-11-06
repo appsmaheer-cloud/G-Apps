@@ -530,3 +530,15 @@ body.validasi-standalone-view #validasi-standalone-topbar {
 }
 
 
+
+/* Laporan Validasi Fit-To-Layout & Zero Horizontal Scroll */
+#table-validasi-matrix {
+  table-layout: fixed !important;
+  width: 100% !important;
+  border-collapse: collapse !important;
+}
+#table-validasi-matrix th,
+#table-validasi-matrix td {
+  overflow: hidden !important;
+  text-overflow: ellipsis !important;
+}

@@ -965,9 +965,6 @@ const PNS_SECTION_TO_DEPT = {
         if (rep === 'validasi' || view === 'view-validasi') {
           setTimeout(() => {
             navTo('view-validasi');
-            enterValidasiStandaloneMode();
-            const repBanner = document.getElementById('validasi-report-mode-banner');
-            if (repBanner) repBanner.classList.remove('hidden');
           }, 150);
         } else if (view) {
           setTimeout(() => { navTo(view); }, 150);
@@ -10439,21 +10436,236 @@ const PNS_SECTION_TO_DEPT = {
   }
 
   
-  // IN-TABLE DRILL DOWN & DRILL UP STATE (Tetap Pada Tabel)
-  window.validasiTableDrill = window.validasiTableDrill || {
+  // =========================================================================
+  // LAPORAN VALIDASI & REKONSILIASI ENTERPRISE ENGINE
+  // Dynamic Real-Time Filtering, 6 Reactive KPIs, Fit-To-Layout (No Horizontal Scroll)
+  // In-Table Drill-Down (Level 1 <-> Level 2) & In-Place Accordion [+] / [-]
+  // =========================================================================
+
+  currentMatrixGroup = 'dept'; // 'dept' | 'loc'
+
+  window.validasiTableDrill = {
     level: 1, // 1: Main matrix (Dept / Loc), 2: Kelompok Aset breakdown
     selectedKey: null,
     selectedLabel: null,
-    expandedRowKeys: new Set() // for in-place accordion [+] / [-]
+    expandedRowKeys: new Set()
   };
 
+  const VALIDASI_DEPTS_CONFIG = [
+    { key: 'HRGA', label: 'HRGA', icon: 'ph-users', keywords: ['HRGA', 'GENERAL SERVICE', 'SECURITY', 'PEOPLE', 'TALENT', 'COMPENSATION', 'ASSESSEMENT', 'HUMAN RESOURCE'] },
+    { key: 'BUSINESS SUPPORT', label: 'Business Support', icon: 'ph-buildings', keywords: ['BUSINESS SUPPORT', 'WAREHOUSE', 'LOGISTIC', 'PLANNING, INVENTORY', 'ADMINISTRATION', 'COMMUNITY', 'OPERATION SUPPORT'] },
+    { key: 'PLANTATION', label: 'Plantation', icon: 'ph-tree', keywords: ['WATER MANAGEMENT', 'PLANTING', 'CANE SUPPLY', 'AGRONOMY', 'PROTECTION', 'PLANTATION'] },
+    { key: 'WORKSHOP & ENGINERING', label: 'Workshop & Engineering', icon: 'ph-wrench', keywords: ['WORKSHOP', 'ENGINEERING', 'MAINTENANCE', 'CIVIL', 'ELECTRICAL'] },
+    { key: 'PRODUCTION', label: 'Production', icon: 'ph-factory', keywords: ['PRODUCTION', 'PROCESS', 'MILL', 'CANE YARD', 'OPERATION'] },
+    { key: 'QUALITY HEALTH & SAFETY ENVIRONMENT', label: 'QHSE', icon: 'ph-shield-check', keywords: ['HSE', 'QC', 'LAB', 'MEDICAL', 'SAFETY', 'QUALITY'] },
+    { key: 'FINANCIAL & INFORMATION', label: 'Financial & Information', icon: 'ph-currency-dollar', keywords: ['FINANCE', 'ACCOUNTING', 'INFORMATION', 'IT', 'LEGAL', 'TAX', 'BUDGET'] },
+    { key: 'HARVESTING', label: 'Harvesting', icon: 'ph-plant', keywords: ['HARVESTING'] },
+    { key: 'PROCUREMENT & PURCHASING', label: 'Procurement & Purchasing', icon: 'ph-shopping-cart', keywords: ['PROCUREMENT', 'PURCHASING'] },
+    { key: 'RESEARCH & DEVELOPMENT', label: 'Research & Development', icon: 'ph-flask', keywords: ['RESEARCH', 'DEVELOPMENT', 'R&D'] },
+    { key: 'SALES & MARKETING', label: 'Sales & Marketing', icon: 'ph-chart-line-up', keywords: ['SALES', 'MARKETING'] }
+  ];
+
+  const VALIDASI_LOCS_CONFIG = [
+    { key: 'CO', label: 'Central Office (CO)', icon: 'ph-buildings' },
+    { key: 'FR', label: 'Factory (FR)', icon: 'ph-factory' },
+    { key: 'E1', label: 'Estate 1 (E1)', icon: 'ph-tree' },
+    { key: 'E2', label: 'Estate 2 (E2)', icon: 'ph-tree' },
+    { key: 'E3', label: 'Estate 3 (E3)', icon: 'ph-tree' },
+    { key: 'MR', label: 'Mess Residence (MR)', icon: 'ph-house-line' },
+    { key: 'HO', label: 'Head Office (HO)', icon: 'ph-city' },
+    { key: 'RO', label: 'Regional Office (RO)', icon: 'ph-map-pin' }
+  ];
+
+  function getDeptKeyForAsset(rawSec) {
+    const s = String(rawSec || '').toUpperCase();
+    for (const d of VALIDASI_DEPTS_CONFIG) {
+      for (const kw of d.keywords) {
+        if (s.includes(kw)) return d.key;
+      }
+    }
+    return 'BUSINESS SUPPORT';
+  }
+
+  // Get dynamically filtered subset of all 34.266 assets
+  function getFilteredValidasiAssets() {
+    const all = (typeof getAllNormalizedAssets === 'function') ? getAllNormalizedAssets() : [];
+    const q = (document.getElementById('val-global-search')?.value || '').toLowerCase().trim();
+    const loc = document.getElementById('val-filter-location')?.value || '';
+    const dept = document.getElementById('val-filter-dept')?.value || '';
+    const status = document.getElementById('val-filter-status')?.value || '';
+    const kond = document.getElementById('val-filter-kondisi')?.value || '';
+
+    return all.filter(a => {
+      // 1. Filter Location
+      if (loc && a.locRaw !== loc && a.loc !== loc) return false;
+
+      // 2. Filter Dept
+      if (dept) {
+        const aDeptKey = a.deptKey || getDeptKeyForAsset(a.rawSec);
+        if (aDeptKey !== dept && a.rawSec !== dept) return false;
+      }
+
+      // 3. Filter Status Validasi
+      if (status) {
+        const isSesuai = !String(a.statusVerif || '').toUpperCase().includes('TIDAK') && !String(a.statusVerif || '').toUpperCase().includes('SELISIH');
+        if (status === 'SESUAI' && !isSesuai) return false;
+        if (status === 'TIDAK SESUAI' && isSesuai) return false;
+      }
+
+      // 4. Filter Kondisi Fisik
+      if (kond) {
+        const c = String(a.kond || '').toUpperCase();
+        if (!c.includes(kond.toUpperCase())) return false;
+      }
+
+      // 5. Global Search
+      if (q) {
+        const match = (a.kodeUnit && a.kodeUnit.toLowerCase().includes(q)) ||
+                      (a.namaAsset && a.namaAsset.toLowerCase().includes(q)) ||
+                      (a.kel && a.kel.toLowerCase().includes(q)) ||
+                      (a.kat && a.kat.toLowerCase().includes(q)) ||
+                      (a.rawSec && a.rawSec.toLowerCase().includes(q)) ||
+                      (a.locRaw && a.locRaw.toLowerCase().includes(q));
+        if (!match) return false;
+      }
+
+      return true;
+    });
+  }
+
+  // Calculate metrics for any set of assets
+  function computeValidasiMetrics(assets) {
+    let total = 0, sesuai = 0, tdkSesuai = 0;
+    let good = 0, repair = 0, disp = 0, broken = 0, lost = 0;
+    let totalHpp = 0, totalNbv = 0;
+
+    for (let i = 0; i < assets.length; i++) {
+      const a = assets[i];
+      total++;
+      totalHpp += (a.hpp || 0);
+      totalNbv += (a.nbv || 0);
+
+      const isSesuai = !String(a.statusVerif || '').toUpperCase().includes('TIDAK') && !String(a.statusVerif || '').toUpperCase().includes('SELISIH');
+      if (isSesuai) sesuai++;
+      else tdkSesuai++;
+
+      const c = String(a.kond || '').toUpperCase();
+      if (c.includes('BAIK') || c.includes('GOOD')) good++;
+      else if (c.includes('REPAIR') || c.includes('PERBAIKAN')) repair++;
+      else if (c.includes('DISPOSAL') || c.includes('AFKIR')) disp++;
+      else if (c.includes('BROKEN') || c.includes('RUSAK')) broken++;
+      else if (c.includes('LOST') || c.includes('HILANG')) lost++;
+      else good++;
+    }
+
+    const akurasiPct = total > 0 ? ((sesuai / total) * 100).toFixed(1) : '100.0';
+    const goodPct = total > 0 ? ((good / total) * 100).toFixed(1) : '0.0';
+    const brokenPct = total > 0 ? ((broken / total) * 100).toFixed(1) : '0.0';
+    const lostPct = total > 0 ? ((lost / total) * 100).toFixed(1) : '0.0';
+    const dispPct = total > 0 ? ((disp / total) * 100).toFixed(1) : '0.0';
+    const repPct = total > 0 ? ((repair / total) * 100).toFixed(1) : '0.0';
+
+    return {
+      total, sesuai, tdkSesuai, good, repair, disp, broken, lost,
+      totalHpp, totalNbv,
+      akurasiPct, goodPct, brokenPct, lostPct, dispPct, repPct
+    };
+  }
+
+  // Reactive KPI & Visual Updater
+  function updateValidasiKpisAndVisuals(metrics) {
+    // 1. KPI Cards
+    const kpiTotal = document.getElementById('val-kpi-total');
+    const kpiSubTotal = document.getElementById('val-kpi-sub-total');
+    if (kpiTotal) kpiTotal.innerText = metrics.total.toLocaleString('id-ID');
+    if (kpiSubTotal) kpiSubTotal.innerText = `${metrics.sesuai.toLocaleString('id-ID')} Sesuai • ${metrics.tdkSesuai.toLocaleString('id-ID')} Selisih`;
+
+    const kpiAkurasi = document.getElementById('val-kpi-akurasi');
+    const kpiSubAkurasi = document.getElementById('val-kpi-sub-akurasi');
+    if (kpiAkurasi) kpiAkurasi.innerText = metrics.akurasiPct + '%';
+    if (kpiSubAkurasi) kpiSubAkurasi.innerText = metrics.sesuai.toLocaleString('id-ID') + ' Unit Sesuai Fisik';
+
+    const kpiSelisih = document.getElementById('val-kpi-selisih');
+    const kpiSubSelisih = document.getElementById('val-kpi-sub-selisih');
+    if (kpiSelisih) kpiSelisih.innerText = metrics.tdkSesuai.toLocaleString('id-ID') + ' Unit';
+    if (kpiSubSelisih) {
+      const selPct = metrics.total > 0 ? ((metrics.tdkSesuai / metrics.total) * 100).toFixed(1) : '0.0';
+      kpiSubSelisih.innerText = selPct + '% Selisih Alokasi Lapangan';
+    }
+
+    const kpiGood = document.getElementById('val-kpi-good');
+    const kpiSubGood = document.getElementById('val-kpi-sub-good');
+    if (kpiGood) kpiGood.innerText = metrics.good.toLocaleString('id-ID');
+    if (kpiSubGood) kpiSubGood.innerText = metrics.goodPct + '% Siap Operasional';
+
+    const kpiBroken = document.getElementById('val-kpi-broken');
+    const kpiSubBroken = document.getElementById('val-kpi-sub-broken');
+    if (kpiBroken) kpiBroken.innerText = (metrics.broken + metrics.repair).toLocaleString('id-ID');
+    if (kpiSubBroken) kpiSubBroken.innerText = `${metrics.broken.toLocaleString('id-ID')} Rusak • ${metrics.repair.toLocaleString('id-ID')} Repair`;
+
+    const kpiNbv = document.getElementById('val-kpi-nbv');
+    const kpiSubAcq = document.getElementById('val-kpi-sub-acq');
+    if (kpiNbv) kpiNbv.innerText = formatRupiahAbbr(metrics.totalNbv);
+    if (kpiSubAcq) kpiSubAcq.innerText = 'HPP: ' + formatRupiahAbbr(metrics.totalHpp);
+
+    // 2. Visual 1: Akurasi Status Validasi
+    const visAkurasiPct = document.getElementById('val-visual-akurasi-pct');
+    const barSesuai = document.getElementById('val-bar-sesuai');
+    const barSelisih = document.getElementById('val-bar-selisih');
+    const barSesuaiLbl = document.getElementById('val-bar-sesuai-lbl');
+    const barSelisihLbl = document.getElementById('val-bar-selisih-lbl');
+
+    if (visAkurasiPct) visAkurasiPct.innerText = metrics.akurasiPct + '% Sesuai';
+    if (barSesuai) barSesuai.style.width = metrics.akurasiPct + '%';
+    if (barSelisih) {
+      const selPct = metrics.total > 0 ? (100 - parseFloat(metrics.akurasiPct)).toFixed(1) : '0.0';
+      barSelisih.style.width = selPct + '%';
+    }
+    if (barSesuaiLbl) barSesuaiLbl.innerText = metrics.sesuai.toLocaleString('id-ID');
+    if (barSelisihLbl) barSelisihLbl.innerText = metrics.tdkSesuai.toLocaleString('id-ID');
+
+    // 3. Visual 2: Proporsi Kondisi Fisik
+    const visGoodPct = document.getElementById('val-visual-good-pct');
+    const condGood = document.getElementById('val-cond-good');
+    const condBroken = document.getElementById('val-cond-broken');
+    const condLost = document.getElementById('val-cond-lost');
+    const condDisp = document.getElementById('val-cond-disp');
+    const condRep = document.getElementById('val-cond-rep');
+
+    const condGoodLbl = document.getElementById('val-cond-good-lbl');
+    const condBrokenLbl = document.getElementById('val-cond-broken-lbl');
+    const condLostLbl = document.getElementById('val-cond-lost-lbl');
+    const condDispLbl = document.getElementById('val-cond-disp-lbl');
+
+    if (visGoodPct) visGoodPct.innerText = metrics.goodPct + '% Baik';
+    if (condGood) condGood.style.width = metrics.goodPct + '%';
+    if (condBroken) condBroken.style.width = metrics.brokenPct + '%';
+    if (condLost) condLost.style.width = metrics.lostPct + '%';
+    if (condDisp) condDisp.style.width = metrics.dispPct + '%';
+    if (condRep) condRep.style.width = metrics.repPct + '%';
+
+    if (condGoodLbl) condGoodLbl.innerText = metrics.goodPct + '%';
+    if (condBrokenLbl) condBrokenLbl.innerText = metrics.brokenPct + '%';
+    if (condLostLbl) condLostLbl.innerText = metrics.lostPct + '%';
+    if (condDispLbl) condDispLbl.innerText = metrics.dispPct + '%';
+  }
+
+  function formatRupiahAbbr(num) {
+    if (!num || isNaN(num)) return 'Rp 0';
+    if (num >= 1e12) return 'Rp ' + (num / 1e12).toFixed(2).replace('.', ',') + ' T';
+    if (num >= 1e9) return 'Rp ' + (num / 1e9).toFixed(2).replace('.', ',') + ' M';
+    if (num >= 1e6) return 'Rp ' + (num / 1e6).toFixed(1).replace('.', ',') + ' Jt';
+    return 'Rp ' + Math.round(num).toLocaleString('id-ID');
+  }
+
+  // In-Table Drill Down & Up Controllers
   function validasiDrillDown(key, label) {
     window.validasiTableDrill.level = 2;
     window.validasiTableDrill.selectedKey = key;
     window.validasiTableDrill.selectedLabel = label || key;
     renderValidasiMatrix();
-    const tbl = document.getElementById('table-validasi-matrix-body');
-    if (tbl) tbl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const matrixCard = document.getElementById('table-validasi-matrix');
+    if (matrixCard) matrixCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   }
   window.validasiDrillDown = validasiDrillDown;
 
@@ -10478,46 +10690,52 @@ const PNS_SECTION_TO_DEPT = {
   }
   window.toggleValidasiRowExpand = toggleValidasiRowExpand;
 
-  function enterValidasiStandaloneMode() {
-    document.body.classList.add('validasi-standalone-view');
-    if (typeof navTo === 'function') navTo('view-validasi');
-    const topbar = document.getElementById('validasi-standalone-topbar');
-    if (topbar) topbar.classList.remove('hidden');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-  window.enterValidasiStandaloneMode = enterValidasiStandaloneMode;
+  function switchMatrixGroup(group) {
+    currentMatrixGroup = group;
 
-  function exitValidasiStandaloneMode() {
-    document.body.classList.remove('validasi-standalone-view');
-    const topbar = document.getElementById('validasi-standalone-topbar');
-    if (topbar) topbar.classList.add('hidden');
-  }
-  window.exitValidasiStandaloneMode = exitValidasiStandaloneMode;
+    const btnDept = document.getElementById('btn-val-matrix-dept');
+    const btnLoc = document.getElementById('btn-val-matrix-loc');
+    const thName = document.getElementById('matrix-th-name');
 
-  function copyValidasiReportLink() {
-    try {
-      const url = window.location.origin + window.location.pathname + '?report=validasi';
-      if (navigator.clipboard && navigator.clipboard.writeText) {
-        navigator.clipboard.writeText(url).then(() => {
-          if (typeof Swal !== 'undefined') {
-            Swal.fire({
-              icon: 'success',
-              title: 'Link Laporan Mandiri Tersalin!',
-              html: '<p class="text-xs text-slate-600 mb-2">Gunakan link ini untuk membuka atau membagikan Laporan Validasi langsung tanpa portal navigasi:</p><code class="text-xs bg-slate-100 p-2 rounded block break-all font-mono text-emerald-700">' + escapeHtml(url) + '</code>',
-              confirmButtonText: 'Tutup'
-            });
-          } else {
-            alert('Link Laporan Validasi Tersalin: ' + url);
-          }
-        });
-      } else {
-        prompt('Salin link laporan validasi:', url);
-      }
-    } catch (e) {
-      console.warn('Copy link error:', e);
+    if (group === 'loc') {
+      if (btnLoc) btnLoc.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-2xs transition cursor-pointer flex items-center gap-1.5';
+      if (btnDept) btnDept.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer flex items-center gap-1.5';
+      if (thName) thName.innerText = 'Lokasi Site';
+    } else {
+      if (btnDept) btnDept.className = 'px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-slate-900 shadow-2xs transition cursor-pointer flex items-center gap-1.5';
+      if (btnLoc) btnLoc.className = 'px-3 py-1.5 rounded-lg text-xs font-bold text-slate-600 hover:text-slate-900 transition cursor-pointer flex items-center gap-1.5';
+      if (thName) thName.innerText = 'Departemen';
     }
+
+    validasiDrillUp();
   }
-  window.copyValidasiReportLink = copyValidasiReportLink;
+  window.switchMatrixGroup = switchMatrixGroup;
+
+  function onFilterValidasiReport() {
+    renderValidasiMatrix();
+  }
+  window.onFilterValidasiReport = onFilterValidasiReport;
+
+  function resetValidasiFilters() {
+    const sInp = document.getElementById('val-global-search');
+    const locSel = document.getElementById('val-filter-location');
+    const deptSel = document.getElementById('val-filter-dept');
+    const statSel = document.getElementById('val-filter-status');
+    const kondSel = document.getElementById('val-filter-kondisi');
+
+    if (sInp) sInp.value = '';
+    if (locSel) locSel.value = '';
+    if (deptSel) deptSel.value = '';
+    if (statSel) statSel.value = '';
+    if (kondSel) kondSel.value = '';
+
+    validasiDrillUp();
+    if (window.validasiTableDrill.expandedRowKeys) {
+      window.validasiTableDrill.expandedRowKeys.clear();
+    }
+    renderValidasiMatrix();
+  }
+  window.resetValidasiFilters = resetValidasiFilters;
 
   function drillThroughValidasiToMovement(opts = {}) {
     const params = {
@@ -10533,421 +10751,144 @@ const PNS_SECTION_TO_DEPT = {
   }
   window.drillThroughValidasiToMovement = drillThroughValidasiToMovement;
 
-  function getKelompokBreakdownForGroup(groupType, groupValue) {
-    const allAssets = (typeof getAllNormalizedAssets === 'function') ? getAllNormalizedAssets() : [];
-    const kelompokMap = {};
-
-    allAssets.forEach(a => {
-      let isMatch = false;
-      if (groupType === 'loc') {
-        isMatch = (typeof matchesLocation === 'function') ? matchesLocation(a, groupValue) : (a.locRaw === groupValue || a.loc === groupValue);
-      } else {
-        isMatch = (typeof matchesSectionOrDept === 'function') ? matchesSectionOrDept(a, groupValue) : ((a.rawSec || '').toUpperCase().includes(groupValue.toUpperCase()));
-      }
-      if (!isMatch) return;
-
-      const kelName = a.kel || 'INVENTARIS DAN PERALATAN';
-      if (!kelompokMap[kelName]) {
-        kelompokMap[kelName] = {
-          name: kelName,
-          label: kelName,
-          total: 0,
-          sesuai: 0,
-          tdkSesuai: 0,
-          good: 0,
-          repair: 0,
-          disp: 0,
-          broken: 0,
-          lost: 0,
-          sumStd: 0,
-          sumUmur: 0
-        };
-      }
-      const k = kelompokMap[kelName];
-      k.total++;
-      k.sumStd += (a.std || 0);
-      k.sumUmur += (a.umur || 0);
-
-      const v = (a.statusVerif || '').toUpperCase();
-      if (v.includes('TIDAK') || v.includes('SELISIH')) k.tdkSesuai++;
-      else k.sesuai++;
-
-      const c = (a.kond || '').toUpperCase();
-      if (c.includes('BAIK') || c.includes('GOOD')) k.good++;
-      else if (c.includes('REPAIR') || c.includes('PERBAIKAN')) k.repair++;
-      else if (c.includes('DISPOSAL') || c.includes('AFKIR')) k.disp++;
-      else if (c.includes('BROKEN') || c.includes('RUSAK')) k.broken++;
-      else if (c.includes('LOST') || c.includes('HILANG')) k.lost++;
-      else k.good++;
-    });
-
-    const list = Object.values(kelompokMap).map(k => {
-      k.avgStd = k.total > 0 ? Math.round(k.sumStd / k.total) : 0;
-      k.avgUmur = k.total > 0 ? Math.round(k.sumUmur / k.total) : 0;
-      k.validPct = k.total > 0 ? ((k.sesuai / k.total) * 100).toFixed(1) + '%' : '100%';
-      return k;
-    });
-
-    list.sort((a, b) => b.total - a.total);
-    return list;
-  }
-  window.getKelompokBreakdownForGroup = getKelompokBreakdownForGroup;
-
-  // VALIDASI DRILLDOWN & DRILLTHROUGH ENGINE
-  let currentValidasiDrill = {
-    targetName: '',
-    targetType: 'loc', // 'loc' | 'dept'
-    statusFilter: 'ALL', // 'ALL' | 'SELISIH' | 'SESUAI'
-    searchQuery: '',
-    page: 1,
-    pageSize: 30
-  };
-
   function openValidasiDrill(targetName, targetType) {
-    currentValidasiDrill.targetName = targetName;
-    currentValidasiDrill.targetType = targetType || currentMatrixGroup;
-    currentValidasiDrill.statusFilter = 'ALL';
-    currentValidasiDrill.searchQuery = '';
-    currentValidasiDrill.page = 1;
-
-    const modal = document.getElementById('modal-drilldown-validasi');
-    const titleEl = document.getElementById('val-drill-title');
-    const searchInp = document.getElementById('val-drill-search');
-    if (searchInp) searchInp.value = '';
-
-    const label = (currentValidasiDrill.targetType === 'loc')
-      ? ('Lokasi: ' + targetName)
-      : ('Departemen: ' + targetName);
-
-    if (titleEl) titleEl.innerText = 'Rincian Drill-Down Validasi Fisik: ' + label;
-
-    renderValidasiDrillTable();
-    if (modal) modal.classList.remove('hidden');
+    drillThroughValidasiToMovement({
+      [targetType === 'loc' ? 'location' : 'section']: targetName,
+      filterLabel: targetName
+    });
   }
   window.openValidasiDrill = openValidasiDrill;
 
-  function closeValidasiDrillModal() {
-    const modal = document.getElementById('modal-drilldown-validasi');
-    if (modal) modal.classList.add('hidden');
-  }
-  window.closeValidasiDrillModal = closeValidasiDrillModal;
 
-  function setValidasiDrillStatusFilter(status) {
-    currentValidasiDrill.statusFilter = status;
-    currentValidasiDrill.page = 1;
-
-    const tabAll = document.getElementById('val-drill-tab-all');
-    const tabSelisih = document.getElementById('val-drill-tab-selisih');
-    const tabSesuai = document.getElementById('val-drill-tab-sesuai');
-
-    const activeCls = 'px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 text-white transition cursor-pointer shadow-xs';
-    const inactiveCls = 'px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer';
-
-    if (tabAll) tabAll.className = (status === 'ALL') ? activeCls : inactiveCls;
-    if (tabSelisih) tabSelisih.className = (status === 'SELISIH') ? 'px-2.5 py-1 text-xs font-semibold rounded bg-rose-600 text-white transition cursor-pointer shadow-xs' : 'px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50 transition cursor-pointer';
-    if (tabSesuai) tabSesuai.className = (status === 'SESUAI') ? 'px-2.5 py-1 text-xs font-semibold rounded bg-emerald-600 text-white transition cursor-pointer shadow-xs' : 'px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50 transition cursor-pointer';
-
-    renderValidasiDrillTable();
-  }
-  window.setValidasiDrillStatusFilter = setValidasiDrillStatusFilter;
-
-  function getValidasiDrillItems() {
-    // Sumber 34.266 master assets
-    const rawRows = window.PNS_ALL_ASSETS_ROWS || [];
-    const tName = currentValidasiDrill.targetName;
-    const isLoc = (currentValidasiDrill.targetType === 'loc');
-    const statusFilter = currentValidasiDrill.statusFilter;
-    const q = (currentValidasiDrill.searchQuery || '').toLowerCase().trim();
-
-    const items = [];
-    let sesuaiCount = 0;
-    let selisihCount = 0;
-
-    for (let i = 0; i < rawRows.length; i++) {
-      const r = rawRows[i];
-      // schema: [0:no, 1:nama, 2:kelompok, 3:kategori, 4:lokasi, 5:kondisi, 6:std, 7:umur, 8:hpp, 9:susut, 10:nbv, 11:verif, 12:section]
-      const loc = String(r[4] || '').trim();
-      const sec = String(r[12] || r[2] || '').trim();
-      const verif = String(r[11] || 'ALOKASI SESUAI').toUpperCase();
-
-      // Check match location / department with universal matchers
-      const matchTarget = !tName
-        ? true
-        : isLoc
-          ? matchesLocation({ location: LOKASI_CODE_FULL_MAP[loc] || loc, lokasi_raw: loc }, tName)
-          : matchesSectionOrDept({ section: sec, department: sec, kode_section: sec }, tName);
-
-      if (!matchTarget) continue;
-
-      const isSelisih = verif.includes('TIDAK') || verif.includes('SELISIH') || verif.includes('BEDA');
-      if (isSelisih) selisihCount++;
-      else sesuaiCount++;
-
-      // Filter by status
-      if (statusFilter === 'SELISIH' && !isSelisih) continue;
-      if (statusFilter === 'SESUAI' && isSelisih) continue;
-
-      // Filter by search query
-      if (q) {
-        const no = String(r[0] || '').toLowerCase();
-        const nm = String(r[1] || '').toLowerCase();
-        const kl = String(r[2] || '').toLowerCase();
-        const kt = String(r[3] || '').toLowerCase();
-        if (!no.includes(q) && !nm.includes(q) && !kl.includes(q) && !kt.includes(q)) continue;
-      }
-
-      items.push({
-        no: r[0] || '-',
-        nama: r[1] || '-',
-        kelompok: r[2] || '-',
-        kategori: r[3] || '-',
-        lokasi: r[4] || '-',
-        kondisi: r[5] || 'Good Condition',
-        hpp: Number(r[8]) || 0,
-        nbv: Number(r[10]) || 0,
-        isSelisih: isSelisih,
-        statusVerif: isSelisih ? 'SELISIH FISIK' : 'SESUAI'
-      });
-    }
-
-    return { items, totalCount: items.length, sesuaiCount, selisihCount };
-  }
-
-  function renderValidasiDrillTable() {
-    const searchInp = document.getElementById('val-drill-search');
-    if (searchInp) currentValidasiDrill.searchQuery = searchInp.value;
-
-    const data = getValidasiDrillItems();
-    const tbody = document.getElementById('val-drill-tbody');
-    const cTotal = document.getElementById('val-drill-count-total');
-    const cSesuai = document.getElementById('val-drill-count-sesuai');
-    const cSelisih = document.getElementById('val-drill-count-selisih');
-    const pInfo = document.getElementById('val-drill-paging-info');
-
-    if (cTotal) cTotal.innerText = (data.sesuaiCount + data.selisihCount).toLocaleString('id-ID') + ' Unit';
-    if (cSesuai) cSesuai.innerText = data.sesuaiCount.toLocaleString('id-ID') + ' Unit';
-    if (cSelisih) cSelisih.innerText = data.selisihCount.toLocaleString('id-ID') + ' Unit';
-
-    if (!tbody) return;
-
-    if (data.items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-8 text-slate-400">Tidak ada aset yang sesuai filter pencarian.</td></tr>';
-      if (pInfo) pInfo.innerText = '0 data ditemukan';
-      return;
-    }
-
-    const pageSize = currentValidasiDrill.pageSize;
-    const startIdx = (currentValidasiDrill.page - 1) * pageSize;
-    const endIdx = Math.min(startIdx + pageSize, data.items.length);
-    const paged = data.items.slice(startIdx, endIdx);
-
-    if (pInfo) {
-      pInfo.innerText = 'Menampilkan ' + (startIdx + 1).toLocaleString('id-ID') + ' - ' + endIdx.toLocaleString('id-ID') + ' dari ' + data.items.length.toLocaleString('id-ID') + ' unit aset';
-    }
-
-    tbody.innerHTML = paged.map(item => {
-      const isGood = item.kondisi.toLowerCase().includes('good');
-      const kondBadge = isGood
-        ? '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800">Good</span>'
-        : '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-amber-100 text-amber-800">' + escapeHtml(item.kondisi) + '</span>';
-
-      const statusBadge = item.isSelisih
-        ? '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-100 text-rose-800 border border-rose-200">Selisih Fisik</span>'
-        : '<span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">Sesuai Alokasi</span>';
-
-      const fmtRp = v => 'Rp ' + Math.round(v).toLocaleString('id-ID');
-
-      return '<tr class="hover:bg-slate-50 transition text-xs border-b border-slate-100">' +
-        '<td class="py-2.5 px-3 font-medium text-sky-700 whitespace-nowrap">' + escapeHtml(item.no) + '</td>' +
-        '<td class="py-2.5 px-3 font-medium text-slate-800 min-w-[180px]">' + escapeHtml(item.nama) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-slate-600 whitespace-nowrap">' + escapeHtml(item.kelompok) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-slate-500 whitespace-nowrap">' + escapeHtml(item.kategori) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-slate-700 whitespace-nowrap">' + escapeHtml(item.lokasi) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' + kondBadge + '</td>' +
-        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' + statusBadge + '</td>' +
-        '<td class="py-2.5 px-3 text-right font-mono text-slate-700 whitespace-nowrap">' + fmtRp(item.nbv) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' +
-          '<button type="button" onclick="closeValidasiDrillModal(); window.drillToAssetDetail(\'' + escapeHtml(item.no) + '\')" class="px-2 py-1 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 text-[10px] font-bold border border-sky-200 transition cursor-pointer">Detail &rarr;</button>' +
-        '</td>' +
-      '</tr>';
-    }).join('');
-  }
-  window.renderValidasiDrillTable = renderValidasiDrillTable;
-
-  function exportValidasiDrillXlsx() {
-    const data = getValidasiDrillItems();
-    if (!data.items || data.items.length === 0) {
-      alert('Tidak ada data untuk diekspor.');
-      return;
-    }
-
-    if (typeof XLSX === 'undefined') {
-      alert('Library SheetJS (Excel) belum selesai dimuat.');
-      return;
-    }
-
-    const tName = currentValidasiDrill.targetName || 'Semua';
-    const rows = data.items.map((it, idx) => ({
-      'No': idx + 1,
-      'Kode Unit': it.no,
-      'Nama Asset': it.nama,
-      'Kelompok Asset': it.kelompok,
-      'Kategori Asset': it.kategori,
-      'Lokasi': it.lokasi,
-      'Kondisi Fisik': it.kondisi,
-      'Status Validasi': it.statusVerif,
-      'Nilai Perolehan (HPP)': it.hpp,
-      'Nilai Buku (NBV)': it.nbv
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(rows);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Drill_Validasi');
-    XLSX.writeFile(wb, 'Drilldown_Validasi_' + tName.replace(/[^a-zA-Z0-9]/g, '_') + '.xlsx');
-  }
-  window.exportValidasiDrillXlsx = exportValidasiDrillXlsx;
-  function valDrillPrevPage() {
-    if (currentValidasiDrill.page > 1) {
-      currentValidasiDrill.page--;
-      renderValidasiDrillTable();
-    }
-  }
-  window.valDrillPrevPage = valDrillPrevPage;
-
-  function valDrillNextPage() {
-    const data = getValidasiDrillItems();
-    const maxPage = Math.ceil(data.items.length / currentValidasiDrill.pageSize) || 1;
-    if (currentValidasiDrill.page < maxPage) {
-      currentValidasiDrill.page++;
-      renderValidasiDrillTable();
-    }
-  }
-  window.valDrillNextPage = valDrillNextPage;
-
-
+  // MAIN MATRIX RENDERER (100% FIT LAYOUT - ZERO HORIZONTAL SCROLL)
   function renderValidasiMatrix() {
     const tbody = document.getElementById('table-validasi-matrix-body');
     const tfoot = document.getElementById('table-validasi-matrix-foot');
     if (!tbody) return;
 
-    const query = (document.getElementById('val-global-search')?.value || '').toLowerCase().trim();
-    const filterLoc = document.getElementById('val-filter-location')?.value || '';
-    const filterDept = document.getElementById('val-filter-dept')?.value || '';
-    const filterStatus = document.getElementById('val-filter-status')?.value || '';
+    // 1. Get filtered assets dynamically
+    const filteredAssets = getFilteredValidasiAssets();
 
-    // Handle Breadcrumb & Controls for In-Table Drill Level 2
-    const drillNavEl = document.getElementById('val-table-drill-nav');
+    // 2. Compute & Update 6 Reactive KPIs & Both Visual Bars
+    const metrics = computeValidasiMetrics(filteredAssets);
+    updateValidasiKpisAndVisuals(metrics);
+
+    // 3. Handle In-Table Drill Navigation (Level 1 <-> Level 2)
+    const drillNav = document.getElementById('val-table-drill-nav');
     const drillParentLabel = document.getElementById('val-drill-parent-label');
     const drillCurrentName = document.getElementById('val-drill-current-name');
 
-    if (window.validasiTableDrill && window.validasiTableDrill.level === 2 && window.validasiTableDrill.selectedKey) {
-      if (drillNavEl) drillNavEl.classList.remove('hidden');
-      if (drillParentLabel) drillParentLabel.innerText = 'Semua ' + (currentMatrixGroup === 'loc' ? 'Lokasi Site' : 'Departemen');
+    if (window.validasiTableDrill.level === 2 && window.validasiTableDrill.selectedKey) {
+      if (drillNav) drillNav.classList.remove('hidden');
+      if (drillParentLabel) drillParentLabel.innerText = 'Semua ' + (currentMatrixGroup === 'loc' ? 'Lokasi' : 'Departemen');
       if (drillCurrentName) drillCurrentName.innerText = (window.validasiTableDrill.selectedLabel || window.validasiTableDrill.selectedKey);
 
-      // Render Level 2: Kelompok Aset breakdown on the table
-      const kelompokRows = getKelompokBreakdownForGroup(currentMatrixGroup, window.validasiTableDrill.selectedKey);
+      // Filter assets for this selected entity in Level 2
+      const targetKey = window.validasiTableDrill.selectedKey;
+      const entityAssets = filteredAssets.filter(a => {
+        if (currentMatrixGroup === 'loc') {
+          return a.locRaw === targetKey || a.loc === targetKey;
+        } else {
+          const aDept = a.deptKey || getDeptKeyForAsset(a.rawSec);
+          return aDept === targetKey || a.rawSec === targetKey;
+        }
+      });
 
-      if (kelompokRows.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="14" class="text-center py-6 text-slate-400">Tidak ada rincian kelompok aset untuk ' + escapeHtml(window.validasiTableDrill.selectedLabel || window.validasiTableDrill.selectedKey) + '.</td></tr>';
+      // Group by Kelompok Aset
+      const kelompokMap = {};
+      entityAssets.forEach(a => {
+        const k = a.kel || 'INVENTARIS DAN PERALATAN';
+        if (!kelompokMap[k]) kelompokMap[k] = [];
+        kelompokMap[k].push(a);
+      });
+
+      const kelompokEntries = Object.keys(kelompokMap).map(kName => {
+        const m = computeValidasiMetrics(kelompokMap[kName]);
+        return { name: kName, ...m };
+      }).sort((a, b) => b.total - a.total);
+
+      if (kelompokEntries.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-slate-400 font-medium">Tidak ada kelompok aset yang cocok dengan filter.</td></tr>';
         if (tfoot) tfoot.innerHTML = '';
         return;
       }
 
-      let totSesuai = 0, totTdkSesuai = 0;
-      let totGood = 0, totRepair = 0, totDisp = 0, totBroken = 0, totLost = 0, totAll = 0;
+      tbody.innerHTML = kelompokEntries.map(k => {
+        const safeKey = escapeHtml(targetKey);
+        const safeLabel = escapeHtml(window.validasiTableDrill.selectedLabel || targetKey);
+        const safeKName = escapeHtml(k.name);
 
-      tbody.innerHTML = kelompokRows.map(function(row, idx) {
-        totSesuai += row.sesuai;
-        totTdkSesuai += row.tdkSesuai;
-        totGood += row.good;
-        totRepair += row.repair;
-        totDisp += row.disp;
-        totBroken += row.broken;
-        totLost += row.lost;
-        totAll += row.total;
+        const drillThroughOpts = (currentMatrixGroup === 'loc')
+          ? "{ location: '" + safeKey + "', group: '" + safeKName + "', filterLabel: '" + safeLabel + " - " + safeKName + "' }"
+          : "{ section: '" + safeKey + "', group: '" + safeKName + "', filterLabel: '" + safeLabel + " - " + safeKName + "' }";
 
-        const goodPct = row.total > 0 ? ((row.good / row.total) * 100).toFixed(1) : '0';
-        const brkPct = row.total > 0 ? ((row.broken / row.total) * 100).toFixed(1) : '0';
-        const lostPct = row.total > 0 ? ((row.lost / row.total) * 100).toFixed(1) : '0';
-        const dispPct = row.total > 0 ? ((row.disp / row.total) * 100).toFixed(1) : '0';
-        const repPct = row.total > 0 ? ((row.repair / row.total) * 100).toFixed(1) : '0';
-
-        const safeKey = escapeHtml(window.validasiTableDrill.selectedKey);
-        const safeLabel = escapeHtml(window.validasiTableDrill.selectedLabel || window.validasiTableDrill.selectedKey);
-        const safeGroup = escapeHtml(row.name);
-
-        const filterParam = (currentMatrixGroup === 'loc')
-          ? "{ location: '" + safeKey + "', group: '" + safeGroup + "', filterLabel: '" + safeLabel + " - " + safeGroup + "' }"
-          : "{ section: '" + safeKey + "', group: '" + safeGroup + "', filterLabel: '" + safeLabel + " - " + safeGroup + "' }";
-
-        return '<tr class="hover:bg-emerald-50/40 transition text-xs border-b border-slate-100 group">' +
-          '<td class="py-2.5 px-3 whitespace-nowrap min-w-[180px] font-medium text-slate-800">' +
+        return '<tr class="hover:bg-emerald-50/30 transition text-xs border-b border-slate-100">' +
+          '<!-- Col 1: Name -->' +
+          '<td class="py-2.5 px-3.5 truncate">' +
             '<div class="flex items-center gap-2">' +
-              '<span class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-800 font-bold text-xs flex items-center justify-center shrink-0">' + (idx + 1) + '</span>' +
-              '<div>' +
-                '<span class="font-bold text-slate-900 block">' + escapeHtml(row.name) + '</span>' +
+              '<i class="ph-bold ph-folder text-emerald-600 text-sm shrink-0"></i>' +
+              '<div class="truncate">' +
+                '<span class="font-bold text-slate-900 block truncate" title="' + safeKName + '">' + safeKName + '</span>' +
                 '<span class="text-[10px] text-slate-400">Level 2: Kelompok Aset</span>' +
               '</div>' +
             '</div>' +
           '</td>' +
-          '<td class="py-2.5 px-3 whitespace-nowrap">' +
-            '<div class="flex items-center gap-2">' +
-              '<div class="w-14 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shadow-2xs">' +
-                '<div class="bg-emerald-500 h-full rounded-full" style="width: ' + (row.validPct === '100%' ? '100%' : '99.7%') + '"></div>' +
-                (row.tdkSesuai > 0 ? '<div class="bg-rose-500 h-full" style="width: 0.3%"></div>' : '') +
+          '<!-- Col 2: Akurasi Validasi -->' +
+          '<td class="py-2.5 px-2.5">' +
+            '<div class="flex items-center gap-1.5">' +
+              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shrink-0 shadow-2xs">' +
+                '<div class="bg-emerald-500 h-full rounded-full" style="width: ' + k.akurasiPct + '%"></div>' +
+                (k.tdkSesuai > 0 ? '<div class="bg-rose-500 h-full" style="width: ' + (100 - parseFloat(k.akurasiPct)) + '%"></div>' : '') +
               '</div>' +
-              '<span class="num-tabular font-semibold text-[11px] ' + (row.validPct === '100%' ? 'text-emerald-700' : 'text-amber-700') + '">' + escapeHtml(row.validPct) + '</span>' +
+              '<span class="num-tabular font-bold text-[11px] ' + (k.akurasiPct === '100.0' ? 'text-emerald-700' : 'text-amber-700') + '">' + k.akurasiPct + '%</span>' +
             '</div>' +
           '</td>' +
-          '<td class="py-2.5 px-3 whitespace-nowrap">' +
-            '<div class="flex items-center gap-2" title="Baik ' + goodPct + '% | Rusak ' + brkPct + '% | Hilang ' + lostPct + '%">' +
-              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shadow-2xs">' +
-                '<div class="bg-emerald-500 h-full" style="width: ' + goodPct + '%"></div>' +
-                '<div class="bg-amber-500 h-full" style="width: ' + brkPct + '%"></div>' +
-                '<div class="bg-slate-400 h-full" style="width: ' + lostPct + '%"></div>' +
-                '<div class="bg-rose-500 h-full" style="width: ' + dispPct + '%"></div>' +
-                '<div class="bg-blue-500 h-full" style="width: ' + repPct + '%"></div>' +
+          '<!-- Col 3: Distribusi Kondisi -->' +
+          '<td class="py-2.5 px-2.5">' +
+            '<div class="flex items-center gap-1.5" title="Baik ' + k.goodPct + '% | Rusak ' + k.brokenPct + '% | Hilang ' + k.lostPct + '%">' +
+              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shrink-0 shadow-2xs">' +
+                '<div class="bg-emerald-500 h-full" style="width: ' + k.goodPct + '%"></div>' +
+                '<div class="bg-amber-500 h-full" style="width: ' + k.brokenPct + '%"></div>' +
+                '<div class="bg-slate-400 h-full" style="width: ' + k.lostPct + '%"></div>' +
+                '<div class="bg-rose-500 h-full" style="width: ' + k.dispPct + '%"></div>' +
+                '<div class="bg-blue-500 h-full" style="width: ' + k.repPct + '%"></div>' +
               '</div>' +
-              '<span class="text-[10px] text-slate-400 num-tabular">' + goodPct + '%</span>' +
+              '<span class="text-[10px] font-semibold text-slate-500 num-tabular truncate">' + k.goodPct + '% Baik</span>' +
             '</div>' +
           '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + row.avgStd + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + row.avgUmur + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold text-emerald-700 bg-emerald-50/40">' + row.sesuai.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold ' + (row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/50' : 'text-slate-400') + '">' + (row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-700">' + row.good.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-blue-700">' + row.repair.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-rose-700">' + row.disp.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-amber-700">' + row.broken.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-500">' + row.lost.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-3 text-right whitespace-nowrap num-tabular font-bold text-slate-900 bg-slate-100/60">' + row.total.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-center whitespace-nowrap">' +
-            '<button type="button" onclick="window.drillThroughValidasiToMovement(' + filterParam + ')" class="px-2.5 py-1 rounded-md bg-emerald-600 text-white hover:bg-emerald-700 text-[11px] font-bold shadow-2xs transition flex items-center gap-1 cursor-pointer mx-auto" title="Buka Detail Asset di Sheet Baru (Drill Through)">' +
-              '<i class="ph-bold ph-table text-xs"></i> <span>Drill Through ➔</span>' +
+          '<!-- Col 4: Sesuai -->' +
+          '<td class="py-2.5 px-2.5 text-right font-bold text-emerald-700 bg-emerald-50/30 num-tabular">' +
+            k.sesuai.toLocaleString('id-ID') +
+          '</td>' +
+          '<!-- Col 5: Selisih -->' +
+          '<td class="py-2.5 px-2.5 text-right font-bold ' + (k.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/40' : 'text-slate-400') + ' num-tabular">' +
+            (k.tdkSesuai > 0 ? k.tdkSesuai.toLocaleString('id-ID') : '-') +
+          '</td>' +
+          '<!-- Col 6: Total -->' +
+          '<td class="py-2.5 px-2.5 text-right font-black text-slate-900 bg-slate-100/60 num-tabular">' +
+            k.total.toLocaleString('id-ID') +
+          '</td>' +
+          '<!-- Col 7: Aksi -->' +
+          '<td class="py-2.5 px-2.5 text-center">' +
+            '<button type="button" onclick="window.drillThroughValidasiToMovement(' + drillThroughOpts + ')" class="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-2xs transition flex items-center gap-1 mx-auto cursor-pointer" title="Buka Detail Asset di Sheet Baru (Drill Through)">' +
+              '<span>Sheet</span> <i class="ph-bold ph-arrow-right text-[10px]"></i>' +
             '</button>' +
           '</td>' +
         '</tr>';
       }).join('');
 
       if (tfoot) {
+        const entMetrics = computeValidasiMetrics(entityAssets);
         tfoot.innerHTML = 
-          '<tr class="bg-emerald-50 text-slate-800 font-bold border-t-2 border-emerald-300">' +
-            '<td class="py-3 px-3 uppercase tracking-wider whitespace-nowrap">Total Kelompok (' + kelompokRows.length + ' Kelompok)</td>' +
-            '<td class="py-3 px-3 text-left whitespace-nowrap num-tabular text-emerald-800 font-bold">' + ((totSesuai / (totAll || 1)) * 100).toFixed(1) + '%</td>' +
-            '<td class="py-3 px-3 text-left whitespace-nowrap num-tabular text-slate-600 text-[11px]">' + ((totGood / (totAll || 1)) * 100).toFixed(1) + '% Baik</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">-</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">-</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-emerald-800 bg-emerald-100/50">' + totSesuai.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800 bg-rose-100/50">' + (totTdkSesuai > 0 ? totTdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-800">' + totGood.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-blue-800">' + totRepair.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800">' + totDisp.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-amber-800">' + totBroken.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-700">' + totLost.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-3 text-right whitespace-nowrap num-tabular text-slate-900 bg-slate-200/70 font-bold">' + totAll.toLocaleString('id-ID') + '</td>' +
-            '<td class="py-3 px-2 text-center">' +
-              '<button type="button" onclick="window.validasiDrillUp()" class="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 cursor-pointer">' +
+          '<tr class="bg-emerald-50 text-slate-800 font-bold border-t-2 border-emerald-300 text-xs">' +
+            '<td class="py-3 px-3.5 uppercase tracking-wider truncate">Total (' + kelompokEntries.length + ' Kelompok)</td>' +
+            '<td class="py-3 px-2.5 text-emerald-800 font-bold num-tabular">' + entMetrics.akurasiPct + '% Sesuai</td>' +
+            '<td class="py-3 px-2.5 text-slate-600 text-[11px] font-semibold num-tabular">' + entMetrics.goodPct + '% Baik</td>' +
+            '<td class="py-3 px-2.5 text-right font-bold text-emerald-800 num-tabular">' + entMetrics.sesuai.toLocaleString('id-ID') + '</td>' +
+            '<td class="py-3 px-2.5 text-right font-bold text-rose-800 num-tabular">' + (entMetrics.tdkSesuai > 0 ? entMetrics.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
+            '<td class="py-3 px-2.5 text-right font-black text-slate-900 bg-emerald-100/60 num-tabular">' + entMetrics.total.toLocaleString('id-ID') + '</td>' +
+            '<td class="py-3 px-2.5 text-center">' +
+              '<button type="button" onclick="validasiDrillUp()" class="px-2 py-0.5 rounded text-[10px] font-bold bg-white text-slate-700 border border-slate-300 hover:bg-slate-100 cursor-pointer shadow-2xs">' +
                 '^ Drill Up' +
               '</button>' +
             '</td>' +
@@ -10957,166 +10898,174 @@ const PNS_SECTION_TO_DEPT = {
     }
 
     // LEVEL 1: Main Matrix (Departemen / Lokasi)
-    if (drillNavEl) drillNavEl.classList.add('hidden');
+    if (drillNav) drillNav.classList.add('hidden');
 
-    const sourceData = (currentMatrixGroup === 'loc')
-      ? REAL_LOCATIONS_MATRIX.filter(function(item) { return item.name !== 'API_PENDING'; })
-      : REAL_DEPTS_MATRIX.filter(function(item) { return item.name !== 'API_PENDING'; });
+    // Group filtered assets by Dept or Location
+    const configList = (currentMatrixGroup === 'loc') ? VALIDASI_LOCS_CONFIG : VALIDASI_DEPTS_CONFIG;
 
-    const filtered = sourceData.filter(function(item) {
-      if (currentMatrixGroup === 'loc' && filterLoc && item.name !== filterLoc) return false;
-      if (currentMatrixGroup === 'dept' && filterDept && item.name !== filterDept) return false;
-      if (filterStatus === 'SESUAI' && item.sesuai === 0) return false;
-      if (filterStatus === 'TIDAK SESUAI' && item.tdkSesuai === 0) return false;
-      if (filterStatus === 'BELUM VERIFIKASI' && item.belum === 0) return false;
-      if (query && !item.name.toLowerCase().includes(query) && !(item.label || '').toLowerCase().includes(query)) return false;
-      return true;
+    const groupMap = {};
+    configList.forEach(c => {
+      groupMap[c.key] = { config: c, assets: [] };
     });
 
-    if (filtered.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="14" class="text-center py-6 text-slate-400">Tidak ada data yang cocok dengan filter saat ini.</td></tr>';
+    filteredAssets.forEach(a => {
+      const gKey = (currentMatrixGroup === 'loc')
+        ? (a.locRaw || 'CO')
+        : (a.deptKey || getDeptKeyForAsset(a.rawSec));
+
+      if (groupMap[gKey]) {
+        groupMap[gKey].assets.push(a);
+      } else {
+        // fallback
+        const fbKey = configList[0].key;
+        if (groupMap[fbKey]) groupMap[fbKey].assets.push(a);
+      }
+    });
+
+    const rowsData = configList.map(c => {
+      const gAssets = groupMap[c.key]?.assets || [];
+      const m = computeValidasiMetrics(gAssets);
+      return { config: c, assets: gAssets, ...m };
+    }).filter(r => r.total > 0).sort((a, b) => b.total - a.total);
+
+    if (rowsData.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-slate-400 font-medium">Tidak ada data aset yang cocok dengan filter saat ini.</td></tr>';
       if (tfoot) tfoot.innerHTML = '';
       return;
     }
 
-    let totSesuai = 0, totTdkSesuai = 0, totBelum = 0;
-    let totGood = 0, totRepair = 0, totDisp = 0, totBroken = 0, totLost = 0, totAll = 0;
-
     const rowsHtml = [];
 
-    filtered.forEach(function(row) {
-      totSesuai += row.sesuai;
-      totTdkSesuai += row.tdkSesuai;
-      totBelum += row.belum;
-      totGood += row.good;
-      totRepair += row.repair;
-      totDisp += row.disp;
-      totBroken += row.broken;
-      totLost += row.lost;
-      totAll += row.total;
+    rowsData.forEach(row => {
+      const isExpanded = window.validasiTableDrill.expandedRowKeys && window.validasiTableDrill.expandedRowKeys.has(row.config.key);
+      const safeKey = escapeHtml(row.config.key);
+      const safeLabel = escapeHtml(row.config.label || row.config.key);
 
-      const isExpanded = window.validasiTableDrill && window.validasiTableDrill.expandedRowKeys && window.validasiTableDrill.expandedRowKeys.has(row.name);
-      const safeRowName = escapeHtml(row.name);
-      const safeRowLabel = escapeHtml(row.label || row.name);
-
-      const expandToggleBtn = '<button type="button" onclick="window.toggleValidasiRowExpand(\'' + safeRowName + '\')" class="w-5 h-5 rounded flex items-center justify-center font-bold text-xs shrink-0 transition cursor-pointer ' +
+      const expandToggleBtn = '<button type="button" onclick="window.toggleValidasiRowExpand(\'' + safeKey + '\')" class="w-5 h-5 rounded flex items-center justify-center font-bold text-xs shrink-0 transition cursor-pointer ' +
         (isExpanded ? 'bg-emerald-600 text-white shadow-2xs' : 'bg-slate-200 text-slate-700 hover:bg-slate-300') + '" title="' +
         (isExpanded ? 'Tutup Rincian Kelompok' : 'Buka Rincian Kelompok Langsung di Tabel') + '">' +
         (isExpanded ? '−' : '+') +
       '</button>';
 
-      const nameLabel = '<div class="flex items-center gap-2">' +
-        expandToggleBtn +
-        '<div>' +
-          '<span class="font-bold text-slate-900 group-hover:text-emerald-700 transition cursor-pointer" onclick="window.validasiDrillDown(\'' + safeRowName + '\', \'' + safeRowLabel + '\')">' +
-            safeRowLabel +
-          '</span>' +
-        '</div>' +
-      '</div>';
-
-      const goodPct = row.total > 0 ? ((row.good / row.total) * 100).toFixed(1) : '0';
-      const brkPct = row.total > 0 ? ((row.broken / row.total) * 100).toFixed(1) : '0';
-      const lostPct = row.total > 0 ? ((row.lost / row.total) * 100).toFixed(1) : '0';
-      const dispPct = row.total > 0 ? ((row.disp / row.total) * 100).toFixed(1) : '0';
-      const repPct = row.total > 0 ? ((row.repair / row.total) * 100).toFixed(1) : '0';
-
+      const drillDownCall = "window.validasiDrillDown('" + safeKey + "', '" + safeLabel + "')";
       const drillThroughCall = (currentMatrixGroup === 'loc')
-        ? "window.drillThroughValidasiToMovement({ location: '" + safeRowName + "', filterLabel: '" + safeRowLabel + "' })"
-        : "window.drillThroughValidasiToMovement({ section: '" + safeRowName + "', filterLabel: '" + safeRowLabel + "' })";
-
-      const drillDownCall = "window.validasiDrillDown('" + safeRowName + "', '" + safeRowLabel + "')";
+        ? "window.drillThroughValidasiToMovement({ location: '" + safeKey + "', filterLabel: '" + safeLabel + "' })"
+        : "window.drillThroughValidasiToMovement({ section: '" + safeKey + "', filterLabel: '" + safeLabel + "' })";
 
       rowsHtml.push(
-        '<tr class="hover:bg-slate-50/80 transition text-xs border-b border-slate-100 group ' + (isExpanded ? 'bg-emerald-50/20' : '') + '">' +
-          '<td class="py-2.5 px-3 whitespace-nowrap min-w-[170px] font-medium text-slate-800">' +
-            nameLabel +
-          '</td>' +
-          '<!-- SPARKLINE CONDITIONAL PERSENTASE VALIDASI -->' +
-          '<td class="py-2.5 px-3 whitespace-nowrap">' +
+        '<tr class="hover:bg-slate-50/80 transition text-xs border-b border-slate-100 ' + (isExpanded ? 'bg-emerald-50/20' : '') + '">' +
+          '<!-- Col 1: Name -->' +
+          '<td class="py-2.5 px-3.5 truncate">' +
             '<div class="flex items-center gap-2">' +
-              '<div class="w-14 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shadow-2xs">' +
-                '<div class="bg-emerald-500 h-full rounded-full" style="width: ' + (row.validPct === '100%' ? '100%' : '99.7%') + '"></div>' +
-                (row.tdkSesuai > 0 ? '<div class="bg-rose-500 h-full" style="width: 0.3%"></div>' : '') +
+              expandToggleBtn +
+              '<div class="truncate cursor-pointer" onclick="' + drillDownCall + '">' +
+                '<span class="font-bold text-slate-900 hover:text-emerald-700 transition block truncate" title="' + safeLabel + '">' +
+                  safeLabel +
+                '</span>' +
               '</div>' +
-              '<span class="num-tabular font-semibold text-[11px] ' + (row.validPct === '100%' ? 'text-emerald-700' : 'text-amber-700') + '">' + escapeHtml(row.validPct) + '</span>' +
             '</div>' +
           '</td>' +
-          '<!-- STACKED SPARKLINE KONDISI FISIK -->' +
-          '<td class="py-2.5 px-3 whitespace-nowrap">' +
-            '<div class="flex items-center gap-2" title="Kondisi: Baik ' + goodPct + '% | Rusak ' + brkPct + '% | Hilang ' + lostPct + '% | Disposal ' + dispPct + '%">' +
-              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shadow-2xs">' +
-                '<div class="bg-emerald-500 h-full" style="width: ' + goodPct + '%"></div>' +
-                '<div class="bg-amber-500 h-full" style="width: ' + brkPct + '%"></div>' +
-                '<div class="bg-slate-400 h-full" style="width: ' + lostPct + '%"></div>' +
-                '<div class="bg-rose-500 h-full" style="width: ' + dispPct + '%"></div>' +
-                '<div class="bg-blue-500 h-full" style="width: ' + repPct + '%"></div>' +
+          '<!-- Col 2: Akurasi Validasi -->' +
+          '<td class="py-2.5 px-2.5">' +
+            '<div class="flex items-center gap-1.5">' +
+              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shrink-0 shadow-2xs">' +
+                '<div class="bg-emerald-500 h-full rounded-full" style="width: ' + row.akurasiPct + '%"></div>' +
+                (row.tdkSesuai > 0 ? '<div class="bg-rose-500 h-full" style="width: ' + (100 - parseFloat(row.akurasiPct)) + '%"></div>' : '') +
               '</div>' +
-              '<span class="text-[10px] text-slate-400 num-tabular">' + goodPct + '%</span>' +
+              '<span class="num-tabular font-bold text-[11px] ' + (row.akurasiPct === '100.0' ? 'text-emerald-700' : 'text-amber-700') + '">' + row.akurasiPct + '%</span>' +
             '</div>' +
           '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + row.avgStd + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + row.avgUmur + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold text-emerald-700 bg-emerald-50/40">' + row.sesuai.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular font-semibold ' + (row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/50' : 'text-slate-400') + '">' + (row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-700">' + row.good.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-blue-700">' + row.repair.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-rose-700">' + row.disp.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-amber-700">' + row.broken.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-right whitespace-nowrap num-tabular text-slate-500">' + row.lost.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-3 text-right whitespace-nowrap num-tabular font-semibold text-slate-900 bg-slate-100/60">' + row.total.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-2.5 px-2 text-center whitespace-nowrap">' +
-            '<div class="flex items-center gap-1.5 justify-center">' +
-              '<!-- In-Table Drill Down Button -->' +
-              '<button type="button" onclick="' + drillDownCall + '" class="px-2 py-1 rounded bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 text-[11px] font-bold transition cursor-pointer flex items-center gap-1 shadow-2xs" title="Drill Down Tetap Pada Tabel (Buka Level Kelompok)">' +
-                '<i class="ph-bold ph-arrow-down text-xs text-emerald-600"></i> Drill Down' +
+          '<!-- Col 3: Distribusi Kondisi -->' +
+          '<td class="py-2.5 px-2.5">' +
+            '<div class="flex items-center gap-1.5" title="Baik ' + row.goodPct + '% | Rusak ' + row.brokenPct + '% | Hilang ' + row.lostPct + '%">' +
+              '<div class="w-16 bg-slate-100 rounded-full h-1.5 overflow-hidden flex shrink-0 shadow-2xs">' +
+                '<div class="bg-emerald-500 h-full" style="width: ' + row.goodPct + '%"></div>' +
+                '<div class="bg-amber-500 h-full" style="width: ' + row.brokenPct + '%"></div>' +
+                '<div class="bg-slate-400 h-full" style="width: ' + row.lostPct + '%"></div>' +
+                '<div class="bg-rose-500 h-full" style="width: ' + row.dispPct + '%"></div>' +
+                '<div class="bg-blue-500 h-full" style="width: ' + row.repPct + '%"></div>' +
+              '</div>' +
+              '<span class="text-[10px] font-semibold text-slate-500 num-tabular truncate">' + row.goodPct + '% Baik</span>' +
+            '</div>' +
+          '</td>' +
+          '<!-- Col 4: Sesuai -->' +
+          '<td class="py-2.5 px-2.5 text-right font-bold text-emerald-700 bg-emerald-50/30 num-tabular">' +
+            row.sesuai.toLocaleString('id-ID') +
+          '</td>' +
+          '<!-- Col 5: Selisih -->' +
+          '<td class="py-2.5 px-2.5 text-right font-bold ' + (row.tdkSesuai > 0 ? 'text-rose-700 bg-rose-50/40' : 'text-slate-400') + ' num-tabular">' +
+            (row.tdkSesuai > 0 ? row.tdkSesuai.toLocaleString('id-ID') : '-') +
+          '</td>' +
+          '<!-- Col 6: Total -->' +
+          '<td class="py-2.5 px-2.5 text-right font-black text-slate-900 bg-slate-100/60 num-tabular">' +
+            row.total.toLocaleString('id-ID') +
+          '</td>' +
+          '<!-- Col 7: Aksi -->' +
+          '<td class="py-2.5 px-2.5 text-center">' +
+            '<div class="flex items-center gap-1 justify-center">' +
+              '<button type="button" onclick="' + drillDownCall + '" class="p-1 rounded-md bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition cursor-pointer shadow-2xs" title="Drill Down di Tabel">' +
+                '<i class="ph-bold ph-arrow-down text-xs text-emerald-600"></i>' +
               '</button>' +
-              '<!-- Drill Through Button to Sheet Detail -->' +
-              '<button type="button" onclick="' + drillThroughCall + '" class="px-2 py-1 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold transition cursor-pointer flex items-center gap-1 shadow-2xs" title="Drill Through ke Sheet Baru / View Detail Aset">' +
-                '<i class="ph-bold ph-table text-xs"></i> Drill Through ➔' +
+              '<button type="button" onclick="' + drillThroughCall + '" class="px-1.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold shadow-2xs transition flex items-center gap-0.5 cursor-pointer" title="Drill Through ke Sheet Detail">' +
+                '<span>Sheet</span> <i class="ph-bold ph-arrow-right text-[9px]"></i>' +
               '</button>' +
             '</div>' +
           '</td>' +
         '</tr>'
       );
 
-      // If this row is accordion-expanded in-place, render child rows
+      // Render In-Place Accordion Child Rows
       if (isExpanded) {
-        const childKelompoks = getKelompokBreakdownForGroup(currentMatrixGroup, row.name);
-        childKelompoks.forEach(function(k) {
-          const cGoodPct = k.total > 0 ? ((k.good / k.total) * 100).toFixed(1) : '0';
+        const kelompokMap = {};
+        row.assets.forEach(a => {
+          const k = a.kel || 'INVENTARIS DAN PERALATAN';
+          if (!kelompokMap[k]) kelompokMap[k] = [];
+          kelompokMap[k].push(a);
+        });
+
+        const kList = Object.keys(kelompokMap).map(kName => {
+          const km = computeValidasiMetrics(kelompokMap[kName]);
+          return { name: kName, ...km };
+        }).sort((a, b) => b.total - a.total);
+
+        kList.forEach(k => {
           const safeKName = escapeHtml(k.name);
           const cDrillThrough = (currentMatrixGroup === 'loc')
-            ? "window.drillThroughValidasiToMovement({ location: '" + safeRowName + "', group: '" + safeKName + "', filterLabel: '" + safeRowLabel + " - " + safeKName + "' })"
-            : "window.drillThroughValidasiToMovement({ section: '" + safeRowName + "', group: '" + safeKName + "', filterLabel: '" + safeRowLabel + " - " + safeKName + "' })";
+            ? "window.drillThroughValidasiToMovement({ location: '" + safeKey + "', group: '" + safeKName + "', filterLabel: '" + safeLabel + " - " + safeKName + "' })"
+            : "window.drillThroughValidasiToMovement({ section: '" + safeKey + "', group: '" + safeKName + "', filterLabel: '" + safeLabel + " - " + safeKName + "' })";
 
           rowsHtml.push(
-            '<tr class="bg-emerald-50/25 hover:bg-emerald-50/50 transition text-xs border-b border-emerald-100/60 font-normal">' +
-              '<td class="py-2 pl-9 pr-3 whitespace-nowrap font-medium text-slate-700">' +
-                '<div class="flex items-center gap-1.5">' +
+            '<tr class="bg-emerald-50/20 hover:bg-emerald-50/40 transition text-xs border-b border-emerald-100/50">' +
+              '<!-- Col 1: Indented Name -->' +
+              '<td class="py-2 pl-9 pr-3.5 truncate">' +
+                '<div class="flex items-center gap-1.5 truncate">' +
                   '<i class="ph-bold ph-arrow-elbow-down-right text-emerald-600 text-xs shrink-0"></i>' +
-                  '<span class="text-slate-800 font-semibold">' + safeKName + '</span>' +
+                  '<span class="text-slate-800 font-semibold truncate" title="' + safeKName + '">' + safeKName + '</span>' +
                 '</div>' +
               '</td>' +
-              '<td class="py-2 px-3 whitespace-nowrap">' +
-                '<div class="flex items-center gap-2">' +
-                  '<span class="num-tabular font-medium text-[11px] text-emerald-700">' + escapeHtml(k.validPct) + '</span>' +
-                '</div>' +
+              '<!-- Col 2: Akurasi -->' +
+              '<td class="py-2 px-2.5">' +
+                '<span class="num-tabular font-medium text-[11px] text-emerald-700">' + k.akurasiPct + '%</span>' +
               '</td>' +
-              '<td class="py-2 px-3 whitespace-nowrap">' +
-                '<span class="text-[10px] text-slate-500 num-tabular">' + cGoodPct + '% Baik</span>' +
+              '<!-- Col 3: Kondisi -->' +
+              '<td class="py-2 px-2.5 truncate">' +
+                '<span class="text-[10px] text-slate-500 num-tabular truncate">' + k.goodPct + '% Baik</span>' +
               '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-slate-500">' + k.avgStd + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-slate-500">' + k.avgUmur + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-emerald-700 font-medium">' + k.sesuai.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular ' + (k.tdkSesuai > 0 ? 'text-rose-600 font-semibold' : 'text-slate-300') + '">' + (k.tdkSesuai > 0 ? k.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-slate-600">' + k.good.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-blue-600">' + k.repair.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-rose-600">' + k.disp.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-amber-600">' + k.broken.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-right whitespace-nowrap num-tabular text-slate-400">' + k.lost.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-3 text-right whitespace-nowrap num-tabular font-semibold text-slate-800">' + k.total.toLocaleString('id-ID') + '</td>' +
-              '<td class="py-2 px-2 text-center whitespace-nowrap">' +
-                '<button type="button" onclick="' + cDrillThrough + '" class="px-2 py-0.5 rounded bg-white hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-300 text-[10px] font-bold transition shadow-2xs flex items-center gap-1 mx-auto cursor-pointer" title="Drill Through ke Sheet Baru">' +
+              '<!-- Col 4: Sesuai -->' +
+              '<td class="py-2 px-2.5 text-right font-medium text-emerald-700 num-tabular">' +
+                k.sesuai.toLocaleString('id-ID') +
+              '</td>' +
+              '<!-- Col 5: Selisih -->' +
+              '<td class="py-2 px-2.5 text-right ' + (k.tdkSesuai > 0 ? 'text-rose-600 font-bold' : 'text-slate-300') + ' num-tabular">' +
+                (k.tdkSesuai > 0 ? k.tdkSesuai.toLocaleString('id-ID') : '-') +
+              '</td>' +
+              '<!-- Col 6: Total -->' +
+              '<td class="py-2 px-2.5 text-right font-semibold text-slate-800 num-tabular">' +
+                k.total.toLocaleString('id-ID') +
+              '</td>' +
+              '<!-- Col 7: Aksi -->' +
+              '<td class="py-2 px-2.5 text-center">' +
+                '<button type="button" onclick="' + cDrillThrough + '" class="px-2 py-0.5 rounded bg-white hover:bg-emerald-600 hover:text-white text-emerald-700 border border-emerald-300 text-[10px] font-bold transition shadow-2xs flex items-center gap-1 mx-auto cursor-pointer" title="Drill Through ke Sheet Detail">' +
                   '<span>Detail</span> ➔' +
                 '</button>' +
               '</td>' +
@@ -11128,28 +11077,35 @@ const PNS_SECTION_TO_DEPT = {
 
     tbody.innerHTML = rowsHtml.join('');
 
+    // 4. Update TFOOT Total Row
     if (tfoot) {
       tfoot.innerHTML = 
-        '<tr class="bg-slate-50 text-slate-700 font-semibold border-t-2 border-slate-300">' +
-          '<td class="py-3 px-3 uppercase tracking-wider whitespace-nowrap min-w-[170px]">Total Validasi Master</td>' +
-          '<td class="py-3 px-3 text-left whitespace-nowrap num-tabular text-emerald-700 font-bold">100% (34.254 Unit)</td>' +
-          '<td class="py-3 px-3 text-left whitespace-nowrap num-tabular text-slate-600 text-[11px]">81.4% Baik | 10.7% Rusak</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">9</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-600">7</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-emerald-800 bg-emerald-100/50">' + totSesuai.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800 bg-rose-100/50">' + totTdkSesuai.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-800">' + totGood.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-blue-800">' + totRepair.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-rose-800">' + totDisp.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-amber-800">' + totBroken.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-2 text-right whitespace-nowrap num-tabular text-slate-700">' + totLost.toLocaleString('id-ID') + '</td>' +
-          '<td class="py-3 px-3 text-right whitespace-nowrap num-tabular text-slate-900 bg-slate-200/70 font-bold">' + totAll.toLocaleString('id-ID') + '</td>' +
-          '<td></td>' +
+        '<tr class="bg-slate-100/90 text-slate-900 font-bold border-t-2 border-slate-300 text-xs">' +
+          '<td class="py-3 px-3.5 uppercase tracking-wider truncate">Total Validasi Master</td>' +
+          '<td class="py-3 px-2.5 text-emerald-800 font-bold num-tabular">' + metrics.akurasiPct + '% Sesuai</td>' +
+          '<td class="py-3 px-2.5 text-slate-700 font-semibold text-[11px] num-tabular">' + metrics.goodPct + '% Baik</td>' +
+          '<td class="py-3 px-2.5 text-right font-bold text-emerald-800 num-tabular">' + metrics.sesuai.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-2.5 text-right font-bold text-rose-800 num-tabular">' + (metrics.tdkSesuai > 0 ? metrics.tdkSesuai.toLocaleString('id-ID') : '-') + '</td>' +
+          '<td class="py-3 px-2.5 text-right font-black text-slate-900 bg-slate-200/80 num-tabular">' + metrics.total.toLocaleString('id-ID') + '</td>' +
+          '<td class="py-3 px-2.5 text-center text-slate-400 font-normal text-[10px]">-</td>' +
         '</tr>';
     }
   }
 
-  function renderPerformanceTab() {
+  function renderEnterpriseValidasiReport() {
+    renderValidasiMatrix();
+  }
+
+  function renderValidasiTable() {
+    renderValidasiMatrix();
+  }
+
+  function onSearchValidasi() {
+    renderValidasiMatrix();
+  }
+
+
+    function renderPerformanceTab() {
     // 1. Render Department breakdown table in Tab 2
     const tbodyDept = document.getElementById('table-perf-dept-body');
     if (tbodyDept) {
