@@ -6544,11 +6544,11 @@ const PNS_SECTION_TO_DEPT = {
           </div>
         </div>
 
-        <script>
-          window.onload = function() { window.print(); }
-        </script>
-      </body>
-      </html>
+        <scr' + 'ipt>
+          window.onload = function() { window.print(); };
+        </scr' + 'ipt>
+      </bo' + 'dy>
+      </ht' + 'ml>
     `);
     printWindow.document.close();
   }
