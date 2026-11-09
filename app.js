@@ -1431,7 +1431,7 @@ const PNS_SECTION_TO_DEPT = {
       const activeDomainContainer = (window.PNS_FM_STATE && window.PNS_FM_STATE.app === 'fm') 
         ? document.getElementById('nav-domain-fm') 
         : document.getElementById('nav-domain-am');
-      if (activeDomainContainer) {
+      if (activeDomainContainer && typeof activeDomainContainer.querySelector === 'function') {
         activeBtn = activeDomainContainer.querySelector(`.nav-btn[data-view="${viewId}"]`) || activeDomainContainer.querySelector(`.nav-btn[onclick*="'${viewId}'"]`);
       }
       if (!activeBtn) {
@@ -1439,14 +1439,14 @@ const PNS_SECTION_TO_DEPT = {
       }
     }
 
-    if (activeBtn) {
+    if (activeBtn && activeBtn.classList) {
       activeBtn.classList.add('active');
       // Ensure parent accordion module is open so active item is never hidden
-      const parentGroup = activeBtn.closest('[id^="nav-group-"]');
-      if (parentGroup && parentGroup.classList.contains('hidden')) {
+      const parentGroup = (typeof activeBtn.closest === 'function') ? activeBtn.closest('[id^="nav-group-"]') : null;
+      if (parentGroup && parentGroup.classList && parentGroup.classList.contains('hidden')) {
         parentGroup.classList.remove('hidden');
         const caret = document.getElementById('caret-' + parentGroup.id);
-        if (caret) caret.classList.remove('-rotate-90', 'rotate-180');
+        if (caret && caret.classList) caret.classList.remove('-rotate-90', 'rotate-180');
       }
     }
 
@@ -12836,41 +12836,71 @@ window.updateSingleAssetNote = updateSingleAssetNote;
   const pnsRoomCls = (o, spr) => 'rt ' + (o === 0 ? 'r-kosong' : (o > spr ? 'r-lebih' : (o < spr ? 'r-ada' : 'r-penuh')));
 
   // Switch between AM and FM
-  window.switchAppDomain = function(domain) {
+  function switchAppDomain(domain, skipNav) {
+    if (!window.PNS_FM_STATE) window.PNS_FM_STATE = {};
     window.PNS_FM_STATE.app = domain;
-    document.documentElement.dataset.app = domain;
-    if (document.body) document.body.dataset.app = domain;
+    if (typeof document !== 'undefined') {
+      if (document.documentElement) {
+        if (document.documentElement.dataset) document.documentElement.dataset.app = domain;
+        else if (typeof document.documentElement.setAttribute === 'function') document.documentElement.setAttribute('data-app', domain);
+      }
+      if (document.body) {
+        if (document.body.dataset) document.body.dataset.app = domain;
+        else if (typeof document.body.setAttribute === 'function') document.body.setAttribute('data-app', domain);
+      }
+    }
+    try { if (typeof localStorage !== 'undefined') localStorage.setItem('pns_active_domain', domain); } catch (e) {}
 
     // Toggle Sidebar Nav Group visibility
+    if (typeof document === 'undefined') return;
     const amGroup = document.getElementById('nav-domain-am');
     const fmGroup = document.getElementById('nav-domain-fm');
     const modLabel = document.getElementById('modsw-label');
     const modSub = document.getElementById('modsw-sub');
     const modLogo = document.getElementById('modsw-logo');
+    const segAm = document.getElementById('seg-tab-am');
+    const segFm = document.getElementById('seg-tab-fm');
 
     if (domain === 'fm') {
       if (amGroup) amGroup.classList.add('hidden');
       if (fmGroup) {
         fmGroup.classList.remove('hidden');
-        fmGroup.querySelectorAll('[id^="nav-group-"]').forEach(g => g.classList.remove('hidden'));
+        if (typeof fmGroup.querySelectorAll === 'function') {
+          fmGroup.querySelectorAll('[id^="nav-group-"]').forEach(g => g.classList.remove('hidden'));
+        }
       }
       if (modLabel) modLabel.innerText = 'Facility Management';
       if (modSub) modSub.innerText = 'Hunian & Fasilitas Umum';
       if (modLogo) { modLogo.innerText = 'FM'; modLogo.style.backgroundColor = 'var(--fm-accent)'; }
-      navTo('view-fm-beranda');
+      if (segAm) {
+        segAm.className = 'py-1 px-2 rounded-md transition text-center text-slate-500 hover:text-slate-900 font-medium cursor-pointer';
+      }
+      if (segFm) {
+        segFm.className = 'py-1 px-2 rounded-md transition text-center bg-white text-teal-800 font-bold shadow-xs cursor-pointer ring-1 ring-slate-200';
+      }
+      if (!skipNav && typeof navTo === 'function') navTo('view-fm-beranda');
     } else {
       if (fmGroup) fmGroup.classList.add('hidden');
       if (amGroup) {
         amGroup.classList.remove('hidden');
-        amGroup.querySelectorAll('[id^="nav-group-"]').forEach(g => g.classList.remove('hidden'));
+        if (typeof amGroup.querySelectorAll === 'function') {
+          amGroup.querySelectorAll('[id^="nav-group-"]').forEach(g => g.classList.remove('hidden'));
+        }
       }
       if (modLabel) modLabel.innerText = 'Asset Management';
       if (modSub) modSub.innerText = 'Seluruh Aset Perusahaan';
       if (modLogo) { modLogo.innerText = 'AM'; modLogo.style.backgroundColor = 'var(--am-accent)'; }
-      navTo('view-dashboard');
+      if (segAm) {
+        segAm.className = 'py-1 px-2 rounded-md transition text-center bg-white text-slate-900 font-bold shadow-xs cursor-pointer ring-1 ring-slate-200';
+      }
+      if (segFm) {
+        segFm.className = 'py-1 px-2 rounded-md transition text-center text-slate-500 hover:text-slate-900 font-medium cursor-pointer';
+      }
+      if (!skipNav && typeof navTo === 'function') navTo('view-dashboard');
     }
-    closeModMenu();
-  };
+    if (typeof closeModMenu === 'function') closeModMenu();
+  }
+  window.switchAppDomain = switchAppDomain;
 
   window.toggleModMenu = function() {
     const msm = document.getElementById('modsw-menu');
@@ -14058,23 +14088,37 @@ window.updateSingleAssetNote = updateSingleAssetNote;
 
     try { syncAllFromBackend(false); } catch (e) { console.warn('syncAllFromBackend error:', e); }
 
-    // Deep-Link & Executive Report Route Handler (?view=... / ?report=validasi)
+    // Deep-Link & Executive Report Route Handler (?view=... / ?report=validasi / ?app=fm)
     try {
-      if (typeof window !== 'undefined' && window.location && window.location.search) {
-        const urlParams = new URLSearchParams(window.location.search);
-        const rep = urlParams.get('report');
-        const view = urlParams.get('view');
-        const app = urlParams.get('app');
-        if (app === 'fm' || (view && view.startsWith('view-fm-'))) {
-          switchAppDomain('fm');
-        }
-        if (rep === 'validasi' || view === 'view-validasi') {
-          setTimeout(() => { navTo('view-validasi'); }, 100);
-        } else if (view) {
-          setTimeout(() => { navTo(view); }, 100);
-        }
+      const savedDomain = (typeof localStorage !== 'undefined') ? localStorage.getItem('pns_active_domain') : null;
+      const urlParams = (typeof window !== 'undefined' && window.location && window.location.search) ? new URLSearchParams(window.location.search) : null;
+      const rep = urlParams ? urlParams.get('report') : null;
+      const view = urlParams ? urlParams.get('view') : null;
+      const app = urlParams ? (urlParams.get('app') || urlParams.get('domain')) : null;
+
+      let initDomain = 'am';
+      if (app === 'fm' || (view && view.startsWith('view-fm-'))) {
+        initDomain = 'fm';
+      } else if (app === 'am') {
+        initDomain = 'am';
+      } else if (savedDomain === 'fm') {
+        initDomain = 'fm';
       }
-    } catch (e) {}
+
+      switchAppDomain(initDomain, true);
+
+      if (rep === 'validasi' || view === 'view-validasi') {
+        setTimeout(() => { navTo('view-validasi'); }, 100);
+      } else if (view) {
+        setTimeout(() => { navTo(view); }, 100);
+      } else if (initDomain === 'fm') {
+        navTo('view-fm-beranda');
+      } else {
+        navTo('view-dashboard');
+      }
+    } catch (e) {
+      console.warn('bootApp route init error:', e);
+    }
   }
   window.bootApp = bootApp;
 
