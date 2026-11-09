@@ -1475,6 +1475,18 @@ const PNS_SECTION_TO_DEPT = {
         renderAllAssetsTable();
       } else if (viewId === 'view-portfolio') {
         renderPortfolioComposition();
+      } else if (viewId === 'view-fm-beranda') {
+        renderFmBeranda();
+      } else if (viewId === 'view-fm-peta') {
+        renderFmPeta();
+      } else if (viewId === 'view-fm-rincian') {
+        renderFmRincian();
+      } else if (viewId === 'view-fm-ketersediaan') {
+        renderFmKetersediaan();
+      } else if (viewId === 'view-fm-rencana') {
+        renderFmPerencanaan();
+      } else if (viewId === 'view-fm-mobile') {
+        renderFmMobile();
       } else if (viewId === 'view-validasi') {
         renderEnterpriseValidasiReport();
       } else if (viewId === 'view-penghuni') {
@@ -3065,7 +3077,7 @@ const PNS_SECTION_TO_DEPT = {
       ? appState.penghuni
       : (window.PNS_MASTER_DATA && Array.isArray(window.PNS_MASTER_DATA.penghuni) ? window.PNS_MASTER_DATA.penghuni : []);
     const searchEl = document.getElementById('search-penghuni');
-    const query = (searchEl ? searchEl.value : '').toLowerCase().trim();
+    const query = String((searchEl && searchEl.value) || '').toLowerCase().trim();
     const bldgFilter = document.getElementById('filter-penghuni-bldg')?.value || '';
     const roomFilter = document.getElementById('filter-penghuni-room')?.value || '';
     const statusFilter = document.getElementById('filter-penghuni-status')?.value || '';
@@ -3312,7 +3324,7 @@ const PNS_SECTION_TO_DEPT = {
       }
     }
     const searchInput = document.getElementById('search-bldg');
-    const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+    const query = String((searchInput && searchInput.value) || '').toLowerCase().trim();
     const selSite = appState.currentBldgFilterSite || '';
 
     currentFilteredBuildings = (appState.buildings || []).filter(b => {
@@ -3598,6 +3610,54 @@ const PNS_SECTION_TO_DEPT = {
     'MR': 'GUDANG MARUNDA'
   };
 
+  const REAL_LOCATIONS_MATRIX = [
+    { name: 'CO', label: 'Central Office (CO)', validPct: '100%', avgStd: 13, avgUmur: 7, belum: 0, sesuai: 13383, tdkSesuai: 38, good: 11229, repair: 31, disp: 122, broken: 1085, lost: 965, total: 13421 },
+    { name: 'E1', label: 'Estate 1 (E1)', validPct: '100%', avgStd: 8, avgUmur: 9, belum: 0, sesuai: 2742, tdkSesuai: 2, good: 1177, repair: 2, disp: 15, broken: 898, lost: 652, total: 2744 },
+    { name: 'E2', label: 'Estate 2 (E2)', validPct: '100%', avgStd: 7, avgUmur: 7, belum: 0, sesuai: 2666, tdkSesuai: 3, good: 1784, repair: 4, disp: 2, broken: 702, lost: 177, total: 2669 },
+    { name: 'E3', label: 'Estate 3 (E3)', validPct: '100%', avgStd: 7, avgUmur: 6, belum: 0, sesuai: 2399, tdkSesuai: 4, good: 1535, repair: 4, disp: 2, broken: 405, lost: 457, total: 2403 },
+    { name: 'FR', label: 'Factory / Pabrik (FR)', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 10359, tdkSesuai: 46, good: 9656, repair: 41, disp: 16, broken: 522, lost: 170, total: 10405 },
+    { name: 'HO', label: 'Head Office (HO)', validPct: '100%', avgStd: 4, avgUmur: 9, belum: 0, sesuai: 869, tdkSesuai: 2, good: 794, repair: 0, disp: 0, broken: 22, lost: 55, total: 871 },
+    { name: 'MR', label: 'Gudang Marunda (MR)', validPct: '100%', avgStd: 6, avgUmur: 4, belum: 0, sesuai: 1602, tdkSesuai: 0, good: 1577, repair: 0, disp: 0, broken: 25, lost: 0, total: 1602 },
+    { name: 'RO', label: 'Regional Office (RO)', validPct: '100%', avgStd: 5, avgUmur: 12, belum: 0, sesuai: 139, tdkSesuai: 0, good: 120, repair: 0, disp: 0, broken: 4, lost: 16, total: 139 }
+  ];
+
+  const REAL_DEPTS_MATRIX = [
+    { name: 'BUSINESS SUPPORT', validPct: '100%', avgStd: 19, avgUmur: 5, belum: 0, sesuai: 8252, tdkSesuai: 2, good: 7560, repair: 17, disp: 30, broken: 381, lost: 266, total: 8254 },
+    { name: 'FINANCIAL & INFORMATION', validPct: '100%', avgStd: 5, avgUmur: 8, belum: 0, sesuai: 511, tdkSesuai: 0, good: 306, repair: 2, disp: 56, broken: 66, lost: 93, total: 523 },
+    { name: 'HARVESTING', validPct: '100%', avgStd: 9, avgUmur: 8, belum: 0, sesuai: 1154, tdkSesuai: 0, good: 336, repair: 3, disp: 9, broken: 694, lost: 112, total: 1154 },
+    { name: 'HRGA', validPct: '100%', avgStd: 5, avgUmur: 7, belum: 0, sesuai: 16863, tdkSesuai: 89, good: 14342, repair: 8, disp: 31, broken: 1258, lost: 1313, total: 16952 },
+    { name: 'PLANTATION', validPct: '100%', avgStd: 15, avgUmur: 8, belum: 0, sesuai: 1634, tdkSesuai: 0, good: 776, repair: 3, disp: 0, broken: 355, lost: 500, total: 1634 },
+    { name: 'PROCUREMENT & PURCHASING', validPct: '100%', avgStd: 5, avgUmur: 6, belum: 0, sesuai: 15, tdkSesuai: 0, good: 12, repair: 0, disp: 0, broken: 0, lost: 3, total: 15 },
+    { name: 'PRODUCTION', validPct: '100%', avgStd: 9, avgUmur: 5, belum: 0, sesuai: 1723, tdkSesuai: 0, good: 1609, repair: 16, disp: 0, broken: 96, lost: 2, total: 1723 },
+    { name: 'QUALITY HEALTH & SAFETY ENVIRONMENT', validPct: '100%', avgStd: 4, avgUmur: 6, belum: 0, sesuai: 984, tdkSesuai: 3, good: 762, repair: 10, disp: 30, broken: 145, lost: 40, total: 987 },
+    { name: 'RESEARCH & DEVELOPMENT', validPct: '100%', avgStd: 5, avgUmur: 8, belum: 0, sesuai: 537, tdkSesuai: 1, good: 262, repair: 2, disp: 0, broken: 238, lost: 36, total: 538 },
+    { name: 'SALES & MARKETING', validPct: '100%', avgStd: 6, avgUmur: 8, belum: 0, sesuai: 4, tdkSesuai: 0, good: 2, repair: 0, disp: 0, broken: 0, lost: 2, total: 4 },
+    { name: 'WORKSHOP & ENGINERING', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 2482, tdkSesuai: 0, good: 1905, repair: 21, disp: 1, broken: 430, lost: 125, total: 2482 }
+  ];
+
+  const REAL_KELOMPOK_STATS = [
+    { name: 'INVENTARIS DAN PERALATAN', count: 22696, pct: '66.23%', goodPct: '82.21%', repPct: '0.22%', dispPct: '0.30%', brkPct: '8.53%', lostPct: '8.73%' },
+    { name: 'INFRASTRUKTUR', count: 4755, pct: '13.88%', goodPct: '97.90%', repPct: '0.00%', dispPct: '0.00%', brkPct: '1.11%', lostPct: '0.99%' },
+    { name: 'MESIN PABRIK', count: 2206, pct: '6.44%', goodPct: '92.20%', repPct: '0.23%', dispPct: '0.00%', brkPct: '7.57%', lostPct: '0.00%' },
+    { name: 'MESIN DAN INSTALASI', count: 1825, pct: '5.33%', goodPct: '64.88%', repPct: '0.99%', dispPct: '0.77%', brkPct: '21.42%', lostPct: '11.95%' },
+    { name: 'KENDARAAN DAN TRANSPORTASI', count: 1416, pct: '4.13%', goodPct: '32.06%', repPct: '0.07%', dispPct: '1.69%', brkPct: '59.96%', lostPct: '6.21%' },
+    { name: 'BANGUNAN', count: 819, pct: '2.39%', goodPct: '73.50%', repPct: '0.12%', dispPct: '6.11%', brkPct: '9.65%', lostPct: '10.62%' },
+    { name: 'ALAT/IMPLEMENT PERTANIAN', count: 415, pct: '1.21%', goodPct: '51.81%', repPct: '0.00%', dispPct: '0.00%', brkPct: '32.05%', lostPct: '16.14%' },
+    { name: 'ALAT BERAT', count: 134, pct: '0.39%', goodPct: '52.24%', repPct: '4.48%', dispPct: '0.00%', brkPct: '41.04%', lostPct: '2.24%' }
+  ];
+
+  const REAL_TOP_KATEGORI = [
+    { name: 'KENDARAAN ANGKUTAN', total: 937, goodPct: '20.70%', brkPct: '73.64%' },
+    { name: 'KENDARAAN AIR', total: 238, goodPct: '23.11%', brkPct: '55.46%' },
+    { name: 'IMPLEMENT RATOONER', total: 161, goodPct: '54.66%', brkPct: '37.89%' },
+    { name: 'PERALATAN LABORATORIUM', total: 147, goodPct: '82.99%', brkPct: '12.93%' },
+    { name: 'TRACTOR - NEW HOLLAND', total: 36, goodPct: '66.67%', brkPct: '30.56%' },
+    { name: 'ALAT BERAT - EXCAVATOR', total: 13, goodPct: '30.77%', brkPct: '61.54%' },
+    { name: 'ALAT BERAT - BULLDOZER', total: 4, goodPct: '25.00%', brkPct: '75.00%' }
+  ];
+
+  
+
   let _pnsCachedNormalizedAssets = null;
   let currentAssetEnvFilter = 'ALL';
   let currentAssetOverviewDim = 'location';
@@ -3646,7 +3706,9 @@ const PNS_SECTION_TO_DEPT = {
           asset_id: assetId,
           no_asset: kodeUnit,
           kode_unit: kodeUnit,
+          kodeUnit: kodeUnit,
           nama_asset: namaAsset,
+          namaAsset: namaAsset,
           nama_asset_detail: namaDetail,
           jenis_asset: jenisAsset,
           kelompok_asset: kel,
@@ -3719,7 +3781,9 @@ const PNS_SECTION_TO_DEPT = {
               asset_id: globalIdx,
               no_asset: kodeUnit,
               kode_unit: kodeUnit,
+              kodeUnit: kodeUnit,
               nama_asset: `${dept.name} Equipment ${assetNum}`,
+              namaAsset: `${dept.name} Equipment ${assetNum}`,
               nama_asset_detail: `${dept.name} Operational Asset ${assetNum}`,
               jenis_asset: 'Asset',
               kelompok_asset: 'INVENTARIS DAN PERALATAN',
@@ -6963,7 +7027,7 @@ const PNS_SECTION_TO_DEPT = {
     const bldgFilterEl = document.getElementById('filter-room-bldg');
     const searchEl = document.getElementById('search-room');
     const bldgFilter = bldgFilterEl ? bldgFilterEl.value : '';
-    const search = (searchEl ? searchEl.value : '').toLowerCase();
+    const search = String((searchEl && searchEl.value) || '').toLowerCase();
     const tbody = document.getElementById('table-rooms-body');
     if (!tbody) return;
 
@@ -9293,7 +9357,7 @@ const PNS_SECTION_TO_DEPT = {
     renderHunianHouseCards();
 
     const searchEl = document.getElementById('search-penghuni');
-    const query = (searchEl ? searchEl.value : '').toLowerCase().trim();
+    const query = String((searchEl && searchEl.value) || '').toLowerCase().trim();
     const bldgFilter = document.getElementById('filter-penghuni-bldg') ? document.getElementById('filter-penghuni-bldg').value : '';
     const roomFilter = document.getElementById('filter-penghuni-room') ? document.getElementById('filter-penghuni-room').value : '';
     const statusFilter = document.getElementById('filter-penghuni-status') ? document.getElementById('filter-penghuni-status').value : '';
@@ -9989,9 +10053,29 @@ const PNS_SECTION_TO_DEPT = {
     if (window._cachedUnifiedAssets && window._cachedUnifiedAssets.length === 34840) {
       return window._cachedUnifiedAssets;
     }
-    const masterRows = (typeof window !== 'undefined' && Array.isArray(window.PNS_ALL_ASSETS_ROWS))
+    let masterRows = (typeof window !== 'undefined' && Array.isArray(window.PNS_ALL_ASSETS_ROWS) && window.PNS_ALL_ASSETS_ROWS.length > 0)
       ? window.PNS_ALL_ASSETS_ROWS
       : [];
+    if (masterRows.length === 0) {
+      const norm = (typeof getAllNormalizedAssets === 'function') ? getAllNormalizedAssets() : [];
+      if (norm && norm.length > 0) {
+        masterRows = norm.map(a => [
+          a.kode_unit || a.no_asset || '-',
+          a.nama_asset_detail || a.nama_asset || '-',
+          a.kel || 'INVENTARIS DAN PERALATAN',
+          a.kat || 'UMUM',
+          a.locRaw || a.loc || 'CO',
+          a.kond || 'Good Condition',
+          a.std || 5,
+          a.umur || 4,
+          a.hpp || 0,
+          a.susut || 0,
+          a.nbv || 0,
+          a.statusVerif || 'ALOKASI SESUAI',
+          a.rawSec || 'HRGA'
+        ]);
+      }
+    }
     const bcList = (typeof window !== 'undefined' && Array.isArray(window.PNS_BELUM_CHECKOUT_ASSETS))
       ? window.PNS_BELUM_CHECKOUT_ASSETS
       : [];
@@ -10773,52 +10857,6 @@ const PNS_SECTION_TO_DEPT = {
   let currentValidasiTab = 'rekon';
   let currentMatrixGroup = 'loc';
 
-  const REAL_LOCATIONS_MATRIX = [
-    { name: 'CO', label: 'Central Office (CO)', validPct: '100%', avgStd: 13, avgUmur: 7, belum: 0, sesuai: 13383, tdkSesuai: 38, good: 11229, repair: 31, disp: 122, broken: 1085, lost: 965, total: 13421 },
-    { name: 'E1', label: 'Estate 1 (E1)', validPct: '100%', avgStd: 8, avgUmur: 9, belum: 0, sesuai: 2742, tdkSesuai: 2, good: 1177, repair: 2, disp: 15, broken: 898, lost: 652, total: 2744 },
-    { name: 'E2', label: 'Estate 2 (E2)', validPct: '100%', avgStd: 7, avgUmur: 7, belum: 0, sesuai: 2666, tdkSesuai: 3, good: 1784, repair: 4, disp: 2, broken: 702, lost: 177, total: 2669 },
-    { name: 'E3', label: 'Estate 3 (E3)', validPct: '100%', avgStd: 7, avgUmur: 6, belum: 0, sesuai: 2399, tdkSesuai: 4, good: 1535, repair: 4, disp: 2, broken: 405, lost: 457, total: 2403 },
-    { name: 'FR', label: 'Factory / Pabrik (FR)', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 10359, tdkSesuai: 46, good: 9656, repair: 41, disp: 16, broken: 522, lost: 170, total: 10405 },
-    { name: 'HO', label: 'Head Office (HO)', validPct: '100%', avgStd: 4, avgUmur: 9, belum: 0, sesuai: 869, tdkSesuai: 2, good: 794, repair: 0, disp: 0, broken: 22, lost: 55, total: 871 },
-    { name: 'MR', label: 'Gudang Marunda (MR)', validPct: '100%', avgStd: 6, avgUmur: 4, belum: 0, sesuai: 1602, tdkSesuai: 0, good: 1577, repair: 0, disp: 0, broken: 25, lost: 0, total: 1602 },
-    { name: 'RO', label: 'Regional Office (RO)', validPct: '100%', avgStd: 5, avgUmur: 12, belum: 0, sesuai: 139, tdkSesuai: 0, good: 120, repair: 0, disp: 0, broken: 4, lost: 16, total: 139 }
-  ];
-
-  const REAL_DEPTS_MATRIX = [
-    { name: 'BUSINESS SUPPORT', validPct: '100%', avgStd: 19, avgUmur: 5, belum: 0, sesuai: 8252, tdkSesuai: 2, good: 7560, repair: 17, disp: 30, broken: 381, lost: 266, total: 8254 },
-    { name: 'FINANCIAL & INFORMATION', validPct: '100%', avgStd: 5, avgUmur: 8, belum: 0, sesuai: 511, tdkSesuai: 0, good: 306, repair: 2, disp: 56, broken: 66, lost: 93, total: 523 },
-    { name: 'HARVESTING', validPct: '100%', avgStd: 9, avgUmur: 8, belum: 0, sesuai: 1154, tdkSesuai: 0, good: 336, repair: 3, disp: 9, broken: 694, lost: 112, total: 1154 },
-    { name: 'HRGA', validPct: '100%', avgStd: 5, avgUmur: 7, belum: 0, sesuai: 16863, tdkSesuai: 89, good: 14342, repair: 8, disp: 31, broken: 1258, lost: 1313, total: 16952 },
-    { name: 'PLANTATION', validPct: '100%', avgStd: 15, avgUmur: 8, belum: 0, sesuai: 1634, tdkSesuai: 0, good: 776, repair: 3, disp: 0, broken: 355, lost: 500, total: 1634 },
-    { name: 'PROCUREMENT & PURCHASING', validPct: '100%', avgStd: 5, avgUmur: 6, belum: 0, sesuai: 15, tdkSesuai: 0, good: 12, repair: 0, disp: 0, broken: 0, lost: 3, total: 15 },
-    { name: 'PRODUCTION', validPct: '100%', avgStd: 9, avgUmur: 5, belum: 0, sesuai: 1723, tdkSesuai: 0, good: 1609, repair: 16, disp: 0, broken: 96, lost: 2, total: 1723 },
-    { name: 'QUALITY HEALTH & SAFETY ENVIRONMENT', validPct: '100%', avgStd: 4, avgUmur: 6, belum: 0, sesuai: 984, tdkSesuai: 3, good: 762, repair: 10, disp: 30, broken: 145, lost: 40, total: 987 },
-    { name: 'RESEARCH & DEVELOPMENT', validPct: '100%', avgStd: 5, avgUmur: 8, belum: 0, sesuai: 537, tdkSesuai: 1, good: 262, repair: 2, disp: 0, broken: 238, lost: 36, total: 538 },
-    { name: 'SALES & MARKETING', validPct: '100%', avgStd: 6, avgUmur: 8, belum: 0, sesuai: 4, tdkSesuai: 0, good: 2, repair: 0, disp: 0, broken: 0, lost: 2, total: 4 },
-    { name: 'WORKSHOP & ENGINERING', validPct: '100%', avgStd: 6, avgUmur: 6, belum: 0, sesuai: 2482, tdkSesuai: 0, good: 1905, repair: 21, disp: 1, broken: 430, lost: 125, total: 2482 }
-  ];
-
-  const REAL_KELOMPOK_STATS = [
-    { name: 'INVENTARIS DAN PERALATAN', count: 22696, pct: '66.23%', goodPct: '82.21%', repPct: '0.22%', dispPct: '0.30%', brkPct: '8.53%', lostPct: '8.73%' },
-    { name: 'INFRASTRUKTUR', count: 4755, pct: '13.88%', goodPct: '97.90%', repPct: '0.00%', dispPct: '0.00%', brkPct: '1.11%', lostPct: '0.99%' },
-    { name: 'MESIN PABRIK', count: 2206, pct: '6.44%', goodPct: '92.20%', repPct: '0.23%', dispPct: '0.00%', brkPct: '7.57%', lostPct: '0.00%' },
-    { name: 'MESIN DAN INSTALASI', count: 1825, pct: '5.33%', goodPct: '64.88%', repPct: '0.99%', dispPct: '0.77%', brkPct: '21.42%', lostPct: '11.95%' },
-    { name: 'KENDARAAN DAN TRANSPORTASI', count: 1416, pct: '4.13%', goodPct: '32.06%', repPct: '0.07%', dispPct: '1.69%', brkPct: '59.96%', lostPct: '6.21%' },
-    { name: 'BANGUNAN', count: 819, pct: '2.39%', goodPct: '73.50%', repPct: '0.12%', dispPct: '6.11%', brkPct: '9.65%', lostPct: '10.62%' },
-    { name: 'ALAT/IMPLEMENT PERTANIAN', count: 415, pct: '1.21%', goodPct: '51.81%', repPct: '0.00%', dispPct: '0.00%', brkPct: '32.05%', lostPct: '16.14%' },
-    { name: 'ALAT BERAT', count: 134, pct: '0.39%', goodPct: '52.24%', repPct: '4.48%', dispPct: '0.00%', brkPct: '41.04%', lostPct: '2.24%' }
-  ];
-
-  const REAL_TOP_KATEGORI = [
-    { name: 'KENDARAAN ANGKUTAN', total: 937, goodPct: '20.70%', brkPct: '73.64%' },
-    { name: 'KENDARAAN AIR', total: 238, goodPct: '23.11%', brkPct: '55.46%' },
-    { name: 'IMPLEMENT RATOONER', total: 161, goodPct: '54.66%', brkPct: '37.89%' },
-    { name: 'PERALATAN LABORATORIUM', total: 147, goodPct: '82.99%', brkPct: '12.93%' },
-    { name: 'TRACTOR - NEW HOLLAND', total: 36, goodPct: '66.67%', brkPct: '30.56%' },
-    { name: 'ALAT BERAT - EXCAVATOR', total: 13, goodPct: '30.77%', brkPct: '61.54%' },
-    { name: 'ALAT BERAT - BULLDOZER', total: 4, goodPct: '25.00%', brkPct: '75.00%' }
-  ];
-
   function switchValidasiTab(tabKey) {
     currentValidasiTab = tabKey;
     const tabRekon = document.getElementById('validasi-tab-rekon');
@@ -10949,9 +10987,11 @@ const PNS_SECTION_TO_DEPT = {
 
       // 3. Filter Status Validasi
       if (status) {
+        const st = status.toUpperCase();
         const isSesuai = !String(a.statusVerif || '').toUpperCase().includes('TIDAK') && !String(a.statusVerif || '').toUpperCase().includes('SELISIH');
-        if (status === 'SESUAI' && !isSesuai) return false;
-        if (status === 'TIDAK SESUAI' && isSesuai) return false;
+        if ((st === 'SESUAI' || st === 'ALOKASI SESUAI') && !isSesuai) return false;
+        if ((st === 'SELISIH' || st === 'TIDAK SESUAI' || st === 'SELISIH ALOKASI') && isSesuai) return false;
+        if (st === 'BELUM' && !String(a.statusVerif || '').toUpperCase().includes('BELUM')) return false;
       }
 
       // 4. Filter Kondisi Fisik
@@ -12636,6 +12676,1343 @@ window.updateSingleAssetNote = updateSingleAssetNote;
   // ==========================================
   // APPLICATION BOOTSTRAP (RUNS AFTER ALL SCRIPTS READY)
   // ==========================================
+
+  // =========================================================================
+  // FACILITY MANAGEMENT (FM) & PRD INTERACTIVE ENGINE
+  // Peta 4 Lokasi, Simulasi Kebutuhan Kamar, Standar Isi, Ketersediaan, 
+  // Mobile Field Inspector, Work Orders, & Ctrl+K Quick Search
+  // =========================================================================
+
+  const PNS_MAPS = {
+    central: { ar: '774 / 916', b: [
+      ['MASJID-CENTRAL', 61.1, 3.7, 'o', 3, 3, 0, 0], ['MGR-01-06', 58.5, 17.2, 'o', 24, 22, 0, 2], ['SPV-01-7.2', 64.6, 23.7, 'o', 137, 120, 1, 16],
+      ['SPV-01-9.1', 76.9, 27.0, 'o', 168, 152, 0, 16], ['SPV-01-7.1', 32.4, 29.2, 'o', 133, 119, 1, 13], ['MGR-01-03', 7.1, 28.6, 'o', 24, 22, 0, 2],
+      ['SPV-01-05', 32.4, 25.3, 'o', 127, 118, 0, 9], ['KANTIN-02', 54.5, 21.1, 'o', 64, 64, 0, 0], ['SPTD-01-7.1', 20.6, 23.5, 'o', 108, 102, 0, 6],
+      ['MGR-01-02', 7.1, 24.7, 'o', 25, 24, 0, 1], ['MGR-01-01', 7.1, 20.7, 'o', 30, 28, 1, 1], ['SPORT-FACILITY-01', 31.4, 17.6, 'o', 4, 4, 0, 0],
+      ['SPTD-01-9', 68.8, 15.8, 'o', 141, 131, 0, 10], ['GM-01', 7.6, 16.8, 'o', 19, 19, 0, 0], ['MGR-01-05', 21.2, 15.6, 'o', 24, 23, 0, 1],
+      ['MGR-01-04', 15.0, 11.7, 'o', 25, 24, 1, 0], ['MESS-TAMU-11', 7.1, 35.1, 'o', 181, 169, 0, 12], ['SPTD-01-7.2', 20.6, 33.6, 'o', 107, 102, 0, 5],
+      ['GOR', 92.1, 42.1, 'o', 2, 2, 0, 0], ['KLINIK-02', 9.9, 56.0, 'o', 9, 6, 0, 3],
+      ['LH-01-01', 46.8, 25.4, 'lh', 306, 285, 0, 21, 'K', '3,3,4,3,3,4,4,3,4,4', 4], ['LH-01-09', 65.9, 31.2, 'lh', 128, 121, 1, 6, 'K', '2,2,3,4', 4],
+      ['LH-01-02', 47.6, 31.1, 'lh', 53, 53, 0, 0, 'D', '3,3,4,4,4,4,2,2,2,4', 4], ['LH-01-03', 23.7, 38.4, 'lh', 15, 15, 0, 0, 'K', '0,0,0,0,0,0,0,0,0,0', 4],
+      ['LH-01-04', 40.0, 38.4, 'lh', 174, 167, 1, 6, 'V', '3,4,1,4,1,4,3,4,4,2', 4], ['LH-01-08', 75.0, 38.3, 'lh', 187, 177, 1, 9, 'K', '3,3,3,3,3,3', 4],
+      ['LH-01-05', 57.4, 38.4, 'lh', 294, 282, 1, 11, 'K', '3,3,2,3,3,3,2,2,2,2', 4], ['LH-01-06', 49.8, 64.4, 'lh', 63, 63, 0, 0, 'D', '4,3,4,4,4,4,4,4,4,4', 4],
+      ['LH-01-07', 66.5, 63.5, 'lh', 63, 63, 0, 0, 'D', '4,4,4,3,4,4,4,4,4,4', 4], ['LH-01-11.01', 55.1, 69.0, 'lh', 166, 150, 0, 16, 'D', '3,0,1,4,2,0,3,4,0,0,4', 4],
+      ['LH-01-11.02', 73.4, 68.7, 'lh', 126, 117, 0, 9, 'T', '3,0,2,2,1,2,3,1,4,1,0', 4], ['LH-01-11.03', 54.5, 79.0, 'lh', 25, 25, 0, 0, 'V', '2,4,4,3,4,4,2,3,2,2,3', 4],
+      ['LH-01-11.04', 72.5, 79.1, 'lh', 1, 1, 0, 0, 'D', '2,1,1,2,3,3,2,2,2,2,3', 4], ['LH-01-11.05', 91.2, 79.1, 'lh', 290, 252, 11, 27, 'K', '3,3,2,3,2,2,2,2,3,3,0', 4],
+      ['LH-01-11.06', 54.5, 83.6, 'lh', 16, 16, 0, 0, 'V', '0,2,1,1,2,0,2,0,0,0,0', 4], ['LH-01-11.07', 72.5, 83.7, 'lh', 9, 8, 0, 1, 'V', '3,3,4,3,3,0,0,4,0,0,0', 4],
+      ['LH-01-11.08', 91.1, 83.7, 'lh', 1, 1, 0, 0, 'V', '2,2,2,3,3,0,2,1,2,2,1', 4], ['LH-01-11.09', 54.5, 95.8, 'lh', 1, 1, 0, 0, 'D', '4,0,3,3,3,2,2,3,3,0,1', 4],
+      ['LH-01-11.10', 72.5, 95.9, 'lh', 3, 3, 0, 0, 'V', '3,3,4,4,1,0,0,2,3,4,3', 4], ['LH-01-11.11', 91.1, 96.0, 'lh', 3, 1, 0, 2, 'V', '3,3,3,2,3,3,3,3,0,0,3', 4]
+    ]},
+    e12: { ar: '792 / 408', b: [
+      ['SPV-03-01', 66.1, 38.3, 'o', 221, 164, 49, 8], ['SPTD-03-01', 77.4, 36.3, 'o', 105, 94, 9, 2], ['SPV-02-01', 66.1, 68.7, 'o', 221, 180, 40, 1],
+      ['SPTD-02-01', 77.4, 68.7, 'o', 107, 106, 1, 0], ['KANTIN-03', 50.2, 61.3, 'o', 53, 47, 6, 0], ['SPORT-FACILITY-02', 50.8, 45.7, 'o', 0, 0, 0, 0],
+      ['LAUNDRY-02', 89.3, 17.4, 'o', 0, 0, 0, 0], ['MASJID-02', 93.1, 67.2, 'o', 13, 12, 1, 0], ['KLINIK-03', 80.7, 91.7, 'o', 27, 22, 3, 2],
+      ['LH-02-05', 32.7, 9.1, 'lh', 95, 63, 31, 1, 'D', '3,2,2,3,2,2,1,3,2,0,2', 4], ['LH-03-05', 51.0, 9.1, 'lh', 282, 190, 65, 27, 'K', '1,2,2,1,4,2,3,2,2,4,2', 4],
+      ['LH-02-03', 8.6, 44.6, 'lh', 73, 38, 33, 2, 'D', '3,2,1,2,1,4,1,2,3,2', 4], ['LH-03-01', 21.7, 39.5, 'lh', 50, 28, 22, 0, 'D', '2,1,1,0,2,1,1,3,2,2', 4],
+      ['LH-03-02', 26.1, 49.8, 'lh', 191, 129, 53, 9, 'K', '2,5,3,2,2,2,2,3,2,1', 4], ['LH-03-03', 39.3, 44.6, 'lh', 169, 114, 45, 10, 'K', '2,2,2,4,3,3,2,3,2,2', 4],
+      ['LH-02-02', 14.0, 73.9, 'lh', 38, 18, 18, 2, 'D', '2,2,2,2,1,3,0,0,0,1', 4], ['LH-02-01', 32.3, 73.9, 'lh', 161, 97, 56, 8, 'K', '1,3,0,1,0,2,2,2,1,2', 4]
+    ]},
+    e3: { ar: '781 / 456', b: [
+      ['SPORT-FACILITY-03', 78.3, 82.1, 'o', 0, 0, 0, 0], ['MGR-03', 76.8, 90.9, 'o', 0, 0, 0, 0], ['MUSHOLLA-04', 56.6, 92.5, 'o', 19, 19, 0, 0],
+      ['SPTD-05-01', 52.2, 73.6, 'o', 112, 86, 8, 18], ['SPV-05-01', 34.1, 73.7, 'o', 159, 96, 14, 49], ['KLINIK-04', 63.8, 67.8, 'o', 21, 17, 0, 4],
+      ['SPV-05-02', 14.5, 73.2, 'o', 150, 102, 13, 35], ['LOUNDRY-03', 93.0, 66.8, 'o', 33, 11, 22, 0], ['KANTIN-04', 79.3, 57.0, 'o', 53, 53, 0, 0],
+      ['LH-05-06', 9.7, 8.1, 'lh', 23, 16, 7, 0, 'D', '0,0,0,0,0,0,2,3,1,3', 4], ['LH-05-05', 32.9, 8.1, 'lh', 20, 20, 0, 0, 'D', '1,1,2,1,1,1,1,1,2,1', 4],
+      ['LH-05-04', 56.9, 8.1, 'lh', 28, 28, 0, 0, 'D', '1,2,1,2,2,2,2,2,2,2', 4], ['LH-05-03', 8.7, 35.3, 'lh', 300, 168, 42, 90, 'K', '1,1,1,1,2,1,1,1,1,1', 4],
+      ['LH-05-02', 33.0, 35.3, 'lh', 290, 167, 41, 82, 'K', '3,1,1,2,1,1,1,3,1,1', 4], ['LH-05-01', 57.1, 35.3, 'lh', 267, 155, 25, 87, 'K', '1,1,1,1,2,1,1,1,1,1', 4]
+    ]},
+    factory: { ar: '769 / 768', b: [
+      ['FAC-KANTIN', 19.1, 59.5, 'o', 10, 9, 1, 0], ['FAC-SPV-03', 59.5, 59.6, 'o', 203, 198, 0, 5], ['FAC-SPTD-01', 42.7, 59.2, 'o', 170, 169, 1, 0],
+      ['FAC-SPORT-FACILITY-01', 92.8, 49.1, 'o', 0, 0, 0, 0], ['FAC-LONDRY', 92.8, 57.9, 'o', 23, 17, 5, 1], ['FAC-MUSHOLA', 9.6, 67.4, 'o', 3, 3, 0, 0],
+      ['FAC-SPTD-03', 29.5, 79.3, 'o', 112, 112, 0, 0], ['FAC-SPV-01', 45.2, 80.7, 'o', 185, 185, 0, 0], ['FAC-SPV-02', 61.8, 80.7, 'o', 192, 186, 1, 5],
+      ['FAC-MANAGER', 20.1, 84.7, 'o', 69, 68, 1, 0], ['FAC-GM', 8.1, 76.8, 'o', 26, 26, 0, 0], ['FAC-SPTD-02', 7.2, 89.6, 'o', 124, 109, 2, 13], ['FAC-SPV-5', 25.3, 95.6, 'o', 0, 0, 0, 0],
+      ['FAC-LH-18', 81.4, 4.8, 'lh', 3, 3, 0, 0, 'D', '6,6,6,6,6,6,6,6,6,6', 6], ['FAC-LH-14', 18.9, 8.1, 'lh', 127, 119, 0, 8, 'T', '4,4,3,3,2', 4],
+      ['FAC-LH-15', 41.4, 8.1, 'lh', 4, 4, 0, 0, 'D', '6,6,6,6,6,6,6,6,6,6', 6], ['FAC-LH-16', 64.6, 8.1, 'lh', 9, 9, 0, 0, 'D', '6,6,6,6,6,6,6,6,6,6', 6],
+      ['FAC-LH-19', 18.9, 13.6, 'lh', 49, 49, 0, 0, 'D', '6,6,6,6,6,6,6,6,6,6', 6], ['FAC-LH-12', 42.5, 13.6, 'lh', 382, 342, 1, 39, null, '', 0],
+      ['FAC-LH-13', 66.2, 13.6, 'lh', 4, 4, 0, 0, 'D', '6,6,6,6,6,6,6,6,6,6', 6], ['FAC-LH-17', 81.3, 17.0, 'lh', 4, 4, 0, 0, 'D', '6,6,6,6,6,6,6,6,6,6', 6],
+      ['FAC-LH-10', 55.6, 31.1, 'lh', 304, 292, 2, 10, 'K', '4,3,4,4,4,3,2,2,4,3', 4], ['FAC-LH-06', 40.4, 36.5, 'lh', 279, 275, 0, 4, 'K', '4,3,3,3,4,3,4,4,4,4', 4],
+      ['FAC-LH-09', 31.9, 31.0, 'lh', 15, 15, 0, 0, 'D', '6,6,6,6,6,6,6,6,6,6', 6], ['FAC-LH-07', 10.5, 36.4, 'lh', 262, 252, 1, 9, 'K', '3,4,3,3,3,3,3,3,4,3', 4],
+      ['FAC-LH-05', 55.6, 36.6, 'lh', 287, 280, 0, 7, 'K', '4,3,3,3,3,3,3,4,4,3', 4], ['FAC-LH-08', 10.6, 30.9, 'lh', 296, 291, 0, 5, 'K', '4,4,4,4,4,3,4,4,4,4', 4],
+      ['FAC-LH-01', 10.0, 54.5, 'lh', 326, 325, 1, 0, 'K', '1,4,3,3,4,1,3,3,4,2', 4], ['FAC-LH-02', 30.9, 55.4, 'lh', 308, 307, 1, 0, 'K', '4,3,3,4,3,4,3,3,4,3', 4],
+      ['FAC-LH-04', 78.1, 54.9, 'lh', 299, 296, 0, 3, 'K', '3,3,3,3,3,3,3,3,2,3', 4], ['FAC-LH-03', 54.6, 54.5, 'lh', 300, 299, 1, 0, 'K', '3,3,4,4,3,4,4,4,3,3', 4],
+      ['FAC-LH-11', 77.5, 77.2, 'lh', 38, 37, 0, 1, 'D', '6,6,6,6,6,6,6,6,6,6', 6]
+    ]}
+  };
+
+  const PNS_LH_JENIS_MAP = { K: 'Longhouse Karyawan', D: 'Longhouse Daily Worker', V: 'Longhouse Vendor', T: 'Longhouse Tamu' };
+  const PNS_FM_LOCS = [['central', 'Central Office'], ['e12', 'Estate 1-2'], ['e3', 'Estate 3'], ['factory', 'Factory / Pabrik']];
+  const PNS_FM_LNAME = Object.fromEntries(PNS_FM_LOCS);
+
+  const PNS_FM_LABELS = { kt: 'Kosong Total', tv: 'Tersedia', hp: 'Hampir Penuh', pn: 'Penuh', nd: 'Belum Ada Okupansi' };
+  const PNS_FM_CLABELS = { ok: 'Baik', wa: 'Perlu Perhatian', bad: 'Bermasalah', nd: 'Belum Ada Data' };
+
+  window.PNS_FM_STATE = {
+    app: 'am',
+    mode: 'web',
+    mview: 'beranda',
+    loc: 'central',
+    layer: 'hunian',
+    sel: 'LH-01-01',
+    only: false,
+    n: 2,
+    kloc: 'all',
+    room: 1,
+    insp: { springbed: 'ok', bantal: 'rs', guling: 'hl', lemari: 0, gorden: 1 },
+    score: [4, 3, 4, 3],
+    tstat: 1,
+    plans: [],
+    place: null,
+    pn: 1,
+    pname: '',
+    cmd: false,
+    q: '',
+    ci: 0,
+    zoom: 1,
+    scanT: null,
+    htab: 'ketersediaan',
+    btab: 'peta',
+    ftype: 'all',
+    fsel: null,
+    iloc: 'all'
+  };
+
+  const pnsNameOf = (c) => /^(FAC-)?LH-/.test(c) ? 'Longhouse' : /SPV/.test(c) ? 'Longhouse SPV' : /SPTD/.test(c) ? 'Longhouse SPTD' : /MGR|MANAGER/.test(c) ? 'Rumah Manager' : /^(FAC-)?GM/.test(c) ? 'Rumah GM' : /MESS-TAMU/.test(c) ? 'Mess Tamu' : /KANTIN/.test(c) ? 'Kantin' : /MASJID/.test(c) ? 'Masjid' : /MUSHOLA/.test(c) ? 'Musholla' : /KLINIK/.test(c) ? 'Klinik' : /SPORT/.test(c) ? 'Fasilitas Olahraga' : /LAUNDRY|LONDRY|LOUNDRY/.test(c) ? 'Laundry' : /GOR/.test(c) ? 'GOR' : 'Bangunan';
+  const pnsShortOf = (c) => /^(FAC-)?LH-|SPV|SPTD|MGR/.test(c) ? c.replace('FAC-', '') : /MESS-TAMU/.test(c) ? 'MESS TAMU' : /MANAGER/.test(c) ? 'MANAGER' : /^(FAC-)?GM/.test(c) ? 'GM' : pnsNameOf(c).replace('Fasilitas Olahraga', 'OLAHRAGA').toUpperCase();
+
+  function pnsBuildLoc(loc) {
+    if (!PNS_MAPS[loc]) return [];
+    return PNS_MAPS[loc].b.map(r => {
+      const d = { loc, c: r[0], x: r[1], y: r[2], kd: r[3], n: r[4], baik: r[5], rusak: r[6], hilang: r[7] };
+      d.nm = pnsNameOf(d.c);
+      d.full = 'PNS-' + d.c;
+      d.prob = d.n > 0 ? (d.rusak + d.hilang) / d.n : 0;
+      d.cond = d.n === 0 ? 'nd' : (d.prob >= 0.2 ? 'bad' : (d.prob >= 0.05 ? 'wa' : 'ok'));
+      if (d.kd === 'lh') {
+        d.jenis = r[8];
+        d.occ = r[9] ? r[9].split(',').map(Number) : [];
+        d.spr = r[10] || 4;
+        d.hasOcc = !!d.jenis;
+        d.terisi = d.occ.reduce((t, v) => t + v, 0);
+        d.kosong = d.occ.reduce((t, v) => t + Math.max(0, d.spr - v), 0);
+        d.slot = d.occ.length * d.spr;
+        d.t0 = d.terisi;
+        d.k0 = d.kosong;
+        d.res = 0;
+        d.kamarKosong = d.occ.filter(v => v === 0).length;
+        d.gt2 = d.occ.filter(v => v > 2).length;
+        d.st = !d.hasOcc ? 'nd' : (d.terisi === 0 ? 'kt' : (d.kosong >= 10 ? 'tv' : (d.kosong >= 1 ? 'hp' : 'pn')));
+      }
+      return d;
+    });
+  }
+
+  const PNS_FM_ALL = Object.fromEntries(PNS_FM_LOCS.map(([k]) => [k, pnsBuildLoc(k)]));
+  const pnsAllLh = () => PNS_FM_LOCS.flatMap(([k]) => (PNS_FM_ALL[k] || []).filter(d => d.kd === 'lh' && d.hasOcc));
+
+  function pnsApplyRes() {
+    const r = {};
+    (PNS_FM_STATE.plans || []).forEach(p => { r[p.c] = (r[p.c] || 0) + p.n; });
+    pnsAllLh().forEach(d => {
+      d.res = r[d.c] || 0;
+      d.terisi = Math.min(d.slot, d.t0 + d.res);
+      d.kosong = Math.max(0, d.k0 - d.res);
+      d.st = d.terisi === 0 ? 'kt' : (d.kosong >= 10 ? 'tv' : (d.kosong >= 1 ? 'hp' : 'pn'));
+    });
+  }
+
+  // Room class helper
+  const pnsRoomCls = (o, spr) => 'rt ' + (o === 0 ? 'r-kosong' : (o > spr ? 'r-lebih' : (o < spr ? 'r-ada' : 'r-penuh')));
+
+  // Switch between AM and FM
+  window.switchAppDomain = function(domain) {
+    window.PNS_FM_STATE.app = domain;
+    document.documentElement.dataset.app = domain;
+    if (document.body) document.body.dataset.app = domain;
+
+    // Toggle Sidebar Nav Group visibility
+    const amGroup = document.getElementById('nav-domain-am');
+    const fmGroup = document.getElementById('nav-domain-fm');
+    const modLabel = document.getElementById('modsw-label');
+    const modSub = document.getElementById('modsw-sub');
+    const modLogo = document.getElementById('modsw-logo');
+
+    if (domain === 'fm') {
+      if (amGroup) amGroup.classList.add('hidden');
+      if (fmGroup) fmGroup.classList.remove('hidden');
+      if (modLabel) modLabel.innerText = 'Facility Management';
+      if (modSub) modSub.innerText = 'Hunian & Fasilitas Umum';
+      if (modLogo) { modLogo.innerText = 'FM'; modLogo.style.backgroundColor = 'var(--fm-accent)'; }
+      // Show mobile toggle button in topbar
+      const modeSeg = document.getElementById('seg-mode-toggle');
+      if (modeSeg) modeSeg.classList.remove('hidden');
+      navTo('view-fm-beranda');
+    } else {
+      if (fmGroup) fmGroup.classList.add('hidden');
+      if (amGroup) amGroup.classList.remove('hidden');
+      if (modLabel) modLabel.innerText = 'Asset Management';
+      if (modSub) modSub.innerText = 'Seluruh Aset Perusahaan';
+      if (modLogo) { modLogo.innerText = 'AM'; modLogo.style.backgroundColor = 'var(--am-accent)'; }
+      // Hide mobile toggle button in AM
+      const modeSeg = document.getElementById('seg-mode-toggle');
+      if (modeSeg) modeSeg.classList.add('hidden');
+      navTo('view-dashboard');
+    }
+    closeModMenu();
+  };
+
+  window.toggleModMenu = function() {
+    const msm = document.getElementById('modsw-menu');
+    if (msm) msm.classList.toggle('hidden');
+  };
+
+  window.closeModMenu = function() {
+    const msm = document.getElementById('modsw-menu');
+    if (msm) msm.classList.add('hidden');
+  };
+
+  window.switchUIMode = function(mode) {
+    window.PNS_FM_STATE.mode = mode;
+    const btnWeb = document.getElementById('btn-mode-web');
+    const btnMob = document.getElementById('btn-mode-mob');
+    if (mode === 'mobile') {
+      if (btnMob) btnMob.classList.add('bg-emerald-600', 'text-white');
+      if (btnWeb) btnWeb.classList.remove('bg-emerald-600', 'text-white');
+      navTo('view-fm-mobile');
+    } else {
+      if (btnWeb) btnWeb.classList.add('bg-emerald-600', 'text-white');
+      if (btnMob) btnMob.classList.remove('bg-emerald-600', 'text-white');
+      navTo('view-fm-beranda');
+    }
+  };
+
+  // 1. RENDER FM BERANDA (RINGKASAN FM)
+  window.renderFmBeranda = function() {
+    pnsApplyRes();
+    const el = document.getElementById('view-fm-beranda');
+    if (!el) return;
+
+    const kt = pnsAllLh().filter(d => d.st === 'kt').length;
+    const gh = pnsAllLh().reduce((t, d) => t + d.kosong, 0);
+
+    const rows = [
+      ['Longhouse', 115, 841, '9.725', 87, 6.1, 6.9],
+      ['Mess', 32, 146, '610', 61.6, 11.8, 26.1],
+      ['Guest House', 20, 84, '940', 92.4, 0.5, 7.1],
+      ['Kantin', 16, 37, '348', 94.8, 0.6, 4.6],
+      ['Fasilitas Umum', 19, 36, '123', 91.9, 5.7, 2.4],
+      ['Laundry', 10, 18, '104', 59.6, 38.5, 1.9],
+      ['Barak', 9, 17, '29', 27.6, 3.4, 69.0],
+      ['Tempat Parkir', 7, 8, '23', 91.3, 0, 8.7]
+    ];
+
+    const locs = [
+      ['E3', 64, 11.6, 24.4, 172, 361],
+      ['E2', 68.4, 26.7, 4.9, 389, 73],
+      ['E1', 61.2, 16.6, 22.2, 124, 161],
+      ['CO', 93.7, 0.3, 6.0, 10, 193],
+      ['FR', 97.2, 0.4, 2.4, 18, 111]
+    ];
+
+    el.innerHTML = `
+      <div class="space-y-5">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Kondisi Hunian &amp; Fasilitas Umum (HRGA)</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Ringkasan operasional hunian, mess karyawan, dan fasilitas umum di seluruh site PT PNS.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="navTo('view-fm-ketersediaan')" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs">Lihat Ketersediaan Slot</button>
+            <button type="button" onclick="navTo('view-fm-mobile'); switchMobileView('scan');" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-2xs flex items-center gap-1.5"><i class="ph-bold ph-qr-code"></i> Mulai Inspeksi</button>
+          </div>
+        </div>
+
+        <!-- Attention Banners -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div onclick="PNS_FM_STATE.loc='e3'; PNS_FM_STATE.layer='fasilitas'; navTo('view-fm-peta');" class="p-3.5 rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-50 cursor-pointer transition flex items-start gap-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mt-1 shrink-0"></span>
+            <div>
+              <b class="text-xs font-bold text-rose-900 block">Estate 3 Paling Bermasalah</b>
+              <span class="text-[11px] text-rose-700">361 aset hilang, 172 rusak. Buka peta kondisi fasilitas.</span>
+            </div>
+          </div>
+          <div onclick="navTo('view-fm-ketersediaan')" class="p-3.5 rounded-xl border border-teal-200 bg-teal-50/70 hover:bg-teal-50 cursor-pointer transition flex items-start gap-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-teal-600 mt-1 shrink-0"></span>
+            <div>
+              <b class="text-xs font-bold text-teal-900 block">${kt} Longhouse Kosong Total</b>
+              <span class="text-[11px] text-teal-700">Siap dikunci. ${gh.toLocaleString('id-ID')} slot kosong siap penempatan.</span>
+            </div>
+          </div>
+          <div onclick="navTo('view-fm-inspeksi')" class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 hover:bg-amber-50 cursor-pointer transition flex items-start gap-3">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 mt-1 shrink-0"></span>
+            <div>
+              <b class="text-xs font-bold text-amber-900 block">1.655 Aset Perlu Dicek Ulang</b>
+              <span class="text-[11px] text-amber-700">Antrean prioritas mulai dari PNS-LH-05-03 (132 aset).</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 Dense KPIs -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Aset Hunian &amp; Fasum</div>
+            <div class="text-2xl font-bold text-slate-900 mt-1 num-tabular">11.902</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">8.907 non-valuable &bull; 2.995 bernilai</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Kondisi Baik</div>
+            <div class="text-2xl font-bold text-emerald-700 mt-1 num-tabular">10.239 <span class="text-xs font-semibold text-emerald-600">(86.0%)</span></div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Layak huni &amp; operasional</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Kondisi Rusak</div>
+            <div class="text-2xl font-bold text-amber-700 mt-1 num-tabular">725</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">613 non-valuable &bull; 112 bernilai</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Kondisi Hilang</div>
+            <div class="text-2xl font-bold text-rose-700 mt-1 num-tabular">930</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">750 non-valuable &bull; 180 bernilai</div>
+          </div>
+        </div>
+
+        <!-- Two Columns -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <!-- Left Table -->
+          <div class="lg:col-span-8 space-y-4">
+            <div class="clean-card p-4">
+              <h2 class="text-sm font-bold text-slate-900 pb-2.5 border-b border-slate-100 mb-3 flex items-center justify-between">
+                <span>Kondisi Aset per Jenis Bangunan</span>
+                <span class="text-[11px] font-normal text-slate-500">8 Kategori Bangunan</span>
+              </h2>
+              <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left">
+                  <thead>
+                    <tr class="text-slate-500 border-b border-slate-100">
+                      <th class="py-2">Jenis Bangunan</th>
+                      <th class="text-right py-2">Bangunan</th>
+                      <th class="text-right py-2">Ruangan</th>
+                      <th class="text-right py-2">Aset</th>
+                      <th class="py-2 pl-4">Proporsi Fisik (Baik &bull; Rusak &bull; Hilang)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${rows.map(r => `
+                      <tr class="hover:bg-slate-50/70">
+                        <td class="py-2 font-medium text-slate-800">${r[0]}</td>
+                        <td class="py-2 text-right num-tabular">${r[1]}</td>
+                        <td class="py-2 text-right num-tabular">${r[2]}</td>
+                        <td class="py-2 text-right font-semibold text-slate-900 num-tabular">${r[3]}</td>
+                        <td class="py-2 pl-4">
+                          <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
+                            <div style="width: ${r[4]}%" class="bg-emerald-500 h-full" title="Baik: ${r[4]}%"></div>
+                            <div style="width: ${r[5]}%" class="bg-amber-500 h-full" title="Rusak: ${r[5]}%"></div>
+                            <div style="width: ${r[6]}%" class="bg-rose-500 h-full" title="Hilang: ${r[6]}%"></div>
+                          </div>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+              <div class="flex items-center gap-4 text-[11px] text-slate-600 mt-3 pt-2.5 border-t border-slate-100">
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-emerald-500"></span> Baik</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-amber-500"></span> Rusak</span>
+                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-rose-500"></span> Hilang</span>
+              </div>
+            </div>
+
+            <!-- Kondisi per Lokasi -->
+            <div class="clean-card p-4">
+              <h2 class="text-sm font-bold text-slate-900 pb-2.5 border-b border-slate-100 mb-3">Distribusi per Lokasi Operasional</h2>
+              <div class="space-y-3">
+                ${locs.map(l => `
+                  <div class="grid grid-cols-12 items-center gap-2 text-xs">
+                    <span class="col-span-2 font-bold text-slate-800">${l[0]}</span>
+                    <div class="col-span-6 h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
+                      <div style="width: ${l[1]}%" class="bg-emerald-500 h-full"></div>
+                      <div style="width: ${l[2]}%" class="bg-amber-500 h-full"></div>
+                      <div style="width: ${l[3]}%" class="bg-rose-500 h-full"></div>
+                    </div>
+                    <div class="col-span-4 flex justify-end gap-1.5">
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">${l[4]} rusak</span>
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">${l[5]} hilang</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+
+          <!-- Right Column -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="clean-card p-4">
+              <h2 class="text-sm font-bold text-slate-900 pb-2.5 border-b border-slate-100 mb-3">Antrean Prioritas Inspeksi Lapangan</h2>
+              <p class="text-xs text-slate-500 mb-3">1.655 aset berstatus hilang atau rusak perlu diverifikasi fisik ulang:</p>
+              <div class="space-y-2">
+                ${[['PNS-LH-05-03', 132, 'rose'], ['PNS-LH-05-02', 123, 'rose'], ['PNS-LH-05-01', 112, 'rose'], ['PNS-LH-03-05', 92, 'amber'], ['MESS-C', 90, 'amber']].map(q => `
+                  <div onclick="PNS_FM_STATE.sel='${q[0].replace('PNS-','')}'; navTo('view-fm-peta');" class="flex justify-between items-center p-2 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer transition text-xs">
+                    <span class="font-mono font-bold text-slate-800">${q[0]}</span>
+                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-${q[2]}-100 text-${q[2]}-800">${q[1]} Aset</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div class="clean-card p-4">
+              <h2 class="text-sm font-bold text-slate-900 pb-2.5 border-b border-slate-100 mb-3">Item Paling Sering Rusak &bull; Hilang</h2>
+              <div class="space-y-2.5 text-xs">
+                ${[['Guling Kamar', 278], ['Bantal Tidur', 251], ['Pengki & Sapu Lantai', 228], ['Keset Kaki Handuk', 151], ['Sprei Kasur', 149], ['Springbed Standard', 110]].map(x => `
+                  <div class="flex justify-between items-center">
+                    <span class="text-slate-700 font-medium">${x[0]}</span>
+                    <b class="font-bold text-slate-900 num-tabular">${x[1]} unit</b>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  // 2. RENDER FM PETA (PETA BANGUNAN INTERAKTIF)
+  window.renderFmPeta = function() {
+    pnsApplyRes();
+    const el = document.getElementById('view-fm-peta');
+    if (!el) return;
+
+    const loc = PNS_FM_STATE.loc || 'central';
+    const data = PNS_FM_ALL[loc] || [];
+    const mp = PNS_MAPS[loc] || { ar: '774 / 916' };
+    const isH = PNS_FM_STATE.layer !== 'fasilitas';
+    const lhs = data.filter(d => d.kd === 'lh');
+
+    let selCode = PNS_FM_STATE.sel;
+    if (!data.find(d => d.c === selCode)) {
+      selCode = (lhs.filter(d => d.hasOcc).sort((p, q) => q.kosong - p.kosong)[0] || data[0] || {}).c;
+      PNS_FM_STATE.sel = selCode;
+    }
+    const s = data.find(d => d.c === selCode) || data[0] || {};
+
+    const [W, H] = mp.ar.split('/').map(parseFloat);
+    const ext = data.map(d => {
+      const w = d.kd === 'lh' ? 96 : 78;
+      const h = d.kd === 'lh' ? 36 : 28;
+      return { x0: (d.x / 100) * W - w / 2 - 2, x1: (d.x / 100) * W + w / 2 + 2, y0: (d.y / 100) * H - h / 2 - 8, y1: (d.y / 100) * H + h / 2 + 2 };
+    });
+
+    const gaps = (a, b, m) => {
+      if (ext.length === 0) return [];
+      const iv = ext.map(e => [e[a], e[b]]).sort((p, q) => p[0] - q[0]);
+      const o = [];
+      let end = iv[0][1];
+      for (let i = 1; i < iv.length; i++) {
+        if (iv[i][0] - end >= m) o.push((end + iv[i][0]) / 2);
+        end = Math.max(end, iv[i][1]);
+      }
+      return o;
+    };
+
+    let roads = '';
+    gaps('y0', 'y1', 14).forEach(y => { roads += `<div class="road" style="left:0;top:${((y - 4) / H) * 100}%;width:100%;height:8px"></div>`; });
+    gaps('x0', 'x1', 14).slice(0, 3).forEach(x => { roads += `<div class="road" style="top:0;left:${((x - 4) / W) * 100}%;height:100%;width:8px"></div>`; });
+
+    const blocks = data.map(d => {
+      let cls, b;
+      if (isH) {
+        if (d.kd === 'lh') { cls = 'c-' + d.st; b = d.hasOcc ? d.kosong + ' kosong' : 'tanpa data'; }
+        else { cls = 'c-dim'; b = ''; }
+      } else {
+        cls = d.cond === 'nd' ? 'c-nd' : 'c-' + d.cond;
+        b = d.n > 0 ? Math.round((1 - d.prob) * 100) + '% baik' : 'tanpa data';
+      }
+      const shape = d.kd === 'lh' || /SPV|SPTD/.test(d.c) ? 'sh-lh' : (/MGR|MANAGER|^(FAC-)?GM|MESS-TAMU/.test(d.c) ? 'sh-hs' : 'sh-fc');
+      const isSelected = d.c === selCode;
+      const tipText = `${d.full} | ${d.kd === 'lh' && d.hasOcc ? (d.kosong + ' slot kosong &bull; ' + (PNS_FM_LABELS[d.st] || '')) : (d.n > 0 ? (PNS_FM_CLABELS[d.cond] || '') + ' &bull; ' + Math.round((1 - d.prob) * 100) + '% baik' : 'Belum ada data')}`;
+      return `<button type="button" class="bd ${d.kd === 'lh' ? 'lh' : 'o'} ${shape} ${cls}${isSelected ? ' sel' : ''}" style="left:${d.x}%;top:${d.y}%" onclick="selectFmBuilding('${d.c}')" title="${tipText}"><span class="a">${pnsShortOf(d.c)}</span><span class="b">${b}</span></button>`;
+    }).join('');
+
+    const withOcc = lhs.filter(d => d.hasOcc);
+    const kpis = isH
+      ? [
+          ['Longhouse di Peta', lhs.length],
+          ['Slot Terisi', withOcc.reduce((t, d) => t + d.terisi, 0).toLocaleString('id-ID') + ' / ' + withOcc.reduce((t, d) => t + d.slot, 0).toLocaleString('id-ID')],
+          ['Slot Kosong', withOcc.reduce((t, d) => t + d.kosong, 0).toLocaleString('id-ID'), true],
+          ['LH Kosong Total', withOcc.filter(d => d.st === 'kt').length]
+        ]
+      : [
+          ['Bangunan di Peta', data.length],
+          ['Aset Terdata', data.reduce((t, d) => t + d.n, 0).toLocaleString('id-ID')],
+          ['Aset Kondisi Baik', Math.round(data.reduce((t, d) => t + d.baik, 0) / Math.max(1, data.reduce((t, d) => t + d.n, 0)) * 100) + '%', true],
+          ['Bangunan Bermasalah', data.filter(d => d.cond === 'bad').length]
+        ];
+
+    const isLh = s.kd === 'lh';
+    const hasOcc = isLh && s.hasOcc;
+    const roomGridHtml = hasOcc ? s.occ.map((o, i) => `<div class="${pnsRoomCls(o, s.spr)}"><span>No.${i + 1}</span><b>${o}/${s.spr}</b></div>`).join('') : '';
+
+    el.innerHTML = `
+      <div class="space-y-4">
+        <!-- Header & Controls -->
+        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Peta Bangunan &amp; Denah Lapangan</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Pilih bangunan di peta visual untuk memeriksa kapasitas ranjang, okupansi penghuni, dan kondisi aset.</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-2">
+            <!-- Layer switcher -->
+            <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+              <button type="button" onclick="setPnsPetaLayer('hunian')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${isH ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:text-slate-900'}">Warna: Ketersediaan</button>
+              <button type="button" onclick="setPnsPetaLayer('fasilitas')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${!isH ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:text-slate-900'}">Warna: Kondisi Aset</button>
+            </div>
+            <!-- Location chips -->
+            <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+              ${PNS_FM_LOCS.map(l => `
+                <button type="button" onclick="setPnsPetaLoc('${l[0]}')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${loc === l[0] ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'}">${l[1]}</button>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 KPIs -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          ${kpis.map(x => `
+            <div class="clean-card p-3">
+              <div class="text-[11px] font-semibold text-slate-500 uppercase">${x[0]}</div>
+              <div class="text-xl font-bold ${x[2] ? 'text-emerald-700' : 'text-slate-900'} mt-0.5 num-tabular">${x[1]}</div>
+            </div>
+          `).join('')}
+        </div>
+
+        <!-- Map Canvas + Building Detail Panel -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <!-- Left: Peta Visual Field -->
+          <div class="lg:col-span-8 clean-card p-3 space-y-3">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-3 text-xs text-slate-600">
+                ${isH ? `
+                  <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-[#0B4A4E]"></span> Kosong Total</span>
+                  <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-[#1B6B45]"></span> Tersedia</span>
+                  <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-[#8F5200]"></span> Hampir Penuh</span>
+                  <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-[#A3231B]"></span> Penuh</span>
+                ` : `
+                  <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-emerald-600"></span> Baik</span>
+                  <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-amber-600"></span> Perlu Perhatian</span>
+                  <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-rose-600"></span> Bermasalah</span>
+                `}
+              </div>
+              <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs">
+                <button type="button" onclick="setPnsZoom(1)" class="px-2 py-1 rounded ${PNS_FM_STATE.zoom === 1 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'}">100%</button>
+                <button type="button" onclick="setPnsZoom(1.5)" class="px-2 py-1 rounded ${PNS_FM_STATE.zoom === 1.5 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'}">150%</button>
+                <button type="button" onclick="setPnsZoom(2)" class="px-2 py-1 rounded ${PNS_FM_STATE.zoom === 2 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'}">200%</button>
+              </div>
+            </div>
+
+            <div class="scroll" style="max-height: 64vh">
+              <div class="field" style="aspect-ratio: ${mp.ar}; width: ${(PNS_FM_STATE.zoom || 1) * 100}%">
+                ${roads}
+                ${blocks}
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-400">Klik blok bangunan untuk memeriksa rincian kamar &amp; aset. Bentuk persegi panjang bersekat = Longhouse, atap segitiga = Rumah Manager/Staff, bulat = Fasilitas Umum.</p>
+          </div>
+
+          <!-- Right: Building Detail Panel -->
+          <div class="lg:col-span-4 clean-card p-4 space-y-4">
+            <div class="flex justify-between items-start gap-2 pb-3 border-b border-slate-100">
+              <div>
+                <h3 class="font-bold text-slate-900 text-base leading-tight">${s.nm || 'Bangunan'}</h3>
+                <div class="font-mono text-xs text-slate-500 font-semibold">${s.full || '-'}</div>
+              </div>
+              <span class="px-2.5 py-1 rounded-full text-[11px] font-bold ${s.st === 'kt' ? 'bg-teal-100 text-teal-800' : (s.st === 'tv' ? 'bg-emerald-100 text-emerald-800' : (s.st === 'hp' ? 'bg-amber-100 text-amber-800' : 'bg-slate-100 text-slate-700'))}">
+                ${PNS_FM_LABELS[s.st] || PNS_FM_CLABELS[s.cond] || 'Terdata'}
+              </span>
+            </div>
+
+            ${hasOcc ? `
+              <div class="text-xs text-slate-600">${PNS_LH_JENIS_MAP[s.jenis] || 'Longhouse'} &bull; ${s.occ.length} Kamar (${s.spr} slot/kamar)</div>
+              <div class="grid grid-cols-3 gap-2 text-center bg-slate-50 p-2.5 rounded-xl border border-slate-100">
+                <div><div class="text-[10.5px] text-slate-500 font-medium">Terisi</div><b class="text-base text-slate-900 num-tabular">${s.terisi} / ${s.slot}</b></div>
+                <div><div class="text-[10.5px] text-slate-500 font-medium">Kosong</div><b class="text-base text-emerald-700 num-tabular">${s.kosong}</b></div>
+                <div><div class="text-[10.5px] text-slate-500 font-medium">Kamar Kosong</div><b class="text-base text-slate-900 num-tabular">${s.kamarKosong}</b></div>
+              </div>
+              <div>
+                <div class="text-xs font-bold text-slate-800 mb-2">Denah Kamar</div>
+                <div class="rg">${roomGridHtml}</div>
+                <div class="flex flex-wrap gap-2 text-[10px] text-slate-500 mt-2">
+                  <span>Hijau Tua: Kosong</span> &bull; <span>Hijau: Ada Slot</span> &bull; <span>Abu: Penuh</span>
+                </div>
+              </div>
+            ` : `
+              <p class="text-xs text-slate-500 leading-relaxed">Bangunan non-longhouse / fasilitas pendukung operasional site. Kondisi fisik dan kelengkapan diperiksa melalui inspeksi fasilitas.</p>
+            `}
+
+            <!-- Aset di Dalam -->
+            <div>
+              <div class="text-xs font-bold text-slate-800 mb-1.5">Kondisi Aset Fisik di Bangunan</div>
+              ${s.n > 0 ? `
+                <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex mb-2">
+                  <div style="width: ${(s.baik / s.n) * 100}%" class="bg-emerald-500 h-full"></div>
+                  <div style="width: ${(s.rusak / s.n) * 100}%" class="bg-amber-500 h-full"></div>
+                  <div style="width: ${(s.hilang / s.n) * 100}%" class="bg-rose-500 h-full"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-600">
+                  <span>Total: <b>${s.n}</b> aset</span>
+                  <span class="text-emerald-700 font-medium">Baik: ${s.baik}</span>
+                  <span class="text-amber-700 font-medium">Rusak: ${s.rusak}</span>
+                  <span class="text-rose-700 font-medium">Hilang: ${s.hilang}</span>
+                </div>
+              ` : '<div class="text-xs text-slate-400">Belum ada aset terdaftar di bangunan ini.</div>'}
+            </div>
+
+            <!-- Actions -->
+            <div class="space-y-2 pt-2 border-t border-slate-100">
+              ${hasOcc && s.kosong > 0 ? `
+                <button type="button" onclick="openPlaceModal('${s.c}')" class="w-full py-2 px-3 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center justify-center gap-1.5 shadow-2xs">
+                  <i class="ph-bold ph-user-plus"></i> Tempatkan Karyawan Baru
+                </button>
+              ` : ''}
+              <button type="button" onclick="PNS_FM_STATE.sel='${s.c}'; navTo('view-fm-rincian');" class="w-full py-2 px-3 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition flex items-center justify-center gap-1.5">
+                <i class="ph-bold ph-bed"></i> Rincian Kamar &amp; Standar Isi
+              </button>
+              <button type="button" onclick="navTo('view-fm-mobile'); switchMobileView('inspeksi');" class="w-full py-2 px-3 text-xs font-semibold rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200 transition flex items-center justify-center gap-1.5">
+                <i class="ph-bold ph-clipboard-text"></i> Mulai Inspeksi Lapangan
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  window.selectFmBuilding = function(code) {
+    window.PNS_FM_STATE.sel = code;
+    renderFmPeta();
+  };
+  window.setPnsPetaLoc = function(loc) {
+    window.PNS_FM_STATE.loc = loc;
+    window.PNS_FM_STATE.sel = null;
+    renderFmPeta();
+  };
+  window.setPnsPetaLayer = function(layer) {
+    window.PNS_FM_STATE.layer = layer;
+    renderFmPeta();
+  };
+  window.setPnsZoom = function(z) {
+    window.PNS_FM_STATE.zoom = z;
+    renderFmPeta();
+  };
+
+  // 3. RENDER FM PERENCANAAN KEBUTUHAN (SIMULASI STANDAR HUNIAN)
+  window.renderFmPerencanaan = function() {
+    const el = document.getElementById('view-fm-rencana');
+    if (!el) return;
+
+    const n = window.PNS_FM_STATE.n || 2;
+    const data = [
+      ['Central Office', 129, 116, 51],
+      ['Estate 1-2', 95, 69, 41],
+      ['Estate 3', 40, 37, 30],
+      ['Factory / Pabrik', 328, 309, 90]
+    ];
+
+    const tn = 592 / n;
+    const td = 212 - tn;
+    const sgn = (x) => (x > 0 ? '+' : '') + (Math.round(x * 10) / 10).toString().replace('.', ',');
+
+    el.innerHTML = `
+      <div class="space-y-5">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Perencanaan Kebutuhan Kamar Hunian</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Simulasi kebutuhan kamar karyawan berdasarkan MPP 2026 dibandingkan kapasitas fisik yang tersedia.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-600">Standar Orang / Kamar:</span>
+            <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+              <button type="button" onclick="setPnsOrangPerKamar(2)" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${n === 2 ? 'bg-emerald-600 text-white' : 'text-slate-600'}">2 (Standar Target)</button>
+              <button type="button" onclick="setPnsOrangPerKamar(3)" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${n === 3 ? 'bg-emerald-600 text-white' : 'text-slate-600'}">3</button>
+              <button type="button" onclick="setPnsOrangPerKamar(4)" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${n === 4 ? 'bg-emerald-600 text-white' : 'text-slate-600'}">4 (Kondisi Saat Ini)</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4 KPIs -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">MPP Karyawan 2026</div>
+            <div class="text-2xl font-bold text-slate-900 mt-1 num-tabular">592 Orang</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Penghuni aktif saat ini: 531</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Kamar Dibutuhkan</div>
+            <div class="text-2xl font-bold text-indigo-700 mt-1 num-tabular">${(Math.round(tn * 10) / 10).toString().replace('.', ',')} Kamar</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Dengan standar ${n} orang/kamar</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Kamar Tersedia Saat Ini</div>
+            <div class="text-2xl font-bold text-slate-900 mt-1 num-tabular">212 Kamar</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Tersebar di 22 Longhouse</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">${td < 0 ? 'Kekurangan Kamar' : 'Kelebihan Kamar'}</div>
+            <div class="text-2xl font-bold ${td < 0 ? 'text-rose-600' : 'text-emerald-700'} mt-1 num-tabular">${sgn(td)} Kamar</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">${td < 0 ? 'Perlu penambahan / renovasi' : 'Kapasitas mencukupi'}</div>
+          </div>
+        </div>
+
+        <!-- Table & Financial Projections -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <div class="lg:col-span-8 clean-card p-4 space-y-3">
+            <h2 class="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100">Kebutuhan Kamar per Lokasi Operasional</h2>
+            <div class="overflow-x-auto">
+              <table class="w-full text-xs text-left">
+                <thead>
+                  <tr class="text-slate-500 border-b border-slate-100">
+                    <th class="py-2">Lokasi</th>
+                    <th class="text-right py-2">MPP 2026</th>
+                    <th class="text-right py-2">Penghuni Kini</th>
+                    <th class="text-right py-2">Dibutuhkan (${n} org)</th>
+                    <th class="text-right py-2">Kamar Ada</th>
+                    <th class="text-right py-2">Selisih</th>
+                    <th class="py-2 text-center">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${data.map(d => {
+                    const need = d[1] / n;
+                    const diff = d[3] - need;
+                    return `
+                      <tr class="hover:bg-slate-50">
+                        <td class="py-2.5 font-bold text-slate-800">${d[0]}</td>
+                        <td class="py-2.5 text-right num-tabular">${d[1]}</td>
+                        <td class="py-2.5 text-right num-tabular">${d[2]}</td>
+                        <td class="py-2.5 text-right font-semibold text-slate-900 num-tabular">${(Math.round(need * 10) / 10).toString().replace('.', ',')}</td>
+                        <td class="py-2.5 text-right num-tabular">${d[3]}</td>
+                        <td class="py-2.5 text-right font-bold ${diff < 0 ? 'text-rose-600' : 'text-emerald-700'} num-tabular">${sgn(diff)}</td>
+                        <td class="py-2.5 text-center">
+                          <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${diff < 0 ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800'}">
+                            ${diff < 0 ? 'Kurang' : 'Cukup'}
+                          </span>
+                        </td>
+                      </tr>
+                    `;
+                  }).join('')}
+                </tbody>
+                <tfoot>
+                  <tr class="font-bold border-t border-slate-200 bg-slate-50/50">
+                    <td class="py-2.5">Total Seluruh Site</td>
+                    <td class="py-2.5 text-right num-tabular">592</td>
+                    <td class="py-2.5 text-right num-tabular">531</td>
+                    <td class="py-2.5 text-right num-tabular">${(Math.round(tn * 10) / 10).toString().replace('.', ',')}</td>
+                    <td class="py-2.5 text-right num-tabular">212</td>
+                    <td class="py-2.5 text-right num-tabular ${td < 0 ? 'text-rose-600' : 'text-emerald-700'}">${sgn(td)}</td>
+                    <td></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+            <p class="text-[11px] text-slate-500">Kondisi saat ini: 1 Longhouse (10 kamar) menampung hingga 40 orang (4 orang/kamar). Target standarisasi: 20 orang (2 orang/kamar) untuk kenyamanan dan privasi karyawan.</p>
+          </div>
+
+          <!-- Financial Side Cards -->
+          <div class="lg:col-span-4 space-y-4">
+            <div class="clean-card p-4 space-y-3">
+              <h3 class="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100">Estimasi Biaya Standarisasi Kamar</h3>
+              <div class="text-3xl font-extrabold text-emerald-700 tracking-tight">Rp 8,5 Juta <span class="text-xs font-normal text-slate-500">/ Kamar Standar</span></div>
+              <p class="text-xs text-slate-600 leading-relaxed">Mencakup 12 item inventaris standar: 2 unit springbed (Rp 5,6 jt), 2 unit lemari 2 pintu (Rp 1,4 jt), sprei, bantal, gorden, serta perlengkapan kebersihan.</p>
+            </div>
+
+            <div class="clean-card p-4 space-y-3">
+              <h3 class="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100">Kebutuhan Capex Longhouse Baru</h3>
+              <div class="space-y-2 text-xs">
+                <div class="flex justify-between text-slate-600"><span>1 Unit Longhouse Baru (10 Kamar)</span><b class="text-slate-900">Rp 967,9 Juta</b></div>
+                <div class="flex justify-between text-slate-600"><span>Renovasi Kamar Mandi &amp; Teras (Central)</span><b class="text-slate-900">Rp 155,5 Juta</b></div>
+                <div class="flex justify-between text-slate-600"><span>Pengadaan Aset Isi Kamar Baru</span><b class="text-slate-900">Rp 180,0 Juta</b></div>
+                <div class="pt-2 border-t border-slate-200 flex justify-between font-bold text-slate-900 text-sm"><span>Total Capex Proyeksi</span><span class="text-emerald-700">Rp 1,30 Miliar</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  window.setPnsOrangPerKamar = function(val) {
+    window.PNS_FM_STATE.n = val;
+    renderFmPerencanaan();
+  };
+
+  // 4. RENDER FM KETERSEDIAAN HUNIAN
+  window.renderFmKetersediaan = function() {
+    pnsApplyRes();
+    const el = document.getElementById('view-fm-ketersediaan');
+    if (!el) return;
+
+    const sel = PNS_FM_STATE.kloc || 'all';
+    const lhs = pnsAllLh().filter(d => sel === 'all' || d.loc === sel);
+    const sum = (f) => lhs.reduce((t, d) => t + f(d), 0);
+
+    const slot = sum(d => d.slot);
+    const terisi = sum(d => d.terisi);
+    const kosong = sum(d => d.kosong);
+    const kk = sum(d => d.kamarKosong);
+    const gt2 = sum(d => d.gt2);
+    const rooms = sum(d => d.occ.length);
+    const top = lhs.slice().sort((p, q) => q.kosong - p.kosong).slice(0, 10);
+
+    el.innerHTML = `
+      <div class="space-y-5">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Ketersediaan Hunian &amp; Slot Ranjang</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Sensus Mess &bull; ${lhs.length} Longhouse, ${rooms.toLocaleString('id-ID')} Kamar, ${slot.toLocaleString('id-ID')} Slot Tempat Tidur.</p>
+          </div>
+          <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
+            ${[['all', 'Semua Lokasi'], ...PNS_FM_LOCS].map(l => `
+              <button type="button" onclick="setPnsKloc('${l[0]}')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${sel === l[0] ? 'bg-slate-900 text-white' : 'text-slate-600'}">${l[1]}</button>
+            `).join('')}
+          </div>
+        </div>
+
+        <!-- 4 KPIs -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Slot Terisi</div>
+            <div class="text-2xl font-bold text-slate-900 mt-1 num-tabular">${terisi.toLocaleString('id-ID')}</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">${Math.round((terisi / Math.max(1, slot)) * 100)}% dari ${slot.toLocaleString('id-ID')} total slot</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Slot Kosong Siap Huni</div>
+            <div class="text-2xl font-bold text-emerald-700 mt-1 num-tabular">${kosong.toLocaleString('id-ID')}</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Tersedia untuk penempatan baru</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Kamar Kosong Total</div>
+            <div class="text-2xl font-bold text-teal-800 mt-1 num-tabular">${kk} Kamar</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Kandidat kamar dikunci untuk efisiensi</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Kamar Melebihi 2 Orang</div>
+            <div class="text-2xl font-bold text-amber-700 mt-1 num-tabular">${gt2} Kamar</div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Dari ${rooms.toLocaleString('id-ID')} kamar terdata</div>
+          </div>
+        </div>
+
+        <!-- Table Longhouse Terbanyak Slot Kosong -->
+        <div class="clean-card p-4 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+            <h2 class="text-sm font-bold text-slate-900">Daftar Longhouse dengan Slot Kosong Terbanyak</h2>
+            <span class="text-xs text-slate-500">Klik kode untuk membuka peta</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-xs text-left">
+              <thead>
+                <tr class="text-slate-500 border-b border-slate-100">
+                  <th class="py-2">Kode Longhouse</th>
+                  <th class="text-right py-2">Kamar</th>
+                  <th class="text-right py-2">Slot Kosong</th>
+                  <th class="py-2 pl-4">Jenis &bull; Lokasi</th>
+                  <th class="text-right py-2">Terisi / Kapasitas</th>
+                  <th class="py-2 text-center">Status</th>
+                  <th class="py-2 text-right">Aksi</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100">
+                ${top.map(d => `
+                  <tr class="hover:bg-slate-50">
+                    <td class="py-2.5 font-mono font-bold text-emerald-700 cursor-pointer" onclick="PNS_FM_STATE.loc='${d.loc}'; PNS_FM_STATE.sel='${d.c}'; navTo('view-fm-peta');">${d.full}</td>
+                    <td class="py-2.5 text-right num-tabular">${d.occ.length}</td>
+                    <td class="py-2.5 text-right font-bold text-emerald-700 num-tabular">${d.kosong}</td>
+                    <td class="py-2.5 pl-4">${PNS_LH_JENIS_MAP[d.jenis] || 'Longhouse'} &bull; ${PNS_FM_LNAME[d.loc]}</td>
+                    <td class="py-2.5 text-right num-tabular">${d.terisi} / ${d.slot}</td>
+                    <td class="py-2.5 text-center">
+                      <span class="px-2 py-0.5 rounded-full text-[10px] font-bold ${d.st === 'kt' ? 'bg-teal-100 text-teal-800' : (d.st === 'tv' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800')}">
+                        ${PNS_FM_LABELS[d.st] || 'Tersedia'}
+                      </span>
+                    </td>
+                    <td class="py-2.5 text-right">
+                      <button type="button" onclick="openPlaceModal('${d.c}')" class="px-2.5 py-1 text-[11px] font-bold rounded bg-emerald-600 text-white hover:bg-emerald-700">Tempatkan</button>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  window.setPnsKloc = function(kloc) {
+    window.PNS_FM_STATE.kloc = kloc;
+    renderFmKetersediaan();
+  };
+
+  // 5. RENDER FM RINCIAN LONGHOUSE
+  window.renderFmRincian = function() {
+    const el = document.getElementById('view-fm-rincian');
+    if (!el) return;
+
+    const all = pnsAllLh();
+    const curCode = PNS_FM_STATE.sel || 'LH-01-01';
+    const d = all.find(x => x.c === curCode) || all[0] || {};
+    const r = Math.min(PNS_FM_STATE.room || 1, (d.occ || []).length) || 1;
+    const o = (d.occ && d.occ[r - 1]) || 0;
+
+    const STD_ITEMS = [
+      ['Springbed', 4, '2', 'Lebih dari standar'],
+      ['Bantal', 4, '2', 'Lebih dari standar'],
+      ['Guling', 4, '2', 'Lebih dari standar'],
+      ['Selimut', 4, '2', 'Lebih dari standar'],
+      ['Sprei', 4, '2', 'Lebih dari standar'],
+      ['Keranjang Pakaian Kotor', 2, '2', 'Sesuai'],
+      ['Keset Lantai', 1, '1', 'Sesuai'],
+      ['Pengki + Sapu Lantai', 1, '1', 'Sesuai'],
+      ['Loker Besi', 4, '–', 'Tidak ada di standar'],
+      ['Lemari 2 Pintu', 0, '2', 'Belum terdata'],
+      ['Gorden & Tiang Gorden', 0, '1 &bull; 1', 'Belum terdata']
+    ];
+
+    el.innerHTML = `
+      <div class="space-y-5">
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+          <div>
+            <div class="text-xs text-slate-500 font-semibold">${PNS_FM_LNAME[d.loc] || 'Central'} &rsaquo; ${PNS_LH_JENIS_MAP[d.jenis] || 'Longhouse'}</div>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Rincian &amp; Standar Isi ${d.full || 'PNS-LH-01-01'}</h1>
+          </div>
+          <div class="flex items-center gap-2">
+            <select onchange="PNS_FM_STATE.sel=this.value; renderFmRincian();" class="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white">
+              ${all.slice(0, 30).map(x => `<option value="${x.c}" ${x.c === d.c ? 'selected' : ''}>${x.full} (${PNS_FM_LNAME[x.loc] || x.loc})</option>`).join('')}
+            </select>
+            <button type="button" onclick="navTo('view-fm-peta')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700">Lihat di Peta</button>
+            <button type="button" onclick="printExecutiveReport()" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 flex items-center gap-1.5"><i class="ph-bold ph-printer"></i> Cetak QR &amp; Laporan</button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Jumlah Kamar</div>
+            <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${(d.occ || []).length} Kamar</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Slot Terisi</div>
+            <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${d.terisi || 0} / ${d.slot || 0}</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Aset Terdaftar</div>
+            <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${d.n || 0} Aset</div>
+          </div>
+          <div class="clean-card p-3.5">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Aset Hilang &bull; Rusak</div>
+            <div class="text-2xl font-bold text-rose-600 mt-0.5 num-tabular">${(d.hilang || 0) + (d.rusak || 0)}</div>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
+          <!-- Room selector buttons -->
+          <div class="lg:col-span-3 clean-card p-3 space-y-1.5">
+            <h3 class="text-xs font-bold text-slate-900 mb-2">Pilih Nomor Kamar</h3>
+            <div class="space-y-1 max-h-[500px] overflow-y-auto">
+              ${(d.occ || []).map((v, i) => `
+                <button type="button" onclick="PNS_FM_STATE.room=${i + 1}; renderFmRincian();" class="w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold transition ${r === (i + 1) ? 'bg-emerald-600 text-white' : 'hover:bg-slate-100 text-slate-700'}">
+                  <span>Kamar No.${i + 1}</span>
+                  <span class="px-1.5 py-0.2 rounded text-[10px] ${r === (i + 1) ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}">${v} / ${d.spr} Slot</span>
+                </button>
+              `).join('')}
+            </div>
+          </div>
+
+          <!-- Room standard table & residents -->
+          <div class="lg:col-span-9 space-y-4">
+            <div class="clean-card p-4 space-y-3">
+              <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                <h3 class="text-sm font-bold text-slate-900">Kamar No.${r} &bull; Standar Isi Kamar (Standar 2 Orang)</h3>
+                <span class="text-xs text-slate-500">Kapasitas Maksimal: ${d.spr} Orang</span>
+              </div>
+              <div class="overflow-x-auto">
+                <table class="w-full text-xs text-left">
+                  <thead>
+                    <tr class="text-slate-500 border-b border-slate-100">
+                      <th class="py-2">Nama Barang / Fasilitas</th>
+                      <th class="text-right py-2">Fisik Ada</th>
+                      <th class="text-right py-2">Standar</th>
+                      <th class="py-2 pl-4">Status Kelayakan</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${STD_ITEMS.map(x => `
+                      <tr class="hover:bg-slate-50">
+                        <td class="py-2 font-medium text-slate-800">${x[0]}</td>
+                        <td class="py-2 text-right num-tabular font-bold">${x[1]}</td>
+                        <td class="py-2 text-right num-tabular text-slate-500">${x[2]}</td>
+                        <td class="py-2 pl-4">
+                          <span class="px-2 py-0.5 rounded text-[10.5px] font-semibold ${x[3] === 'Sesuai' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : (x[3].includes('Lebih') ? 'bg-indigo-50 text-indigo-800 border border-indigo-200' : 'bg-amber-50 text-amber-800 border border-amber-200')}">
+                            ${x[3]}
+                          </span>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Residents Card for Room -->
+            <div class="clean-card p-4 space-y-3">
+              <h3 class="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100">Penghuni Aktif Kamar No.${r}</h3>
+              ${o === 0 ? `
+                <div class="p-3 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-800">
+                  Kamar ini kosong total. Fasilitas di dalam tetap dijaga, akses dikunci sementara sampai penempatan karyawan baru.
+                </div>
+              ` : `
+                <div class="space-y-2">
+                  ${Array.from({ length: o }, (_, i) => `
+                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs">
+                      <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 text-[10px]">${i + 1}</span>
+                        <div>
+                          <b class="text-slate-900 block">[Karyawan PT PNS]</b>
+                          <span class="text-[10.5px] text-slate-500">Staff Operasional &bull; HRGA &amp; Field</span>
+                        </div>
+                      </div>
+                      ${i === 0 ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800">Ketua Hunian</span>' : '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-200 text-slate-700">Anggota</span>'}
+                    </div>
+                  `).join('')}
+                </div>
+              `}
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  };
+
+  // 6. RENDER FM MOBILE FIELD INSPECTOR
+  window.renderFmMobile = function() {
+    const el = document.getElementById('view-fm-mobile');
+    if (!el) return;
+
+    const cur = PNS_FM_STATE.mview || 'beranda';
+    const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
+    const I = PNS_FM_STATE.insp;
+
+    let bodyContent = '';
+    if (cur === 'scan') {
+      bodyContent = `
+        <div class="scan">
+          <div class="text-sm font-bold">Arahkan kamera ke QR Code di pintu kamar</div>
+          <div class="vf"><div class="scanline"></div></div>
+          <div class="text-xs text-slate-300">Memindai kode inventaris...</div>
+          <button type="button" onclick="switchMobileView('inspeksi')" class="px-4 py-2 rounded-lg bg-white/20 text-white text-xs font-semibold hover:bg-white/30">Simulasi Scan Terbaca</button>
+          <button type="button" onclick="switchMobileView('beranda')" class="text-xs text-slate-400 underline">Batal</button>
+        </div>
+      `;
+    } else if (cur === 'inspeksi') {
+      bodyContent = `
+        <div class="mh">
+          <div class="t">
+            <b>Kamar No.1</b>
+            <span class="text-[11px] text-slate-500 font-mono">PNS-LH-01-01 &bull; Central</span>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-slate-100 text-[10px] font-bold text-slate-600">3 / 12 Item</span>
+        </div>
+        <div class="w-full bg-slate-200 h-1"><div class="bg-emerald-600 h-1" style="width: 25%"></div></div>
+        <div class="mb">
+          <div class="sec">Checklist Fisik Standar Kamar</div>
+          ${[['springbed', 'Springbed Standard', 2, 4], ['bantal', 'Bantal Tidur', 2, 4], ['guling', 'Guling', 2, 4]].map(item => `
+            <div class="it ${I[item[0]] === 'rs' ? 'rs' : (I[item[0]] === 'hl' ? 'hl' : '')}">
+              <div class="flex justify-between items-center text-xs">
+                <b class="font-bold text-slate-800">${item[1]}</b>
+                <span class="text-[10px] text-slate-400 font-mono">Std: ${item[2]} &bull; Ada: ${item[3]}</span>
+              </div>
+              <div class="opt">
+                <button type="button" onclick="setPnsInsp('${item[0]}', 'ok')" class="${I[item[0]] === 'ok' ? 's-ok' : ''}">Baik</button>
+                <button type="button" onclick="setPnsInsp('${item[0]}', 'rs')" class="${I[item[0]] === 'rs' ? 's-rs' : ''}">Rusak</button>
+                <button type="button" onclick="setPnsInsp('${item[0]}', 'hl')" class="${I[item[0]] === 'hl' ? 's-hl' : ''}">Hilang</button>
+              </div>
+            </div>
+          `).join('')}
+
+          <div class="sec">Pemeriksaan Stepper Standar</div>
+          ${[['lemari', 'Lemari 2 Pintu', 2], ['gorden', 'Gorden & Tiang', 1]].map(st => `
+            <div class="it flex items-center justify-between">
+              <div>
+                <b class="text-xs font-bold text-slate-800 block">${st[1]}</b>
+                <span class="text-[10px] text-slate-400">Standar: ${st[2]} unit</span>
+              </div>
+              <div class="step">
+                <button type="button" onclick="stepPnsInsp('${st[0]}', -1)">&minus;</button>
+                <b>${I[st[0]]}</b>
+                <button type="button" onclick="stepPnsInsp('${st[0]}', 1)">+</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+        <div class="mf">
+          <button type="button" onclick="switchMobileView('tiket')" class="mbtn">Simpan &bull; Buat Tiket Temuan</button>
+        </div>
+      `;
+    } else if (cur === 'tiket') {
+      const stNames = ['Open (Baru)', 'Dikerjakan', 'Selesai'];
+      bodyContent = `
+        <div class="mh">
+          <div class="t">
+            <b>Tiket Temuan Lapangan</b>
+            <span class="text-[11px] text-slate-500 font-mono">WO-2026-11-0023</span>
+          </div>
+          <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 text-[10px] font-bold">Urgent</span>
+        </div>
+        <div class="mb">
+          <div class="it space-y-1">
+            <h4 class="font-bold text-slate-900 text-sm">Gorden &amp; Lemari Kamar Rusak</h4>
+            <p class="text-xs text-slate-500">Kamar No.1 &bull; Longhouse PNS-LH-01-01 &bull; Central</p>
+          </div>
+          <div class="it space-y-2">
+            <div class="sec">Tahapan Status Work Order</div>
+            <div class="stg">
+              ${stNames.map((s, idx) => `
+                <button type="button" onclick="PNS_FM_STATE.tstat=${idx}; renderFmMobile();" class="${PNS_FM_STATE.tstat === idx ? 'on' : ''}">${s}</button>
+              `).join('')}
+            </div>
+          </div>
+          <div class="it space-y-2 text-xs">
+            <div class="flex justify-between text-slate-600"><span>Teknisi Ditugaskan</span><b class="text-slate-900">Bambang S. (Civil Maintenance)</b></div>
+            <div class="flex justify-between text-slate-600"><span>Waktu Laporan</span><b class="text-slate-900">Hari ini, 09:30 WIB</b></div>
+            <div class="flex justify-between text-slate-600"><span>Material Dibutuhkan</span><b class="text-slate-900">1 Set Engsel Lemari + Rel Gorden</b></div>
+          </div>
+        </div>
+        <div class="mf flex gap-2">
+          <button type="button" onclick="switchMobileView('beranda')" class="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-white">Kembali</button>
+          <button type="button" onclick="PNS_FM_STATE.tstat=2; renderFmMobile();" class="mbtn flex-1">Selesaikan Tiket</button>
+        </div>
+      `;
+    } else {
+      // cur === 'beranda'
+      bodyContent = `
+        <div class="mh flex-col items-start gap-1 p-4 bg-slate-900 text-white">
+          <span class="text-xs text-slate-400">Selamat Bekerja,</span>
+          <b class="text-base font-bold text-white">Petugas Inspeksi HRGA</b>
+          <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300">Central Office Site</span>
+        </div>
+        <div class="mb space-y-3">
+          <button type="button" onclick="switchMobileView('scan')" class="w-full p-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-3.5 shadow-md">
+            <i class="ph-bold ph-qr-code text-3xl"></i>
+            <div class="text-left">
+              <b class="text-sm block">Scan QR Code Ruangan</b>
+              <span class="text-xs text-emerald-100">Mulai audit checklist fisik</span>
+            </div>
+          </button>
+          <div class="grid grid-cols-2 gap-2 text-xs">
+            <div class="it text-center">
+              <span class="text-slate-400 block text-[10px] uppercase font-bold">Perlu Cek Ulang</span>
+              <b class="text-xl font-bold text-rose-600 num-tabular">1.655</b>
+              <span class="text-[10px] text-slate-500 block">Aset Rusak/Hilang</span>
+            </div>
+            <div class="it text-center">
+              <span class="text-slate-400 block text-[10px] uppercase font-bold">Tiket Terbuka</span>
+              <b class="text-xl font-bold text-amber-600 num-tabular">4 Tiket</b>
+              <span class="text-[10px] text-slate-500 block">1 Urgent</span>
+            </div>
+          </div>
+          <div class="sec">Jadwal Inspeksi Terdekat</div>
+          <div onclick="switchMobileView('inspeksi')" class="job space-y-1 hover:border-emerald-500">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-mono font-bold text-slate-800">PNS-LH-05-03</span>
+              <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[10px]">132 Aset Temuan</span>
+            </div>
+            <div class="text-[11px] text-slate-500">Longhouse Karyawan &bull; Estate 3</div>
+          </div>
+        </div>
+      `;
+    }
+
+    el.innerHTML = `
+      <div class="stage">
+        <div class="phone">
+          <div class="sbar">
+            <span>${now}</span>
+            <span class="text-slate-400 font-semibold text-[11px]">Field Inspector &bull; PNS FM</span>
+          </div>
+          <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
+            ${bodyContent}
+          </div>
+          <nav class="tabs">
+            <button type="button" onclick="switchMobileView('beranda')" class="tab ${cur === 'beranda' ? 'on' : ''}"><i class="ph-bold ph-house text-lg"></i> Beranda</button>
+            <button type="button" onclick="switchMobileView('scan')" class="tab ${cur === 'scan' ? 'on' : ''}"><i class="ph-bold ph-qr-code text-lg"></i> Scan QR</button>
+            <button type="button" onclick="switchMobileView('inspeksi')" class="tab ${cur === 'inspeksi' ? 'on' : ''}"><i class="ph-bold ph-clipboard-text text-lg"></i> Inspeksi</button>
+            <button type="button" onclick="switchMobileView('tiket')" class="tab ${cur === 'tiket' ? 'on' : ''}"><i class="ph-bold ph-wrench text-lg"></i> Tiket</button>
+          </nav>
+        </div>
+      </div>
+    `;
+  };
+
+  window.switchMobileView = function(view) {
+    window.PNS_FM_STATE.mview = view;
+    renderFmMobile();
+  };
+  window.setPnsInsp = function(key, val) {
+    window.PNS_FM_STATE.insp[key] = val;
+    renderFmMobile();
+  };
+  window.stepPnsInsp = function(key, delta) {
+    const lim = { lemari: 6, gorden: 6 };
+    window.PNS_FM_STATE.insp[key] = Math.max(0, Math.min(lim[key] || 10, (window.PNS_FM_STATE.insp[key] || 0) + delta));
+    renderFmMobile();
+  };
+
+  // 7. PLACE MODAL (TEMPATKAN KARYAWAN)
+  window.openPlaceModal = function(code) {
+    const all = pnsAllLh();
+    const d = all.find(x => x.c === code) || all[0];
+    if (!d) return;
+
+    window.PNS_FM_STATE.place = code;
+    window.PNS_FM_STATE.pn = 1;
+    window.PNS_FM_STATE.pname = '';
+
+    const modal = document.getElementById('place-modal');
+    if (!modal) return;
+    const body = document.getElementById('place-modal-body');
+    if (body) {
+      body.innerHTML = `
+        <div class="space-y-3 text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Bangunan Terpilih:</label>
+            <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200 font-mono font-bold text-slate-900">${d.full} &bull; ${PNS_FM_LNAME[d.loc]} (${d.kosong} Slot Kosong)</div>
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nama Karyawan:</label>
+            <input type="text" id="place-input-name" placeholder="Masukkan nama lengkap karyawan baru..." class="w-full px-3 py-2 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Jumlah Orang:</label>
+            <div class="flex items-center gap-3">
+              <button type="button" onclick="stepPlaceCount(-1, ${d.kosong})" class="w-8 h-8 rounded border border-slate-200 bg-white font-bold text-base">&minus;</button>
+              <b id="place-count-val" class="text-base font-bold text-slate-900 num-tabular">1</b>
+              <button type="button" onclick="stepPlaceCount(1, ${d.kosong})" class="w-8 h-8 rounded border border-slate-200 bg-white font-bold text-base">+</button>
+              <span class="text-slate-400 text-[11px]">Maksimal ${d.kosong} slot kosong</span>
+            </div>
+          </div>
+          <div class="p-2.5 rounded-lg bg-teal-50 border border-teal-200 text-teal-800 text-[11px]">
+            Saran Sistem: Kamar yang hampir penuh diisi lebih dahulu agar kamar yang masih kosong total dapat tetap dikunci.
+          </div>
+        </div>
+      `;
+    }
+    modal.classList.remove('hidden');
+  };
+
+  window.stepPlaceCount = function(delta, max) {
+    window.PNS_FM_STATE.pn = Math.max(1, Math.min(max, (window.PNS_FM_STATE.pn || 1) + delta));
+    const el = document.getElementById('place-count-val');
+    if (el) el.innerText = window.PNS_FM_STATE.pn;
+  };
+
+  window.closePlaceModal = function() {
+    const modal = document.getElementById('place-modal');
+    if (modal) modal.classList.add('hidden');
+  };
+
+  window.confirmPlacePlacement = function() {
+    const inp = document.getElementById('place-input-name');
+    const name = inp ? inp.value.trim() : '';
+    if (!name) {
+      if (typeof Swal !== 'undefined') Swal.fire({ icon: 'warning', title: 'Nama Wajib Diisi', text: 'Silakan ketik nama karyawan baru.', timer: 1500, showConfirmButton: false });
+      return;
+    }
+    const code = window.PNS_FM_STATE.place;
+    const all = pnsAllLh();
+    const d = all.find(x => x.c === code);
+    const n = window.PNS_FM_STATE.pn || 1;
+
+    window.PNS_FM_STATE.plans.push({ c: code, n, name, room: 'Kamar Siap Huni' });
+    closePlaceModal();
+    pnsApplyRes();
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({ icon: 'success', title: 'Penempatan Dicatat', text: `${n} slot di ${d ? d.full : code} telah dialokasikan untuk ${name}.`, timer: 2000, showConfirmButton: false });
+    }
+    renderFmPeta();
+  };
+
+  // 8. CTRL+K QUICK SEARCH DIALOG
+  window.openCmdkModal = function() {
+    const m = document.getElementById('cmdk-modal');
+    if (m) {
+      m.classList.remove('hidden');
+      const inp = document.getElementById('cmdk-input');
+      if (inp) { inp.value = ''; inp.focus(); }
+      renderCmdkList('');
+    }
+  };
+
+  window.closeCmdkModal = function() {
+    const m = document.getElementById('cmdk-modal');
+    if (m) m.classList.add('hidden');
+  };
+
+  window.renderCmdkList = function(q) {
+    const listEl = document.getElementById('cmdk-list');
+    if (!listEl) return;
+    q = (q || '').toLowerCase().trim();
+
+    const items = [
+      { t: 'Dashboard Overview', sub: 'Asset Management &bull; Ringkasan Portofolio', action: () => { switchAppDomain('am'); navTo('view-dashboard'); } },
+      { t: 'Master Katalog Aset (34.840 Unit)', sub: 'Asset Management &bull; Katalog Lengkap', action: () => { switchAppDomain('am'); navTo('view-portfolio-all'); } },
+      { t: 'Laporan Hasil Validasi &amp; Rekonsiliasi', sub: 'Asset Management &bull; Matriks Validasi', action: () => { switchAppDomain('am'); navTo('view-validasi'); } },
+      { t: 'Peta Bangunan 4 Lokasi', sub: 'Facility Management &bull; Central, Estate 1-2, Estate 3, Factory', action: () => { switchAppDomain('fm'); navTo('view-fm-peta'); } },
+      { t: 'Ketersediaan Hunian &amp; Ranjang', sub: 'Facility Management &bull; Slot Kosong &amp; Sensus Mess', action: () => { switchAppDomain('fm'); navTo('view-fm-ketersediaan'); } },
+      { t: 'Perencanaan Standar Kamar (2 Orang)', sub: 'Facility Management &bull; Simulasi Kebutuhan', action: () => { switchAppDomain('fm'); navTo('view-fm-rencana'); } },
+      { t: 'Penghuni &amp; Hunian Mess', sub: 'Facility Management &bull; Daftar Penghuni Aktif', action: () => { switchAppDomain('fm'); navTo('view-penghuni'); } },
+      { t: 'Aplikasi Lapangan (Mobile Frame)', sub: 'Facility Management &bull; Scan QR &amp; Checklist Kamar', action: () => { switchAppDomain('fm'); switchUIMode('mobile'); } }
+    ];
+
+    // Add buildings
+    const bldgs = (appState.buildings || []).slice(0, 30).map(b => ({
+      t: b.nama_gedung || b.kode_gedung,
+      sub: `Gedung &bull; ${b.kode_gedung} &bull; ${b.lokasi_site || 'Central'}`,
+      action: () => { switchAppDomain('fm'); PNS_FM_STATE.sel = b.kode_gedung; navTo('view-fm-peta'); }
+    }));
+
+    const allItems = [...items, ...bldgs].filter(it => !q || (it.t + ' ' + it.sub).toLowerCase().includes(q)).slice(0, 15);
+
+    if (allItems.length === 0) {
+      listEl.innerHTML = '<div class="p-4 text-center text-xs text-slate-400">Tidak ada halaman atau gedung yang cocok.</div>';
+      return;
+    }
+
+    listEl.innerHTML = allItems.map((it, idx) => `
+      <button type="button" class="cmdr" onclick="cmdExec(${idx})">
+        <div>
+          <b class="text-xs text-slate-900 block">${it.t}</b>
+          <span class="text-[11px] text-slate-500">${it.sub}</span>
+        </div>
+        <i class="ph-bold ph-arrow-right text-slate-400"></i>
+      </button>
+    `).join('');
+
+    window._cmdkCurrentItems = allItems;
+  };
+
+  window.cmdExec = function(idx) {
+    if (window._cmdkCurrentItems && window._cmdkCurrentItems[idx]) {
+      window._cmdkCurrentItems[idx].action();
+      closeCmdkModal();
+    }
+  };
+
+  // Keyboard shortcut listener for Ctrl+K and Escape
+  if (typeof document !== 'undefined') {
+    document.addEventListener('keydown', e => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        openCmdkModal();
+      }
+    });
+  }
+
+
   function bootApp() {
     try { initAppMasterData(); } catch (e) { console.warn('initAppMasterData error:', e); }
     try { initBrandLogos(); } catch (e) { console.warn('initBrandLogos error:', e); }
