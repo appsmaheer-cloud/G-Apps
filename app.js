@@ -1402,6 +1402,41 @@ const PNS_SECTION_TO_DEPT = {
     }
   }
 
+  const HASH_VIEW_MAP = {
+    'am-dashboard': 'view-dashboard',
+    'am-validasi': 'view-validasi',
+    'am-katalog': 'view-portfolio-all',
+    'am-komposisi': 'view-portfolio',
+    'am-sebaran': 'view-asset-sebaran',
+    'am-movement': 'view-asset-movement',
+    'am-depresiasi': 'view-depresiasi',
+    'am-register': 'view-reg-asset',
+    'am-mutasi': 'view-mutasi',
+    'am-lokasi': 'view-asset-location',
+    'am-status': 'view-asset-status',
+    'am-disposal': 'view-asset-disposal',
+    'fm-beranda': 'view-fm-beranda',
+    'fm-peta': 'view-fm-peta',
+    'fm-rincian': 'view-fm-rincian',
+    'fm-gedung': 'view-gedung',
+    'fm-assets': 'view-assets',
+    'fm-ketersediaan': 'view-fm-ketersediaan',
+    'fm-rencana': 'view-fm-rencana',
+    'fm-penghuni': 'view-penghuni',
+    'fm-mobile': 'view-fm-mobile',
+    'fm-inspeksi': 'view-inspeksi',
+    'fm-wo': 'view-wo'
+  };
+  const VIEW_HASH_MAP = Object.fromEntries(Object.entries(HASH_VIEW_MAP).map(([h, v]) => [v, h]));
+
+  function maskNik(nik) {
+    if (!nik || nik === '-') return '-';
+    const s = String(nik).trim();
+    if (s.length <= 4) return s;
+    return '••••' + s.slice(-4);
+  }
+  window.maskNik = maskNik;
+
   function switchView(viewId, btnEl) {
     return navTo(viewId, btnEl);
   }
@@ -1456,6 +1491,14 @@ const PNS_SECTION_TO_DEPT = {
 
     appState.currentView = viewId;
     syncTopPills(viewId);
+
+    // Sync Hash Route for clean browser back/forward and deep linking per enterprise-prototype-ui-id
+    try {
+      const targetHash = VIEW_HASH_MAP[viewId] || viewId.replace('view-', '');
+      if (typeof window !== 'undefined' && window.location && window.history && window.history.replaceState) {
+        window.history.replaceState(null, '', '#' + targetHash);
+      }
+    } catch (e) {}
 
     // Close drawer ONLY on mobile screens (< 768px) so desktop sidebar never disappears
     if (typeof window !== 'undefined' && window.innerWidth < 768) {
@@ -2404,7 +2447,7 @@ const PNS_SECTION_TO_DEPT = {
               </td>
               <td class="py-2.5 px-3 font-semibold text-slate-800 whitespace-nowrap">${escapeHtml(p.nama_ruangan)}</td>
               <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600 whitespace-nowrap">${escapeHtml(p.nomor_kasur || 'Bed 1')}</td>
-              <td class="py-2.5 px-3 font-mono font-bold text-slate-700 whitespace-nowrap">${escapeHtml(p.nik || '-')}</td>
+              <td class="py-2.5 px-3 font-mono font-bold text-slate-700 whitespace-nowrap">${escapeHtml(maskNik(p.nik))}</td>
               <td class="py-2.5 px-3 whitespace-nowrap">
                 <div class="font-bold text-slate-900">${escapeHtml(p.nama_penghuni)}</div>
                 <div class="text-[10px] text-slate-500">${escapeHtml(p.jabatan || 'Karyawan')}</div>
@@ -9552,7 +9595,7 @@ const PNS_SECTION_TO_DEPT = {
           </td>
           <!-- 5. NIK -->
           <td class="py-2.5 px-3 font-mono font-bold text-slate-700 whitespace-nowrap">
-            ${p.nik ? escapeHtml(p.nik) : '<span class="text-slate-400 font-normal italic text-[11px]">- Kosong -</span>'}
+            ${p.nik ? escapeHtml(maskNik(p.nik)) : '<span class="text-slate-400 font-normal italic text-[11px]">- Kosong -</span>'}
           </td>
           <!-- 6. NAMA PENGHUNI DENGAN FOTO -->
           <td class="py-2 px-3.5 whitespace-nowrap">
@@ -13939,7 +13982,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
                         <div>
                           <div class="flex items-center gap-2">
                             <b class="text-slate-900 text-xs">${escapeHtml(p.nama_penghuni)}</b>
-                            <span class="font-mono text-[10px] text-slate-500">${escapeHtml(p.nik || '')}</span>
+                            <span class="font-mono text-[10px] text-slate-500">${escapeHtml(maskNik(p.nik))}</span>
                           </div>
                           <span class="text-[11px] text-slate-600 block mt-0.5">
                             ${escapeHtml(p.jabatan || 'Staff Lapangan')} &bull; <span class="font-medium text-slate-700">${escapeHtml(p.departemen || 'Operasional')}</span>
@@ -14333,6 +14376,17 @@ window.updateSingleAssetNote = updateSingleAssetNote;
       const view = urlParams ? urlParams.get('view') : null;
       const app = urlParams ? (urlParams.get('app') || urlParams.get('domain')) : null;
 
+      // Check Hash Route First per enterprise-prototype-ui-id
+      const rawHash = (typeof window !== 'undefined' && window.location && window.location.hash) ? window.location.hash.replace(/^#/, '') : '';
+      if (rawHash && (HASH_VIEW_MAP[rawHash] || document.getElementById('view-' + rawHash) || document.getElementById(rawHash))) {
+        const targetView = HASH_VIEW_MAP[rawHash] || (document.getElementById(rawHash) ? rawHash : ('view-' + rawHash));
+        const dom = (rawHash.startsWith('fm-') || targetView.startsWith('view-fm-') || targetView === 'view-gedung' || targetView === 'view-assets' || targetView === 'view-penghuni' || targetView === 'view-inspeksi') ? 'fm' : 'am';
+        switchAppDomain(dom, true);
+        navTo(targetView);
+        setTimeout(() => { try { renderDashboardCharts(); } catch (e) {} }, 150);
+        return;
+      }
+
       let initDomain = 'am';
       if (app === 'fm' || (view && view.startsWith('view-fm-'))) {
         initDomain = 'fm';
@@ -14371,5 +14425,14 @@ window.updateSingleAssetNote = updateSingleAssetNote;
   if (typeof window !== 'undefined') {
     window.addEventListener('load', () => {
       try { renderDashboardCharts(); } catch (e) {}
+    });
+    window.addEventListener('hashchange', () => {
+      const raw = (window.location.hash || '').replace(/^#/, '');
+      const matchedView = HASH_VIEW_MAP[raw] || (document.getElementById(raw) ? raw : ('view-' + raw));
+      if (document.getElementById(matchedView) && matchedView !== appState.currentView) {
+        const dom = (raw.startsWith('fm-') || matchedView.startsWith('view-fm-') || matchedView === 'view-gedung' || matchedView === 'view-assets' || matchedView === 'view-penghuni' || matchedView === 'view-inspeksi') ? 'fm' : 'am';
+        switchAppDomain(dom, true);
+        navTo(matchedView);
+      }
     });
   }
