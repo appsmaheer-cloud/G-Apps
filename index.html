@@ -213,6 +213,13 @@
             </span>
             <span class="text-[10px] text-emerald-700 font-medium px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200/80 shrink-0">Drill</span>
           </button>
+          <button type="button" data-view="view-asset-detail" onclick="navTo('view-asset-detail', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Dossier &amp; Rincian Spesifikasi Unit Aset">
+            <span class="flex items-center gap-2 min-w-0">
+              <i class="ph ph-identification-badge text-base text-sky-600 shrink-0"></i>
+              <span class="truncate">Detail Spesifikasi Aset</span>
+            </span>
+            <span class="text-[10px] text-sky-700 font-medium px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200/80 shrink-0">Dossier</span>
+          </button>
           <button type="button" data-view="view-asset-depreciation" onclick="navTo('view-asset-depreciation', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Depresiasi Dinamis &amp; Nilai Buku">
             <i class="ph ph-chart-line-down text-base text-slate-500 shrink-0"></i>
             <span class="truncate">Depresiasi &amp; Nilai Buku</span>
@@ -1893,6 +1900,296 @@
                                             <td id="mov-tot-right-maint" class="py-2 px-2 text-right font-mono text-slate-900">27,652,413,593</td>
                                         </tr>
                                     </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+      <!-- VIEW 6G: DETAIL ASSET SPESIFIKASI & DOSSIER (DRILL DARI DETAIL MOVEMENT) -->
+<div id="view-asset-detail" class="page-view hidden space-y-3.5 pb-6">
+                    
+                    <!-- Top Action & Slicer Bar -->
+                    <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white  rounded-2xl border border-slate-200/90  shadow-xs shrink-0 gap-3">
+                        <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+                            <button type="button" onclick="window.pns.switchView('view-asset-3')" class="px-3 py-1.5 rounded-xl bg-slate-100  hover:bg-emerald-600 hover:text-white  text-slate-700  text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0">
+                                <i class="ph-bold ph-arrow-left text-xs"></i>
+                                <span>Kembali ke Katalog Aset</span>
+                            </button>
+                            <span class="text-[10.5px] font-black uppercase tracking-wider text-emerald-600  flex items-center gap-1.5 shrink-0 pl-1 border-l border-slate-200 ">
+                                <i class="ph-bold ph-identification-badge"></i> Dossier Aset:
+                            </span>
+
+                            <!-- Slicer: Kelompok -->
+                            <div class="flex items-center bg-slate-50  rounded-xl px-3 py-1.5 border border-slate-200/90  shrink-0 shadow-2xs">
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase mr-1.5">Kelompok:</span>
+                                <select id="slicer-assetd-group" onchange="window.pns.onAssetDetailFilterChange()" class="bg-transparent text-xs font-bold text-slate-800  focus:outline-none cursor-pointer max-w-[150px] truncate">
+                                    <option value="ALL">Semua Kelompok</option>
+                                </select>
+                            </div>
+
+                            <!-- Slicer: Kondisi -->
+                            <div class="flex items-center bg-slate-50  rounded-xl px-3 py-1.5 border border-slate-200/90  shrink-0 shadow-2xs">
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase mr-1.5">Kondisi:</span>
+                                <select id="slicer-assetd-cond" onchange="window.pns.onAssetDetailFilterChange()" class="bg-transparent text-xs font-bold text-slate-800  focus:outline-none cursor-pointer">
+                                    <option value="ALL">Semua Kondisi</option>
+                                    <option value="Good Condition">Good Condition</option>
+                                    <option value="Broken">Broken</option>
+                                    <option value="Lost">Lost</option>
+                                    <option value="Repair">Repair</option>
+                                    <option value="Disposal">Disposal</option>
+                                </select>
+                            </div>
+
+                            <!-- Search Box -->
+                            <div class="flex items-center bg-slate-50  rounded-xl px-3 py-1.5 border border-slate-200/90  flex-1 max-w-[220px] shadow-2xs">
+                                <i class="ph-bold ph-magnifying-glass text-slate-400 mr-2 text-xs"></i>
+                                <input type="text" id="slicer-assetd-search" oninput="window.pns.onAssetDetailSearch(this.value)" placeholder="Cari nama atau kode aset..." class="bg-transparent text-xs font-semibold text-slate-800  focus:outline-none w-full placeholder:text-slate-400">
+                            </div>
+
+                            <!-- Export CSV Button -->
+                            <button type="button" onclick="window.pns.exportAssetDetailCsv()" class="px-2.5 py-1.5 rounded-xl bg-slate-100  hover:bg-emerald-600 hover:text-white text-slate-700  text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Download Data Dossier Aset (CSV)">
+                                <i class="ph-bold ph-download-simple"></i>
+                                <span>Export</span>
+                            </button>
+                        </div>
+
+                        <!-- Record Counter Badge -->
+                        <div class="text-[11px] font-mono font-bold text-slate-600  bg-slate-50  px-3 py-1.5 rounded-xl border border-slate-200/90  shrink-0 shadow-2xs">
+                            <span id="pbi-assetd-filtered-count">0</span> Aset Terfilter
+                        </div>
+                    </div>
+
+                    <!-- Executive Unit Spotlight Dossier Card -->
+                    <!-- REALTIME LIVE API VERIFICATION & CHECKOUT STRIP -->
+                    <div id="pbi-assetd-realtime-api-strip" class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2 py-0.5 rounded font-black text-[10px] bg-emerald-700 text-white uppercase tracking-wider flex items-center gap-1">
+                                <i class="ph-bold ph-seal-check"></i> Realtime Live API Data
+                            </span>
+                            <span class="text-slate-600 font-medium">Tipe Asset: <strong class="text-slate-900" id="pbi-assetd-api-tipe">-</strong></span>
+                            <span class="text-slate-400">&bull;</span>
+                            <span class="text-slate-600 font-medium">Status Verif 3: <strong class="text-emerald-700" id="pbi-assetd-api-status3">-</strong></span>
+                            <span class="text-slate-400">&bull;</span>
+                            <span class="text-slate-600 font-medium">User: <strong class="text-slate-800" id="pbi-assetd-api-user">-</strong></span>
+                            <span class="text-slate-400">&bull;</span>
+                            <span class="text-slate-600 font-medium">Tgl Verif: <strong class="text-slate-700 font-mono text-[10.5px]" id="pbi-assetd-api-tgl-verif">-</strong></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-600 font-medium">Checkout:</span>
+                            <span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-sky-100 text-sky-800 border border-sky-200" id="pbi-assetd-api-checkout">-</span>
+                            <span class="font-mono text-[10px] text-slate-500" id="pbi-assetd-api-tgl-checkout">-</span>
+                        </div>
+                    </div>
+
+                    <div id="pbi-assetd-spotlight-card" class="pns-card p-4 bg-slate-50/80  border border-slate-200/90  rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
+                                <i class="ph-bold ph-identification-card"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-black uppercase tracking-wider text-slate-900 " id="pbi-assetd-spotlight-code">SEMUA ASET</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700  " id="pbi-assetd-spotlight-cond">PORTFOLIO</span>
+                                </div>
+                                <h4 class="text-sm font-black text-slate-800  mt-0.5 truncate max-w-[320px]" id="pbi-assetd-spotlight-name">Ringkasan Portofolio Master Aset</h4>
+                                <span class="text-[11px] text-slate-500  font-medium" id="pbi-assetd-spotlight-meta">Lokasi: Semua Kantor | Departemen: All Departments</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-4 bg-white/70  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                            <div class="text-right">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block">Rasio MTC / CAPEX</span>
+                                <span class="text-sm font-black text-slate-800  font-mono" id="pbi-assetd-spotlight-ratio">0.0%</span>
+                            </div>
+                            <div class="text-right border-l border-slate-200  pl-3">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block">Rekomendasi Keputusan Lifecycle</span>
+                                <span class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold inline-block mt-0.5 bg-emerald-100 text-emerald-700  " id="pbi-assetd-spotlight-rec">
+                                    Aset Produktif & Optimal
+                                </span>
+                            </div>
+                            <div id="pbi-assetd-spotlight-bldg-action" class="hidden border-l border-slate-200  pl-3">
+                                <button type="button" id="pbi-assetd-spotlight-bldg-btn" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                                    <i class="ph-bold ph-compass"></i>
+                                    <span>Eksplorasi Gedung</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 Hero Decision Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 shrink-0">
+                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                            <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Total Aset Terdata</span>
+                            <span class="text-2xl font-black text-slate-800  mt-1 block tracking-tight" id="pbi-assetd-total-count">0 Unit</span>
+                        </div>
+                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                            <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Nilai Perolehan Bruto</span>
+                            <span class="text-2xl font-black text-cyan-600  mt-1 block tracking-tight truncate" id="pbi-assetd-total-acq">Rp 0</span>
+                        </div>
+                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                            <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Estimasi Nilai Buku</span>
+                            <span class="text-2xl font-black text-amber-600  mt-1 block tracking-tight truncate" id="pbi-assetd-total-book">Rp 0</span>
+                        </div>
+                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                            <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Akumulasi Biaya MTC</span>
+                            <span class="text-2xl font-black text-rose-600  mt-1 block tracking-tight truncate" id="pbi-assetd-total-mtc">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Dedicated Building Breakdown Card (Dynamic, shown when viewing a Building Asset) -->
+                    <div id="pbi-assetd-bldg-breakdown-card" class="hidden pns-card p-4 sm:p-5 border border-slate-200/90  bg-slate-50/80  rounded-xl shadow-xs flex-col gap-4 transition-all">
+                        <!-- Top Bar: Title & Badges & Action Buttons -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-blue-100 ">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
+                                    <i class="ph-bold ph-buildings"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-blue-100 text-blue-700   font-mono">
+                                            🏢 BREAKDOWN FASILITAS GEDUNG
+                                        </span>
+                                        <span id="pbi-assetd-bldg-loc-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100  text-slate-600  font-mono">
+                                            CO
+                                        </span>
+                                        <span id="pbi-assetd-bldg-scope-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700   font-mono">
+                                            🏢 Dalam Gedung
+                                        </span>
+                                    </div>
+                                    <h3 id="pbi-assetd-bldg-name" class="text-sm sm:text-base font-black text-slate-800  mt-0.5">
+                                        MESS MANAGER 01 (PNS-MGR-01-01)
+                                    </h3>
+                                    <p class="text-[11px] text-slate-500 ">
+                                        Rincian seluruh inventaris, perabot, dan perlengkapan fisik di dalam bangunan ini.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" id="pbi-assetd-btn-open-explorer" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i class="ph-bold ph-compass text-sm"></i>
+                                    <span>Buka di Modul Gedung & Kamar</span>
+                                </button>
+                                <button type="button" onclick="window.print()" class="px-3 py-1.5 rounded-xl bg-white  hover:bg-slate-100  text-slate-700  text-xs font-bold transition border border-slate-200  flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                                    <i class="ph-bold ph-printer"></i>
+                                    <span class="hidden sm:inline">Cetak</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats Counters -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                                <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Total Ruangan / Kamar</span>
+                                <span id="pbi-assetd-bldg-stat-rooms" class="text-base sm:text-lg font-black text-slate-800  font-mono mt-0.5 block">0 Ruang</span>
+                            </div>
+                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                                <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Total Fasilitas Fisik</span>
+                                <span id="pbi-assetd-bldg-stat-units" class="text-base sm:text-lg font-black text-blue-600  font-mono mt-0.5 block">0 Unit</span>
+                            </div>
+                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                                <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Kondisi Fisik Baik</span>
+                                <span id="pbi-assetd-bldg-stat-good" class="text-base sm:text-lg font-black text-emerald-600  font-mono mt-0.5 block">100%</span>
+                            </div>
+                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                                <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Nilai Gedung Induk</span>
+                                <span id="pbi-assetd-bldg-stat-acq" class="text-base sm:text-lg font-black text-slate-800  font-mono mt-0.5 block truncate">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Ringkasan Kategori Fasilitas (Item Summary Pills) -->
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 ">
+                                    Ringkasan Kuantitas per Jenis Fasilitas:
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-medium">Klik jenis barang untuk memfilter daftar rincian</span>
+                            </div>
+                            <div id="pbi-assetd-bldg-item-pills" class="flex flex-wrap items-center gap-1.5">
+                                <!-- Dynamic pills: AC (1), Kompor Gas (1), etc. -->
+                            </div>
+                        </div>
+
+                        <!-- Ruangan Filters (if multiple rooms) -->
+                        <div id="pbi-assetd-bldg-room-selector" class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-blue-100/60 ">
+                            <!-- Room tabs -->
+                        </div>
+
+                        <!-- Child Inventory Table -->
+                        <div class="overflow-x-auto scrollbar-thin border border-slate-200  rounded-xl bg-white  shadow-2xs max-h-[380px]">
+                            <table class="w-full text-left border-collapse whitespace-nowrap text-xs">
+                                <thead class="sticky top-0 bg-slate-50  text-[10px] font-black uppercase tracking-wider text-slate-500  border-b border-slate-200 ">
+                                    <tr>
+                                        <th class="px-3.5 py-2.5 min-w-[130px]">Kode Aset Fisik</th>
+                                        <th class="px-3.5 py-2.5 min-w-[200px]">Nama Barang / Fasilitas</th>
+                                        <th class="px-3 py-2.5 min-w-[120px]">Klasifikasi</th>
+                                        <th class="px-3 py-2.5 min-w-[160px]">Ruangan / Kamar</th>
+                                        <th class="px-3 py-2.5 text-center min-w-[100px]">Kondisi</th>
+                                        <th class="px-3 py-2.5 min-w-[120px]">Penanggung Jawab</th>
+                                        <th class="px-3 py-2.5 text-center min-w-[80px]">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pbi-assetd-bldg-units-tbody">
+                                    <!-- Rows of child assets -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Visuals & Dossier Matrix -->
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-3.5 min-h-[500px]">
+                        
+                        <!-- Left Charts (Departemen Bar & Kondisi Donut) -->
+                        <div class="xl:col-span-5 flex flex-col gap-3.5">
+                            <div class="pns-card p-4 flex flex-col min-h-[260px] shadow-xs">
+                                <span class="text-xs sm:text-sm font-bold text-slate-800  pb-3 border-b border-slate-100  shrink-0">Distribusi Nilai Aset per Departemen</span>
+                                <div class="flex-1 w-full min-h-[200px]" id="chart-pbi-assetd-dept-bar"></div>
+                            </div>
+                            <div class="pns-card p-4 flex flex-col min-h-[240px] shadow-xs">
+                                <span class="text-xs sm:text-sm font-bold text-slate-800  pb-3 border-b border-slate-100  shrink-0">Proporsi Kondisi Fisik Aset</span>
+                                <div class="flex-1 w-full min-h-[180px]" id="chart-pbi-assetd-cond-donut"></div>
+                            </div>
+                        </div>
+
+                        <!-- Right Asset Dossier Table -->
+                        <div class="xl:col-span-7 pns-card p-4 flex flex-col min-h-[520px] shadow-xs">
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-100  shrink-0">
+                                <div>
+                                    <span class="text-xs sm:text-sm font-bold text-slate-800  block" id="pbi-assetd-table-title">Dossier & Spesifikasi Master Aset</span>
+                                    <span class="text-[10.5px] text-slate-400 font-medium" id="pbi-assetd-table-subtitle">Lengkap dengan Rekomendasi Lifecycle & Biaya Servis</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div id="pbi-assetd-table-mode-tabs" class="hidden items-center gap-1 bg-slate-100  p-0.5 rounded-lg border border-slate-200 ">
+                                        <button type="button" id="pbi-assetd-tab-parent" onclick="window.pns.setAssetDetailTableMode('PARENT')" class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-white  text-slate-800  shadow-2xs cursor-pointer">
+                                            🏢 Data Induk
+                                        </button>
+                                        <button type="button" id="pbi-assetd-tab-breakdown" onclick="window.pns.setAssetDetailTableMode('BREAKDOWN')" class="px-2.5 py-1 rounded-md text-[10px] font-bold text-slate-500 hover:text-slate-800  cursor-pointer flex items-center gap-1">
+                                            <span>📦 Fasilitas Gedung</span>
+                                            <span id="pbi-assetd-tab-breakdown-count" class="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-700   font-mono text-[9px]">0</span>
+                                        </button>
+                                    </div>
+                                    <span id="pbi-assetd-table-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700  ">100 Aset Teratas</span>
+                                </div>
+                            </div>
+                            <div class="flex-1 overflow-auto scrollbar-thin mt-2 max-h-[460px]">
+                                <table class="w-full text-left border-collapse whitespace-nowrap text-xs">
+                                    <thead class="sticky top-0 bg-slate-50/95  backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500  border-b border-slate-200 ">
+                                        <tr>
+                                            <th class="px-3.5 py-2.5 min-w-[130px]">Kode Aset</th>
+                                            <th class="px-3 py-2.5 min-w-[180px]">Nama Aset</th>
+                                            <th class="px-3 py-2.5 min-w-[120px]">Kelompok</th>
+                                            <th class="px-3 py-2.5 min-w-[110px]">Lokasi</th>
+                                            <th class="px-3 py-2.5 min-w-[130px] text-cyan-600 ">Section PIC</th>
+                                            <th class="px-3 py-2.5 min-w-[120px] text-emerald-600">User / Pemegang</th>
+                                            <th class="px-3 py-2.5 text-center min-w-[100px]">Kondisi</th>
+                                            <th class="px-3 py-2.5 text-right min-w-[120px]">Harga Perolehan</th>
+                                            <th class="px-3 py-2.5 text-right min-w-[110px] text-rose-600 font-bold">Biaya MTC</th>
+                                            <th class="px-3 py-2.5 text-center min-w-[130px]">Rekomendasi</th>
+                                            <th class="px-3 py-2.5 text-center min-w-[70px]">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-pbi-assetd-matrix"></tbody>
                                 </table>
                             </div>
                         </div>
