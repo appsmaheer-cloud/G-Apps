@@ -135,6 +135,16 @@ td.font-mono,
   color: #059669 !important;
 }
 
+[data-app="fm"] .nav-btn.active {
+  background-color: #F0FDFA !important; /* teal-50 */
+  color: #115E59 !important;            /* teal-800 */
+  box-shadow: inset -3px 0 0 #0E5E63 !important; /* FM deep teal accent */
+}
+
+[data-app="fm"] .nav-btn.active i {
+  color: #0E5E63 !important;
+}
+
 /* Accessible Keyboard Focus Rings */
 button:focus-visible,
 a:focus-visible,

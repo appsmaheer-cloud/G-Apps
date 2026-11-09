@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="id" class="light">
+<html lang="id" class="light" data-app="am">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -169,6 +169,16 @@ td.font-mono,
 
 .nav-btn.active i {
   color: #059669 !important;
+}
+
+[data-app="fm"] .nav-btn.active {
+  background-color: #F0FDFA !important; /* teal-50 */
+  color: #115E59 !important;            /* teal-800 */
+  box-shadow: inset -3px 0 0 #0E5E63 !important; /* FM deep teal accent */
+}
+
+[data-app="fm"] .nav-btn.active i {
+  color: #0E5E63 !important;
 }
 
 /* Accessible Keyboard Focus Rings */
@@ -778,18 +788,6 @@ body.validasi-standalone-view #validasi-standalone-topbar {
         </div>
         <div>
           <div class="flex items-center gap-2.5">
-      <!-- Quick Search Ctrl+K Button -->
-      <button type="button" onclick="openCmdkModal()" class="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50/80 hover:bg-slate-100 text-slate-600 hover:text-slate-900 text-xs font-medium transition cursor-pointer shadow-2xs" title="Cari aset, longhouse, atau halaman (Ctrl+K)">
-        <i class="ph-bold ph-magnifying-glass text-slate-500"></i>
-        <span>Cari aset &amp; gedung...</span>
-        <kbd class="px-1.5 py-0.5 rounded bg-white border border-slate-200 font-mono text-[10px] text-slate-500 font-bold">Ctrl K</kbd>
-      </button>
-
-      <!-- Segmented Mode Toggle (Web vs Mobile Frame) -->
-      <div id="seg-mode-toggle" class="hidden sm:inline-flex items-center rounded-xl border border-slate-200 bg-slate-100 p-0.5 text-xs font-semibold shadow-2xs">
-        <button type="button" id="btn-mode-web" onclick="switchUIMode('web')" class="px-2.5 py-1 rounded-lg transition bg-emerald-600 text-white cursor-pointer" title="Mode Layar Desktop Enterprise">Web</button>
-        <button type="button" id="btn-mode-mob" onclick="switchUIMode('mobile')" class="px-2.5 py-1 rounded-lg transition text-slate-600 hover:text-slate-900 cursor-pointer flex items-center gap-1" title="Mode Bingkai Ponsel untuk Petugas Inspeksi Lapangan"><i class="ph-bold ph-device-mobile"></i> Mobile</button>
-      </div>
             <span class="font-bold text-sm tracking-tight text-slate-900">PNS ASSET MANAGEMENT</span>
             <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 hidden sm:inline-flex items-center gap-1">
               <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Enterprise v2.5
@@ -926,6 +924,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
             <i class="ph ph-chart-line-down text-base text-slate-500 shrink-0"></i>
             <span class="truncate">Depresiasi &amp; Nilai Buku</span>
           </button>
+          </div>
         </div>
 
         <!-- 3. MUTASI & SIKLUS ASET -->
@@ -1036,11 +1035,11 @@ body.validasi-standalone-view #validasi-standalone-topbar {
               </button>
               <button type="button" data-view="view-gedung" onclick="navTo('view-gedung', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Master Gedung & Bangunan Fisik">
                 <span class="flex items-center gap-2 min-w-0"><i class="ph ph-building-office text-base text-amber-500 shrink-0"></i> <span class="truncate">Gedung &amp; Bangunan</span></span>
-                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium shrink-0">416</span>
+                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium shrink-0" id="fm-badge-bldg">416</span>
               </button>
               <button type="button" data-view="view-assets" onclick="navTo('view-assets', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Fasilitas & Inventaris Ruangan">
                 <span class="flex items-center gap-2 min-w-0"><i class="ph ph-armchair text-base text-emerald-600 shrink-0"></i> <span class="truncate">Fasilitas Ruangan</span></span>
-                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium shrink-0">1.559</span>
+                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium shrink-0" id="fm-badge-asset">1.559</span>
               </button>
             </div>
           </div>
@@ -1065,7 +1064,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
               </button>
               <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Penghuni & Hunian Mess Aktif">
                 <span class="flex items-center gap-2 min-w-0"><i class="ph ph-users text-base text-indigo-500 shrink-0"></i> <span class="truncate">Penghuni &amp; Hunian</span></span>
-                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium shrink-0">409</span>
+                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium shrink-0" id="fm-badge-penghuni">409</span>
               </button>
             </div>
           </div>
@@ -1087,7 +1086,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
               </button>
               <button type="button" data-view="view-wo" onclick="navTo('view-wo', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Work Order Kanban Tiket Perbaikan">
                 <span class="flex items-center gap-2 min-w-0"><i class="ph ph-kanban text-base text-amber-500 shrink-0"></i> <span class="truncate">Work Order Kanban</span></span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium shrink-0">15</span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium shrink-0" id="fm-sidebar-wo-count">15</span>
               </button>
             </div>
           </div>
@@ -6697,9 +6696,18 @@ const PNS_SECTION_TO_DEPT = {
     if (target) target.classList.remove('hidden');
 
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = (btnEl && btnEl.classList && btnEl.classList.contains('nav-btn'))
-      ? btnEl
-      : (document.querySelector(`.nav-btn[data-view="${viewId}"]`) || document.querySelector(`.nav-btn[onclick*="'${viewId}'"]`));
+    let activeBtn = (btnEl && btnEl.classList && btnEl.classList.contains('nav-btn')) ? btnEl : null;
+    if (!activeBtn) {
+      const activeDomainContainer = (window.PNS_FM_STATE && window.PNS_FM_STATE.app === 'fm') 
+        ? document.getElementById('nav-domain-fm') 
+        : document.getElementById('nav-domain-am');
+      if (activeDomainContainer) {
+        activeBtn = activeDomainContainer.querySelector(`.nav-btn[data-view="${viewId}"]`) || activeDomainContainer.querySelector(`.nav-btn[onclick*="'${viewId}'"]`);
+      }
+      if (!activeBtn) {
+        activeBtn = document.querySelector(`.nav-btn[data-view="${viewId}"]`) || document.querySelector(`.nav-btn[onclick*="'${viewId}'"]`);
+      }
+    }
 
     if (activeBtn) {
       activeBtn.classList.add('active');
@@ -6846,10 +6854,14 @@ const PNS_SECTION_TO_DEPT = {
         ? window.PNS_ALL_ASSETS_ROWS.length
         : appState.assets.length;
       setBadge('nav-badge-bldg', genuineBldgCount);
+      setBadge('fm-badge-bldg', genuineBldgCount);
       setBadge('nav-badge-room', appState.rooms.length);
       setBadge('nav-badge-asset', totalCatalogAssets);
+      setBadge('fm-badge-asset', (appState.rooms && appState.rooms.length) || 1559);
       setBadge('nav-badge-penghuni', appState.penghuni.length);
+      setBadge('fm-badge-penghuni', appState.penghuni.length);
       setBadge('sidebar-wo-count', appState.workOrders.length);
+      setBadge('fm-sidebar-wo-count', appState.workOrders.length);
       setBadge('facilities-total-badge', appState.assets.length);
     }
   }
@@ -18108,23 +18120,23 @@ window.updateSingleAssetNote = updateSingleAssetNote;
 
     if (domain === 'fm') {
       if (amGroup) amGroup.classList.add('hidden');
-      if (fmGroup) fmGroup.classList.remove('hidden');
+      if (fmGroup) {
+        fmGroup.classList.remove('hidden');
+        fmGroup.querySelectorAll('[id^="nav-group-"]').forEach(g => g.classList.remove('hidden'));
+      }
       if (modLabel) modLabel.innerText = 'Facility Management';
       if (modSub) modSub.innerText = 'Hunian & Fasilitas Umum';
       if (modLogo) { modLogo.innerText = 'FM'; modLogo.style.backgroundColor = 'var(--fm-accent)'; }
-      // Show mobile toggle button in topbar
-      const modeSeg = document.getElementById('seg-mode-toggle');
-      if (modeSeg) modeSeg.classList.remove('hidden');
       navTo('view-fm-beranda');
     } else {
       if (fmGroup) fmGroup.classList.add('hidden');
-      if (amGroup) amGroup.classList.remove('hidden');
+      if (amGroup) {
+        amGroup.classList.remove('hidden');
+        amGroup.querySelectorAll('[id^="nav-group-"]').forEach(g => g.classList.remove('hidden'));
+      }
       if (modLabel) modLabel.innerText = 'Asset Management';
       if (modSub) modSub.innerText = 'Seluruh Aset Perusahaan';
       if (modLogo) { modLogo.innerText = 'AM'; modLogo.style.backgroundColor = 'var(--am-accent)'; }
-      // Hide mobile toggle button in AM
-      const modeSeg = document.getElementById('seg-mode-toggle');
-      if (modeSeg) modeSeg.classList.add('hidden');
       navTo('view-dashboard');
     }
     closeModMenu();
@@ -18139,6 +18151,15 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     const msm = document.getElementById('modsw-menu');
     if (msm) msm.classList.add('hidden');
   };
+
+  document.addEventListener('click', function(e) {
+    const btn = document.getElementById('modsw-btn');
+    const menu = document.getElementById('modsw-menu');
+    if (!btn || !menu || menu.classList.contains('hidden')) return;
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.add('hidden');
+    }
+  });
 
   window.switchUIMode = function(mode) {
     window.PNS_FM_STATE.mode = mode;
@@ -19313,6 +19334,10 @@ window.updateSingleAssetNote = updateSingleAssetNote;
         const urlParams = new URLSearchParams(window.location.search);
         const rep = urlParams.get('report');
         const view = urlParams.get('view');
+        const app = urlParams.get('app');
+        if (app === 'fm' || (view && view.startsWith('view-fm-'))) {
+          switchAppDomain('fm');
+        }
         if (rep === 'validasi' || view === 'view-validasi') {
           setTimeout(() => { navTo('view-validasi'); }, 100);
         } else if (view) {

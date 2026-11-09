@@ -1426,9 +1426,18 @@ const PNS_SECTION_TO_DEPT = {
     if (target) target.classList.remove('hidden');
 
     document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
-    const activeBtn = (btnEl && btnEl.classList && btnEl.classList.contains('nav-btn'))
-      ? btnEl
-      : (document.querySelector(`.nav-btn[data-view="${viewId}"]`) || document.querySelector(`.nav-btn[onclick*="'${viewId}'"]`));
+    let activeBtn = (btnEl && btnEl.classList && btnEl.classList.contains('nav-btn')) ? btnEl : null;
+    if (!activeBtn) {
+      const activeDomainContainer = (window.PNS_FM_STATE && window.PNS_FM_STATE.app === 'fm') 
+        ? document.getElementById('nav-domain-fm') 
+        : document.getElementById('nav-domain-am');
+      if (activeDomainContainer) {
+        activeBtn = activeDomainContainer.querySelector(`.nav-btn[data-view="${viewId}"]`) || activeDomainContainer.querySelector(`.nav-btn[onclick*="'${viewId}'"]`);
+      }
+      if (!activeBtn) {
+        activeBtn = document.querySelector(`.nav-btn[data-view="${viewId}"]`) || document.querySelector(`.nav-btn[onclick*="'${viewId}'"]`);
+      }
+    }
 
     if (activeBtn) {
       activeBtn.classList.add('active');
@@ -1575,10 +1584,14 @@ const PNS_SECTION_TO_DEPT = {
         ? window.PNS_ALL_ASSETS_ROWS.length
         : appState.assets.length;
       setBadge('nav-badge-bldg', genuineBldgCount);
+      setBadge('fm-badge-bldg', genuineBldgCount);
       setBadge('nav-badge-room', appState.rooms.length);
       setBadge('nav-badge-asset', totalCatalogAssets);
+      setBadge('fm-badge-asset', (appState.rooms && appState.rooms.length) || 1559);
       setBadge('nav-badge-penghuni', appState.penghuni.length);
+      setBadge('fm-badge-penghuni', appState.penghuni.length);
       setBadge('sidebar-wo-count', appState.workOrders.length);
+      setBadge('fm-sidebar-wo-count', appState.workOrders.length);
       setBadge('facilities-total-badge', appState.assets.length);
     }
   }
@@ -12837,23 +12850,23 @@ window.updateSingleAssetNote = updateSingleAssetNote;
 
     if (domain === 'fm') {
       if (amGroup) amGroup.classList.add('hidden');
-      if (fmGroup) fmGroup.classList.remove('hidden');
+      if (fmGroup) {
+        fmGroup.classList.remove('hidden');
+        fmGroup.querySelectorAll('[id^="nav-group-"]').forEach(g => g.classList.remove('hidden'));
+      }
       if (modLabel) modLabel.innerText = 'Facility Management';
       if (modSub) modSub.innerText = 'Hunian & Fasilitas Umum';
       if (modLogo) { modLogo.innerText = 'FM'; modLogo.style.backgroundColor = 'var(--fm-accent)'; }
-      // Show mobile toggle button in topbar
-      const modeSeg = document.getElementById('seg-mode-toggle');
-      if (modeSeg) modeSeg.classList.remove('hidden');
       navTo('view-fm-beranda');
     } else {
       if (fmGroup) fmGroup.classList.add('hidden');
-      if (amGroup) amGroup.classList.remove('hidden');
+      if (amGroup) {
+        amGroup.classList.remove('hidden');
+        amGroup.querySelectorAll('[id^="nav-group-"]').forEach(g => g.classList.remove('hidden'));
+      }
       if (modLabel) modLabel.innerText = 'Asset Management';
       if (modSub) modSub.innerText = 'Seluruh Aset Perusahaan';
       if (modLogo) { modLogo.innerText = 'AM'; modLogo.style.backgroundColor = 'var(--am-accent)'; }
-      // Hide mobile toggle button in AM
-      const modeSeg = document.getElementById('seg-mode-toggle');
-      if (modeSeg) modeSeg.classList.add('hidden');
       navTo('view-dashboard');
     }
     closeModMenu();
@@ -12868,6 +12881,15 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     const msm = document.getElementById('modsw-menu');
     if (msm) msm.classList.add('hidden');
   };
+
+  document.addEventListener('click', function(e) {
+    const btn = document.getElementById('modsw-btn');
+    const menu = document.getElementById('modsw-menu');
+    if (!btn || !menu || menu.classList.contains('hidden')) return;
+    if (!btn.contains(e.target) && !menu.contains(e.target)) {
+      menu.classList.add('hidden');
+    }
+  });
 
   window.switchUIMode = function(mode) {
     window.PNS_FM_STATE.mode = mode;
@@ -14042,6 +14064,10 @@ window.updateSingleAssetNote = updateSingleAssetNote;
         const urlParams = new URLSearchParams(window.location.search);
         const rep = urlParams.get('report');
         const view = urlParams.get('view');
+        const app = urlParams.get('app');
+        if (app === 'fm' || (view && view.startsWith('view-fm-'))) {
+          switchAppDomain('fm');
+        }
         if (rep === 'validasi' || view === 'view-validasi') {
           setTimeout(() => { navTo('view-validasi'); }, 100);
         } else if (view) {
