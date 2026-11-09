@@ -873,12 +873,11 @@ body.validasi-standalone-view #validasi-standalone-topbar {
               <span class="truncate">Dashboard Overview</span>
             </span>
           </button>
-          <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Laporan Hasil Validasi &amp; Rekonsiliasi (35.160 Unit)">
+          <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Laporan Hasil Validasi &amp; Rekonsiliasi Fisik Aset">
             <span class="flex items-center gap-2 min-w-0">
               <i class="ph ph-seal-check text-base text-sky-600 shrink-0"></i>
               <span class="truncate text-slate-800">Laporan Hasil Validasi</span>
             </span>
-            <span class="text-[10px] text-sky-700 font-medium px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200/80 shrink-0">34.806</span>
           </button>
         </div>
 
@@ -889,12 +888,11 @@ body.validasi-standalone-view #validasi-standalone-topbar {
             <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
           </button>
           <div id="nav-group-katalog" class="space-y-1">
-          <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Seluruh Portofolio Aset Live API (35.160 Unit)">
+          <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Master Katalog Seluruh Aset">
             <span class="flex items-center gap-2 min-w-0">
               <i class="ph ph-database text-base text-slate-500 shrink-0"></i>
               <span class="truncate">Master Katalog Aset</span>
             </span>
-            <span class="text-[10px] text-slate-500 font-medium px-1.5 py-0.5 rounded bg-slate-100 shrink-0">35.160</span>
           </button>
           <button type="button" data-view="view-portfolio" onclick="navTo('view-portfolio', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Komposisi &amp; Nilai Portofolio">
             <i class="ph ph-chart-pie text-base text-slate-500 shrink-0"></i>
@@ -1270,10 +1268,10 @@ body.validasi-standalone-view #validasi-standalone-topbar {
               </div>
               <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg shrink-0">
                 <button type="button" id="btn-dash-bar-asset" onclick="setDashboardBarMode('asset')" class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-white text-slate-900 shadow-2xs transition cursor-pointer">
-                  Aset Fisik (35.160)
+                  Aset Fisik
                 </button>
                 <button type="button" id="btn-dash-bar-bldg" onclick="setDashboardBarMode('gedung')" class="px-2.5 py-1 rounded-md text-[11px] font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
-                  Gedung (416)
+                  Gedung
                 </button>
               </div>
             </div>
@@ -1342,10 +1340,10 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                 <span>Sync API</span>
               </button>
 
-              <!-- Compare API Live 35.160 Button -->
-              <button type="button" onclick="showApiLiveCompareModal()" class="px-3.5 py-2 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer" title="Lihat Komparasi Langsung Data API Live (35.160 Unit) vs Master &amp; Validasi">
+              <!-- Compare API Live Button -->
+              <button type="button" onclick="showApiLiveCompareModal()" class="px-3.5 py-2 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer" title="Lihat Komparasi Langsung Data API Live vs Master &amp; Validasi">
                 <i class="ph-bold ph-arrows-left-right text-emerald-600 text-sm"></i>
-                <span>Compare API Live (35.160)</span>
+                <span>Compare API Live</span>
               </button>
 
               <!-- Download Excel (.xlsx) Button -->
@@ -1354,10 +1352,10 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                 <span>Download Excel (.xlsx)</span>
               </button>
 
-              <!-- Download Full Master 35.160 Excel (.xlsx) Button -->
-              <button type="button" onclick="window.pns.exportAssetCatalogCsv('xlsx', true)" class="px-3 py-2 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer" title="Download Seluruh Master Katalog Aset (35.160 Unit) ke Excel (.xlsx)">
+              <!-- Download Full Master Excel (.xlsx) Button -->
+              <button type="button" onclick="window.pns.exportAssetCatalogCsv('xlsx', true)" class="px-3 py-2 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer" title="Download Seluruh Master Katalog Aset ke Excel (.xlsx)">
                 <i class="ph-bold ph-database text-sm"></i>
-                <span>Full 35.160 (.xlsx)</span>
+                <span>Full Master (.xlsx)</span>
               </button>
 
               <!-- Download CSV Button -->
@@ -1423,11 +1421,11 @@ body.validasi-standalone-view #validasi-standalone-topbar {
               <input type="text" id="rem-checkout-search" oninput="onReminderCheckoutFilterChange()" placeholder="Cari kode unit, no aset, nama barang, departemen, PIC..." class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50/70 text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
             </div>
 
-            <!-- Filter 2 Pilihan: Seluruh Asset (35.160) vs Asset Validasi (34.806) -->
+            <!-- Filter 2 Pilihan: Seluruh Asset vs Asset Validasi -->
             <div class="lg:col-span-3" id="rem-filter-source-wrap">
               <select id="rem-checkout-source" onchange="onReminderCheckoutFilterChange()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50/70 text-slate-800 font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition cursor-pointer">
-                <option value="MASTER_ALL" selected>Seluruh Asset (35.160 Unit)</option>
-                <option value="VALIDASI">Asset Validasi (34.806 Unit)</option>
+                <option value="MASTER_ALL" selected>Seluruh Asset</option>
+                <option value="VALIDASI">Asset Validasi</option>
               </select>
             </div>
 
@@ -1493,13 +1491,13 @@ body.validasi-standalone-view #validasi-standalone-topbar {
             <!-- Segment Slicer Pills: Sesuai 2 Pilihan Utama (Seluruh Asset vs Asset Validasi) -->
             <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/90 shrink-0 gap-1">
               <button type="button" id="btn-segment-asset-all" onclick="window.setAssetCatalogSegment('ALL')" class="px-3 py-1 rounded-lg text-xs font-semibold bg-white text-slate-800 shadow-xs border border-slate-200 transition cursor-pointer" title="Seluruh Portofolio Aset Terdaftar &amp; Terintegrasi Live API">
-                Seluruh Asset (35.160)
+                Seluruh Asset
               </button>
               <button type="button" id="btn-segment-asset-master" onclick="window.setAssetCatalogSegment('VALIDASI')" class="px-3 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 transition cursor-pointer" title="Hanya Asset Validasi Terverifikasi Fisik">
-                Asset Validasi (34.806)
+                Asset Validasi
               </button>
               <button type="button" id="btn-segment-asset-bc" onclick="window.setAssetCatalogSegment('BELUM_CHECKOUT')" class="px-3 py-1 rounded-lg text-xs font-medium text-amber-700 hover:text-amber-900 transition cursor-pointer flex items-center gap-1" title="Antrean Belum Verifikasi">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Belum Verifikasi (354)
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Belum Verifikasi
               </button>
             </div>
             <!-- Tombol Compare API Live -->
@@ -1661,15 +1659,14 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                     <th onclick="window.onAssetCatalogSortChange('nama_asc')" class="px-3 py-2.5 min-w-[180px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Nama Aset (A-Z)">
                       <div class="flex items-center gap-1"><span>Nama Asset</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
                     </th>
-                    <th class="px-3 py-2.5 min-w-[120px]">Kategori</th>
-                    <th class="px-3 py-2.5 min-w-[130px]">Kelompok</th>
-                    <th onclick="window.onAssetCatalogSortChange('kondisi_crit')" class="px-3 py-2.5 text-center min-w-[100px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Kondisi Fisik">
-                      <div class="flex items-center justify-center gap-1"><span>Kondisi</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
-                    </th>
-                    <th onclick="window.onAssetCatalogSortChange('umur_desc')" class="px-3 py-2.5 text-center min-w-[90px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Umur Aset">
-                      <div class="flex items-center justify-center gap-1"><span>Umur / Std</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
-                    </th>
-                    <th class="px-3 py-2.5 text-center min-w-[90px]">Lifetime</th>
+                    <th class="px-3 py-2.5 min-w-[90px]">Tipe Asset</th>
+                    <th class="px-3 py-2.5 min-w-[120px]">Checkout</th>
+                    <th class="px-3 py-2.5 min-w-[100px]">Tgl Checkout</th>
+                    <th class="px-3 py-2.5 text-center min-w-[130px]">Status Verifikasi (3)</th>
+                    <th class="px-3 py-2.5 min-w-[120px]">User Verifikasi</th>
+                    <th class="px-3 py-2.5 min-w-[160px]">Catatan Verifikasi</th>
+                    <th class="px-3 py-2.5 min-w-[110px]">Tgl Verifikasi</th>
+                    <th class="px-3 py-2.5 min-w-[80px]">Lokasi</th>
                     <th onclick="window.onAssetCatalogSortChange('hpp_desc')" class="px-3 py-2.5 text-right min-w-[120px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Harga Perolehan Tertinggi">
                       <div class="flex items-center justify-end gap-1"><span>Harga Perolehan</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
                     </th>
@@ -1774,7 +1771,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                                     </div>
                                     <div>
                                         <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400 block">Total Assets</span>
-                                        <span class="text-2xl font-black text-slate-900 tracking-tight" id="pbi-asset1-total-assets">34,266</span>
+                                        <span class="text-2xl font-black text-slate-900 tracking-tight" id="pbi-asset1-total-assets">35,160</span>
                                     </div>
                                 </div>
                                 <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-100 text-slate-600 border border-slate-200/60">Portfolio</span>
@@ -2519,7 +2516,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                                     <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11.5px] font-black text-slate-900">
                                         <tr>
                                             <td class="py-2 px-3">Total</td>
-                                            <td id="mov-tot-left-asset" class="py-2 px-2.5 text-right font-mono">34,266</td>
+                                            <td id="mov-tot-left-asset" class="py-2 px-2.5 text-right font-mono">35,160</td>
                                             <td id="mov-tot-left-std" class="py-2 px-2.5 text-right font-mono">9</td>
                                             <td id="mov-tot-left-umur" class="py-2 px-2.5 text-right font-mono">7</td>
                                         </tr>
@@ -2583,7 +2580,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                                     </tbody>
                                     <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[10.5px] font-black text-slate-900">
                                         <tr>
-                                            <td class="py-2 px-2" colspan="3">Total (<span id="mov-tot-right-count">34,266</span> Unit)</td>
+                                            <td class="py-2 px-2" colspan="3">Total (<span id="mov-tot-right-count">35,160</span> Unit)</td>
                                             <td class="py-2 px-2 text-center text-slate-400 font-normal text-[9px]">-</td>
                                             <td class="py-2 px-2 text-right font-mono text-slate-500 text-[10px]" id="mov-tot-right-varian">-</td>
                                             <td id="mov-tot-right-std" class="py-2 px-2 text-right font-mono">307784</td>
@@ -2902,7 +2899,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                     <!-- Populated dynamically via JS -->
                   </datalist>
                 </div>
-                <p class="text-[10px] text-slate-400 mt-1">Ketik kode aset atau pilih dari 34.266 inventaris terdaftar.</p>
+                <p class="text-[10px] text-slate-400 mt-1">Ketik kode aset atau pilih dari 35.160 inventaris terdaftar.</p>
               </div>
 
               <!-- CARD DETAIL ASET TERPILIH (Auto-populated berdasarkan Kode Aset) -->
@@ -3909,7 +3906,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
             <div class="flex items-center gap-2 mb-1 flex-wrap">
               <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Hasil Validasi 34.806 Unit (Live API: 35.160)
+                Hasil Validasi Fisik Terintegrasi
               </span>
               <span class="text-xs text-slate-400">•</span>
               <span class="text-xs font-semibold text-slate-600">Executive Asset Intelligence</span>
@@ -3926,7 +3923,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
             <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80 shadow-2xs text-xs">
               <button id="tab-btn-validasi-rekon" type="button" onclick="switchValidasiTab('rekon')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-900 shadow-2xs cursor-pointer">
                 <i class="ph-bold ph-table text-emerald-600"></i>
-                <span>Laporan Hasil Validasi (34.806)</span>
+                <span>Laporan Hasil Validasi</span>
               </button>
               <button id="tab-btn-validasi-perf" type="button" onclick="switchValidasiTab('perf')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/60 cursor-pointer">
                 <i class="ph-bold ph-chart-pie-slice text-blue-600"></i>
@@ -3938,7 +3935,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
             <div class="flex items-center gap-1.5">
               <button type="button" onclick="showApiLiveCompareModal()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-300 shadow-2xs transition flex items-center gap-1.5 cursor-pointer" title="Komparasi Langsung API Live vs Master">
                 <i class="ph-bold ph-arrows-left-right text-emerald-600"></i>
-                <span>Compare API (35.160)</span>
+                <span>Compare API Live</span>
               </button>
               <button type="button" onclick="window.printValidasiReport()" class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg border border-slate-200 shadow-2xs transition flex items-center gap-1.5 cursor-pointer" title="Cetak Format Resmi">
                 <i class="ph-bold ph-printer text-slate-500"></i>
@@ -5317,10 +5314,13 @@ body.validasi-standalone-view #validasi-standalone-topbar {
             <tr>
               <th class="py-2.5 px-3">Kode Unit</th>
               <th class="py-2.5 px-3">Nama Asset</th>
-              <th class="py-2.5 px-2">Kelompok / Kategori</th>
-              <th class="py-2.5 px-2">Lokasi</th>
-              <th class="py-2.5 px-2">Kondisi Fisik</th>
-              <th class="py-2.5 px-2">Status Validasi</th>
+              <th class="py-2.5 px-2">Tipe Asset</th>
+              <th class="py-2.5 px-2">Checkout</th>
+              <th class="py-2.5 px-2">Tgl Checkout</th>
+              <th class="py-2.5 px-2">Status Verifikasi 3</th>
+              <th class="py-2.5 px-2">User Verifikasi</th>
+              <th class="py-2.5 px-2">Catatan Verifikasi</th>
+              <th class="py-2.5 px-2">Tgl Verifikasi</th>
               <th class="py-2.5 px-3 text-right">Nilai Perolehan (HPP)</th>
               <th class="py-2.5 px-3 text-right">Nilai Buku (NBV)</th>
               <th class="py-2.5 px-2.5 text-center">Aksi</th>
@@ -7593,16 +7593,22 @@ const PNS_SECTION_TO_DEPT = {
           location: a.location || a.loc || 'CO',
           section: a.department || a.section || a.rawSec || 'HRGA',
           kondisi: a.kondisi || a.kond || 'Good Condition',
-          tipe_checkout: a.status_aktif || 'Aktif / Digunakan',
-          status_checkout: a.status_aktif || 'Aktif / Digunakan',
+          tipe_checkout: a.checkout || a.status_aktif || 'Aktif / Digunakan',
+          status_checkout: (a.checkout && a.checkout !== 'BELUM CHECKOUT') ? a.checkout : 'BELUM CHECKOUT',
+          tanggal_checkout: a.tanggal_checkout || a.tglCheckout || '-',
           status_verifikasi: a.status_verifikasi || a.statusVerif || 'ALOKASI SESUAI',
+          status_verifikasi_3: a.status_verifikasi_3 || a.statusVerif3 || a.kondisi || 'GOOD CONDITION',
+          user_verifikasi: a.user_verifikasi || a.userVerif || '-',
+          catatan_verifikasi: a.catatan_verifikasi || a.catatanVerif || '-',
+          tanggal_verifikasi: a.tanggal_verifikasi || a.tglVerif || '-',
+          tipe_asset: a.tipe_asset || a.tipeAsset || 'UMUM',
           tanggal_perolehan: '-',
           standar_umur: Number(a.standar_umur || a.std || 5),
           umur_asset: Number(a.umur_asset || a.umur || 0),
           harga_perolehan: Number(a.total_harga_perolehan || a.hpp || 0),
           akumulasi_penyusutan: Number(a.akumulasi_penyusutan || a.susut || 0),
           nilai_buku: Number(a.Nilai_buku || a.nbv || 0),
-          pic: '-',
+          pic: (a.user_verifikasi && a.user_verifikasi !== '-') ? a.user_verifikasi : '-',
           source: 'Asset Validasi'
         }));
       } else {
@@ -7620,17 +7626,23 @@ const PNS_SECTION_TO_DEPT = {
           location: a.location || a.loc || 'CO',
           section: a.department || a.section || a.rawSec || 'HRGA',
           kondisi: a.kondisi || a.kond || 'Good Condition',
-          tipe_checkout: a.status_aktif || 'Aktif / Digunakan',
-          status_checkout: a.status_aktif || 'Aktif / Digunakan',
+          tipe_checkout: a.checkout || a.status_aktif || 'Aktif / Digunakan',
+          status_checkout: (a.checkout && a.checkout !== 'BELUM CHECKOUT') ? a.checkout : 'BELUM CHECKOUT',
+          tanggal_checkout: a.tanggal_checkout || a.tglCheckout || '-',
           status_verifikasi: a.status_verifikasi || a.statusVerif || 'ALOKASI SESUAI',
+          status_verifikasi_3: a.status_verifikasi_3 || a.statusVerif3 || a.kondisi || 'GOOD CONDITION',
+          user_verifikasi: a.user_verifikasi || a.userVerif || '-',
+          catatan_verifikasi: a.catatan_verifikasi || a.catatanVerif || '-',
+          tanggal_verifikasi: a.tanggal_verifikasi || a.tglVerif || '-',
+          tipe_asset: a.tipe_asset || a.tipeAsset || 'UMUM',
           tanggal_perolehan: '-',
           standar_umur: Number(a.standar_umur || a.std || 5),
           umur_asset: Number(a.umur_asset || a.umur || 0),
           harga_perolehan: Number(a.total_harga_perolehan || a.hpp || 0),
           akumulasi_penyusutan: Number(a.akumulasi_penyusutan || a.susut || 0),
           nilai_buku: Number(a.Nilai_buku || a.nbv || 0),
-          pic: '-',
-          source: 'Seluruh Asset (Master)'
+          pic: (a.user_verifikasi && a.user_verifikasi !== '-') ? a.user_verifikasi : '-',
+          source: 'Seluruh Asset'
         }));
       }
 
@@ -7854,9 +7866,13 @@ const PNS_SECTION_TO_DEPT = {
                   <span class="w-1.5 h-1.5 rounded-full ${isResolved ? 'bg-emerald-500' : 'bg-amber-500'}"></span>
                   ${escapeHtml(item.status_checkout)}
                 </span>
-                <div class="text-[10px] text-slate-400 mt-0.5">
-                  ${escapeHtml(item.status_verifikasi)} &bull; PIC: ${escapeHtml(item.pic || '-')}
+                <div class="text-[10px] text-slate-500 mt-0.5 font-medium">
+                  Tgl Checkout: <span class="font-mono text-slate-700">${escapeHtml(item.tanggal_checkout && item.tanggal_checkout !== '-' ? item.tanggal_checkout.slice(0, 10) : '-')}</span>
                 </div>
+                <div class="text-[10px] text-slate-500 mt-0.5">
+                  <span class="font-semibold text-emerald-700">${escapeHtml(item.status_verifikasi_3 || item.status_verifikasi)}</span> &bull; Petugas: <span class="font-semibold text-slate-700">${escapeHtml(item.user_verifikasi || item.pic || '-')}</span>
+                </div>
+                ${item.catatan_verifikasi && item.catatan_verifikasi !== '-' && item.catatan_verifikasi !== 'BELUM VERIFIKASI' ? `<div class="text-[9.5px] text-slate-400 truncate max-w-[220px]" title="${escapeHtml(item.catatan_verifikasi)}">Catatan: ${escapeHtml(item.catatan_verifikasi)}</div>` : ''}
               </td>
               <td class="py-2.5 px-3 text-right font-mono num-tabular font-semibold text-slate-800 whitespace-nowrap">
                 Rp ${Math.round(Number(item.harga_perolehan || 0)).toLocaleString('id-ID')}
@@ -9287,7 +9303,20 @@ const PNS_SECTION_TO_DEPT = {
           rawSec: rawSec,
           section: secFull,
           department: deptFull,
-          deptKey: deptFull
+          deptKey: deptFull,
+          status_verifikasi_3: String(r[18] || kond).trim(),
+          statusVerif3: String(r[18] || kond).trim(),
+          user_verifikasi: String(r[19] || '-').trim(),
+          userVerif: String(r[19] || '-').trim(),
+          catatan_verifikasi: String(r[20] || '-').trim(),
+          catatanVerif: String(r[20] || '-').trim(),
+          tanggal_verifikasi: String(r[21] || '-').trim(),
+          tglVerif: String(r[21] || '-').trim(),
+          tipe_asset: String(r[22] || 'UMUM').trim(),
+          tipeAsset: String(r[22] || 'UMUM').trim(),
+          checkout: String(r[23] || 'BELUM CHECKOUT').trim(),
+          tanggal_checkout: String(r[24] || '-').trim(),
+          tglCheckout: String(r[24] || '-').trim()
         };
       });
       return _pnsCachedNormalizedAssets;
@@ -16080,43 +16109,52 @@ const PNS_SECTION_TO_DEPT = {
       const nama = r[1] || '-';
       const kelompok = r[2] || '-';
       const kat = r[3] || '-';
+      const loc = r[4] || '-';
       const kond = r[5] || 'Good Condition';
       const std = Number(r[6]) || 5;
       const umur = Number(r[7]) || 0;
       const hpp = Number(r[8]) || 0;
       const nbv = Number(r[10]) || 0;
 
-      const isGood = kond.toLowerCase().includes('good') || kond.toLowerCase().includes('baik');
+      // Realtime API Fields:
+      const statusVerif3 = r[18] || kond;
+      const userVerif = r[19] || '-';
+      const catatanVerif = r[20] || '-';
+      const tglVerif = r[21] || '-';
+      const tipeAsset = r[22] || 'UMUM';
+      const checkout = r[23] || 'BELUM CHECKOUT';
+      const tglCheckout = r[24] || '-';
+
+      const isGood = String(statusVerif3 || kond).toLowerCase().includes('good') || String(statusVerif3 || kond).toLowerCase().includes('baik');
       const isOverAge = (umur >= std);
       const pct = Math.min(100, Math.max(0, (nbv / maxBuku) * 100));
 
-      const isBelumCheckout = (r[12] === 'BELUM_CHECKOUT');
+      const isBelumCheckout = (checkout === 'BELUM CHECKOUT' || r[12] === 'BELUM_CHECKOUT');
       const originBadge = isBelumCheckout
-        ? '<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">Belum Checkout</span>'
-        : '<span class="px-1.5 py-0.5 rounded text-[10px] font-medium bg-slate-50 text-slate-600 border border-slate-200 whitespace-nowrap">Master</span>';
+        ? '<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">Belum Checkout</span>'
+        : '<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">Checkout</span>';
 
       return `
         <tr onclick="drillToAssetDetail('${escapeHtml(no)}')" class="hover:bg-slate-50 transition text-xs border-b border-slate-100 cursor-pointer group" title="Klik untuk Dossier Aset ${escapeHtml(no)}">
           <td class="font-medium text-sky-700 px-3 py-2.5 whitespace-nowrap">
             <div class="flex items-center gap-1.5">
-              <span>${escapeHtml(no)}</span>
+              <span class="font-bold">${escapeHtml(no)}</span>
               ${originBadge}
             </div>
           </td>
           <td class="px-3 py-2.5 font-medium text-slate-800 whitespace-normal min-w-[200px]" title="${escapeHtml(nama)}">${escapeHtml(nama)}</td>
-          <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap">${escapeHtml(kat)}</td>
-          <td class="px-3 py-2.5 text-slate-500 whitespace-nowrap">${escapeHtml(kelompok)}</td>
+          <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="px-1.5 py-0.5 rounded bg-slate-100 font-bold text-[10px] text-slate-700">${escapeHtml(tipeAsset)}</span></td>
+          <td class="px-3 py-2.5 font-mono text-[11px] text-slate-700 whitespace-nowrap" title="${escapeHtml(checkout)}">${escapeHtml(checkout)}</td>
+          <td class="px-3 py-2.5 font-mono text-[10.5px] text-slate-500 whitespace-nowrap">${escapeHtml(tglCheckout !== '-' ? tglCheckout.slice(0, 10) : '-')}</td>
           <td class="px-3 py-2.5 text-center whitespace-nowrap">
             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isGood ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
-              ${escapeHtml(kond)}
+              ${escapeHtml(statusVerif3)}
             </span>
           </td>
-          <td class="px-3 py-2.5 text-center font-mono whitespace-nowrap">${umur} / ${std} Thn</td>
-          <td class="px-3 py-2.5 text-center font-mono whitespace-nowrap">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isOverAge ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-700'}">
-              ${isOverAge ? '↑ DIATAS' : '↓ DIBAWAH'}
-            </span>
-          </td>
+          <td class="px-3 py-2.5 font-medium text-slate-700 whitespace-nowrap">${escapeHtml(userVerif)}</td>
+          <td class="px-3 py-2.5 text-slate-500 whitespace-normal max-w-[180px] truncate" title="${escapeHtml(catatanVerif)}">${escapeHtml(catatanVerif)}</td>
+          <td class="px-3 py-2.5 font-mono text-[10.5px] text-slate-500 whitespace-nowrap">${escapeHtml(tglVerif !== '-' ? tglVerif.slice(0, 10) : '-')}</td>
+          <td class="px-3 py-2.5 text-slate-600 font-bold whitespace-nowrap">${escapeHtml(loc)}</td>
           <td class="px-3 py-2.5 text-right font-mono whitespace-nowrap">${fmtMoney(hpp)}</td>
           <td class="px-3 py-2.5 text-right font-mono font-bold text-blue-600 whitespace-nowrap">
             <div class="flex items-center justify-end gap-2">
@@ -16380,6 +16418,50 @@ const PNS_SECTION_TO_DEPT = {
               <span class="font-bold text-sm text-slate-900 block">${escapeHtml(detail)}</span>
               <span class="text-slate-500 font-medium text-[11px]">${escapeHtml(kel)} &bull; ${escapeHtml(kat)} &bull; Sec: ${escapeHtml(sec)}</span>
             </div>
+            <!-- Realtime API Verification & Checkout Data -->
+            <div class="p-3 bg-emerald-50/60 rounded-xl border border-emerald-200/90 text-[11px] space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-[10px] font-black uppercase text-emerald-900 tracking-wider flex items-center gap-1">
+                  <i class="ph-bold ph-shield-check text-emerald-600 text-xs"></i> Realtime Status Verifikasi &amp; Checkout API
+                </span>
+                <span class="px-2 py-0.5 rounded text-[9px] font-black ${ast[23] && !String(ast[23]).includes('BELUM') ? 'bg-sky-100 text-sky-800' : 'bg-rose-100 text-rose-800'}">
+                  ${escapeHtml(ast[23] && !String(ast[23]).includes('BELUM') ? 'SUDAH CHECKOUT' : 'BELUM CHECKOUT')}
+                </span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-slate-700">
+                <div class="bg-white p-2 rounded-lg border border-emerald-100">
+                  <span class="text-[9.5px] text-slate-400 block font-bold uppercase">Tipe Asset</span>
+                  <span class="font-bold text-slate-900">${escapeHtml(ast[22] || jenis || '-')}</span>
+                </div>
+                <div class="bg-white p-2 rounded-lg border border-emerald-100">
+                  <span class="text-[9.5px] text-slate-400 block font-bold uppercase">Status Verif 3</span>
+                  <span class="font-bold text-emerald-700">${escapeHtml(ast[18] || kond || '-')}</span>
+                </div>
+                <div class="bg-white p-2 rounded-lg border border-emerald-100">
+                  <span class="text-[9.5px] text-slate-400 block font-bold uppercase">Checkout Code</span>
+                  <span class="font-mono font-bold text-sky-700 truncate block" title="${escapeHtml(ast[23] || '-')}">${escapeHtml(ast[23] || '-')}</span>
+                </div>
+                <div class="bg-white p-2 rounded-lg border border-emerald-100">
+                  <span class="text-[9.5px] text-slate-400 block font-bold uppercase">Tgl Checkout</span>
+                  <span class="font-bold text-slate-700 text-[10px] truncate block" title="${escapeHtml(ast[24] || '-')}">${escapeHtml(ast[24] || '-')}</span>
+                </div>
+              </div>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-slate-700 pt-1 border-t border-emerald-100/80">
+                <div class="bg-white p-2 rounded-lg border border-emerald-100">
+                  <span class="text-[9.5px] text-slate-400 block font-bold uppercase">User Verifikasi</span>
+                  <span class="font-bold text-slate-800 truncate block" title="${escapeHtml(ast[19] || '-')}">${escapeHtml(ast[19] || '-')}</span>
+                </div>
+                <div class="bg-white p-2 rounded-lg border border-emerald-100">
+                  <span class="text-[9.5px] text-slate-400 block font-bold uppercase">Tanggal Verifikasi</span>
+                  <span class="font-bold text-slate-700 text-[10px] truncate block" title="${escapeHtml(ast[21] || '-')}">${escapeHtml(ast[21] || '-')}</span>
+                </div>
+                <div class="bg-white p-2 rounded-lg border border-emerald-100">
+                  <span class="text-[9.5px] text-slate-400 block font-bold uppercase">Catatan Verifikasi</span>
+                  <span class="text-slate-600 truncate block" title="${escapeHtml(ast[20] || '-')}">${escapeHtml(ast[20] || '-')}</span>
+                </div>
+              </div>
+            </div>
+
             <div class="grid grid-cols-2 gap-2">
               <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200">
                 <span class="text-[10px] text-slate-400 block font-bold uppercase">Lokasi Penempatan</span>
@@ -16860,6 +16942,268 @@ const PNS_SECTION_TO_DEPT = {
   window.openValidasiDrill = openValidasiDrill;
 
 
+
+  // =========================================================================
+  // MODAL DRILLDOWN & DRILL-THROUGH VALIDASI FISIK (DETAIL PER ITEM ASET LIVE)
+  // =========================================================================
+  let currentValidasiDrill = {
+    targetKey: '',
+    targetName: '',
+    targetType: 'dept', // 'dept' | 'loc'
+    group: '',
+    statusFilter: 'ALL',
+    searchQuery: '',
+    page: 1,
+    pageSize: 25
+  };
+  window.currentValidasiDrill = currentValidasiDrill;
+
+  function openValidasiDrillModal(targetKey, targetName, targetType, group) {
+    currentValidasiDrill.targetKey = targetKey || '';
+    currentValidasiDrill.targetName = targetName || targetKey || 'Semua Departemen';
+    currentValidasiDrill.targetType = targetType || (currentMatrixGroup === 'loc' ? 'loc' : 'dept');
+    currentValidasiDrill.group = group || '';
+    currentValidasiDrill.page = 1;
+    currentValidasiDrill.searchQuery = '';
+    currentValidasiDrill.statusFilter = 'ALL';
+
+    const searchInp = document.getElementById('val-drill-search');
+    if (searchInp) searchInp.value = '';
+
+    const titleEl = document.getElementById('val-drill-title');
+    const modal = document.getElementById('modal-drilldown-validasi');
+
+    let titleText = 'Rincian Validasi Fisik: ' + currentValidasiDrill.targetName;
+    if (currentValidasiDrill.group) {
+      titleText += ' - ' + currentValidasiDrill.group;
+    }
+    if (titleEl) titleEl.innerText = titleText;
+
+    setValidasiDrillStatusFilter('ALL');
+    if (modal) modal.classList.remove('hidden');
+  }
+  window.openValidasiDrillModal = openValidasiDrillModal;
+
+  function closeValidasiDrillModal() {
+    const modal = document.getElementById('modal-drilldown-validasi');
+    if (modal) modal.classList.add('hidden');
+  }
+  window.closeValidasiDrillModal = closeValidasiDrillModal;
+
+  function setValidasiDrillStatusFilter(status) {
+    currentValidasiDrill.statusFilter = status;
+    currentValidasiDrill.page = 1;
+
+    const tabAll = document.getElementById('val-drill-tab-all');
+    const tabSelisih = document.getElementById('val-drill-tab-selisih');
+    const tabSesuai = document.getElementById('val-drill-tab-sesuai');
+
+    const activeCls = 'px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 text-white transition cursor-pointer shadow-xs';
+    const inactiveCls = 'px-2.5 py-1 text-xs font-medium text-slate-600 hover:text-slate-900 transition cursor-pointer';
+
+    if (tabAll) tabAll.className = (status === 'ALL') ? activeCls : inactiveCls;
+    if (tabSelisih) tabSelisih.className = (status === 'SELISIH') ? 'px-2.5 py-1 text-xs font-semibold rounded bg-rose-600 text-white transition cursor-pointer shadow-xs' : 'px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50 transition cursor-pointer';
+    if (tabSesuai) tabSesuai.className = (status === 'SESUAI') ? 'px-2.5 py-1 text-xs font-semibold rounded bg-emerald-600 text-white transition cursor-pointer shadow-xs' : 'px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50 transition cursor-pointer';
+
+    renderValidasiDrillTable();
+  }
+  window.setValidasiDrillStatusFilter = setValidasiDrillStatusFilter;
+
+  function getValidasiDrillItems() {
+    const all = (typeof getAllNormalizedAssets === 'function') ? getAllNormalizedAssets() : [];
+    const tKey = (currentValidasiDrill.targetKey || '').toUpperCase().trim();
+    const isLoc = (currentValidasiDrill.targetType === 'loc');
+    const groupName = (currentValidasiDrill.group || '').toLowerCase().trim();
+    const statusFilter = currentValidasiDrill.statusFilter;
+    const q = (currentValidasiDrill.searchQuery || '').toLowerCase().trim();
+
+    const items = [];
+    let sesuaiCount = 0;
+    let selisihCount = 0;
+
+    for (let i = 0; i < all.length; i++) {
+      const a = all[i];
+
+      // Requirement: only verified assets in Validasi report
+      const vSt = String(a.statusVerif || a.status_verifikasi || '').toUpperCase();
+      if (vSt.includes('BELUM') || a.isUnvalidated) continue;
+
+      // Filter by department or location
+      if (tKey) {
+        if (isLoc) {
+          const matchLoc = (a.locRaw || '').toUpperCase() === tKey || (a.loc || '').toUpperCase().includes(tKey);
+          if (!matchLoc) continue;
+        } else {
+          const aDept = (a.deptKey || getDeptKeyForAsset(a.rawSec) || '').toUpperCase();
+          if (aDept !== tKey && !String(a.rawSec || '').toUpperCase().includes(tKey)) continue;
+        }
+      }
+
+      // Filter by Kelompok Aset if specified
+      if (groupName) {
+        const kel = String(a.kel || a.kelompok || '').toLowerCase();
+        if (!kel.includes(groupName)) continue;
+      }
+
+      const isSelisih = vSt.includes('TIDAK') || vSt.includes('SELISIH') || vSt.includes('BEDA');
+      if (isSelisih) selisihCount++;
+      else sesuaiCount++;
+
+      // Filter by status filter (ALL, SELISIH, SESUAI)
+      if (statusFilter === 'SELISIH' && !isSelisih) continue;
+      if (statusFilter === 'SESUAI' && isSelisih) continue;
+
+      // Filter by query
+      if (q) {
+        const code = String(a.kode_unit || a.no || '').toLowerCase();
+        const nm = String(a.nama_asset || a.nama || '').toLowerCase();
+        const kl = String(a.kel || a.kelompok || '').toLowerCase();
+        const usr = String(a.user_verifikasi || '').toLowerCase();
+        const cat = String(a.catatan_verifikasi || '').toLowerCase();
+        const chk = String(a.checkout || '').toLowerCase();
+        if (!code.includes(q) && !nm.includes(q) && !kl.includes(q) && !usr.includes(q) && !cat.includes(q) && !chk.includes(q)) continue;
+      }
+
+      items.push(a);
+    }
+
+    return { items, totalCount: items.length, sesuaiCount, selisihCount };
+  }
+  window.getValidasiDrillItems = getValidasiDrillItems;
+
+  function renderValidasiDrillTable() {
+    const searchInp = document.getElementById('val-drill-search');
+    if (searchInp) currentValidasiDrill.searchQuery = searchInp.value;
+
+    const data = getValidasiDrillItems();
+    const tbody = document.getElementById('val-drill-tbody');
+    const cTotal = document.getElementById('val-drill-count-total');
+    const cSesuai = document.getElementById('val-drill-count-sesuai');
+    const cSelisih = document.getElementById('val-drill-count-selisih');
+    const pInfo = document.getElementById('val-drill-paging-info');
+
+    if (cTotal) cTotal.innerText = (data.sesuaiCount + data.selisihCount).toLocaleString('id-ID');
+    if (cSesuai) cSesuai.innerText = data.sesuaiCount.toLocaleString('id-ID');
+    if (cSelisih) cSelisih.innerText = data.selisihCount.toLocaleString('id-ID');
+
+    if (!tbody) return;
+
+    if (data.items.length === 0) {
+      tbody.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-slate-400">Tidak ada aset yang sesuai filter pencarian.</td></tr>';
+      if (pInfo) pInfo.innerText = '0 data ditemukan';
+      return;
+    }
+
+    const pageSize = currentValidasiDrill.pageSize;
+    const startIdx = (currentValidasiDrill.page - 1) * pageSize;
+    const endIdx = Math.min(startIdx + pageSize, data.items.length);
+    const paged = data.items.slice(startIdx, endIdx);
+
+    if (pInfo) {
+      pInfo.innerText = 'Menampilkan ' + (startIdx + 1).toLocaleString('id-ID') + ' - ' + endIdx.toLocaleString('id-ID') + ' dari ' + data.items.length.toLocaleString('id-ID') + ' data';
+    }
+
+    const fmtRp = v => 'Rp ' + Math.round(v || 0).toLocaleString('id-ID');
+
+    tbody.innerHTML = paged.map(it => {
+      const code = escapeHtml(it.kode_unit || it.no || '-');
+      const nama = escapeHtml(it.nama_asset || it.nama || '-');
+      const tipe = escapeHtml(it.tipe_asset || it.jenis || 'UMUM');
+      const checkout = escapeHtml(it.checkout || it.location || '-');
+      const tglCheckout = escapeHtml(it.tanggal_checkout || '-');
+      const status3 = escapeHtml(it.status_verifikasi_3 || it.kondisi || '-');
+      const userVerif = escapeHtml(it.user_verifikasi || '-');
+      const catatanVerif = escapeHtml(it.catatan_verifikasi || '-');
+      const tglVerif = escapeHtml(it.tanggal_verifikasi || '-');
+      const hppVal = Number(it.hpp || it.total_harga_perolehan || 0);
+      const nbvVal = Number(it.nbv || it.Nilai_buku || 0);
+
+      const isCheckoutValid = it.checkout && !String(it.checkout).includes('BELUM');
+      const checkoutBadge = isCheckoutValid
+        ? '<span class="px-1.5 py-0.5 rounded font-mono font-bold text-[10px] bg-sky-100 text-sky-800 border border-sky-200">' + checkout + '</span>'
+        : '<span class="px-1.5 py-0.5 rounded font-bold text-[10px] bg-rose-100 text-rose-800 border border-rose-200">Belum Checkout</span>';
+
+      const kondBadge = status3.toLowerCase().includes('good')
+        ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">' + status3 + '</span>'
+        : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">' + status3 + '</span>';
+
+      return '<tr class="hover:bg-slate-50 transition text-xs border-b border-slate-100">' +
+        '<td class="py-2.5 px-3 font-mono font-bold text-sky-700 whitespace-nowrap">' +
+          '<button type="button" onclick="closeValidasiDrillModal(); window.drillToAssetDetail(\'' + code + '\')" class="hover:underline text-left">' + code + '</button>' +
+        '</td>' +
+        '<td class="py-2.5 px-3 font-semibold text-slate-800 min-w-[170px] max-w-[220px] truncate" title="' + nama + '">' + nama + '</td>' +
+        '<td class="py-2.5 px-2 text-slate-600 whitespace-nowrap">' + tipe + '</td>' +
+        '<td class="py-2.5 px-2 whitespace-nowrap">' + checkoutBadge + '</td>' +
+        '<td class="py-2.5 px-2 font-mono text-[10px] text-slate-500 whitespace-nowrap">' + tglCheckout + '</td>' +
+        '<td class="py-2.5 px-2 whitespace-nowrap">' + kondBadge + '</td>' +
+        '<td class="py-2.5 px-2 text-slate-700 font-medium max-w-[130px] truncate" title="' + userVerif + '">' + userVerif + '</td>' +
+        '<td class="py-2.5 px-2 text-slate-500 text-[11px] max-w-[160px] truncate" title="' + catatanVerif + '">' + catatanVerif + '</td>' +
+        '<td class="py-2.5 px-2 font-mono text-[10px] text-slate-500 whitespace-nowrap">' + tglVerif + '</td>' +
+        '<td class="py-2.5 px-3 text-right font-mono text-slate-700 whitespace-nowrap">' + fmtRp(hppVal) + '</td>' +
+        '<td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-700 whitespace-nowrap">' + fmtRp(nbvVal) + '</td>' +
+        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' +
+          '<button type="button" onclick="closeValidasiDrillModal(); window.drillToAssetDetail(\'' + code + '\')" class="px-2 py-1 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 text-[10px] font-bold border border-sky-200 transition cursor-pointer">' +
+            'Dossier &rarr;' +
+          '</button>' +
+        '</td>' +
+      '</tr>';
+    }).join('');
+  }
+  window.renderValidasiDrillTable = renderValidasiDrillTable;
+
+  function valDrillPrevPage() {
+    if (currentValidasiDrill.page > 1) {
+      currentValidasiDrill.page--;
+      renderValidasiDrillTable();
+    }
+  }
+  window.valDrillPrevPage = valDrillPrevPage;
+
+  function valDrillNextPage() {
+    const data = getValidasiDrillItems();
+    const maxPage = Math.ceil(data.items.length / currentValidasiDrill.pageSize) || 1;
+    if (currentValidasiDrill.page < maxPage) {
+      currentValidasiDrill.page++;
+      renderValidasiDrillTable();
+    }
+  }
+  window.valDrillNextPage = valDrillNextPage;
+
+  function exportValidasiDrillXlsx() {
+    const data = getValidasiDrillItems();
+    if (!data.items || data.items.length === 0) {
+      alert('Tidak ada data untuk diekspor.');
+      return;
+    }
+    if (typeof XLSX === 'undefined') {
+      alert('Library SheetJS (Excel) belum selesai dimuat.');
+      return;
+    }
+
+    const tName = currentValidasiDrill.targetName || 'Semua';
+    const rows = data.items.map((it, idx) => ({
+      'No': idx + 1,
+      'Kode Unit': it.kode_unit || it.no || '-',
+      'Nama Asset': it.nama_asset || it.nama || '-',
+      'Tipe Asset': it.tipe_asset || it.jenis || 'UMUM',
+      'CHECKOUT': it.checkout || '-',
+      'TANGGAL CHECKOUT': it.tanggal_checkout || '-',
+      'STATUS VERIFIKASI_3': it.status_verifikasi_3 || it.kondisi || '-',
+      'USER_VERIFIKASI': it.user_verifikasi || '-',
+      'CATATAN_VERIFIKASI': it.catatan_verifikasi || '-',
+      'TANGGAL_VERIFIKASI': it.tanggal_verifikasi || '-',
+      'HPP': Number(it.hpp || it.total_harga_perolehan || 0),
+      'NBV': Number(it.nbv || it.Nilai_buku || 0)
+    }));
+
+    const ws = XLSX.utils.json_to_sheet(rows);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Validasi Realtime');
+    const fileName = 'Validasi_Realtime_' + tName.replace(/[^a-zA-Z0-9]/g, '_') + '_' + new Date().toISOString().slice(0, 10) + '.xlsx';
+    XLSX.writeFile(wb, fileName);
+  }
+  window.exportValidasiDrillXlsx = exportValidasiDrillXlsx;
+
   // MAIN MATRIX RENDERER (100% FIT LAYOUT - ZERO HORIZONTAL SCROLL)
   function renderValidasiMatrix() {
     const tbody = document.getElementById('table-validasi-matrix-body');
@@ -16970,9 +17314,14 @@ const PNS_SECTION_TO_DEPT = {
           '</td>' +
           '<!-- Col 7: Aksi -->' +
           '<td class="py-2.5 px-2.5 text-center">' +
-            '<button type="button" onclick="window.drillThroughValidasiToMovement(' + drillThroughOpts + ')" class="px-2 py-1 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-bold shadow-2xs transition flex items-center gap-1 mx-auto cursor-pointer" title="Buka Detail Asset di Sheet Baru (Drill Through)">' +
-              '<span>Sheet</span> <i class="ph-bold ph-arrow-right text-[10px]"></i>' +
-            '</button>' +
+            '<div class="flex items-center gap-1 justify-center">' +
+              '<button type="button" onclick="window.openValidasiDrillModal(\'' + safeKey + '\', \'' + safeLabel + '\', \'' + (currentMatrixGroup === 'loc' ? 'loc' : 'dept') + '\', \'' + safeKName + '\')" class="px-2 py-1 rounded-md bg-sky-600 hover:bg-sky-700 text-white text-[10px] font-bold shadow-2xs transition flex items-center gap-0.5 cursor-pointer" title="Buka Daftar Item Aset Realtime (Modal)">' +
+                '<i class="ph-bold ph-list"></i> <span>List</span>' +
+              '</button>' +
+              '<button type="button" onclick="window.drillThroughValidasiToMovement(' + drillThroughOpts + ')" class="px-1.5 py-1 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-bold shadow-2xs transition flex items-center gap-0.5 cursor-pointer" title="Buka Detail di Sheet Baru">' +
+                '<span>Sheet</span> <i class="ph-bold ph-arrow-right text-[9px]"></i>' +
+              '</button>' +
+            '</div>' +
           '</td>' +
         '</tr>';
       }).join('');
@@ -17103,6 +17452,9 @@ const PNS_SECTION_TO_DEPT = {
           '<!-- Col 7: Aksi -->' +
           '<td class="py-2.5 px-2.5 text-center">' +
             '<div class="flex items-center gap-1 justify-center">' +
+              '<button type="button" onclick="window.openValidasiDrillModal(\'' + safeKey + '\', \'' + safeLabel + '\', \'' + (currentMatrixGroup === 'loc' ? 'loc' : 'dept') + '\')" class="px-1.5 py-1 rounded-md bg-sky-600 hover:bg-sky-700 text-white text-[10px] font-bold shadow-2xs transition flex items-center gap-0.5 cursor-pointer" title="Buka Daftar Item Aset Realtime (Modal)">' +
+                '<i class="ph-bold ph-list"></i> <span>List</span>' +
+              '</button>' +
               '<button type="button" onclick="' + drillDownCall + '" class="p-1 rounded-md bg-slate-100 hover:bg-emerald-100 text-slate-700 hover:text-emerald-800 transition cursor-pointer shadow-2xs" title="Drill Down di Tabel">' +
                 '<i class="ph-bold ph-arrow-down text-xs text-emerald-600"></i>' +
               '</button>' +

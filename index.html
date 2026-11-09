@@ -177,12 +177,11 @@
               <span class="truncate">Dashboard Overview</span>
             </span>
           </button>
-          <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Laporan Hasil Validasi &amp; Rekonsiliasi (35.160 Unit)">
+          <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Laporan Hasil Validasi &amp; Rekonsiliasi Fisik Aset">
             <span class="flex items-center gap-2 min-w-0">
               <i class="ph ph-seal-check text-base text-sky-600 shrink-0"></i>
               <span class="truncate text-slate-800">Laporan Hasil Validasi</span>
             </span>
-            <span class="text-[10px] text-sky-700 font-medium px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200/80 shrink-0">34.806</span>
           </button>
         </div>
 
@@ -193,12 +192,11 @@
             <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
           </button>
           <div id="nav-group-katalog" class="space-y-1">
-          <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Seluruh Portofolio Aset Live API (35.160 Unit)">
+          <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Master Katalog Seluruh Aset">
             <span class="flex items-center gap-2 min-w-0">
               <i class="ph ph-database text-base text-slate-500 shrink-0"></i>
               <span class="truncate">Master Katalog Aset</span>
             </span>
-            <span class="text-[10px] text-slate-500 font-medium px-1.5 py-0.5 rounded bg-slate-100 shrink-0">35.160</span>
           </button>
           <button type="button" data-view="view-portfolio" onclick="navTo('view-portfolio', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Komposisi &amp; Nilai Portofolio">
             <i class="ph ph-chart-pie text-base text-slate-500 shrink-0"></i>
@@ -574,10 +572,10 @@
               </div>
               <div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg shrink-0">
                 <button type="button" id="btn-dash-bar-asset" onclick="setDashboardBarMode('asset')" class="px-2.5 py-1 rounded-md text-[11px] font-bold bg-white text-slate-900 shadow-2xs transition cursor-pointer">
-                  Aset Fisik (35.160)
+                  Aset Fisik
                 </button>
                 <button type="button" id="btn-dash-bar-bldg" onclick="setDashboardBarMode('gedung')" class="px-2.5 py-1 rounded-md text-[11px] font-semibold text-slate-600 hover:text-slate-900 transition cursor-pointer">
-                  Gedung (416)
+                  Gedung
                 </button>
               </div>
             </div>
@@ -646,10 +644,10 @@
                 <span>Sync API</span>
               </button>
 
-              <!-- Compare API Live 35.160 Button -->
-              <button type="button" onclick="showApiLiveCompareModal()" class="px-3.5 py-2 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer" title="Lihat Komparasi Langsung Data API Live (35.160 Unit) vs Master &amp; Validasi">
+              <!-- Compare API Live Button -->
+              <button type="button" onclick="showApiLiveCompareModal()" class="px-3.5 py-2 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold flex items-center gap-1.5 transition shadow-2xs cursor-pointer" title="Lihat Komparasi Langsung Data API Live vs Master &amp; Validasi">
                 <i class="ph-bold ph-arrows-left-right text-emerald-600 text-sm"></i>
-                <span>Compare API Live (35.160)</span>
+                <span>Compare API Live</span>
               </button>
 
               <!-- Download Excel (.xlsx) Button -->
@@ -658,10 +656,10 @@
                 <span>Download Excel (.xlsx)</span>
               </button>
 
-              <!-- Download Full Master 35.160 Excel (.xlsx) Button -->
-              <button type="button" onclick="window.pns.exportAssetCatalogCsv('xlsx', true)" class="px-3 py-2 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer" title="Download Seluruh Master Katalog Aset (35.160 Unit) ke Excel (.xlsx)">
+              <!-- Download Full Master Excel (.xlsx) Button -->
+              <button type="button" onclick="window.pns.exportAssetCatalogCsv('xlsx', true)" class="px-3 py-2 rounded-xl border border-indigo-200 bg-indigo-50 hover:bg-indigo-100 text-indigo-800 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer" title="Download Seluruh Master Katalog Aset ke Excel (.xlsx)">
                 <i class="ph-bold ph-database text-sm"></i>
-                <span>Full 35.160 (.xlsx)</span>
+                <span>Full Master (.xlsx)</span>
               </button>
 
               <!-- Download CSV Button -->
@@ -727,11 +725,11 @@
               <input type="text" id="rem-checkout-search" oninput="onReminderCheckoutFilterChange()" placeholder="Cari kode unit, no aset, nama barang, departemen, PIC..." class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50/70 text-slate-800 placeholder:text-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition">
             </div>
 
-            <!-- Filter 2 Pilihan: Seluruh Asset (35.160) vs Asset Validasi (34.806) -->
+            <!-- Filter 2 Pilihan: Seluruh Asset vs Asset Validasi -->
             <div class="lg:col-span-3" id="rem-filter-source-wrap">
               <select id="rem-checkout-source" onchange="onReminderCheckoutFilterChange()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-slate-50/70 text-slate-800 font-semibold focus:bg-white focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition cursor-pointer">
-                <option value="MASTER_ALL" selected>Seluruh Asset (35.160 Unit)</option>
-                <option value="VALIDASI">Asset Validasi (34.806 Unit)</option>
+                <option value="MASTER_ALL" selected>Seluruh Asset</option>
+                <option value="VALIDASI">Asset Validasi</option>
               </select>
             </div>
 
@@ -797,13 +795,13 @@
             <!-- Segment Slicer Pills: Sesuai 2 Pilihan Utama (Seluruh Asset vs Asset Validasi) -->
             <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/90 shrink-0 gap-1">
               <button type="button" id="btn-segment-asset-all" onclick="window.setAssetCatalogSegment('ALL')" class="px-3 py-1 rounded-lg text-xs font-semibold bg-white text-slate-800 shadow-xs border border-slate-200 transition cursor-pointer" title="Seluruh Portofolio Aset Terdaftar &amp; Terintegrasi Live API">
-                Seluruh Asset (35.160)
+                Seluruh Asset
               </button>
               <button type="button" id="btn-segment-asset-master" onclick="window.setAssetCatalogSegment('VALIDASI')" class="px-3 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 transition cursor-pointer" title="Hanya Asset Validasi Terverifikasi Fisik">
-                Asset Validasi (34.806)
+                Asset Validasi
               </button>
               <button type="button" id="btn-segment-asset-bc" onclick="window.setAssetCatalogSegment('BELUM_CHECKOUT')" class="px-3 py-1 rounded-lg text-xs font-medium text-amber-700 hover:text-amber-900 transition cursor-pointer flex items-center gap-1" title="Antrean Belum Verifikasi">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Belum Verifikasi (354)
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Belum Verifikasi
               </button>
             </div>
             <!-- Tombol Compare API Live -->
@@ -965,15 +963,14 @@
                     <th onclick="window.onAssetCatalogSortChange('nama_asc')" class="px-3 py-2.5 min-w-[180px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Nama Aset (A-Z)">
                       <div class="flex items-center gap-1"><span>Nama Asset</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
                     </th>
-                    <th class="px-3 py-2.5 min-w-[120px]">Kategori</th>
-                    <th class="px-3 py-2.5 min-w-[130px]">Kelompok</th>
-                    <th onclick="window.onAssetCatalogSortChange('kondisi_crit')" class="px-3 py-2.5 text-center min-w-[100px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Kondisi Fisik">
-                      <div class="flex items-center justify-center gap-1"><span>Kondisi</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
-                    </th>
-                    <th onclick="window.onAssetCatalogSortChange('umur_desc')" class="px-3 py-2.5 text-center min-w-[90px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Umur Aset">
-                      <div class="flex items-center justify-center gap-1"><span>Umur / Std</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
-                    </th>
-                    <th class="px-3 py-2.5 text-center min-w-[90px]">Lifetime</th>
+                    <th class="px-3 py-2.5 min-w-[90px]">Tipe Asset</th>
+                    <th class="px-3 py-2.5 min-w-[120px]">Checkout</th>
+                    <th class="px-3 py-2.5 min-w-[100px]">Tgl Checkout</th>
+                    <th class="px-3 py-2.5 text-center min-w-[130px]">Status Verifikasi (3)</th>
+                    <th class="px-3 py-2.5 min-w-[120px]">User Verifikasi</th>
+                    <th class="px-3 py-2.5 min-w-[160px]">Catatan Verifikasi</th>
+                    <th class="px-3 py-2.5 min-w-[110px]">Tgl Verifikasi</th>
+                    <th class="px-3 py-2.5 min-w-[80px]">Lokasi</th>
                     <th onclick="window.onAssetCatalogSortChange('hpp_desc')" class="px-3 py-2.5 text-right min-w-[120px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Harga Perolehan Tertinggi">
                       <div class="flex items-center justify-end gap-1"><span>Harga Perolehan</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
                     </th>
@@ -1078,7 +1075,7 @@
                                     </div>
                                     <div>
                                         <span class="text-[10.5px] font-extrabold uppercase tracking-wider text-slate-400 block">Total Assets</span>
-                                        <span class="text-2xl font-black text-slate-900 tracking-tight" id="pbi-asset1-total-assets">34,266</span>
+                                        <span class="text-2xl font-black text-slate-900 tracking-tight" id="pbi-asset1-total-assets">35,160</span>
                                     </div>
                                 </div>
                                 <span class="px-2 py-0.5 text-[10px] font-bold rounded-md bg-slate-100 text-slate-600 border border-slate-200/60">Portfolio</span>
@@ -1823,7 +1820,7 @@
                                     <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11.5px] font-black text-slate-900">
                                         <tr>
                                             <td class="py-2 px-3">Total</td>
-                                            <td id="mov-tot-left-asset" class="py-2 px-2.5 text-right font-mono">34,266</td>
+                                            <td id="mov-tot-left-asset" class="py-2 px-2.5 text-right font-mono">35,160</td>
                                             <td id="mov-tot-left-std" class="py-2 px-2.5 text-right font-mono">9</td>
                                             <td id="mov-tot-left-umur" class="py-2 px-2.5 text-right font-mono">7</td>
                                         </tr>
@@ -1887,7 +1884,7 @@
                                     </tbody>
                                     <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[10.5px] font-black text-slate-900">
                                         <tr>
-                                            <td class="py-2 px-2" colspan="3">Total (<span id="mov-tot-right-count">34,266</span> Unit)</td>
+                                            <td class="py-2 px-2" colspan="3">Total (<span id="mov-tot-right-count">35,160</span> Unit)</td>
                                             <td class="py-2 px-2 text-center text-slate-400 font-normal text-[9px]">-</td>
                                             <td class="py-2 px-2 text-right font-mono text-slate-500 text-[10px]" id="mov-tot-right-varian">-</td>
                                             <td id="mov-tot-right-std" class="py-2 px-2 text-right font-mono">307784</td>
@@ -2206,7 +2203,7 @@
                     <!-- Populated dynamically via JS -->
                   </datalist>
                 </div>
-                <p class="text-[10px] text-slate-400 mt-1">Ketik kode aset atau pilih dari 34.266 inventaris terdaftar.</p>
+                <p class="text-[10px] text-slate-400 mt-1">Ketik kode aset atau pilih dari 35.160 inventaris terdaftar.</p>
               </div>
 
               <!-- CARD DETAIL ASET TERPILIH (Auto-populated berdasarkan Kode Aset) -->
@@ -3213,7 +3210,7 @@
             <div class="flex items-center gap-2 mb-1 flex-wrap">
               <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
-                Hasil Validasi 34.806 Unit (Live API: 35.160)
+                Hasil Validasi Fisik Terintegrasi
               </span>
               <span class="text-xs text-slate-400">•</span>
               <span class="text-xs font-semibold text-slate-600">Executive Asset Intelligence</span>
@@ -3230,7 +3227,7 @@
             <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80 shadow-2xs text-xs">
               <button id="tab-btn-validasi-rekon" type="button" onclick="switchValidasiTab('rekon')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-900 shadow-2xs cursor-pointer">
                 <i class="ph-bold ph-table text-emerald-600"></i>
-                <span>Laporan Hasil Validasi (34.806)</span>
+                <span>Laporan Hasil Validasi</span>
               </button>
               <button id="tab-btn-validasi-perf" type="button" onclick="switchValidasiTab('perf')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/60 cursor-pointer">
                 <i class="ph-bold ph-chart-pie-slice text-blue-600"></i>
@@ -3242,7 +3239,7 @@
             <div class="flex items-center gap-1.5">
               <button type="button" onclick="showApiLiveCompareModal()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-300 shadow-2xs transition flex items-center gap-1.5 cursor-pointer" title="Komparasi Langsung API Live vs Master">
                 <i class="ph-bold ph-arrows-left-right text-emerald-600"></i>
-                <span>Compare API (35.160)</span>
+                <span>Compare API Live</span>
               </button>
               <button type="button" onclick="window.printValidasiReport()" class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg border border-slate-200 shadow-2xs transition flex items-center gap-1.5 cursor-pointer" title="Cetak Format Resmi">
                 <i class="ph-bold ph-printer text-slate-500"></i>
@@ -4621,10 +4618,13 @@
             <tr>
               <th class="py-2.5 px-3">Kode Unit</th>
               <th class="py-2.5 px-3">Nama Asset</th>
-              <th class="py-2.5 px-2">Kelompok / Kategori</th>
-              <th class="py-2.5 px-2">Lokasi</th>
-              <th class="py-2.5 px-2">Kondisi Fisik</th>
-              <th class="py-2.5 px-2">Status Validasi</th>
+              <th class="py-2.5 px-2">Tipe Asset</th>
+              <th class="py-2.5 px-2">Checkout</th>
+              <th class="py-2.5 px-2">Tgl Checkout</th>
+              <th class="py-2.5 px-2">Status Verifikasi 3</th>
+              <th class="py-2.5 px-2">User Verifikasi</th>
+              <th class="py-2.5 px-2">Catatan Verifikasi</th>
+              <th class="py-2.5 px-2">Tgl Verifikasi</th>
               <th class="py-2.5 px-3 text-right">Nilai Perolehan (HPP)</th>
               <th class="py-2.5 px-3 text-right">Nilai Buku (NBV)</th>
               <th class="py-2.5 px-2.5 text-center">Aksi</th>
