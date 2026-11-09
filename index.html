@@ -2716,61 +2716,35 @@
 
         <!-- Section 1: Kategori Inspeksi & Pemilihan Bangunan -->
         <div class="clean-card p-5 space-y-4">
-          <div class="flex items-center justify-between flex-wrap gap-2 pb-3 border-b border-slate-100">
+          <!-- 1. Kategori Inspeksi Bangunan (Compact Segmented Tab Buttons) -->
+          <div class="flex items-center justify-between flex-wrap gap-2.5 pb-2.5 border-b border-slate-100">
             <div>
               <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">1. Kategori Inspeksi Bangunan</span>
-              <span class="text-[11px] text-slate-500">Pilih salah satu kategori untuk menyaring daftar gedung acuan</span>
+              <span class="text-[11px] text-slate-500">Pilih kategori untuk menyaring daftar gedung acuan</span>
             </div>
-            <div class="text-[11px] font-medium text-slate-500">
-              Total Bangunan: <span class="font-bold text-slate-900">416 Unit</span>
+            <!-- Compact Segmented Category Button Group -->
+            <div class="inline-flex p-1 bg-slate-100/90 rounded-xl border border-slate-200/80 gap-1 flex-wrap items-center">
+              <button type="button" onclick="setInspBldgCategory('KANTOR', this)" id="cat-btn-kantor" class="insp-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-white/80 transition cursor-pointer flex items-center gap-1.5" title="Kantor: Main Office, Pos Security, Control Room">
+                <i class="ph-bold ph-buildings text-indigo-600"></i>
+                <span>Kantor</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">21</span>
+              </button>
+              <button type="button" onclick="setInspBldgCategory('FASILITAS_UMUM', this)" id="cat-btn-fasum" class="insp-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-white/80 transition cursor-pointer flex items-center gap-1.5" title="Fasilitas Umum: Workshop, Gudang, Klinik, Musholla">
+                <i class="ph-bold ph-warehouse text-amber-600"></i>
+                <span>Fasilitas Umum</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">282</span>
+              </button>
+              <button type="button" onclick="setInspBldgCategory('HUNIAN', this)" id="cat-btn-hunian" class="insp-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-white/80 transition cursor-pointer flex items-center gap-1.5" title="Hunian: Mess Karyawan, Longhouse, Guest House">
+                <i class="ph-bold ph-house-line text-emerald-600"></i>
+                <span>Hunian</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">113</span>
+              </button>
+              <button type="button" onclick="setInspBldgCategory('ALL', this)" id="cat-btn-all" class="insp-cat-btn active px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-emerald-800 border border-emerald-300 shadow-2xs transition cursor-pointer flex items-center gap-1.5" title="Semua Bangunan Operasional PT PNS">
+                <i class="ph-bold ph-squares-four text-emerald-600"></i>
+                <span>Semua</span>
+                <span class="px-1.5 py-0.2 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">416</span>
+              </button>
             </div>
-          </div>
-
-          <!-- 3 Clear Category Cards + Semua -->
-          <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-            <button type="button" onclick="setInspBldgCategory('KANTOR', this)" id="cat-btn-kantor" class="insp-cat-btn p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer flex flex-col justify-between group">
-              <div class="flex items-center justify-between mb-2">
-                <span class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-700 flex items-center justify-center text-base group-hover:scale-105 transition">
-                  <i class="ph-bold ph-buildings"></i>
-                </span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-indigo-100 text-indigo-800">21 Unit</span>
-              </div>
-              <span class="text-xs font-bold text-slate-900 block">Kantor</span>
-              <span class="text-[10px] text-slate-500">Main Office, Pos Security, Control Room</span>
-            </button>
-
-            <button type="button" onclick="setInspBldgCategory('FASILITAS_UMUM', this)" id="cat-btn-fasum" class="insp-cat-btn p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer flex flex-col justify-between group">
-              <div class="flex items-center justify-between mb-2">
-                <span class="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center text-base group-hover:scale-105 transition">
-                  <i class="ph-bold ph-warehouse"></i>
-                </span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">282 Unit</span>
-              </div>
-              <span class="text-xs font-bold text-slate-900 block">Fasilitas Umum</span>
-              <span class="text-[10px] text-slate-500">Workshop, Gudang, Klinik, Musholla</span>
-            </button>
-
-            <button type="button" onclick="setInspBldgCategory('HUNIAN', this)" id="cat-btn-hunian" class="insp-cat-btn p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer flex flex-col justify-between group">
-              <div class="flex items-center justify-between mb-2">
-                <span class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center text-base group-hover:scale-105 transition">
-                  <i class="ph-bold ph-house-line"></i>
-                </span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">113 Unit</span>
-              </div>
-              <span class="text-xs font-bold text-slate-900 block">Hunian</span>
-              <span class="text-[10px] text-slate-500">Mess Karyawan, Longhouse, Guest House</span>
-            </button>
-
-            <button type="button" onclick="setInspBldgCategory('ALL', this)" id="cat-btn-all" class="insp-cat-btn active p-3 rounded-xl border border-slate-800 bg-slate-900 text-white text-left transition cursor-pointer flex flex-col justify-between shadow-xs">
-              <div class="flex items-center justify-between mb-2">
-                <span class="w-8 h-8 rounded-lg bg-slate-800 text-white flex items-center justify-center text-base">
-                  <i class="ph-bold ph-squares-four"></i>
-                </span>
-                <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-800 text-slate-200">416 Unit</span>
-              </div>
-              <span class="text-xs font-bold text-white block">Semua Bangunan</span>
-              <span class="text-[10px] text-slate-300">Seluruh lokasi site &amp; peruntukan</span>
-            </button>
           </div>
 
           <!-- Selector Gedung / Bangunan -->
@@ -2924,29 +2898,12 @@
               </div>
             </div>
 
-            <!-- Tombol Filter Cepat Jenis Fasilitas -->
-            <div class="flex flex-wrap items-center gap-1.5 pt-1">
+            <!-- Tombol Filter Cepat Jenis Fasilitas (Dinamis dari item riil di ruangan) -->
+            <div id="insp-fac-filter-pills" class="flex flex-wrap items-center gap-1.5 pt-1">
               <button type="button" onclick="resetInspectionAssetFilter()" id="btn-filter-fac-all" class="px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-800 text-white border border-slate-800 transition cursor-pointer shadow-2xs">
                 Semua (<span id="filter-all-count">0</span>)
               </button>
-              <button type="button" onclick="filterInspectionTableByType('Kasur', this)" class="btn-fac-filter px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 border border-slate-200 transition cursor-pointer flex items-center gap-1">
-                <i class="ph-bold ph-bed text-emerald-600"></i> Kasur / Bed
-              </button>
-              <button type="button" onclick="filterInspectionTableByType('Lemari', this)" class="btn-fac-filter px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 hover:bg-blue-50 hover:text-blue-700 text-slate-700 border border-slate-200 transition cursor-pointer flex items-center gap-1">
-                <i class="ph-bold ph-door text-blue-600"></i> Lemari &amp; Loker
-              </button>
-              <button type="button" onclick="filterInspectionTableByType('Bantal', this)" class="btn-fac-filter px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 border border-slate-200 transition cursor-pointer flex items-center gap-1">
-                <i class="ph-bold ph-feather text-indigo-600"></i> Bantal &amp; Sprei
-              </button>
-              <button type="button" onclick="filterInspectionTableByType('AC', this)" class="btn-fac-filter px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 hover:bg-sky-50 hover:text-sky-700 text-slate-700 border border-slate-200 transition cursor-pointer flex items-center gap-1">
-                <i class="ph-bold ph-snowflake text-sky-600"></i> AC &amp; Kipas
-              </button>
-              <button type="button" onclick="filterInspectionTableByType('MejaKursi', this)" class="btn-fac-filter px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 hover:bg-stone-50 hover:text-stone-700 text-slate-700 border border-slate-200 transition cursor-pointer flex items-center gap-1">
-                <i class="ph-bold ph-chair text-stone-600"></i> Meja &amp; Kursi
-              </button>
-              <button type="button" onclick="filterInspectionTableByType('Lampu', this)" class="btn-fac-filter px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 hover:bg-amber-50 hover:text-amber-700 text-slate-700 border border-slate-200 transition cursor-pointer flex items-center gap-1">
-                <i class="ph-bold ph-lightbulb text-amber-600"></i> Lampu &amp; Listrik
-              </button>
+              <!-- Pill kategori aktif lainnya akan digenerate otomatis sesuai aset fisik riil di ruangan -->
             </div>
 
             <!-- Grid Visual Cards Fasilitas Lapangan (Bantal, Kasur, Lemari, AC, dll) -->
@@ -3524,8 +3481,8 @@
                     <th id="matrix-th-name" class="py-2.5 px-3.5">Departemen</th>
                     <th class="py-2.5 px-2.5">Akurasi Validasi</th>
                     <th class="py-2.5 px-2.5">Kondisi Fisik</th>
-                    <th class="py-2.5 px-2 text-right">Avg Umur</th>
-                    <th class="py-2.5 px-2 text-right">Selisih</th>
+                    <th class="py-2.5 px-2 text-right">Sesuai Fisik</th>
+                    <th class="py-2.5 px-2 text-right">Selisih Alokasi</th>
                     <th class="py-2.5 px-2.5 text-right">Total Validasi</th>
                     <th class="py-2.5 px-2 text-center">Navigasi</th>
                   </tr>

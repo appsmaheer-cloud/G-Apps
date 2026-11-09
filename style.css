@@ -582,21 +582,31 @@ body.validasi-standalone-view #validasi-standalone-topbar {
 .cmdr { display: flex; justify-content: space-between; gap: 10px; align-items: center; width: 100%; border: 0; background: none; text-align: left; border-radius: 8px; padding: 8px 12px; min-height: 40px; cursor: pointer; font-size: 13px; }
 .cmdr:hover, .cmdr.on { background: #F1F5F9; }
 
-/* Interactive Peta & Denah */
+/* Interactive Peta & Denah - Realistic Architectural Silhouettes */
 .scroll { overflow-x: auto; border-radius: 8px; border: 1px solid #CBD5E1; background: var(--field); position: relative; }
 .field { position: relative; min-width: 680px; background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size: 32px 32px; border-radius: 8px; }
-.bd { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; border: 2px solid transparent; border-radius: 4px; cursor: pointer; color: #fff; line-height: 1.15; padding: 0 3px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.2); transition: transform .1s ease, box-shadow .1s ease; }
-.bd:hover { transform: translate(-50%, -50%) scale(1.05); z-index: 5; }
-.bd .a { font-size: 10.5px; font-weight: 700; white-space: nowrap; position: relative; z-index: 1; letter-spacing: -0.01em; }
-.bd .b { font-size: 9.5px; white-space: nowrap; opacity: .95; position: relative; z-index: 1; }
-.bd.lh { width: 92px; height: 36px; }
-.bd.o { width: 76px; height: 28px; }
-.bd.sel { border-color: #0F172A !important; box-shadow: 0 0 0 2px #fff, 0 4px 12px rgba(0,0,0,0.5) !important; z-index: 10; transform: translate(-50%, -50%) scale(1.08); }
-.bd.sh-lh::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 8.6px, rgba(255,255,255,.35) 8.6px 9.6px); pointer-events: none; }
-.bd.o.sh-lh::after { background: repeating-linear-gradient(90deg, transparent 0 12px, rgba(255,255,255,.3) 12px 13px); }
-.bd.sh-hs { overflow: visible; border-radius: 3px; margin-top: 4px; }
-.bd.sh-hs::before { content: ''; position: absolute; left: -2px; right: -2px; top: -8px; height: 8px; background: inherit; clip-path: polygon(0 100%, 50% 0, 100% 100%); }
-.bd.sh-fc { border-radius: 999px; }
+.bd { position: absolute; transform: translate(-50%, -50%); display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1.5px solid rgba(255,255,255,0.7); border-radius: 4px; cursor: pointer; color: #fff; line-height: 1.15; padding: 0 4px; overflow: visible; box-shadow: 0 2px 5px rgba(0,0,0,0.22); transition: transform .12s ease, box-shadow .12s ease; }
+.bd:hover { transform: translate(-50%, -50%) scale(1.06); z-index: 15; box-shadow: 0 4px 12px rgba(0,0,0,0.3); }
+.bd .a { font-size: 10px; font-weight: 800; white-space: nowrap; position: relative; z-index: 2; letter-spacing: -0.01em; text-shadow: 0 1px 2px rgba(0,0,0,0.35); }
+.bd .b { font-size: 9px; white-space: nowrap; font-weight: 600; opacity: .95; position: relative; z-index: 2; text-shadow: 0 1px 2px rgba(0,0,0,0.3); }
+.bd.lh { width: 94px; height: 38px; }
+.bd.o { width: 78px; height: 30px; }
+.bd.sel { border-color: #0F172A !important; box-shadow: 0 0 0 2px #fff, 0 6px 16px rgba(0,0,0,0.55) !important; z-index: 20; transform: translate(-50%, -50%) scale(1.1); }
+
+/* Architectural Longhouse Shape (Atap Pelana Memanjang & Partisi Pintu Kamar) */
+.bd.sh-lh { border-radius: 3px 3px 2px 2px; }
+.bd.sh-lh::before { content: ''; position: absolute; left: -3px; right: -3px; top: -6px; height: 6px; background: inherit; border-radius: 4px 4px 0 0; clip-path: polygon(0 100%, 6% 0, 94% 0, 100% 100%); filter: brightness(0.85); box-shadow: 0 -1px 2px rgba(0,0,0,0.2); pointer-events: none; }
+.bd.sh-lh::after { content: ''; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, transparent 0 8.2px, rgba(255,255,255,.28) 8.2px 9.2px); pointer-events: none; border-bottom: 2px solid rgba(0,0,0,0.25); }
+.bd.o.sh-lh::after { background: repeating-linear-gradient(90deg, transparent 0 11px, rgba(255,255,255,.25) 11px 12px); }
+
+/* Architectural House / Mess / Guest House (Atap Segitiga Rumah & Pintu) */
+.bd.sh-hs { border-radius: 2px 2px 3px 3px; margin-top: 3px; }
+.bd.sh-hs::before { content: ''; position: absolute; left: -3px; right: -3px; top: -9px; height: 9px; background: inherit; clip-path: polygon(0 100%, 50% 0, 100% 100%); filter: brightness(0.82); box-shadow: 0 -2px 3px rgba(0,0,0,0.25); pointer-events: none; }
+.bd.sh-hs::after { content: ''; position: absolute; bottom: 0; left: calc(50% - 4px); width: 8px; height: 5px; background: rgba(0,0,0,0.25); border-radius: 2px 2px 0 0; pointer-events: none; }
+
+/* Architectural Facility / Kantor / Workshop (Gedung Bertingkat / Flat Roof) */
+.bd.sh-fc { border-radius: 3px; border-top: 3px solid rgba(255,255,255,0.85); }
+.bd.sh-fc::after { content: ''; position: absolute; bottom: 0; left: calc(50% - 5px); width: 10px; height: 5px; background: rgba(0,0,0,0.2); border-radius: 1px 1px 0 0; pointer-events: none; }
 .road { position: absolute; background: var(--road); border-radius: 2px; pointer-events: none; opacity: 0.85; }
 
 /* Building status colors */

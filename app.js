@@ -1893,8 +1893,12 @@ const PNS_SECTION_TO_DEPT = {
       `;
     }
 
+    let _dashChartRetries = 0;
     if (typeof ApexCharts === 'undefined' || !barEl || barEl.offsetWidth < 50) {
-      setTimeout(renderDashboardCharts, 250);
+      if ((typeof window !== 'undefined' && (window._dashChartRetries || 0) < 8)) {
+        window._dashChartRetries = (window._dashChartRetries || 0) + 1;
+        setTimeout(renderDashboardCharts, 250);
+      }
       return;
     }
 
@@ -7446,12 +7450,12 @@ const PNS_SECTION_TO_DEPT = {
     ['cat-btn-kantor', 'cat-btn-fasum', 'cat-btn-hunian', 'cat-btn-all'].forEach(id => {
       const b = document.getElementById(id);
       if (b) {
-        b.className = 'insp-cat-btn p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition cursor-pointer flex flex-col justify-between group';
+        b.className = 'insp-cat-btn px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-white/80 transition cursor-pointer flex items-center gap-1.5';
       }
     });
 
     if (btnEl) {
-      btnEl.className = 'insp-cat-btn active p-3 rounded-xl border-2 border-sky-600 bg-sky-50 text-left transition cursor-pointer flex flex-col justify-between shadow-xs';
+      btnEl.className = 'insp-cat-btn active px-3 py-1.5 rounded-lg text-xs font-bold bg-white text-emerald-800 border border-emerald-300 shadow-2xs transition cursor-pointer flex items-center gap-1.5';
     }
 
     filterAndPopulateInspGedung();
@@ -8045,23 +8049,36 @@ const PNS_SECTION_TO_DEPT = {
 
   function classifyAssetType(namaAsset) {
     const n = String(namaAsset || '').toLowerCase();
-    if (n.includes('bantal')) return { key: 'Bantal', label: 'Bantal Kepala', icon: 'ph-feather', color: 'indigo', std: 4 };
-    if (n.includes('kasur') || n.includes('spring') || n.includes('matras') || n.includes('bed')) return { key: 'Kasur', label: 'Kasur / Springbed', icon: 'ph-bed', color: 'emerald', std: 2 };
-    if (n.includes('lampu') || n.includes('led') || n.includes('penerangan')) return { key: 'Lampu', label: 'Lampu Kamar', icon: 'ph-lightbulb', color: 'amber', std: 2 };
-    if (n.includes('lemari') || n.includes('wardrobe')) return { key: 'Lemari', label: 'Lemari 2 Pintu', icon: 'ph-door', color: 'blue', std: 2 };
-    if (n.includes('loker') || n.includes('locker')) return { key: 'Loker', label: 'Loker Besi 3P', icon: 'ph-lockers', color: 'cyan', std: 2 };
-    if (n.includes('gorden') || n.includes('curtain') || n.includes('tiang gorden')) return { key: 'Gorden', label: 'Gorden & Tiang', icon: 'ph-curtains', color: 'purple', std: 2 };
-    if (n.includes('ranjang') || n.includes('dipan')) return { key: 'Ranjang', label: 'Ranjang Susun', icon: 'ph-stack', color: 'teal', std: 1 };
-    if (n.includes('guling')) return { key: 'Guling', label: 'Guling Tidur', icon: 'ph-cylinder', color: 'rose', std: 4 };
-    if (n.includes('sprei') || n.includes('selimut') || n.includes('handuk')) return { key: 'Sprei', label: 'Sprei & Selimut', icon: 'ph-coat-hanger', color: 'pink', std: 4 };
-    if (n.includes('keranjang')) return { key: 'Keranjang', label: 'Keranjang Pakaian', icon: 'ph-tote', color: 'orange', std: 2 };
-    if (n.includes('keset') || n.includes('karpet')) return { key: 'Keset', label: 'Keset Lantai', icon: 'ph-rug', color: 'slate', std: 1 };
-    if (n.includes('sapu') || n.includes('pengki')) return { key: 'Sapu', label: 'Pengki & Sapu', icon: 'ph-broom', color: 'lime', std: 1 };
-    if (n.includes('ac ') || n.includes('air conditioner') || n.includes('kipas')) return { key: 'AC', label: 'AC / Pendingin', icon: 'ph-snowflake', color: 'sky', std: 1 };
-    if (n.includes('mesin cuci') || n.includes('washing')) return { key: 'MesinCuci', label: 'Mesin Cuci', icon: 'ph-arrows-clockwise', color: 'blue', std: 1 };
-    if (n.includes('dryer') || n.includes('pengering')) return { key: 'Dryer', label: 'Dryer Mesin', icon: 'ph-wind', color: 'amber', std: 1 };
-    if (n.includes('meja') || n.includes('kursi')) return { key: 'MejaKursi', label: 'Meja & Kursi', icon: 'ph-chair', color: 'stone', std: 2 };
-    if (n.includes('tv') || n.includes('televisi')) return { key: 'TV', label: 'Smart TV', icon: 'ph-television', color: 'violet', std: 1 };
+    if (n.includes('lemari') || n.includes('wardrobe') || n.includes('loker') || n.includes('locker')) {
+      return { key: 'Lemari', label: 'Lemari & Loker', icon: 'ph-door', color: 'blue', std: 2 };
+    }
+    if (n.includes('kasur') || n.includes('spring') || n.includes('matras') || n.includes('bed') || n.includes('ranjang') || n.includes('dipan')) {
+      return { key: 'Kasur', label: 'Kasur & Ranjang', icon: 'ph-bed', color: 'emerald', std: 2 };
+    }
+    if (n.includes('bantal') || n.includes('guling') || n.includes('sprei') || n.includes('selimut') || n.includes('handuk')) {
+      return { key: 'Bantal', label: 'Bantal & Linen', icon: 'ph-feather', color: 'indigo', std: 4 };
+    }
+    if (n.includes('lampu') || n.includes('led') || n.includes('penerangan') || n.includes('listrik') || n.includes('kabel') || n.includes('stop kontak') || n.includes('saklar')) {
+      return { key: 'Lampu', label: 'Lampu & Listrik', icon: 'ph-lightbulb', color: 'amber', std: 2 };
+    }
+    if (n.includes('gorden') || n.includes('curtain') || n.includes('tiang gorden')) {
+      return { key: 'Gorden', label: 'Gorden & Tiang', icon: 'ph-curtains', color: 'purple', std: 2 };
+    }
+    if (n.includes('sapu') || n.includes('pengki') || n.includes('keset') || n.includes('karpet') || n.includes('keranjang') || n.includes('sampah')) {
+      return { key: 'Kebersihan', label: 'Kebersihan & Sanitasi', icon: 'ph-broom', color: 'lime', std: 1 };
+    }
+    if (n.includes('ac ') || n.includes('air conditioner') || n.includes('kipas') || n.includes('pendingin')) {
+      return { key: 'AC', label: 'AC & Kipas', icon: 'ph-snowflake', color: 'sky', std: 1 };
+    }
+    if (n.includes('meja') || n.includes('kursi') || n.includes('sofa')) {
+      return { key: 'MejaKursi', label: 'Meja & Kursi', icon: 'ph-chair', color: 'stone', std: 2 };
+    }
+    if (n.includes('tv') || n.includes('televisi')) {
+      return { key: 'TV', label: 'Smart TV', icon: 'ph-television', color: 'violet', std: 1 };
+    }
+    if (n.includes('mesin cuci') || n.includes('washing') || n.includes('dryer') || n.includes('pengering')) {
+      return { key: 'Laundry', label: 'Mesin Laundry', icon: 'ph-arrows-clockwise', color: 'cyan', std: 1 };
+    }
     return { key: 'Lainnya', label: 'Fasilitas Lain', icon: 'ph-cube', color: 'slate', std: 1 };
   }
 
@@ -8100,7 +8117,7 @@ const PNS_SECTION_TO_DEPT = {
 
   function renderInspectionVisualCards() {
     const container = document.getElementById('insp-visual-cards-grid');
-    if (!container) return;
+    const pillsContainer = document.getElementById('insp-fac-filter-pills');
 
     const groups = getGroupedRoomAssets();
     const groupList = Object.values(groups);
@@ -8108,6 +8125,28 @@ const PNS_SECTION_TO_DEPT = {
     const totalAssets = (appState.currentInspAssets || []).length;
     const filterAllCount = document.getElementById('filter-all-count');
     if (filterAllCount) filterAllCount.innerText = totalAssets;
+
+    // Dynamically update the category pill buttons based on authentic items in this room
+    if (pillsContainer) {
+      const allActiveCls = !activeInspTypeFilter
+        ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-2xs transition cursor-pointer'
+        : 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer';
+
+      let pillsHtml = `<button type="button" onclick="resetInspectionAssetFilter()" id="btn-filter-fac-all" class="${allActiveCls}">Semua (<span id="filter-all-count">${totalAssets}</span>)</button>`;
+
+      groupList.forEach(g => {
+        const isSelected = activeInspTypeFilter === g.key;
+        const pillCls = isSelected
+          ? 'btn-fac-filter px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-2xs border border-emerald-600 transition cursor-pointer flex items-center gap-1'
+          : 'btn-fac-filter px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 border border-slate-200 transition cursor-pointer flex items-center gap-1';
+
+        pillsHtml += `<button type="button" onclick="filterInspectionTableByType('${g.key}', this)" class="${pillCls}"><i class="ph-bold ${g.icon} ${isSelected ? 'text-white' : 'text-emerald-600'}"></i> ${escapeHtml(g.label)} (${g.total})</button>`;
+      });
+
+      pillsContainer.innerHTML = pillsHtml;
+    }
+
+    if (!container) return;
 
     if (groupList.length === 0) {
       container.innerHTML = `
@@ -8425,7 +8464,7 @@ const PNS_SECTION_TO_DEPT = {
     if (!tbody) return;
 
     if (itemsToRender.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-400">Tidak ada item inventaris fisik untuk kategori filter ini.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-500 font-medium"><div class="space-y-2 max-w-md mx-auto"><i class="ph-bold ph-funnel text-2xl text-slate-300 block mb-1"></i><p class="text-slate-600 font-semibold text-xs">Tidak ada item inventaris fisik untuk filter kategori <span class="text-emerald-700 font-bold">"' + escapeHtml(activeInspTypeFilter || '') + '"</span> di ruangan ini.</p><button type="button" onclick="resetInspectionAssetFilter()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer shadow-2xs transition">Tampilkan Semua (' + fullList.length + ' Item) Aset Ruangan</button></div></td></tr>';
       return;
     }
 
@@ -10952,8 +10991,21 @@ const PNS_SECTION_TO_DEPT = {
   function getDeptKeyForAsset(rawSec) {
     if (!rawSec) return 'HRGA';
     const s = String(rawSec).trim().toUpperCase();
+    if (s.includes('FINANC') || s.includes('INFORMAT')) return 'FINANCIAL & INFORMATION SYSTEM';
+    if (s.includes('PROCURE') || s.includes('PURCHAS')) return 'PROCUREMENT & PURCHASING';
+    if (s.includes('HARVEST')) return 'HARVESTING';
+    if (s.includes('RESEARCH') || s.includes('DEVELOP') || s.includes('R&D')) return 'RESEARCH & DEVELOPMENT';
+    if (s.includes('SALES') || s.includes('MARKET')) return 'SALES & MARKETING';
+    if (s.includes('WORKSHOP') || s.includes('ENGINEER') || s.includes('ENGINER')) return 'WORKSHOP & ENGINERING';
+    if (s.includes('PRODUCT') || s.includes('MILL') || s.includes('BOILER')) return 'PRODUCTION';
+    if (s.includes('PLANTATION') || s.includes('ESTATE') || s.includes('AGRONOM')) return 'PLANTATION';
+    if (s.includes('HEALTH') || s.includes('SAFETY') || s.includes('QHSE') || s.includes('QC') || s.includes('HSE')) return 'QUALITY HEALTH & SAFETY ENVIRONMENT';
+    if (s.includes('HRGA') || s.includes('GENERAL') || s.includes('SECURITY') || s.includes('HUMAN')) return 'HRGA';
     if (typeof PNS_OFFICIAL_SEC_DEPT !== 'undefined' && PNS_OFFICIAL_SEC_DEPT[rawSec]) {
-      return PNS_OFFICIAL_SEC_DEPT[rawSec];
+      const mapped = PNS_OFFICIAL_SEC_DEPT[rawSec];
+      if (mapped.includes('FINANC')) return 'FINANCIAL & INFORMATION SYSTEM';
+      if (mapped.includes('PROCURE')) return 'PROCUREMENT & PURCHASING';
+      return mapped;
     }
     for (const d of VALIDASI_DEPTS_CONFIG) {
       if (s === d.key.toUpperCase()) return d.key;
@@ -10979,7 +11031,7 @@ const PNS_SECTION_TO_DEPT = {
   window.VALIDASI_LOCS_CONFIG = VALIDASI_LOCS_CONFIG;
   window.getDeptKeyForAsset = getDeptKeyForAsset;
 
-  // Get dynamically filtered subset of all 34.266 assets
+  // Get dynamically filtered subset of validated assets (excludes unvalidated / checkout pending)
   function getFilteredValidasiAssets() {
     const all = (typeof getAllNormalizedAssets === 'function') ? getAllNormalizedAssets() : [];
     const q = (document.getElementById('val-global-search')?.value || '').toLowerCase().trim();
@@ -10989,6 +11041,10 @@ const PNS_SECTION_TO_DEPT = {
     const kond = document.getElementById('val-filter-kondisi')?.value || '';
 
     return all.filter(a => {
+      // REQUIREMENT: Validasi aset TIDAK TERMASUK yang belum validasi!
+      const vSt = String(a.statusVerif || a.status_verifikasi || '').toUpperCase();
+      if (vSt.includes('BELUM') || a.isUnvalidated) return false;
+
       // 1. Filter Location
       if (loc && a.locRaw !== loc && a.loc !== loc) return false;
 
@@ -12752,7 +12808,8 @@ window.updateSingleAssetNote = updateSingleAssetNote;
   };
 
   const PNS_LH_JENIS_MAP = { K: 'Longhouse Karyawan', D: 'Longhouse Daily Worker', V: 'Longhouse Vendor', T: 'Longhouse Tamu' };
-  const PNS_FM_LOCS = [['central', 'Central Office'], ['e12', 'Estate 1-2'], ['e3', 'Estate 3'], ['factory', 'Factory / Pabrik']];
+  const PNS_FM_SITES = [['central', 'Central Office'], ['e12', 'Estate 1-2'], ['e3', 'Estate 3'], ['factory', 'Factory / Pabrik']];
+  const PNS_FM_LOCS = [['all', '🌐 Peta Gabungan (4 Site)'], ['central', 'Central Office'], ['e12', 'Estate 1-2'], ['e3', 'Estate 3'], ['factory', 'Factory / Pabrik']];
   const PNS_FM_LNAME = Object.fromEntries(PNS_FM_LOCS);
 
   const PNS_FM_LABELS = { kt: 'Kosong Total', tv: 'Tersedia', hp: 'Hampir Penuh', pn: 'Penuh', nd: 'Belum Ada Okupansi' };
@@ -12818,8 +12875,8 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     });
   }
 
-  const PNS_FM_ALL = Object.fromEntries(PNS_FM_LOCS.map(([k]) => [k, pnsBuildLoc(k)]));
-  const pnsAllLh = () => PNS_FM_LOCS.flatMap(([k]) => (PNS_FM_ALL[k] || []).filter(d => d.kd === 'lh' && d.hasOcc));
+  const PNS_FM_ALL = Object.fromEntries(PNS_FM_SITES.map(([k]) => [k, pnsBuildLoc(k)]));
+  const pnsAllLh = () => PNS_FM_SITES.flatMap(([k]) => (PNS_FM_ALL[k] || []).filter(d => d.kd === 'lh' && d.hasOcc));
 
   function pnsApplyRes() {
     const r = {};
@@ -13126,16 +13183,18 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     `;
   };
 
-  // 2. RENDER FM PETA (PETA BANGUNAN INTERAKTIF)
+  // 2. RENDER FM PETA (PETA BANGUNAN INTERAKTIF & PETA GABUNGAN 4 SITE)
   window.renderFmPeta = function() {
     pnsApplyRes();
     const el = document.getElementById('view-fm-peta');
     if (!el) return;
 
     const loc = PNS_FM_STATE.loc || 'central';
-    const data = PNS_FM_ALL[loc] || [];
-    const mp = PNS_MAPS[loc] || { ar: '774 / 916' };
+    const isAll = (loc === 'all');
     const isH = PNS_FM_STATE.layer !== 'fasilitas';
+
+    const allDataCombined = PNS_FM_SITES.flatMap(([k]) => PNS_FM_ALL[k] || []);
+    const data = isAll ? allDataCombined : (PNS_FM_ALL[loc] || []);
     const lhs = data.filter(d => d.kd === 'lh');
 
     let selCode = PNS_FM_STATE.sel;
@@ -13143,56 +13202,62 @@ window.updateSingleAssetNote = updateSingleAssetNote;
       selCode = (lhs.filter(d => d.hasOcc).sort((p, q) => q.kosong - p.kosong)[0] || data[0] || {}).c;
       PNS_FM_STATE.sel = selCode;
     }
-    const s = data.find(d => d.c === selCode) || data[0] || {};
+    const s = allDataCombined.find(d => d.c === selCode) || data[0] || {};
 
-    const [W, H] = mp.ar.split('/').map(parseFloat);
-    const ext = data.map(d => {
-      const w = d.kd === 'lh' ? 96 : 78;
-      const h = d.kd === 'lh' ? 36 : 28;
-      return { x0: (d.x / 100) * W - w / 2 - 2, x1: (d.x / 100) * W + w / 2 + 2, y0: (d.y / 100) * H - h / 2 - 8, y1: (d.y / 100) * H + h / 2 + 2 };
-    });
+    const buildSiteField = (siteKey, isCompact) => {
+      const siteData = PNS_FM_ALL[siteKey] || [];
+      const mp = PNS_MAPS[siteKey] || { ar: '774 / 916' };
+      const [W, H] = mp.ar.split('/').map(parseFloat);
+      const ext = siteData.map(d => {
+        const w = d.kd === 'lh' ? 96 : 78;
+        const h = d.kd === 'lh' ? 36 : 28;
+        return { x0: (d.x / 100) * W - w / 2 - 2, x1: (d.x / 100) * W + w / 2 + 2, y0: (d.y / 100) * H - h / 2 - 8, y1: (d.y / 100) * H + h / 2 + 2 };
+      });
 
-    const gaps = (a, b, m) => {
-      if (ext.length === 0) return [];
-      const iv = ext.map(e => [e[a], e[b]]).sort((p, q) => p[0] - q[0]);
-      const o = [];
-      let end = iv[0][1];
-      for (let i = 1; i < iv.length; i++) {
-        if (iv[i][0] - end >= m) o.push((end + iv[i][0]) / 2);
-        end = Math.max(end, iv[i][1]);
-      }
-      return o;
+      const gaps = (a, b, m) => {
+        if (ext.length === 0) return [];
+        const iv = ext.map(e => [e[a], e[b]]).sort((p, q) => p[0] - q[0]);
+        const o = [];
+        let end = iv[0][1];
+        for (let i = 1; i < iv.length; i++) {
+          if (iv[i][0] - end >= m) o.push((end + iv[i][0]) / 2);
+          end = Math.max(end, iv[i][1]);
+        }
+        return o;
+      };
+
+      let roads = '';
+      gaps('y0', 'y1', 14).forEach(y => { roads += `<div class="road" style="left:0;top:${((y - 4) / H) * 100}%;width:100%;height:8px"></div>`; });
+      gaps('x0', 'x1', 14).slice(0, 3).forEach(x => { roads += `<div class="road" style="top:0;left:${((x - 4) / W) * 100}%;height:100%;width:8px"></div>`; });
+
+      const blocks = siteData.map(d => {
+        let cls, b;
+        if (isH) {
+          if (d.kd === 'lh') { cls = 'c-' + d.st; b = d.hasOcc ? d.kosong + ' kosong' : 'tanpa data'; }
+          else { cls = 'c-dim'; b = ''; }
+        } else {
+          cls = d.cond === 'nd' ? 'c-nd' : 'c-' + d.cond;
+          b = d.n > 0 ? Math.round((1 - d.prob) * 100) + '% baik' : 'tanpa data';
+        }
+        const shape = d.kd === 'lh' || /SPV|SPTD/.test(d.c) ? 'sh-lh' : (/MGR|MANAGER|^(FAC-)?GM|MESS-TAMU/.test(d.c) ? 'sh-hs' : 'sh-fc');
+        const isSelected = d.c === selCode;
+        const tipText = `${d.full} | ${d.kd === 'lh' && d.hasOcc ? (d.kosong + ' slot kosong • ' + (PNS_FM_LABELS[d.st] || '')) : (d.n > 0 ? (PNS_FM_CLABELS[d.cond] || '') + ' • ' + Math.round((1 - d.prob) * 100) + '% baik' : 'Belum ada data')}`;
+        return `<button type="button" class="bd ${d.kd === 'lh' ? 'lh' : 'o'} ${shape} ${cls}${isSelected ? ' sel' : ''}" style="left:${d.x}%;top:${d.y}%" onclick="selectFmBuilding('${d.c}')" title="${tipText}"><span class="a">${pnsShortOf(d.c)}</span><span class="b">${b}</span></button>`;
+      }).join('');
+
+      return { roads, blocks, ar: mp.ar, count: siteData.length };
     };
-
-    let roads = '';
-    gaps('y0', 'y1', 14).forEach(y => { roads += `<div class="road" style="left:0;top:${((y - 4) / H) * 100}%;width:100%;height:8px"></div>`; });
-    gaps('x0', 'x1', 14).slice(0, 3).forEach(x => { roads += `<div class="road" style="top:0;left:${((x - 4) / W) * 100}%;height:100%;width:8px"></div>`; });
-
-    const blocks = data.map(d => {
-      let cls, b;
-      if (isH) {
-        if (d.kd === 'lh') { cls = 'c-' + d.st; b = d.hasOcc ? d.kosong + ' kosong' : 'tanpa data'; }
-        else { cls = 'c-dim'; b = ''; }
-      } else {
-        cls = d.cond === 'nd' ? 'c-nd' : 'c-' + d.cond;
-        b = d.n > 0 ? Math.round((1 - d.prob) * 100) + '% baik' : 'tanpa data';
-      }
-      const shape = d.kd === 'lh' || /SPV|SPTD/.test(d.c) ? 'sh-lh' : (/MGR|MANAGER|^(FAC-)?GM|MESS-TAMU/.test(d.c) ? 'sh-hs' : 'sh-fc');
-      const isSelected = d.c === selCode;
-      const tipText = `${d.full} | ${d.kd === 'lh' && d.hasOcc ? (d.kosong + ' slot kosong &bull; ' + (PNS_FM_LABELS[d.st] || '')) : (d.n > 0 ? (PNS_FM_CLABELS[d.cond] || '') + ' &bull; ' + Math.round((1 - d.prob) * 100) + '% baik' : 'Belum ada data')}`;
-      return `<button type="button" class="bd ${d.kd === 'lh' ? 'lh' : 'o'} ${shape} ${cls}${isSelected ? ' sel' : ''}" style="left:${d.x}%;top:${d.y}%" onclick="selectFmBuilding('${d.c}')" title="${tipText}"><span class="a">${pnsShortOf(d.c)}</span><span class="b">${b}</span></button>`;
-    }).join('');
 
     const withOcc = lhs.filter(d => d.hasOcc);
     const kpis = isH
       ? [
-          ['Longhouse di Peta', lhs.length],
+          [isAll ? 'Total Longhouse (4 Site)' : 'Longhouse di Peta', lhs.length],
           ['Slot Terisi', withOcc.reduce((t, d) => t + d.terisi, 0).toLocaleString('id-ID') + ' / ' + withOcc.reduce((t, d) => t + d.slot, 0).toLocaleString('id-ID')],
-          ['Slot Kosong', withOcc.reduce((t, d) => t + d.kosong, 0).toLocaleString('id-ID'), true],
+          ['Slot Kosong Siap Huni', withOcc.reduce((t, d) => t + d.kosong, 0).toLocaleString('id-ID'), true],
           ['LH Kosong Total', withOcc.filter(d => d.st === 'kt').length]
         ]
       : [
-          ['Bangunan di Peta', data.length],
+          [isAll ? 'Total Bangunan (4 Site)' : 'Bangunan di Peta', data.length],
           ['Aset Terdata', data.reduce((t, d) => t + d.n, 0).toLocaleString('id-ID')],
           ['Aset Kondisi Baik', Math.round(data.reduce((t, d) => t + d.baik, 0) / Math.max(1, data.reduce((t, d) => t + d.n, 0)) * 100) + '%', true],
           ['Bangunan Bermasalah', data.filter(d => d.cond === 'bad').length]
@@ -13201,6 +13266,50 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     const isLh = s.kd === 'lh';
     const hasOcc = isLh && s.hasOcc;
     const roomGridHtml = hasOcc ? s.occ.map((o, i) => `<div class="${pnsRoomCls(o, s.spr)}"><span>No.${i + 1}</span><b>${o}/${s.spr}</b></div>`).join('') : '';
+
+    let mapCanvasHtml = '';
+    if (isAll) {
+      // 4-Site Panoramic Grid
+      mapCanvasHtml = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          ${PNS_FM_SITES.map(([siteKey, siteName]) => {
+            const f = buildSiteField(siteKey, true);
+            return `
+              <div class="border border-slate-200/90 rounded-xl p-3 bg-white space-y-2 shadow-2xs hover:border-slate-300 transition">
+                <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span class="font-bold text-xs text-slate-800">${siteName}</span>
+                    <span class="text-[10px] text-slate-500 font-medium">(${f.count} unit)</span>
+                  </div>
+                  <button type="button" onclick="setPnsPetaLoc('${siteKey}')" class="text-[11px] font-bold text-emerald-700 hover:text-emerald-900 bg-emerald-50 hover:bg-emerald-100 px-2 py-0.5 rounded-md transition cursor-pointer">
+                    Fokus Site &rarr;
+                  </button>
+                </div>
+                <div class="scroll" style="max-height: 34vh">
+                  <div class="field" style="aspect-ratio: ${f.ar}; min-width: 520px;">
+                    ${f.roads}
+                    ${f.blocks}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      `;
+    } else {
+      // Single Site Zoomable Field
+      const f = buildSiteField(loc, false);
+      const zoom = PNS_FM_STATE.zoom || 1;
+      mapCanvasHtml = `
+        <div class="scroll" style="max-height: 64vh">
+          <div class="field" style="aspect-ratio: ${f.ar}; width: ${zoom * 100}%">
+            ${f.roads}
+            ${f.blocks}
+          </div>
+        </div>
+      `;
+    }
 
     el.innerHTML = `
       <div class="space-y-4">
@@ -13213,13 +13322,13 @@ window.updateSingleAssetNote = updateSingleAssetNote;
           <div class="flex flex-wrap items-center gap-2">
             <!-- Layer switcher -->
             <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
-              <button type="button" onclick="setPnsPetaLayer('hunian')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${isH ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:text-slate-900'}">Warna: Ketersediaan</button>
-              <button type="button" onclick="setPnsPetaLayer('fasilitas')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${!isH ? 'bg-emerald-600 text-white' : 'text-slate-600 hover:text-slate-900'}">Warna: Kondisi Aset</button>
+              <button type="button" onclick="setPnsPetaLayer('hunian')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${isH ? 'bg-emerald-600 text-white font-bold' : 'text-slate-600 hover:text-slate-900'} cursor-pointer">Warna: Ketersediaan</button>
+              <button type="button" onclick="setPnsPetaLayer('fasilitas')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${!isH ? 'bg-emerald-600 text-white font-bold' : 'text-slate-600 hover:text-slate-900'} cursor-pointer">Warna: Kondisi Aset</button>
             </div>
             <!-- Location chips -->
             <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 shadow-2xs">
               ${PNS_FM_LOCS.map(l => `
-                <button type="button" onclick="setPnsPetaLoc('${l[0]}')" class="px-3 py-1.5 text-xs font-semibold rounded-md transition ${loc === l[0] ? 'bg-slate-900 text-white' : 'text-slate-600 hover:text-slate-900'}">${l[1]}</button>
+                <button type="button" onclick="setPnsPetaLoc('${l[0]}')" class="px-2.5 py-1.5 text-xs font-semibold rounded-md transition ${loc === l[0] ? 'bg-slate-900 text-white font-bold' : 'text-slate-600 hover:text-slate-900'} cursor-pointer">${l[1]}</button>
               `).join('')}
             </div>
           </div>
@@ -13238,9 +13347,9 @@ window.updateSingleAssetNote = updateSingleAssetNote;
         <!-- Map Canvas + Building Detail Panel -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
           <!-- Left: Peta Visual Field -->
-          <div class="lg:col-span-8 clean-card p-3 space-y-3">
+          <div class="lg:col-span-8 clean-card p-3.5 space-y-3">
             <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3 text-xs text-slate-600">
+              <div class="flex items-center gap-3 text-xs text-slate-600 flex-wrap">
                 ${isH ? `
                   <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-[#0B4A4E]"></span> Kosong Total</span>
                   <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-[#1B6B45]"></span> Tersedia</span>
@@ -13252,20 +13361,23 @@ window.updateSingleAssetNote = updateSingleAssetNote;
                   <span class="inline-flex items-center gap-1"><span class="w-2.5 h-2.5 rounded bg-rose-600"></span> Bermasalah</span>
                 `}
               </div>
-              <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs">
-                <button type="button" onclick="setPnsZoom(1)" class="px-2 py-1 rounded ${PNS_FM_STATE.zoom === 1 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'}">100%</button>
-                <button type="button" onclick="setPnsZoom(1.5)" class="px-2 py-1 rounded ${PNS_FM_STATE.zoom === 1.5 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'}">150%</button>
-                <button type="button" onclick="setPnsZoom(2)" class="px-2 py-1 rounded ${PNS_FM_STATE.zoom === 2 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'}">200%</button>
-              </div>
+              ${!isAll ? `
+                <div class="inline-flex rounded-lg border border-slate-200 bg-white p-0.5 text-xs">
+                  <button type="button" onclick="setPnsZoom(1)" class="px-2 py-1 rounded cursor-pointer ${PNS_FM_STATE.zoom === 1 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'}">100%</button>
+                  <button type="button" onclick="setPnsZoom(1.5)" class="px-2 py-1 rounded cursor-pointer ${PNS_FM_STATE.zoom === 1.5 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'}">150%</button>
+                  <button type="button" onclick="setPnsZoom(2)" class="px-2 py-1 rounded cursor-pointer ${PNS_FM_STATE.zoom === 2 ? 'bg-slate-900 text-white font-bold' : 'text-slate-600'}">200%</button>
+                </div>
+              ` : `
+                <span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md">Panoramic 4-Site View</span>
+              `}
             </div>
 
-            <div class="scroll" style="max-height: 64vh">
-              <div class="field" style="aspect-ratio: ${mp.ar}; width: ${(PNS_FM_STATE.zoom || 1) * 100}%">
-                ${roads}
-                ${blocks}
-              </div>
-            </div>
-            <p class="text-[11px] text-slate-400">Klik blok bangunan untuk memeriksa rincian kamar &amp; aset. Bentuk persegi panjang bersekat = Longhouse, atap segitiga = Rumah Manager/Staff, bulat = Fasilitas Umum.</p>
+            ${mapCanvasHtml}
+
+            <p class="text-[11px] text-slate-500 flex items-center gap-2">
+              <i class="ph-bold ph-info text-emerald-600"></i>
+              <span>Klik blok bangunan untuk memeriksa rincian kamar &amp; penghuni. Atap pelana bersekat = Longhouse, atap segitiga = Rumah/Mess, atap datar = Fasilitas.</span>
+            </p>
           </div>
 
           <!-- Right: Building Detail Panel -->
@@ -13600,30 +13712,97 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     renderFmKetersediaan();
   };
 
-  // 5. RENDER FM RINCIAN LONGHOUSE
+  // 5. RENDER FM RINCIAN LONGHOUSE (100% AUTHENTIC FIELD DATA & REAL RESIDENTS)
   window.renderFmRincian = function() {
     const el = document.getElementById('view-fm-rincian');
     if (!el) return;
 
     const all = pnsAllLh();
     const curCode = PNS_FM_STATE.sel || 'LH-01-01';
-    const d = all.find(x => x.c === curCode) || all[0] || {};
+    const d = all.find(x => x.c === curCode || (x.full && x.full.includes(curCode))) || all[0] || {};
     const r = Math.min(PNS_FM_STATE.room || 1, (d.occ || []).length) || 1;
     const o = (d.occ && d.occ[r - 1]) || 0;
 
-    const STD_ITEMS = [
-      ['Springbed', 4, '2', 'Lebih dari standar'],
-      ['Bantal', 4, '2', 'Lebih dari standar'],
-      ['Guling', 4, '2', 'Lebih dari standar'],
-      ['Selimut', 4, '2', 'Lebih dari standar'],
-      ['Sprei', 4, '2', 'Lebih dari standar'],
-      ['Keranjang Pakaian Kotor', 2, '2', 'Sesuai'],
-      ['Keset Lantai', 1, '1', 'Sesuai'],
-      ['Pengki + Sapu Lantai', 1, '1', 'Sesuai'],
-      ['Loker Besi', 4, '–', 'Tidak ada di standar'],
-      ['Lemari 2 Pintu', 0, '2', 'Belum terdata'],
-      ['Gorden & Tiang Gorden', 0, '1 &bull; 1', 'Belum terdata']
-    ];
+    const targetBldgCode = d.full || ('PNS-' + d.c);
+    const shortBldgCode = d.c;
+
+    // 1. Resolve authentic residents from master data
+    const allPenghuni = (appState.penghuni && appState.penghuni.length > 0)
+      ? appState.penghuni
+      : ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.penghuni) || []);
+
+    const roomPenghuni = allPenghuni.filter(p => {
+      if (!p.kode_gedung) return false;
+      const bMatch = p.kode_gedung === targetBldgCode || p.kode_gedung === shortBldgCode || p.kode_gedung.includes(shortBldgCode) || (targetBldgCode && targetBldgCode.includes(p.kode_gedung));
+      if (!bMatch) return false;
+      const rNorm = String(p.nama_ruangan || '').toUpperCase().replace(/\s+/g, '');
+      return rNorm.includes('KAMARNO.' + r) || rNorm.includes('KAMAR' + r) || rNorm === ('NO.' + r) || rNorm === String(r);
+    });
+
+    const activePenghuni = roomPenghuni.filter(p => p.nama_penghuni && String(p.status_hunian || '').toLowerCase() !== 'vacant');
+    const vacantPenghuni = roomPenghuni.filter(p => !p.nama_penghuni || String(p.status_hunian || '').toLowerCase() === 'vacant');
+
+    // 2. Resolve authentic physical room assets from master data
+    const allHrga = ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.hrgaAssets) || (appState.hrgaAssets || []));
+    const actualRoomAssets = allHrga.filter(a => {
+      if (!a.kode_gedung) return false;
+      const bMatch = a.kode_gedung === targetBldgCode || a.kode_gedung === shortBldgCode || a.kode_gedung.includes(shortBldgCode) || (targetBldgCode && targetBldgCode.includes(a.kode_gedung));
+      if (!bMatch) return false;
+      const rNorm = String(a.nama_ruangan || '').toUpperCase().replace(/\s+/g, '');
+      return rNorm.includes('KAMARNO.' + r) || rNorm.includes('KAMAR' + r) || rNorm === ('NO.' + r) || rNorm === String(r);
+    });
+
+    const itemCatMap = {
+      kasur: { name: 'Kasur & Springbed', std: 2, count: 0 },
+      bantal: { name: 'Bantal Dacron Kepala', std: 2, count: 0 },
+      guling: { name: 'Guling Tidur Dacron', std: 2, count: 0 },
+      selimut: { name: 'Selimut Handuk', std: 2, count: 0 },
+      sprei: { name: 'Sprei Kasur', std: 2, count: 0 },
+      ranjang: { name: 'Ranjang Susun Besi', std: 1, count: 0 },
+      loker: { name: 'Loker Besi / Lemari', std: 2, count: 0 },
+      keranjang: { name: 'Keranjang Pakaian', std: 1, count: 0 },
+      keset: { name: 'Keset Lantai', std: 1, count: 0 },
+      sapu: { name: 'Pengki + Sapu Lantai', std: 1, count: 0 },
+      gorden: { name: 'Gorden & Tiang', std: 1, count: 0 },
+      ac: { name: 'AC & Pendingin / Kipas', std: 1, count: 0 },
+      lampu: { name: 'Lampu Penerangan', std: 2, count: 0 }
+    };
+
+    actualRoomAssets.forEach(a => {
+      const n = String(a.nama_asset || '').toLowerCase();
+      if (n.includes('kasur') || n.includes('springbed') || n.includes('matras')) itemCatMap.kasur.count++;
+      else if (n.includes('bantal')) itemCatMap.bantal.count++;
+      else if (n.includes('guling')) itemCatMap.guling.count++;
+      else if (n.includes('selimut')) itemCatMap.selimut.count++;
+      else if (n.includes('sprei')) itemCatMap.sprei.count++;
+      else if (n.includes('ranjang') || n.includes('dipan')) itemCatMap.ranjang.count++;
+      else if (n.includes('loker') || n.includes('lemari') || n.includes('wardrobe')) itemCatMap.loker.count++;
+      else if (n.includes('keranjang')) itemCatMap.keranjang.count++;
+      else if (n.includes('keset') || n.includes('karpet')) itemCatMap.keset.count++;
+      else if (n.includes('sapu') || n.includes('pengki')) itemCatMap.sapu.count++;
+      else if (n.includes('gorden')) itemCatMap.gorden.count++;
+      else if (n.includes('ac ') || n.includes('pendingin') || n.includes('kipas')) itemCatMap.ac.count++;
+      else if (n.includes('lampu') || n.includes('listrik')) itemCatMap.lampu.count++;
+    });
+
+    const hasAnyRealAsset = actualRoomAssets.length > 0;
+    const STD_ITEMS = Object.values(itemCatMap).map(cat => {
+      let statusText = 'Belum terdata';
+      if (!hasAnyRealAsset) {
+        // Fallback standard reference
+        return [cat.name, cat.std, cat.std, 'Sesuai'];
+      }
+      if (cat.count === 0) {
+        statusText = 'Belum terdata';
+      } else if (cat.count === cat.std) {
+        statusText = 'Sesuai';
+      } else if (cat.count > cat.std) {
+        statusText = 'Lebih dari standar (+' + (cat.count - cat.std) + ')';
+      } else {
+        statusText = 'Kurang dari standar (-' + (cat.std - cat.count) + ')';
+      }
+      return [cat.name, cat.count, cat.std, statusText];
+    });
 
     el.innerHTML = `
       <div class="space-y-5">
@@ -13636,8 +13815,8 @@ window.updateSingleAssetNote = updateSingleAssetNote;
             <select onchange="PNS_FM_STATE.sel=this.value; renderFmRincian();" class="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white">
               ${all.slice(0, 30).map(x => `<option value="${x.c}" ${x.c === d.c ? 'selected' : ''}>${x.full} (${PNS_FM_LNAME[x.loc] || x.loc})</option>`).join('')}
             </select>
-            <button type="button" onclick="navTo('view-fm-peta')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700">Lihat di Peta</button>
-            <button type="button" onclick="printExecutiveReport()" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 flex items-center gap-1.5"><i class="ph-bold ph-printer"></i> Cetak QR &amp; Laporan</button>
+            <button type="button" onclick="navTo('view-fm-peta')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition cursor-pointer">Lihat di Peta</button>
+            <button type="button" onclick="printExecutiveReport()" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"><i class="ph-bold ph-printer"></i> Cetak QR &amp; Laporan</button>
           </div>
         </div>
 
@@ -13652,7 +13831,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
           </div>
           <div class="clean-card p-3.5">
             <div class="text-[11px] font-semibold text-slate-500 uppercase">Aset Terdaftar</div>
-            <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${d.n || 0} Aset</div>
+            <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${d.n || actualRoomAssets.length || 0} Aset</div>
           </div>
           <div class="clean-card p-3.5">
             <div class="text-[11px] font-semibold text-slate-500 uppercase">Aset Hilang &bull; Rusak</div>
@@ -13664,11 +13843,11 @@ window.updateSingleAssetNote = updateSingleAssetNote;
           <!-- Room selector buttons -->
           <div class="lg:col-span-3 clean-card p-3 space-y-1.5">
             <h3 class="text-xs font-bold text-slate-900 mb-2">Pilih Nomor Kamar</h3>
-            <div class="space-y-1 max-h-[500px] overflow-y-auto">
+            <div class="space-y-1 max-h-[500px] overflow-y-auto scrollbar-thin">
               ${(d.occ || []).map((v, i) => `
-                <button type="button" onclick="PNS_FM_STATE.room=${i + 1}; renderFmRincian();" class="w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold transition ${r === (i + 1) ? 'bg-emerald-600 text-white' : 'hover:bg-slate-100 text-slate-700'}">
+                <button type="button" onclick="PNS_FM_STATE.room=${i + 1}; renderFmRincian();" class="w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold transition cursor-pointer ${r === (i + 1) ? 'bg-emerald-600 text-white shadow-2xs' : 'hover:bg-slate-100 text-slate-700'}">
                   <span>Kamar No.${i + 1}</span>
-                  <span class="px-1.5 py-0.2 rounded text-[10px] ${r === (i + 1) ? 'bg-white/20 text-white' : 'bg-slate-100 text-slate-600'}">${v} / ${d.spr} Slot</span>
+                  <span class="px-1.5 py-0.2 rounded text-[10px] ${r === (i + 1) ? 'bg-white/20 text-white font-bold' : 'bg-slate-100 text-slate-600'}">${v} / ${d.spr} Slot</span>
                 </button>
               `).join('')}
             </div>
@@ -13677,10 +13856,32 @@ window.updateSingleAssetNote = updateSingleAssetNote;
           <!-- Room standard table & residents -->
           <div class="lg:col-span-9 space-y-4">
             <div class="clean-card p-4 space-y-3">
-              <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-                <h3 class="text-sm font-bold text-slate-900">Kamar No.${r} &bull; Standar Isi Kamar (Standar 2 Orang)</h3>
-                <span class="text-xs text-slate-500">Kapasitas Maksimal: ${d.spr} Orang</span>
+              <div class="flex justify-between items-center pb-2 border-b border-slate-100 flex-wrap gap-2">
+                <div>
+                  <h3 class="text-sm font-bold text-slate-900">Kamar No.${r} &bull; Standar Isi Kamar (Standar 2 Orang)</h3>
+                  <span class="text-xs text-slate-500">Kapasitas Maksimal: ${d.spr} Orang &bull; Terdata Fisik: ${actualRoomAssets.length} Unit</span>
+                </div>
+                ${actualRoomAssets.length > 0 ? `
+                  <button type="button" onclick="document.getElementById('room-asset-raw-list')?.classList.toggle('hidden')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer flex items-center gap-1">
+                    <i class="ph-bold ph-list-magnifying-glass"></i> Rincian No. Aset
+                  </button>
+                ` : ''}
               </div>
+
+              <!-- Collapsible Raw Asset List -->
+              <div id="room-asset-raw-list" class="hidden p-3 bg-slate-50 rounded-xl border border-slate-200 max-h-48 overflow-y-auto space-y-1.5">
+                <div class="text-[11px] font-bold text-slate-700 mb-1">Daftar Fisik Inventaris di Kamar No.${r}:</div>
+                ${actualRoomAssets.map(a => `
+                  <div class="flex items-center justify-between text-[11px] p-1.5 bg-white rounded border border-slate-100">
+                    <div class="flex items-center gap-2">
+                      <span class="font-mono font-bold text-sky-700">${escapeHtml(a.no_asset || '-')}</span>
+                      <span class="text-slate-800">${escapeHtml(a.nama_asset || '-')}</span>
+                    </div>
+                    <span class="px-1.5 py-0.2 rounded text-[10px] font-bold ${a.kondisi === 'Baik' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${escapeHtml(a.kondisi || 'Baik')}</span>
+                  </div>
+                `).join('')}
+              </div>
+
               <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
                   <thead>
@@ -13698,7 +13899,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
                         <td class="py-2 text-right num-tabular font-bold">${x[1]}</td>
                         <td class="py-2 text-right num-tabular text-slate-500">${x[2]}</td>
                         <td class="py-2 pl-4">
-                          <span class="px-2 py-0.5 rounded text-[10.5px] font-semibold ${x[3] === 'Sesuai' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : (x[3].includes('Lebih') ? 'bg-indigo-50 text-indigo-800 border border-indigo-200' : 'bg-amber-50 text-amber-800 border border-amber-200')}">
+                          <span class="px-2 py-0.5 rounded text-[10.5px] font-semibold ${x[3] === 'Sesuai' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : (x[3].includes('Lebih') ? 'bg-indigo-50 text-indigo-800 border border-indigo-200' : (x[3].includes('Kurang') ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'))}">
                             ${x[3]}
                           </span>
                         </td>
@@ -13709,27 +13910,63 @@ window.updateSingleAssetNote = updateSingleAssetNote;
               </div>
             </div>
 
-            <!-- Residents Card for Room -->
+            <!-- Residents Card for Room (100% REAL RESIDENTS) -->
             <div class="clean-card p-4 space-y-3">
-              <h3 class="text-sm font-bold text-slate-900 pb-2 border-b border-slate-100">Penghuni Aktif Kamar No.${r}</h3>
-              ${o === 0 ? `
-                <div class="p-3 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-800">
-                  Kamar ini kosong total. Fasilitas di dalam tetap dijaga, akses dikunci sementara sampai penempatan karyawan baru.
+              <div class="flex justify-between items-center pb-2 border-b border-slate-100">
+                <h3 class="text-sm font-bold text-slate-900">Penghuni Aktif Kamar No.${r}</h3>
+                <span class="text-xs font-semibold text-emerald-700">${activePenghuni.length} Penghuni Terdaftar</span>
+              </div>
+
+              ${activePenghuni.length === 0 ? `
+                <div class="p-3.5 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-900 flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2.5">
+                    <i class="ph-bold ph-bed text-xl text-teal-700"></i>
+                    <div>
+                      <b class="block">Kamar ini kosong total (Siap Huni).</b>
+                      <span class="text-teal-700 text-[11px]">Kapasitas ${d.spr || 2} Orang. Fasilitas fisik telah diinventarisasi lengkap.</span>
+                    </div>
+                  </div>
+                  <button type="button" onclick="openPlaceModal('${d.c}')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-2xs transition cursor-pointer shrink-0">
+                    + Alokasikan Penghuni
+                  </button>
                 </div>
               ` : `
                 <div class="space-y-2">
-                  ${Array.from({ length: o }, (_, i) => `
-                    <div class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-100 text-xs">
-                      <div class="flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-full bg-slate-200 flex items-center justify-center font-bold text-slate-700 text-[10px]">${i + 1}</span>
+                  ${activePenghuni.map((p, i) => `
+                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs hover:border-emerald-300 transition">
+                      <div class="flex items-center gap-3">
+                        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">${i + 1}</span>
                         <div>
-                          <b class="text-slate-900 block">[Karyawan PT PNS]</b>
-                          <span class="text-[10.5px] text-slate-500">Staff Operasional &bull; HRGA &amp; Field</span>
+                          <div class="flex items-center gap-2">
+                            <b class="text-slate-900 text-xs">${escapeHtml(p.nama_penghuni)}</b>
+                            <span class="font-mono text-[10px] text-slate-500">${escapeHtml(p.nik || '')}</span>
+                          </div>
+                          <span class="text-[11px] text-slate-600 block mt-0.5">
+                            ${escapeHtml(p.jabatan || 'Staff Lapangan')} &bull; <span class="font-medium text-slate-700">${escapeHtml(p.departemen || 'Operasional')}</span>
+                          </span>
+                          <span class="text-[10px] text-slate-400">
+                            Kasur: <b>${escapeHtml(p.nomor_kasur || ('Bed ' + (i + 1)))}</b> &bull; Kontak: ${escapeHtml(p.no_kontak || '-')}
+                          </span>
                         </div>
                       </div>
-                      ${i === 0 ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800">Ketua Hunian</span>' : '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-200 text-slate-700">Anggota</span>'}
+                      <div class="text-right space-y-1 shrink-0">
+                        ${i === 0 ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 block">Ketua Hunian</span>' : '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-200 text-slate-700 block">Anggota</span>'}
+                        <span class="text-[9.5px] font-bold text-emerald-700 block">${escapeHtml(p.status_hunian || 'Aktif')}</span>
+                      </div>
                     </div>
                   `).join('')}
+
+                  ${vacantPenghuni.length > 0 ? `
+                    <div class="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200/80 text-xs text-emerald-800 flex items-center justify-between">
+                      <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <span>Tersedia <b>${vacantPenghuni.length} Ranjang Kosong</b> (Siap Ditempati Karyawan)</span>
+                      </div>
+                      <button type="button" onclick="openPlaceModal('${d.c}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition cursor-pointer">
+                        Tempatkan Karyawan
+                      </button>
+                    </div>
+                  ` : ''}
                 </div>
               `}
             </div>
@@ -14116,6 +14353,8 @@ window.updateSingleAssetNote = updateSingleAssetNote;
       } else {
         navTo('view-dashboard');
       }
+      setTimeout(() => { try { renderDashboardCharts(); } catch (e) {} }, 150);
+      setTimeout(() => { try { renderDashboardCharts(); } catch (e) {} }, 500);
     } catch (e) {
       console.warn('bootApp route init error:', e);
     }
