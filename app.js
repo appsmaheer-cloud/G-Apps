@@ -10835,12 +10835,107 @@ const PNS_SECTION_TO_DEPT = {
     return result;
   }
 
+  window.currentCatalogKpiFilter = 'ALL';
+  window.currentCatalogTypeFilter = 'ALL';
+
+  function filterCatalogByKpi(kpiType) {
+    if (window.currentCatalogKpiFilter === kpiType && kpiType !== 'ALL') {
+      window.currentCatalogKpiFilter = 'ALL';
+    } else {
+      window.currentCatalogKpiFilter = kpiType;
+    }
+    window.currentCatalogTypeFilter = 'ALL';
+
+    // Highlight active card
+    const cardTypes = ['all', 'valuable', 'nbv_active', 'good', 'critical', 'overage'];
+    cardTypes.forEach(ct => {
+      const el = document.getElementById('kpi-card-' + ct);
+      if (el) {
+        if (ct === String(window.currentCatalogKpiFilter).toLowerCase()) {
+          el.classList.add('ring-2', 'ring-emerald-500', 'border-emerald-500', 'bg-emerald-50/30', 'shadow-sm');
+        } else {
+          el.classList.remove('ring-2', 'ring-emerald-500', 'border-emerald-500', 'bg-emerald-50/30', 'shadow-sm');
+        }
+      }
+    });
+
+    const typeSelect = document.getElementById('slicer-asset-type-cat');
+    const kondisiSelect = document.getElementById('slicer-asset-kondisi');
+    const sortSelect = document.getElementById('slicer-asset-sort');
+
+    if (window.currentCatalogKpiFilter === 'ALL') {
+      if (typeSelect) typeSelect.value = 'ALL';
+      if (kondisiSelect) kondisiSelect.value = 'ALL';
+    } else if (window.currentCatalogKpiFilter === 'VALUABLE') {
+      if (typeSelect) typeSelect.value = 'valuable';
+      if (kondisiSelect) kondisiSelect.value = 'ALL';
+    } else if (window.currentCatalogKpiFilter === 'NBV_ACTIVE') {
+      if (typeSelect) typeSelect.value = 'valuable';
+      if (kondisiSelect) kondisiSelect.value = 'ALL';
+      window.currentAssetCatalogSort = 'nbv_desc';
+      if (sortSelect) sortSelect.value = 'nbv_desc';
+    } else if (window.currentCatalogKpiFilter === 'GOOD') {
+      if (typeSelect) typeSelect.value = 'ALL';
+      if (kondisiSelect) kondisiSelect.value = 'Good Condition';
+    } else if (['Repair', 'Broken', 'Lost', 'Disposal'].includes(window.currentCatalogKpiFilter)) {
+      if (kondisiSelect) kondisiSelect.value = window.currentCatalogKpiFilter;
+    }
+
+    if (typeof assetCurrentPage !== 'undefined') assetCurrentPage = 1;
+    renderAllAssetsTable();
+  }
+  window.filterCatalogByKpi = filterCatalogByKpi;
+
+  function filterByAssetTypeQuick(tipe) {
+    if (window.currentCatalogTypeFilter === tipe) {
+      window.currentCatalogTypeFilter = 'ALL';
+    } else {
+      window.currentCatalogTypeFilter = tipe;
+    }
+    if (typeof assetCurrentPage !== 'undefined') assetCurrentPage = 1;
+    renderAllAssetsTable();
+  }
+  window.filterByAssetTypeQuick = filterByAssetTypeQuick;
+
+  function detectAssetType(r) {
+    const rawType = String(r[22] || '').trim().toUpperCase();
+    if (rawType && rawType !== '-' && rawType !== 'UMUM' && rawType !== 'UNDEFINED') return rawType;
+    const kelompok = String(r[2] || '').toUpperCase();
+    const nama = String(r[1] || '').toUpperCase();
+    const kat = String(r[3] || '').toUpperCase();
+    const text = kelompok + ' ' + nama + ' ' + kat;
+
+    if (text.includes('BANGUNAN') || text.includes('MESS') || text.includes('KANTOR') || text.includes('POS JAGA') || text.includes('GUDANG') || text.includes('LAND') || text.includes('TANAH')) return 'BANGUNAN';
+    if (text.includes('KENDARAAN') || text.includes('MOBIL') || text.includes('MOTOR') || text.includes('HILUX') || text.includes('AVANZA') || text.includes('INNOVA') || text.includes('TRUCK') || text.includes('AMBULANCE') || text.includes('BUS')) return 'KENDARAAN';
+    if (text.includes('ALAT BERAT') || text.includes('EXCAVATOR') || text.includes('BULLDOZER') || text.includes('GRADER') || text.includes('COMPACTOR') || text.includes('LOADER') || text.includes('TRACTOR') || text.includes('KOMATSU') || text.includes('CAT ')) return 'ALAT BERAT';
+    if (text.includes('MESIN') || text.includes('GENSET') || text.includes('POMPA') || text.includes('TURBINE') || text.includes('BOILER') || text.includes('CONVEYOR') || text.includes('CRANE') || text.includes('TRAFO')) return 'MESIN';
+    if (text.includes('LAPTOP') || text.includes('KOMPUTER') || text.includes('PC ') || text.includes('PRINTER') || text.includes('SERVER') || text.includes('SWITCH') || text.includes('ROUTER') || text.includes('CCTV') || text.includes('IT ') || text.includes('MONITOR') || text.includes('UPS')) return 'IT';
+    return 'UMUM';
+  }
+
+  function getAssetTypeIconHtml(tipe) {
+    switch (tipe) {
+      case 'BANGUNAN':
+        return '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200 text-[9.5px] font-bold"><i class="ph-bold ph-buildings"></i> Bangunan</span>';
+      case 'KENDARAAN':
+        return '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-sky-50 text-sky-700 border border-sky-200 text-[9.5px] font-bold"><i class="ph-bold ph-car"></i> Kendaraan</span>';
+      case 'ALAT BERAT':
+        return '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-amber-50 text-amber-700 border border-amber-200 text-[9.5px] font-bold"><i class="ph-bold ph-truck"></i> Alat Berat</span>';
+      case 'MESIN':
+        return '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 border border-indigo-200 text-[9.5px] font-bold"><i class="ph-bold ph-gear-six"></i> Mesin</span>';
+      case 'IT':
+        return '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-purple-50 text-purple-700 border border-purple-200 text-[9.5px] font-bold"><i class="ph-bold ph-laptop"></i> IT</span>';
+      default:
+        return '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md bg-slate-100 text-slate-700 border border-slate-200 text-[9.5px] font-bold"><i class="ph-bold ph-archive"></i> Peralatan</span>';
+    }
+  }
+
   function renderAllAssetsTable() {
     if (typeof window === 'undefined') return;
 
     const allUnifiedRows = getUnifiedAllAssetRows();
     let rawRows = allUnifiedRows;
-    if (window.currentAssetCatalogSegment === 'MASTER') {
+    if (window.currentAssetCatalogSegment === 'MASTER' || window.currentAssetCatalogSegment === 'VALIDASI') {
       rawRows = allUnifiedRows.filter(r => r[12] !== 'BELUM_CHECKOUT');
     } else if (window.currentAssetCatalogSegment === 'BELUM_CHECKOUT') {
       rawRows = allUnifiedRows.filter(r => r[12] === 'BELUM_CHECKOUT');
@@ -10883,6 +10978,15 @@ const PNS_SECTION_TO_DEPT = {
     let diatasLifetime = 0;
     let dibawahLifetime = 0;
 
+    const typeCounts = {
+      BANGUNAN: 0,
+      KENDARAAN: 0,
+      'ALAT BERAT': 0,
+      MESIN: 0,
+      IT: 0,
+      UMUM: 0
+    };
+
     const katMap = new Map();
 
     for (let i = 0; i < totalCountAll; i++) {
@@ -10898,6 +11002,32 @@ const PNS_SECTION_TO_DEPT = {
       const hpp = Number(r[8]) || 0;
       const susut = Number(r[9]) || 0;
       const nbv = Number(r[10]) || 0;
+
+      const detectedType = detectAssetType(r);
+      if (typeCounts[detectedType] !== undefined) {
+        typeCounts[detectedType]++;
+      } else {
+        typeCounts.UMUM++;
+      }
+
+      // Quick Type Filter
+      if (window.currentCatalogTypeFilter && window.currentCatalogTypeFilter !== 'ALL') {
+        if (detectedType !== window.currentCatalogTypeFilter) continue;
+      }
+
+      // KPI Card Filter
+      if (window.currentCatalogKpiFilter === 'VALUABLE' && (hpp === 0 && nbv === 0)) continue;
+      if (window.currentCatalogKpiFilter === 'NBV_ACTIVE' && nbv <= 0) continue;
+      if (window.currentCatalogKpiFilter === 'GOOD' && !(kond.toLowerCase().includes('good') || kond.toLowerCase().includes('baik'))) continue;
+      if (window.currentCatalogKpiFilter === 'CRITICAL') {
+        const kLow = kond.toLowerCase();
+        if (!(kLow.includes('repair') || kLow.includes('broken') || kLow.includes('lost') || kLow.includes('disposal') || kLow.includes('rusak') || kLow.includes('hilang'))) continue;
+      }
+      if (window.currentCatalogKpiFilter === 'OVERAGE' && umur < std) continue;
+      if (window.currentCatalogKpiFilter === 'Repair' && !kond.toLowerCase().includes('repair')) continue;
+      if (window.currentCatalogKpiFilter === 'Broken' && !kond.toLowerCase().includes('broken')) continue;
+      if (window.currentCatalogKpiFilter === 'Lost' && !kond.toLowerCase().includes('lost')) continue;
+      if (window.currentCatalogKpiFilter === 'Disposal' && !kond.toLowerCase().includes('disposal')) continue;
 
       // Filter: Type
       if (typeFilter === 'valuable' && (hpp === 0 && nbv === 0)) continue;
@@ -10943,6 +11073,8 @@ const PNS_SECTION_TO_DEPT = {
 
     const filteredCount = filtered.length;
     const goodPct = filteredCount > 0 ? ((goodCount / filteredCount) * 100).toFixed(1) : '0';
+    const criticalCount = repairCount + brokenCount + lostCount + disposalCount;
+    const retentionRatio = totalPerolehan > 0 ? ((totalBuku / totalPerolehan) * 100).toFixed(1) : '0';
 
     // 4. Update KPI Text & Counters
     const setEl = (id, val) => {
@@ -10962,55 +11094,107 @@ const PNS_SECTION_TO_DEPT = {
     setEl('pbi-asset-nilai-perolehan', fmtMoney(totalPerolehan));
     setEl('pbi-asset-nilai-penyusutan', fmtMoney(totalSusut));
     setEl('pbi-asset-nilai-buku', fmtMoney(totalBuku));
-    setEl('pbi-asset-good-count', `${goodCount.toLocaleString('id-ID')} (${goodPct}%)`);
+    setEl('pbi-asset-good-count', goodCount.toLocaleString('id-ID') + ' Unit');
+    setEl('pbi-asset-good-sub', `${goodPct}% Siap Operasi`);
+    setEl('pbi-asset-critical-count', criticalCount.toLocaleString('id-ID') + ' Unit');
+    setEl('pbi-asset-overage-count', diatasLifetime.toLocaleString('id-ID') + ' Unit');
+    setEl('pbi-asset-nbv-ratio', `Retensi ${retentionRatio}%`);
     setEl('pbi-asset-lifetime-stat', `↑ ${diatasLifetime.toLocaleString('id-ID')} | ↓ ${dibawahLifetime.toLocaleString('id-ID')}`);
+
+    // Update Quick Type Matrix Pills
+    setEl('type-count-bangunan', (typeCounts.BANGUNAN || 0).toLocaleString('id-ID') + ' Unit');
+    setEl('type-count-kendaraan', (typeCounts.KENDARAAN || 0).toLocaleString('id-ID') + ' Unit');
+    setEl('type-count-alatberat', (typeCounts['ALAT BERAT'] || 0).toLocaleString('id-ID') + ' Unit');
+    setEl('type-count-mesin', (typeCounts.MESIN || 0).toLocaleString('id-ID') + ' Unit');
+    setEl('type-count-it', (typeCounts.IT || 0).toLocaleString('id-ID') + ' Unit');
+    setEl('type-count-umum', (typeCounts.UMUM || 0).toLocaleString('id-ID') + ' Unit');
+
+    // Update Visual Condition Multi-Segment Bar & Legend
+    setEl('visual-health-pct', `${goodPct}% Prima`);
+    setEl('val-leg-good', goodCount.toLocaleString('id-ID'));
+    setEl('val-leg-repair', repairCount.toLocaleString('id-ID'));
+    setEl('val-leg-broken', brokenCount.toLocaleString('id-ID'));
+    setEl('val-leg-lost', lostCount.toLocaleString('id-ID'));
+    setEl('val-leg-disp', disposalCount.toLocaleString('id-ID'));
+
+    if (filteredCount > 0) {
+      const gW = Math.max(0.5, (goodCount / filteredCount) * 100);
+      const rW = Math.max(0.2, (repairCount / filteredCount) * 100);
+      const bW = Math.max(0.2, (brokenCount / filteredCount) * 100);
+      const lW = Math.max(0.1, (lostCount / filteredCount) * 100);
+      const dW = Math.max(0.1, (disposalCount / filteredCount) * 100);
+
+      const elG = document.getElementById('bar-seg-good');
+      const elR = document.getElementById('bar-seg-repair');
+      const elB = document.getElementById('bar-seg-broken');
+      const elL = document.getElementById('bar-seg-lost');
+      const elD = document.getElementById('bar-seg-disposal');
+      if (elG) elG.style.width = gW + '%';
+      if (elR) elR.style.width = rW + '%';
+      if (elB) elB.style.width = bW + '%';
+      if (elL) elL.style.width = lW + '%';
+      if (elD) elD.style.width = dW + '%';
+    }
 
     // Strategic Recommendation Banner
     const recEl = document.getElementById('pbi-asset-recommendation-text');
     if (recEl) {
-      const criticalCount = repairCount + brokenCount + lostCount + disposalCount;
       const pctOver = filteredCount > 0 ? ((diatasLifetime / filteredCount) * 100).toFixed(1) : 0;
       if (diatasLifetime > 0) {
-        recEl.innerText = `Terdapat ${diatasLifetime.toLocaleString('id-ID')} unit (${pctOver}%) aset melewati masa standar umur ekonomis (Over-Age). Disarankan inventarisasi write-off untuk ${criticalCount.toLocaleString('id-ID')} unit aset berkondisi rusak/hilang.`;
+        recEl.innerText = `Terdapat ${diatasLifetime.toLocaleString('id-ID')} unit (${pctOver}%) aset melewati masa standar umur ekonomis (Over-Age). Disarankan inventarisasi write-off untuk ${criticalCount.toLocaleString('id-ID')} unit aset berkondisi kritis.`;
       } else {
         recEl.innerText = 'Seluruh portofolio aset berada dalam rentang umur ekonomis produktif dan stabil.';
       }
     }
 
-    // 5. Render Donut Chart (ApexCharts Parity)
+    // 5. Render Donut Chart (ApexCharts Interactive Click Parity)
     const chartKondisiEl = document.querySelector('#chart-pbi-asset-kondisi');
     if (chartKondisiEl && typeof ApexCharts !== 'undefined') {
       if (window._pbiAssetKondisiChart) {
         try { window._pbiAssetKondisiChart.destroy(); } catch (e) {}
       }
+      const kondisiLabels = ['Good Condition', 'Repair', 'Broken', 'Lost', 'Disposal'];
       window._pbiAssetKondisiChart = new ApexCharts(chartKondisiEl, {
-        chart: { type: 'donut', height: 210, animations: { enabled: true } },
+        chart: {
+          type: 'donut',
+          height: 220,
+          animations: { enabled: true },
+          events: {
+            dataPointSelection: (event, chartContext, config) => {
+              const selectedIdx = config.dataPointIndex;
+              if (selectedIdx !== undefined && kondisiLabels[selectedIdx]) {
+                const kondName = kondisiLabels[selectedIdx];
+                window.filterCatalogByKpi(kondName);
+              }
+            }
+          }
+        },
         series: [goodCount, repairCount, brokenCount, lostCount, disposalCount],
-        labels: ['Good Condition', 'Repair', 'Broken', 'Lost', 'Disposal'],
-        colors: ['#10b981', '#f59e0b', '#ef4444', '#64748b', '#94a3b8'],
+        labels: kondisiLabels,
+        colors: ['#10b981', '#f59e0b', '#ef4444', '#475569', '#94a3b8'],
         plotOptions: {
           pie: {
             donut: {
-              size: '68%',
+              size: '70%',
               labels: {
                 show: true,
                 total: {
                   show: true,
-                  label: 'Total Aset',
+                  label: 'Portofolio',
                   formatter: () => filteredCount.toLocaleString('id-ID'),
-                  style: { fontSize: '11px', fontWeight: 800 }
+                  style: { fontSize: '11px', fontWeight: 800, color: '#1e293b' }
                 }
               }
             }
           }
         },
         dataLabels: { enabled: false },
-        legend: { position: 'bottom', fontSize: '10px', fontWeight: 600 }
+        legend: { position: 'bottom', fontSize: '10px', fontWeight: 600, horizontalAlign: 'center' }
       });
       window._pbiAssetKondisiChart.render();
     }
 
-    // 6. Render Horizontal Bar Chart (ApexCharts Parity)
+    // 6. Render Horizontal Bar Chart (ApexCharts Interactive Click Parity)
     const chartKatEl = document.querySelector('#chart-pbi-asset-kategori');
     if (chartKatEl && typeof ApexCharts !== 'undefined') {
       if (window._pbiAssetKategoriChart) {
@@ -11021,7 +11205,25 @@ const PNS_SECTION_TO_DEPT = {
         .slice(0, 8);
 
       window._pbiAssetKategoriChart = new ApexCharts(chartKatEl, {
-        chart: { type: 'bar', height: 220, toolbar: { show: false }, animations: { enabled: true } },
+        chart: {
+          type: 'bar',
+          height: 230,
+          toolbar: { show: false },
+          animations: { enabled: true },
+          events: {
+            dataPointSelection: (event, chartContext, config) => {
+              const idx = config.dataPointIndex;
+              if (idx !== undefined && topKats[idx]) {
+                const kName = topKats[idx].kat;
+                const katSel = document.getElementById('slicer-asset-kat');
+                if (katSel) {
+                  katSel.value = (katSel.value === kName) ? 'ALL' : kName;
+                  renderAllAssetsTable();
+                }
+              }
+            }
+          }
+        },
         series: [{
           name: (window.currentAssetBarDim === 'unit') ? 'Jumlah Unit' : 'Nilai Buku (Rp)',
           data: topKats.map(k => (window.currentAssetBarDim === 'unit') ? k.count : Math.round(k.nilaiBuku))
@@ -11030,8 +11232,8 @@ const PNS_SECTION_TO_DEPT = {
         plotOptions: {
           bar: {
             horizontal: true,
-            borderRadius: 4,
-            barHeight: topKats.length <= 2 ? '38%' : (topKats.length <= 4 ? '50%' : '65%')
+            borderRadius: 5,
+            barHeight: topKats.length <= 2 ? '36%' : (topKats.length <= 4 ? '50%' : '65%')
           }
         },
         dataLabels: {
@@ -11049,7 +11251,7 @@ const PNS_SECTION_TO_DEPT = {
           }
         },
         yaxis: {
-          labels: { style: { fontSize: '11px', fontWeight: 600 }, maxWidth: 160 }
+          labels: { style: { fontSize: '10.5px', fontWeight: 600 }, maxWidth: 150 }
         },
         tooltip: {
           y: {
@@ -11112,18 +11314,16 @@ const PNS_SECTION_TO_DEPT = {
     if (typeof window !== "undefined") window.assetCurrentPage = assetCurrentPage;
     if (pagingInfo) {
       pagingInfo.innerText = filteredCount > 0
-        ? `(Menampilkan ${(startIdx + 1).toLocaleString('id-ID')} - ${endIdx.toLocaleString('id-ID')} dari ${filteredCount.toLocaleString('id-ID')} unit)`
-        : '(Tidak ada data)';
+        ? `Menampilkan ${(startIdx + 1).toLocaleString('id-ID')} - ${endIdx.toLocaleString('id-ID')} dari ${filteredCount.toLocaleString('id-ID')} unit aset`
+        : '(Tidak ada data yang cocok)';
     }
 
     if (pagedRows.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="10" class="text-center py-8 text-slate-400 font-medium">Tidak ada aset yang sesuai filter.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="9" class="text-center py-12 text-slate-400 font-semibold bg-slate-50/50"><i class="ph-bold ph-folder-open text-3xl mb-1 block text-slate-300"></i>Tidak ada aset yang sesuai kriteria filter atau pencarian.</td></tr>';
       return;
     }
 
-    const maxBuku = Math.max(...pagedRows.map(r => Number(r[10]) || 0), 1);
-
-    tbody.innerHTML = pagedRows.map(r => {
+    tbody.innerHTML = pagedRows.map((r, rowIdx) => {
       const no = r[0] || '-';
       const nama = r[1] || '-';
       const kelompok = r[2] || '-';
@@ -11138,56 +11338,136 @@ const PNS_SECTION_TO_DEPT = {
       // Realtime API Fields:
       const statusVerif3 = r[18] || kond;
       const userVerif = r[19] || '-';
-      const catatanVerif = r[20] || '-';
+      const catatanVerif = r[20] || '';
       const tglVerif = r[21] || '-';
-      const tipeAsset = r[22] || 'UMUM';
       const checkout = r[23] || 'BELUM CHECKOUT';
       const tglCheckout = r[24] || '-';
 
-      const isGood = String(statusVerif3 || kond).toLowerCase().includes('good') || String(statusVerif3 || kond).toLowerCase().includes('baik');
-      const isOverAge = (umur >= std);
-      const pct = Math.min(100, Math.max(0, (nbv / maxBuku) * 100));
+      const detectedType = detectAssetType(r);
+      const typeBadgeHtml = getAssetTypeIconHtml(detectedType);
 
+      const kLow = String(statusVerif3 || kond).toLowerCase();
+      let statusColor = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      let dotColor = 'bg-emerald-500';
+      if (kLow.includes('repair')) {
+        statusColor = 'bg-amber-50 text-amber-700 border-amber-200';
+        dotColor = 'bg-amber-500';
+      } else if (kLow.includes('broken') || kLow.includes('rusak')) {
+        statusColor = 'bg-rose-50 text-rose-700 border-rose-200';
+        dotColor = 'bg-rose-500';
+      } else if (kLow.includes('lost') || kLow.includes('hilang')) {
+        statusColor = 'bg-slate-100 text-slate-700 border-slate-300';
+        dotColor = 'bg-slate-600';
+      } else if (kLow.includes('disposal') || kLow.includes('afkir')) {
+        statusColor = 'bg-slate-100 text-slate-500 border-slate-200';
+        dotColor = 'bg-slate-400';
+      }
+
+      const isOverAge = (umur >= std);
       const isBelumCheckout = (checkout === 'BELUM CHECKOUT' || r[12] === 'BELUM_CHECKOUT');
-      const originBadge = isBelumCheckout
-        ? '<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">Belum Checkout</span>'
-        : '<span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">Checkout</span>';
+      const checkoutBadge = isBelumCheckout
+        ? '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap"><span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Belum Checkout</span>'
+        : '<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap"><span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>Checkout</span>';
+
+      // Retention Progress & Ratio
+      const retentionPct = (hpp > 0) ? Math.min(100, Math.max(0, Math.round((nbv / hpp) * 100))) : 0;
+      let retentionBarColor = 'bg-emerald-500';
+      if (retentionPct < 20) retentionBarColor = 'bg-rose-500';
+      else if (retentionPct < 50) retentionBarColor = 'bg-amber-500';
+      else if (retentionPct < 80) retentionBarColor = 'bg-sky-500';
+
+      const zebraBg = (rowIdx % 2 === 0) ? 'bg-white' : 'bg-slate-50/40';
 
       return `
-        <tr onclick="drillToAssetDetail('${escapeHtml(no)}')" class="hover:bg-slate-50 transition text-xs border-b border-slate-100 cursor-pointer group" title="Klik untuk Dossier Aset ${escapeHtml(no)}">
-          <td class="font-medium text-sky-700 px-3 py-2.5 whitespace-nowrap">
-            <div class="flex items-center gap-1.5">
-              <span class="font-bold">${escapeHtml(no)}</span>
-              ${originBadge}
+        <tr onclick="drillToAssetDetail('${escapeHtml(no)}')" class="${zebraBg} hover:bg-sky-50/60 transition text-xs border-b border-slate-100 cursor-pointer group" title="Buka Dossier Spesifikasi & Riwayat ${escapeHtml(no)}">
+          
+          <!-- 1. Kode Unit & Tipe -->
+          <td class="px-3.5 py-3 whitespace-nowrap">
+            <div class="flex items-center gap-2">
+              <span class="font-mono font-black text-sky-900 group-hover:text-sky-600 transition tracking-tight">${escapeHtml(no)}</span>
+              ${checkoutBadge}
+            </div>
+            <div class="mt-1">
+              ${typeBadgeHtml}
             </div>
           </td>
-          <td class="px-3 py-2.5 font-medium text-slate-800 whitespace-normal min-w-[200px]" title="${escapeHtml(nama)}">${escapeHtml(nama)}</td>
-          <td class="px-3 py-2.5 text-slate-600 whitespace-nowrap"><span class="px-1.5 py-0.5 rounded bg-slate-100 font-bold text-[10px] text-slate-700">${escapeHtml(tipeAsset)}</span></td>
-          <td class="px-3 py-2.5 font-mono text-[11px] text-slate-700 whitespace-nowrap" title="${escapeHtml(checkout)}">${escapeHtml(checkout)}</td>
-          <td class="px-3 py-2.5 font-mono text-[10.5px] text-slate-500 whitespace-nowrap">${escapeHtml(tglCheckout !== '-' ? tglCheckout.slice(0, 10) : '-')}</td>
-          <td class="px-3 py-2.5 text-center whitespace-nowrap">
-            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${isGood ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-700'}">
+
+          <!-- 2. Deskripsi Aset & Kelompok -->
+          <td class="px-3.5 py-3 whitespace-normal min-w-[210px]">
+            <div class="font-bold text-slate-900 group-hover:text-sky-700 transition leading-snug" title="${escapeHtml(nama)}">
+              ${escapeHtml(nama)}
+            </div>
+            <div class="flex items-center gap-1.5 text-[10px] text-slate-500 mt-0.5 font-medium">
+              <span class="text-slate-400">${escapeHtml(kelompok)}</span>
+              <span>&bull;</span>
+              <span class="text-slate-600 font-semibold">${escapeHtml(kat)}</span>
+            </div>
+          </td>
+
+          <!-- 3. Checkout & Lokasi -->
+          <td class="px-3 py-3 whitespace-nowrap">
+            <div class="font-semibold text-slate-800 text-[11px]" title="${escapeHtml(checkout)}">
+              ${escapeHtml(checkout)}
+            </div>
+            <div class="flex items-center gap-1 mt-0.5">
+              <span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-mono text-[9.5px] border border-slate-200">
+                <i class="ph-bold ph-map-pin text-slate-400"></i> ${escapeHtml(loc)}
+              </span>
+            </div>
+          </td>
+
+          <!-- 4. Status Validasi Fisik -->
+          <td class="px-3 py-3 text-center whitespace-nowrap">
+            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusColor}">
+              <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
               ${escapeHtml(statusVerif3)}
             </span>
+            ${catatanVerif ? `<div class="text-[9.5px] text-slate-400 italic mt-0.5 max-w-[140px] truncate mx-auto" title="${escapeHtml(catatanVerif)}">${escapeHtml(catatanVerif)}</div>` : ''}
           </td>
-          <td class="px-3 py-2.5 font-medium text-slate-700 whitespace-nowrap">${escapeHtml(userVerif)}</td>
-          <td class="px-3 py-2.5 text-slate-500 whitespace-normal max-w-[180px] truncate" title="${escapeHtml(catatanVerif)}">${escapeHtml(catatanVerif)}</td>
-          <td class="px-3 py-2.5 font-mono text-[10.5px] text-slate-500 whitespace-nowrap">${escapeHtml(tglVerif !== '-' ? tglVerif.slice(0, 10) : '-')}</td>
-          <td class="px-3 py-2.5 text-slate-600 font-bold whitespace-nowrap">${escapeHtml(loc)}</td>
-          <td class="px-3 py-2.5 text-right font-mono whitespace-nowrap">${fmtMoney(hpp)}</td>
-          <td class="px-3 py-2.5 text-right font-mono font-bold text-blue-600 whitespace-nowrap">
-            <div class="flex items-center justify-end gap-2">
-              <div class="w-12 bg-blue-100 rounded-full h-1.5 overflow-hidden">
-                <div class="bg-blue-600 h-full rounded-full" style="width: ${pct}%"></div>
-              </div>
-              <span>${fmtMoney(nbv)}</span>
+
+          <!-- 5. Verifikator & Tgl -->
+          <td class="px-3 py-3 whitespace-nowrap">
+            <div class="font-semibold text-slate-700 text-[11px]">${escapeHtml(userVerif)}</div>
+            <div class="font-mono text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
+              <i class="ph-bold ph-calendar text-slate-300"></i> ${escapeHtml(tglVerif !== '-' ? tglVerif.slice(0, 10) : '-')}
             </div>
           </td>
-          <td class="px-3 py-2.5 text-center whitespace-nowrap">
-            <button type="button" onclick="event.stopPropagation(); drillToAssetDetail('${escapeHtml(no)}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-emerald-600 hover:text-white text-[10px] font-bold transition flex items-center gap-1 mx-auto shadow-2xs cursor-pointer">
-              <i class="ph-bold ph-identification-card"></i> Dossier
+
+          <!-- 6. CAPEX (Perolehan) -->
+          <td class="px-3.5 py-3 text-right font-mono text-slate-700 whitespace-nowrap">
+            <span class="font-semibold">${fmtMoney(hpp)}</span>
+          </td>
+
+          <!-- 7. Nilai Buku & Retensi -->
+          <td class="px-3.5 py-3 text-right whitespace-nowrap">
+            <div class="font-mono font-black text-sky-700">${fmtMoney(nbv)}</div>
+            <div class="flex items-center justify-end gap-1.5 mt-1">
+              <div class="w-16 bg-slate-200/80 rounded-full h-1.5 overflow-hidden">
+                <div class="${retentionBarColor} h-full rounded-full transition-all duration-300" style="width: ${retentionPct}%"></div>
+              </div>
+              <span class="text-[9.5px] font-mono font-bold text-slate-500">${retentionPct}%</span>
+            </div>
+          </td>
+
+          <!-- 8. Umur -->
+          <td class="px-3 py-3 text-center whitespace-nowrap">
+            <div class="font-mono font-bold text-slate-700 text-[11px]">${umur} / ${std} thn</div>
+            <div class="mt-0.5">
+              ${isOverAge
+                ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-100 text-rose-700 border border-rose-200">Over-Age</span>'
+                : '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-100 text-slate-600">Normal</span>'
+              }
+            </div>
+          </td>
+
+          <!-- 9. Aksi Dossier -->
+          <td class="px-3 py-3 text-center whitespace-nowrap">
+            <button type="button" onclick="event.stopPropagation(); drillToAssetDetail('${escapeHtml(no)}')" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 text-[10.5px] font-bold transition flex items-center gap-1 mx-auto shadow-2xs border border-slate-200 group-hover:border-slate-400 cursor-pointer" title="Buka Dokumen &amp; Riwayat Aset">
+              <i class="ph-bold ph-arrow-square-out text-xs"></i>
+              <span>Dossier</span>
             </button>
           </td>
+
         </tr>
       `;
     }).join('');

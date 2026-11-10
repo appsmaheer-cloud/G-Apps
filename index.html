@@ -888,63 +888,248 @@
 
         <!-- AI Banner Removed (Clean Professional Layout) -->
 
-        <!-- 6 Asset KPI Cards -->
-        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5 shrink-0 min-h-[100px]">
-          <div class="clean-card p-3.5 shadow-xs">
-            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Total Unit Aset</span>
-            <span class="text-2xl font-black text-slate-800 mt-1 block tracking-tight num-tabular" id="pbi-asset-total-count">0</span>
+        <!-- 6 Executive Interactive KPI Cards (Clickable Slice & Filter) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3 shrink-0">
+          
+          <!-- Card 1: Total Master Aset (Reset / All) -->
+          <div id="kpi-card-all" onclick="window.filterCatalogByKpi('ALL')" class="kpi-interactive-card group relative cursor-pointer border-t-4 border-t-slate-800 bg-white border-x border-b border-slate-200/90 rounded-2xl p-3.5 shadow-xs transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 select-none ring-2 ring-slate-800/10">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Total Master Aset</span>
+              <div class="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-slate-800 group-hover:text-white text-slate-700 flex items-center justify-center text-sm transition">
+                <i class="ph-bold ph-stack"></i>
+              </div>
+            </div>
+            <div class="mt-2">
+              <span class="text-2xl font-black text-slate-900 tracking-tight num-tabular block" id="pbi-asset-total-count">0</span>
+              <div class="flex items-center justify-between mt-1 text-[10px]">
+                <span class="text-slate-500 font-semibold flex items-center gap-1">
+                  <i class="ph-bold ph-arrow-counter-clockwise text-slate-400"></i> Reset Slicer
+                </span>
+                <span class="px-1.5 py-0.2 rounded bg-slate-100 font-bold text-slate-700">Semua Unit</span>
+              </div>
+            </div>
           </div>
-          <div class="clean-card p-3.5 shadow-xs">
-            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Nilai Perolehan</span>
-            <span class="text-xl font-black text-cyan-600 mt-1 block tracking-tight truncate num-tabular" id="pbi-asset-nilai-perolehan">Rp 0</span>
+
+          <!-- Card 2: Nilai Perolehan (CAPEX Valuable) -->
+          <div id="kpi-card-valuable" onclick="window.filterCatalogByKpi('VALUABLE')" class="kpi-interactive-card group relative cursor-pointer border-t-4 border-t-sky-500 bg-white border-x border-b border-slate-200/90 rounded-2xl p-3.5 shadow-xs transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 select-none">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Nilai Perolehan</span>
+              <div class="w-7 h-7 rounded-lg bg-sky-50 group-hover:bg-sky-500 group-hover:text-white text-sky-600 flex items-center justify-center text-sm transition">
+                <i class="ph-bold ph-receipt"></i>
+              </div>
+            </div>
+            <div class="mt-2">
+              <span class="text-xl font-black text-sky-600 tracking-tight num-tabular block truncate" id="pbi-asset-nilai-perolehan">Rp 0</span>
+              <div class="flex items-center justify-between mt-1 text-[10px]">
+                <span class="text-sky-700 font-semibold flex items-center gap-1">
+                  <i class="ph-bold ph-funnel text-sky-500"></i> Klik Filter
+                </span>
+                <span class="px-1.5 py-0.2 rounded bg-sky-50 font-bold text-sky-700">CAPEX &gt; 0</span>
+              </div>
+            </div>
           </div>
-          <div class="clean-card p-3.5 shadow-xs">
-            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Nilai Penyusutan</span>
-            <span class="text-xl font-black text-rose-600 mt-1 block tracking-tight truncate num-tabular" id="pbi-asset-nilai-penyusutan">Rp 0</span>
+
+          <!-- Card 3: Nilai Buku Bersih (NBV) -->
+          <div id="kpi-card-nbv_active" onclick="window.filterCatalogByKpi('NBV_ACTIVE')" class="kpi-interactive-card group relative cursor-pointer border-t-4 border-t-indigo-500 bg-white border-x border-b border-slate-200/90 rounded-2xl p-3.5 shadow-xs transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 select-none">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Nilai Buku (NBV)</span>
+              <div class="w-7 h-7 rounded-lg bg-indigo-50 group-hover:bg-indigo-500 group-hover:text-white text-indigo-600 flex items-center justify-center text-sm transition">
+                <i class="ph-bold ph-chart-line-up"></i>
+              </div>
+            </div>
+            <div class="mt-2">
+              <span class="text-xl font-black text-indigo-600 tracking-tight num-tabular block truncate" id="pbi-asset-nilai-buku">Rp 0</span>
+              <div class="flex items-center justify-between mt-1 text-[10px]">
+                <span class="text-indigo-700 font-semibold flex items-center gap-1">
+                  <i class="ph-bold ph-sort-descending text-indigo-500"></i> NBV Tertinggi
+                </span>
+                <span id="pbi-asset-nbv-ratio" class="px-1.5 py-0.2 rounded bg-indigo-50 font-bold text-indigo-700">Retention</span>
+              </div>
+            </div>
           </div>
-          <div class="clean-card p-3.5 shadow-xs">
-            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Nilai Buku Saat Ini</span>
-            <span class="text-xl font-black text-indigo-600 mt-1 block tracking-tight truncate num-tabular" id="pbi-asset-nilai-buku">Rp 0</span>
+
+          <!-- Card 4: Kondisi Prima (Good Condition) -->
+          <div id="kpi-card-good" onclick="window.filterCatalogByKpi('GOOD')" class="kpi-interactive-card group relative cursor-pointer border-t-4 border-t-emerald-500 bg-white border-x border-b border-slate-200/90 rounded-2xl p-3.5 shadow-xs transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 select-none">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Kondisi Prima</span>
+              <div class="w-7 h-7 rounded-lg bg-emerald-50 group-hover:bg-emerald-500 group-hover:text-white text-emerald-600 flex items-center justify-center text-sm transition">
+                <i class="ph-bold ph-shield-check"></i>
+              </div>
+            </div>
+            <div class="mt-2">
+              <span class="text-xl font-black text-emerald-600 tracking-tight num-tabular block truncate" id="pbi-asset-good-count">0</span>
+              <div class="flex items-center justify-between mt-1 text-[10px]">
+                <span class="text-emerald-700 font-semibold flex items-center gap-1">
+                  <i class="ph-bold ph-check-circle text-emerald-500"></i> Siap Pakai
+                </span>
+                <span id="pbi-asset-good-sub" class="px-1.5 py-0.2 rounded bg-emerald-50 font-bold text-emerald-700">Good</span>
+              </div>
+            </div>
           </div>
-          <div class="clean-card p-3.5 shadow-xs">
-            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Good Condition</span>
-            <span class="text-xl font-black text-emerald-600 mt-1 block tracking-tight truncate num-tabular" id="pbi-asset-good-count">0</span>
+
+          <!-- Card 5: Aset Kritis (Repair / Broken / Lost / Disposal) -->
+          <div id="kpi-card-critical" onclick="window.filterCatalogByKpi('CRITICAL')" class="kpi-interactive-card group relative cursor-pointer border-t-4 border-t-rose-500 bg-white border-x border-b border-slate-200/90 rounded-2xl p-3.5 shadow-xs transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 select-none">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Aset Kritis</span>
+              <div class="w-7 h-7 rounded-lg bg-rose-50 group-hover:bg-rose-500 group-hover:text-white text-rose-600 flex items-center justify-center text-sm transition">
+                <i class="ph-bold ph-warning-octagon"></i>
+              </div>
+            </div>
+            <div class="mt-2">
+              <span class="text-xl font-black text-rose-600 tracking-tight num-tabular block truncate" id="pbi-asset-critical-count">0 Unit</span>
+              <div class="flex items-center justify-between mt-1 text-[10px]">
+                <span class="text-rose-700 font-semibold flex items-center gap-1">
+                  <i class="ph-bold ph-wrench text-rose-500"></i> Butuh Tindakan
+                </span>
+                <span class="px-1.5 py-0.2 rounded bg-rose-50 font-bold text-rose-700">Rusak/Hilang</span>
+              </div>
+            </div>
           </div>
-          <div class="clean-card p-3.5 shadow-xs">
-            <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Lifetime Ratio</span>
-            <span class="text-sm font-black text-amber-600 mt-2 block tracking-tight num-tabular" id="pbi-asset-lifetime-stat">-</span>
+
+          <!-- Card 6: Over-Age (Lewat Standar Umur) -->
+          <div id="kpi-card-overage" onclick="window.filterCatalogByKpi('OVERAGE')" class="kpi-interactive-card group relative cursor-pointer border-t-4 border-t-amber-500 bg-white border-x border-b border-slate-200/90 rounded-2xl p-3.5 shadow-xs transition-all duration-200 hover:shadow-md hover:-translate-y-0.5 select-none">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-black text-slate-500 uppercase tracking-wider">Over-Age</span>
+              <div class="w-7 h-7 rounded-lg bg-amber-50 group-hover:bg-amber-500 group-hover:text-white text-amber-600 flex items-center justify-center text-sm transition">
+                <i class="ph-bold ph-hourglass-high"></i>
+              </div>
+            </div>
+            <div class="mt-2">
+              <span class="text-xl font-black text-amber-600 tracking-tight num-tabular block truncate" id="pbi-asset-overage-count">0 Unit</span>
+              <div class="flex items-center justify-between mt-1 text-[10px]">
+                <span class="text-amber-700 font-semibold flex items-center gap-1">
+                  <i class="ph-bold ph-clock-countdown text-amber-500"></i> Lewat Umur
+                </span>
+                <span class="px-1.5 py-0.2 rounded bg-amber-50 font-bold text-amber-700">&ge; Standar</span>
+              </div>
+            </div>
           </div>
+
         </div>
 
         <!-- Visuals & Catalog Table -->
-        <div id="asset-catalog-grid" class="grid grid-cols-1 xl:grid-cols-12 gap-3.5 min-h-[480px]">
+        <div id="asset-catalog-grid" class="grid grid-cols-1 xl:grid-cols-12 gap-3.5 min-h-[520px]">
           
-          <!-- Left Charts -->
+          <!-- Left Charts & Custom Visuals -->
           <div id="asset-catalog-left-col" class="xl:col-span-5 flex flex-col gap-3.5">
-            <div class="clean-card p-4 flex flex-col min-h-[250px] shadow-xs">
-              <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
-                <span class="text-xs sm:text-sm font-bold text-slate-800">Distribusi Kondisi Fisik Aset</span>
+            
+            <!-- Custom Visual: Fleet Health & Condition Segment Strip -->
+            <div class="clean-card p-3.5 shadow-xs bg-white border border-slate-200/90 rounded-2xl">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span class="text-xs font-bold text-slate-800">Kesehatan Portofolio Aset</span>
+                </div>
+                <span id="visual-health-pct" class="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">98.5% Prima</span>
               </div>
-              <div class="flex-1 w-full min-h-[200px]" id="chart-pbi-asset-kondisi"></div>
+              
+              <!-- Multi-Segment Visual Stack Bar -->
+              <div class="mt-2.5">
+                <div class="h-3 w-full bg-slate-100 rounded-full overflow-hidden flex shadow-inner cursor-pointer" id="visual-condition-stack-bar" title="Klik segmen untuk menyaring kondisi fisik">
+                  <div id="bar-seg-good" onclick="window.filterCatalogByKpi('GOOD')" class="bg-emerald-500 hover:bg-emerald-600 transition-all" style="width: 95%" title="Good Condition (Siap Pakai)"></div>
+                  <div id="bar-seg-repair" onclick="window.filterCatalogByKpi('Repair')" class="bg-amber-400 hover:bg-amber-500 transition-all" style="width: 2%" title="Repair (Perbaikan)"></div>
+                  <div id="bar-seg-broken" onclick="window.filterCatalogByKpi('Broken')" class="bg-rose-500 hover:bg-rose-600 transition-all" style="width: 1.5%" title="Broken (Rusak)"></div>
+                  <div id="bar-seg-lost" onclick="window.filterCatalogByKpi('Lost')" class="bg-slate-600 hover:bg-slate-700 transition-all" style="width: 1%" title="Lost (Hilang)"></div>
+                  <div id="bar-seg-disposal" onclick="window.filterCatalogByKpi('Disposal')" class="bg-slate-400 hover:bg-slate-500 transition-all" style="width: 0.5%" title="Disposal (Afkir)"></div>
+                </div>
+                <!-- Interactive Mini Legend -->
+                <div class="flex items-center justify-between mt-2 text-[10px] text-slate-500 font-semibold flex-wrap gap-1">
+                  <span onclick="window.filterCatalogByKpi('GOOD')" class="flex items-center gap-1 hover:text-emerald-700 cursor-pointer transition">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Good: <b id="val-leg-good" class="text-slate-800">0</b>
+                  </span>
+                  <span onclick="window.filterCatalogByKpi('Repair')" class="flex items-center gap-1 hover:text-amber-700 cursor-pointer transition">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span> Repair: <b id="val-leg-repair" class="text-slate-800">0</b>
+                  </span>
+                  <span onclick="window.filterCatalogByKpi('Broken')" class="flex items-center gap-1 hover:text-rose-700 cursor-pointer transition">
+                    <span class="w-2 h-2 rounded-full bg-rose-500"></span> Broken: <b id="val-leg-broken" class="text-slate-800">0</b>
+                  </span>
+                  <span onclick="window.filterCatalogByKpi('Lost')" class="flex items-center gap-1 hover:text-slate-900 cursor-pointer transition">
+                    <span class="w-2 h-2 rounded-full bg-slate-600"></span> Lost: <b id="val-leg-lost" class="text-slate-800">0</b>
+                  </span>
+                  <span onclick="window.filterCatalogByKpi('Disposal')" class="flex items-center gap-1 hover:text-slate-700 cursor-pointer transition">
+                    <span class="w-2 h-2 rounded-full bg-slate-400"></span> Disp: <b id="val-leg-disp" class="text-slate-800">0</b>
+                  </span>
+                </div>
+              </div>
             </div>
-            <div class="clean-card p-4 flex flex-col min-h-[240px] shadow-xs">
-              <div class="flex items-center justify-between pb-3 border-b border-slate-100 shrink-0">
-                <span class="text-xs sm:text-sm font-bold text-slate-800" id="pbi-asset-bar-title">Top Kategori Aset</span>
+
+            <!-- Custom Visual: Tipe Aset Quick Matrix Pills -->
+            <div class="clean-card p-3 shadow-xs bg-white border border-slate-200/90 rounded-2xl">
+              <div class="flex items-center justify-between pb-1.5 border-b border-slate-100">
+                <span class="text-[11px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <i class="ph-bold ph-squares-four text-sky-600"></i> Matriks Tipe Aset (Klik Cepat)
+                </span>
+                <span class="text-[10px] text-slate-400 font-medium">Filter Sektoral</span>
+              </div>
+              <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5 mt-2" id="asset-type-matrix-pills">
+                <button type="button" onclick="window.filterByAssetTypeQuick('BANGUNAN')" class="p-1.5 rounded-xl border border-slate-200/80 hover:border-emerald-400 hover:bg-emerald-50/40 text-center transition flex flex-col items-center justify-center cursor-pointer group">
+                  <i class="ph-bold ph-buildings text-emerald-600 text-sm group-hover:scale-110 transition"></i>
+                  <span class="text-[9.5px] font-bold text-slate-800 mt-0.5">Bangunan</span>
+                  <span class="text-[8.5px] text-slate-400 font-mono" id="type-count-bangunan">0 Unit</span>
+                </button>
+                <button type="button" onclick="window.filterByAssetTypeQuick('KENDARAAN')" class="p-1.5 rounded-xl border border-slate-200/80 hover:border-sky-400 hover:bg-sky-50/40 text-center transition flex flex-col items-center justify-center cursor-pointer group">
+                  <i class="ph-bold ph-car text-sky-600 text-sm group-hover:scale-110 transition"></i>
+                  <span class="text-[9.5px] font-bold text-slate-800 mt-0.5">Kendaraan</span>
+                  <span class="text-[8.5px] text-slate-400 font-mono" id="type-count-kendaraan">0 Unit</span>
+                </button>
+                <button type="button" onclick="window.filterByAssetTypeQuick('ALAT BERAT')" class="p-1.5 rounded-xl border border-slate-200/80 hover:border-amber-400 hover:bg-amber-50/40 text-center transition flex flex-col items-center justify-center cursor-pointer group">
+                  <i class="ph-bold ph-truck text-amber-600 text-sm group-hover:scale-110 transition"></i>
+                  <span class="text-[9.5px] font-bold text-slate-800 mt-0.5">Alat Berat</span>
+                  <span class="text-[8.5px] text-slate-400 font-mono" id="type-count-alatberat">0 Unit</span>
+                </button>
+                <button type="button" onclick="window.filterByAssetTypeQuick('MESIN')" class="p-1.5 rounded-xl border border-slate-200/80 hover:border-indigo-400 hover:bg-indigo-50/40 text-center transition flex flex-col items-center justify-center cursor-pointer group">
+                  <i class="ph-bold ph-gear-six text-indigo-600 text-sm group-hover:scale-110 transition"></i>
+                  <span class="text-[9.5px] font-bold text-slate-800 mt-0.5">Mesin</span>
+                  <span class="text-[8.5px] text-slate-400 font-mono" id="type-count-mesin">0 Unit</span>
+                </button>
+                <button type="button" onclick="window.filterByAssetTypeQuick('IT')" class="p-1.5 rounded-xl border border-slate-200/80 hover:border-purple-400 hover:bg-purple-50/40 text-center transition flex flex-col items-center justify-center cursor-pointer group">
+                  <i class="ph-bold ph-laptop text-purple-600 text-sm group-hover:scale-110 transition"></i>
+                  <span class="text-[9.5px] font-bold text-slate-800 mt-0.5">IT &amp; Gadget</span>
+                  <span class="text-[8.5px] text-slate-400 font-mono" id="type-count-it">0 Unit</span>
+                </button>
+                <button type="button" onclick="window.filterByAssetTypeQuick('UMUM')" class="p-1.5 rounded-xl border border-slate-200/80 hover:border-slate-400 hover:bg-slate-100 text-center transition flex flex-col items-center justify-center cursor-pointer group">
+                  <i class="ph-bold ph-archive text-slate-600 text-sm group-hover:scale-110 transition"></i>
+                  <span class="text-[9.5px] font-bold text-slate-800 mt-0.5">Peralatan</span>
+                  <span class="text-[8.5px] text-slate-400 font-mono" id="type-count-umum">0 Unit</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Chart 1: Donut Distribusi Kondisi Fisik (Interactive Drilldown) -->
+            <div class="clean-card p-4 flex flex-col min-h-[240px] shadow-xs bg-white border border-slate-200/90 rounded-2xl">
+              <div class="flex items-center justify-between pb-2.5 border-b border-slate-100 shrink-0">
+                <span class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5">
+                  <i class="ph-bold ph-chart-pie-slice text-emerald-600"></i> Distribusi Kondisi Fisik
+                </span>
+                <span class="text-[10px] text-slate-400 font-medium">Klik irisan untuk filter</span>
+              </div>
+              <div class="flex-1 w-full min-h-[190px]" id="chart-pbi-asset-kondisi"></div>
+            </div>
+
+            <!-- Chart 2: Top Kategori Aset (Interactive Horizontal Bar) -->
+            <div class="clean-card p-4 flex flex-col min-h-[250px] shadow-xs bg-white border border-slate-200/90 rounded-2xl">
+              <div class="flex items-center justify-between pb-2.5 border-b border-slate-100 shrink-0">
+                <span class="text-xs sm:text-sm font-bold text-slate-800 flex items-center gap-1.5" id="pbi-asset-bar-title">
+                  <i class="ph-bold ph-chart-bar text-sky-600"></i> Komposisi Kategori Aset
+                </span>
                 <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200/60">
-                  <button type="button" onclick="window.pns.setAssetBarDim('buku')" id="btn-asset-bar-buku" class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-600 text-white shadow-2xs transition cursor-pointer">Nilai Buku</button>
+                  <button type="button" onclick="window.pns.setAssetBarDim('buku')" id="btn-asset-bar-buku" class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-sky-600 text-white shadow-2xs transition cursor-pointer">Nilai Buku</button>
                   <button type="button" onclick="window.pns.setAssetBarDim('unit')" id="btn-asset-bar-unit" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-slate-200 transition cursor-pointer">Jml Unit</button>
                 </div>
               </div>
-              <div class="flex-1 w-full min-h-[180px]" id="chart-pbi-asset-kategori"></div>
+              <div class="flex-1 w-full min-h-[190px]" id="chart-pbi-asset-kategori"></div>
             </div>
+
           </div>
 
-          <!-- Right Catalog Table -->
-          <div id="asset-catalog-right-col" class="clean-card xl:col-span-7 p-4 flex flex-col min-h-[500px] shadow-xs transition-all duration-300">
+          <!-- Right Catalog Table: Executive Matrix Table -->
+          <div id="asset-catalog-right-col" class="clean-card xl:col-span-7 p-4 flex flex-col min-h-[520px] shadow-xs bg-white border border-slate-200/90 rounded-2xl transition-all duration-300">
             <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-slate-100 gap-2 shrink-0">
               <div>
-                <span class="text-xs sm:text-sm font-bold text-slate-800 block">Katalog Lengkap Master Aset</span>
-                <span class="text-[10.5px] text-slate-400 font-medium" id="all-asset-paging-info">Klik baris mana saja untuk melihat Dossier &amp; Spesifikasi Lengkap</span>
+                <span class="text-xs sm:text-sm font-black text-slate-900 block flex items-center gap-1.5">
+                  <i class="ph-bold ph-table text-indigo-600"></i> Matriks Portofolio Master Aset
+                </span>
+                <span class="text-[10.5px] text-slate-500 font-medium" id="all-asset-paging-info">Pilih baris untuk membuka Dossier Detail &amp; Histori Pemindahan</span>
               </div>
               <div class="flex items-center gap-1.5 flex-wrap">
                 <button type="button" onclick="window.toggleAssetTableExpand()" id="btn-toggle-asset-table-expand" class="px-2.5 py-1 text-xs font-semibold rounded-lg border border-slate-200 bg-white text-slate-700 hover:bg-slate-100 flex items-center gap-1 cursor-pointer transition shadow-2xs" title="Lebarkan Tabel Katalog ke Ukuran Penuh">
@@ -960,37 +1145,49 @@
                 </button>
               </div>
             </div>
-            <div class="flex-1 overflow-auto scrollbar-thin mt-2 max-h-[460px]">
+
+            <!-- Table Matrix Container with Custom Matrix Styling -->
+            <div class="flex-1 overflow-auto scrollbar-thin mt-2 max-h-[560px] rounded-xl border border-slate-200/90">
               <table class="w-full text-left border-collapse whitespace-nowrap text-xs">
-                <thead class="sticky top-0 bg-slate-50/95 backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500 border-b border-slate-200 select-none">
+                <thead class="sticky top-0 bg-slate-900 text-slate-100 text-[10px] font-black uppercase tracking-wider select-none z-10 shadow-xs">
                   <tr>
-                    <th onclick="window.onAssetCatalogSortChange('kode_asc')" class="px-3 py-2.5 min-w-[130px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Kode Unit">
-                      <div class="flex items-center gap-1"><span>Kode Unit</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
+                    <th onclick="window.onAssetCatalogSortChange('kode_asc')" class="px-3.5 py-3 min-w-[140px] hover:text-sky-300 cursor-pointer transition" title="Urutkan berdasarkan Kode Unit">
+                      <div class="flex items-center gap-1.5">
+                        <span>Kode &amp; Tipe</span>
+                        <i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i>
+                      </div>
                     </th>
-                    <th onclick="window.onAssetCatalogSortChange('nama_asc')" class="px-3 py-2.5 min-w-[180px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Nama Aset (A-Z)">
-                      <div class="flex items-center gap-1"><span>Nama Asset</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
+                    <th onclick="window.onAssetCatalogSortChange('nama_asc')" class="px-3.5 py-3 min-w-[200px] hover:text-sky-300 cursor-pointer transition" title="Urutkan berdasarkan Nama Aset (A-Z)">
+                      <div class="flex items-center gap-1.5">
+                        <span>Deskripsi Aset &amp; Kelompok</span>
+                        <i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i>
+                      </div>
                     </th>
-                    <th class="px-3 py-2.5 min-w-[90px]">Tipe Asset</th>
-                    <th class="px-3 py-2.5 min-w-[120px]">Checkout</th>
-                    <th class="px-3 py-2.5 min-w-[100px]">Tgl Checkout</th>
-                    <th class="px-3 py-2.5 text-center min-w-[130px]">Status Verifikasi (3)</th>
-                    <th class="px-3 py-2.5 min-w-[120px]">User Verifikasi</th>
-                    <th class="px-3 py-2.5 min-w-[160px]">Catatan Verifikasi</th>
-                    <th class="px-3 py-2.5 min-w-[110px]">Tgl Verifikasi</th>
-                    <th class="px-3 py-2.5 min-w-[80px]">Lokasi</th>
-                    <th onclick="window.onAssetCatalogSortChange('hpp_desc')" class="px-3 py-2.5 text-right min-w-[120px] hover:text-slate-900 cursor-pointer" title="Urutkan berdasarkan Harga Perolehan Tertinggi">
-                      <div class="flex items-center justify-end gap-1"><span>Harga Perolehan</span><i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i></div>
+                    <th class="px-3 py-3 min-w-[130px]">Checkout &amp; Lokasi</th>
+                    <th class="px-3 py-3 text-center min-w-[140px]">Status Validasi Fisik</th>
+                    <th class="px-3 py-3 min-w-[130px]">Verifikator &amp; Tgl</th>
+                    <th onclick="window.onAssetCatalogSortChange('hpp_desc')" class="px-3.5 py-3 text-right min-w-[130px] hover:text-sky-300 cursor-pointer transition" title="Urutkan berdasarkan Nilai CAPEX Tertinggi">
+                      <div class="flex items-center justify-end gap-1.5">
+                        <span>CAPEX (Perolehan)</span>
+                        <i class="ph-bold ph-arrows-down-up text-[10px] text-slate-400"></i>
+                      </div>
                     </th>
-                    <th onclick="window.onAssetCatalogSortChange('nbv_desc')" class="px-3 py-2.5 text-right font-bold text-cyan-600 min-w-[120px] hover:text-cyan-800 cursor-pointer" title="Urutkan berdasarkan Nilai Buku Tertinggi">
-                      <div class="flex items-center justify-end gap-1"><span>Nilai Buku</span><i class="ph-bold ph-arrows-down-up text-[10px] text-cyan-500"></i></div>
+                    <th onclick="window.onAssetCatalogSortChange('nbv_desc')" class="px-3.5 py-3 text-right min-w-[150px] text-sky-400 hover:text-sky-200 cursor-pointer transition" title="Urutkan berdasarkan Nilai Buku Tertinggi">
+                      <div class="flex items-center justify-end gap-1.5">
+                        <span>Nilai Buku &amp; Retensi</span>
+                        <i class="ph-bold ph-arrows-down-up text-[10px] text-sky-300"></i>
+                      </div>
                     </th>
-                    <th class="px-3 py-2.5 text-center min-w-[70px]">Aksi</th>
+                    <th class="px-3 py-3 text-center min-w-[90px]">Umur</th>
+                    <th class="px-3 py-3 text-center min-w-[75px]">Aksi</th>
                   </tr>
                 </thead>
-                <tbody id="table-pbi-asset-matrix"></tbody>
+                <tbody id="table-pbi-asset-matrix" class="divide-y divide-slate-100 bg-white"></tbody>
               </table>
             </div>
           </div>
+
+        </div>
 
         </div>
 
