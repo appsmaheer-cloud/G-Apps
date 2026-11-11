@@ -17,35 +17,23 @@
   }
   window.isGenuineRoomFacility = isGenuineRoomFacility;
 
-// Global Sidebar & Navigation Group Toggles (Desktop Collapse + Mobile Drawer Parity)
+// Global Sidebar & Navigation Group Toggles (Clean Zero-Layout-Shift Toggle)
   function toggleSidebar(forceState) {
     const sb = document.getElementById('app-sidebar');
-    const bd = document.getElementById('sidebar-backdrop');
     const floatBtn = document.getElementById('btn-floating-expand-sidebar');
     if (!sb) return;
-    const isDesktop = (typeof window !== 'undefined') ? (window.innerWidth >= 768) : true;
 
-    const isCurrentlyHidden = sb.classList.contains('desktop-collapsed') || sb.classList.contains('-translate-x-full') || sb.classList.contains('hidden');
-    const shouldOpen = (typeof forceState === 'boolean') ? forceState : isCurrentlyHidden;
+    const isCollapsed = sb.classList.contains('desktop-collapsed') || sb.classList.contains('hidden');
+    const shouldOpen = (typeof forceState === 'boolean') ? forceState : isCollapsed;
 
     if (shouldOpen) {
       sb.classList.remove('desktop-collapsed', '-translate-x-full', 'hidden');
       sb.style.removeProperty('display');
       sb.style.removeProperty('width');
-      if (bd && !isDesktop) {
-        bd.classList.remove('hidden');
-      } else if (bd) {
-        bd.classList.add('hidden');
-      }
       if (floatBtn) floatBtn.classList.add('hidden');
       try { localStorage.removeItem('pns_sidebar_collapsed'); } catch (e) {}
     } else {
-      if (isDesktop) {
-        sb.classList.add('desktop-collapsed');
-      } else {
-        sb.classList.add('-translate-x-full');
-      }
-      if (bd) bd.classList.add('hidden');
+      sb.classList.add('desktop-collapsed');
       if (floatBtn) floatBtn.classList.remove('hidden');
       try { localStorage.setItem('pns_sidebar_collapsed', '1'); } catch (e) {}
     }
@@ -1648,9 +1636,7 @@ const PNS_SECTION_TO_DEPT = {
     document.addEventListener('keydown', e => {
       if (e.key === 'Escape') {
         closeDetailModal();
-        if (typeof window !== 'undefined' && window.innerWidth < 768 && typeof window.toggleSidebar === 'function') {
-          window.toggleSidebar(false);
-        }
+        if (typeof closeValidasiDrillModal === 'function') closeValidasiDrillModal();
       }
     });
   }

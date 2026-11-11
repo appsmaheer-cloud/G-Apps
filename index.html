@@ -37,32 +37,20 @@
   <script>
     window.toggleSidebar = function(forceState) {
       const sb = document.getElementById('app-sidebar');
-      const bd = document.getElementById('sidebar-backdrop');
       const floatBtn = document.getElementById('btn-floating-expand-sidebar');
       if (!sb) return;
-      const isDesktop = (typeof window !== 'undefined') ? (window.innerWidth >= 768) : true;
 
-      const isCurrentlyHidden = sb.classList.contains('desktop-collapsed') || sb.classList.contains('-translate-x-full') || sb.classList.contains('hidden');
-      const shouldOpen = (typeof forceState === 'boolean') ? forceState : isCurrentlyHidden;
+      const isCollapsed = sb.classList.contains('desktop-collapsed') || sb.classList.contains('hidden');
+      const shouldOpen = (typeof forceState === 'boolean') ? forceState : isCollapsed;
 
       if (shouldOpen) {
         sb.classList.remove('desktop-collapsed', '-translate-x-full', 'hidden');
         sb.style.removeProperty('display');
         sb.style.removeProperty('width');
-        if (bd && !isDesktop) {
-          bd.classList.remove('hidden');
-        } else if (bd) {
-          bd.classList.add('hidden');
-        }
         if (floatBtn) floatBtn.classList.add('hidden');
         try { localStorage.removeItem('pns_sidebar_collapsed'); } catch (e) {}
       } else {
-        if (isDesktop) {
-          sb.classList.add('desktop-collapsed');
-        } else {
-          sb.classList.add('-translate-x-full');
-        }
-        if (bd) bd.classList.add('hidden');
+        sb.classList.add('desktop-collapsed');
         if (floatBtn) floatBtn.classList.remove('hidden');
         try { localStorage.setItem('pns_sidebar_collapsed', '1'); } catch (e) {}
       }
@@ -72,13 +60,19 @@
       const grp = document.getElementById(groupId);
       if (!grp) return;
       const isHidden = grp.classList.contains('hidden');
-      const icon = headerBtn ? headerBtn.querySelector('.group-caret') : null;
+      const icon = headerBtn ? headerBtn.querySelector('.group-caret, .ph-caret-down, .ph-caret-right') : null;
       if (isHidden) {
         grp.classList.remove('hidden');
-        if (icon) icon.classList.remove('-rotate-90');
+        if (icon) {
+          icon.classList.remove('-rotate-90', 'ph-caret-right');
+          icon.classList.add('ph-caret-down');
+        }
       } else {
         grp.classList.add('hidden');
-        if (icon) icon.classList.add('-rotate-90');
+        if (icon) {
+          icon.classList.remove('ph-caret-down');
+          icon.classList.add('-rotate-90', 'ph-caret-right');
+        }
       }
     };
 
@@ -156,7 +150,7 @@
     </button>
 
     <!-- SIDEBAR NAVIGATION (STABLE ZERO-JUMP LAYOUT) -->
-    <aside id="app-sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full overflow-hidden z-30 fixed md:static inset-y-0 left-0 -translate-x-full md:translate-x-0 transition-all duration-200 ease-in-out shadow-lg md:shadow-none select-none">
+    <aside id="app-sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full overflow-hidden z-30 relative select-none">
       <!-- MOBILE-ONLY SIDEBAR DRAWER HEADER -->
       <div class="p-3 border-b border-slate-100 flex items-center justify-between bg-slate-50/70 md:hidden shrink-0">
         <div class="flex items-center gap-2.5">
@@ -308,7 +302,7 @@
             <span class="flex items-center gap-2 min-w-0"><i class="ph ph-kanban text-base text-amber-500 shrink-0"></i> <span class="truncate">Work Order Kanban</span></span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium shrink-0" id="sidebar-wo-count">15</span>
           </button>
-          <button type="button" onclick="navTo('view-wo'); if (typeof switchWoViewMode === 'function') switchWoViewMode('history');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Riwayat Biaya Pemeliharaan & Transaksi Servis (Rp 27,65 Miliar)">
+          <button type="button" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('history');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Riwayat Biaya Pemeliharaan & Transaksi Servis (Rp 27,65 Miliar)">
             <span class="flex items-center gap-2 min-w-0"><i class="ph ph-wrench text-base text-slate-500 shrink-0"></i> <span class="truncate">Riwayat Maintenance</span></span>
             <span class="text-[10px] text-slate-500 font-medium px-1.5 py-0.5 rounded bg-slate-100 shrink-0">27,65 M</span>
           </button>
@@ -390,7 +384,7 @@
               <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
             </button>
             <div id="nav-group-fm-inspeksi" class="space-y-1">
-              <button type="button" data-view="view-fm-mobile" onclick="switchUIMode('mobile');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Aplikasi Petugas Lapangan (Mobile Frame)">
+              <button type="button" data-view="view-fm-mobile" onclick="switchUIMode('mobile'); navTo('view-fm-mobile', this);" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Aplikasi Petugas Lapangan (Mobile Frame)">
                 <span class="flex items-center gap-2 min-w-0"><i class="ph ph-device-mobile text-base text-emerald-600 shrink-0"></i> <span class="truncate">Mode Mobile Lapangan</span></span>
                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Ponsel</span>
               </button>
