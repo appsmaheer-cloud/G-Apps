@@ -57,8 +57,19 @@ function doGet(e) {
     ? 'Laporan Hasil Validasi Aset - PT Pratama Nusantara Sakti'
     : 'PNS Asset Enterprise - PT Pratama Nusantara Sakti';
 
-  // Gunakan createHtmlOutputFromFile agar instan, bebas error eval template, dan tanpa limit ukuran GAS
-  return HtmlService.createHtmlOutputFromFile('Index')
+  // Prioritaskan createHtmlOutputFromFile Index_standalone agar 100% mandiri, instan, bebas error eval doGet
+  var htmlOutput;
+  try {
+    htmlOutput = HtmlService.createHtmlOutputFromFile('Index_standalone');
+  } catch (err1) {
+    try {
+      htmlOutput = HtmlService.createHtmlOutputFromFile('Index');
+    } catch (err2) {
+      htmlOutput = HtmlService.createTemplateFromFile('Index').evaluate();
+    }
+  }
+
+  return htmlOutput
     .setTitle(pageTitle)
     .addMetaTag('viewport', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);

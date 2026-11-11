@@ -43,17 +43,24 @@
   function toggleNavGroup(groupId, btnEl) {
     const groupEl = document.getElementById(groupId);
     if (!groupEl) return;
-    const isHidden = groupEl.classList.toggle('hidden');
-    const caret = btnEl ? btnEl.querySelector('.ph-caret-down, .ph-caret-right') : null;
-    if (caret) {
-      if (isHidden) {
-        caret.classList.remove('ph-caret-down');
-        caret.classList.add('ph-caret-right');
-      } else {
-        caret.classList.remove('ph-caret-right');
+    const navScroll = document.getElementById('sidebar-nav-scroll');
+    const savedScroll = navScroll ? navScroll.scrollTop : 0;
+    const isHidden = groupEl.classList.contains('hidden');
+    const caret = btnEl ? btnEl.querySelector('.group-caret, .ph-caret-down, .ph-caret-right') : document.getElementById('caret-' + groupId);
+    if (isHidden) {
+      groupEl.classList.remove('hidden');
+      if (caret) {
+        caret.classList.remove('-rotate-90', 'rotate-180', 'ph-caret-right');
         caret.classList.add('ph-caret-down');
       }
+    } else {
+      groupEl.classList.add('hidden');
+      if (caret) {
+        caret.classList.remove('ph-caret-down');
+        caret.classList.add('ph-caret-right');
+      }
     }
+    if (navScroll) navScroll.scrollTop = savedScroll;
   }
   window.toggleNavGroup = toggleNavGroup;
 
@@ -1024,7 +1031,7 @@ const PNS_SECTION_TO_DEPT = {
       <head>
         <meta charset="UTF-8">
         <title>Laporan Hasil Validasi Aset - PT Pratama Nusantara Sakti</title>
-        <style>
+        ${'<' + 'style>'}
           @page { size: A4 landscape; margin: 12mm; }
           body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 11px; color: #0f172a; margin: 0; padding: 15px; }
           .header { border-bottom: 2px solid #059669; padding-bottom: 10px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
@@ -1038,7 +1045,7 @@ const PNS_SECTION_TO_DEPT = {
           th { background: #f1f5f9; padding: 7px 8px; text-align: left; font-weight: 700; border-bottom: 2px solid #cbd5e1; font-size: 9px; text-transform: uppercase; color: #334155; }
           .sign-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-top: 30px; text-align: center; }
           .sign-box { border-top: 1px solid #94a3b8; margin-top: 50px; padding-top: 5px; font-weight: 700; font-size: 10px; }
-        </style>
+        ${'</' + 'style>'}
       </head>
       <body>
         <div class="header">
@@ -1106,15 +1113,16 @@ const PNS_SECTION_TO_DEPT = {
           </div>
         </div>
 
-        <script>
+        ${'<' + 'script>'}
           window.onload = function() { window.print(); };
-        </script>
-      </body>
-      </html>
+        ${'</' + 'script>'}
+      ${'</' + 'body>'}
+      ${'</' + 'html>'}
     `);
     printWindow.document.close();
   }
   window.printValidasiReport = printValidasiReport;
+  window.printExecutiveReport = printValidasiReport;
 
   function initBrandLogos() {
     const fav = document.getElementById('app-favicon');
@@ -1403,12 +1411,17 @@ const PNS_SECTION_TO_DEPT = {
     'am-sebaran': 'view-asset-sebaran',
     'am-movement': 'view-asset-movement',
     'am-detail': 'view-asset-detail',
-    'am-depresiasi': 'view-depresiasi',
+    'am-depresiasi': 'view-asset-depreciation',
     'am-register': 'view-reg-asset',
     'am-mutasi': 'view-mutasi',
     'am-lokasi': 'view-asset-location',
     'am-status': 'view-asset-status',
     'am-disposal': 'view-asset-disposal',
+    'am-gedung': 'view-gedung',
+    'am-assets': 'view-assets',
+    'am-penghuni': 'view-penghuni',
+    'am-inspeksi': 'view-inspeksi',
+    'am-wo': 'view-wo',
     'fm-beranda': 'view-fm-beranda',
     'fm-peta': 'view-fm-peta',
     'fm-rincian': 'view-fm-rincian',
@@ -1421,7 +1434,32 @@ const PNS_SECTION_TO_DEPT = {
     'fm-inspeksi': 'view-inspeksi',
     'fm-wo': 'view-wo'
   };
-  const VIEW_HASH_MAP = Object.fromEntries(Object.entries(HASH_VIEW_MAP).map(([h, v]) => [v, h]));
+  const VIEW_HASH_MAP = {
+    'view-dashboard': 'am-dashboard',
+    'view-validasi': 'am-validasi',
+    'view-portfolio-all': 'am-katalog',
+    'view-portfolio': 'am-komposisi',
+    'view-asset-sebaran': 'am-sebaran',
+    'view-asset-movement': 'am-movement',
+    'view-asset-detail': 'am-detail',
+    'view-asset-depreciation': 'am-depresiasi',
+    'view-reg-asset': 'am-register',
+    'view-mutasi': 'am-mutasi',
+    'view-asset-location': 'am-lokasi',
+    'view-asset-status': 'am-status',
+    'view-asset-disposal': 'am-disposal',
+    'view-gedung': 'am-gedung',
+    'view-assets': 'am-assets',
+    'view-penghuni': 'am-penghuni',
+    'view-inspeksi': 'am-inspeksi',
+    'view-wo': 'am-wo',
+    'view-fm-beranda': 'fm-beranda',
+    'view-fm-peta': 'fm-peta',
+    'view-fm-rincian': 'fm-rincian',
+    'view-fm-ketersediaan': 'fm-ketersediaan',
+    'view-fm-rencana': 'fm-rencana',
+    'view-fm-mobile': 'fm-mobile'
+  };
 
   function maskNik(nik) {
     if (!nik || nik === '-') return '-';
@@ -1478,8 +1516,14 @@ const PNS_SECTION_TO_DEPT = {
       const parentGroup = (typeof activeBtn.closest === 'function') ? activeBtn.closest('[id^="nav-group-"]') : null;
       if (parentGroup && parentGroup.classList && parentGroup.classList.contains('hidden')) {
         parentGroup.classList.remove('hidden');
-        const caret = document.getElementById('caret-' + parentGroup.id);
-        if (caret && caret.classList) caret.classList.remove('-rotate-90', 'rotate-180');
+        const prevBtn = parentGroup.previousElementSibling;
+        const caret = (prevBtn && typeof prevBtn.querySelector === 'function')
+          ? prevBtn.querySelector('.group-caret, .ph-caret-down, .ph-caret-right')
+          : document.getElementById('caret-' + parentGroup.id);
+        if (caret && caret.classList) {
+          caret.classList.remove('-rotate-90', 'rotate-180', 'ph-caret-right');
+          caret.classList.add('ph-caret-down');
+        }
       }
     }
 
@@ -1492,7 +1536,11 @@ const PNS_SECTION_TO_DEPT = {
 
     // Sync Hash Route for clean browser back/forward and deep linking per enterprise-prototype-ui-id
     try {
-      const targetHash = VIEW_HASH_MAP[viewId] || viewId.replace('view-', '');
+      const isFmMode = !!(window.PNS_FM_STATE && window.PNS_FM_STATE.app === 'fm');
+      let targetHash = VIEW_HASH_MAP[viewId] || viewId.replace('view-', '');
+      if (isFmMode && targetHash.startsWith('am-') && ['view-gedung', 'view-assets', 'view-penghuni', 'view-inspeksi', 'view-wo'].includes(viewId)) {
+        targetHash = 'fm-' + targetHash.slice(3);
+      }
       if (typeof window !== 'undefined' && window.location && window.history && window.history.replaceState) {
         window.history.replaceState(null, '', '#' + targetHash);
       }
@@ -6168,11 +6216,11 @@ const PNS_SECTION_TO_DEPT = {
       tbody.innerHTML = rows.slice(0, 300).map(r => {
         const isSel = movState.selectedNamaAsset === r.name;
         const isOverAge = r.avgUmur > r.avgStd;
-        const safeName = String(r.name).replace(/'/g, "\\'");
+        const safeName = escapeHtml(String(r.name).replace(/'/g, "\\'"));
         return `
           <tr onclick="window.toggleMovLeftSelect('nama_asset', '${safeName}')"
               class="${isSel ? 'bg-emerald-100/90 font-black text-emerald-950' : 'hover:bg-emerald-50/60 text-slate-800'} transition cursor-pointer">
-            <td class="py-1.5 px-3 font-medium truncate max-w-[220px]" title="${r.name}">${r.name}</td>
+            <td class="py-1.5 px-3 font-medium truncate max-w-[220px]" title="${escapeHtml(r.name)}">${escapeHtml(r.name)}</td>
             <td class="py-1.5 px-2.5 text-right font-mono font-bold">${formatNum(r.count)}</td>
             <td class="py-1.5 px-2.5 text-right font-mono">${r.avgStd}</td>
             <td class="py-1.5 px-2.5 text-right font-mono ${isOverAge ? 'text-rose-600 font-bold' : 'text-slate-800'}">${r.avgUmur}</td>
@@ -6236,12 +6284,12 @@ const PNS_SECTION_TO_DEPT = {
           chList.slice(0, 80).forEach(ch => {
             const cStd = ch.count > 0 ? Math.round(ch.sumStd / ch.count) : 0;
             const cUmur = ch.count > 0 ? Math.round(ch.sumUmur / ch.count) : 0;
-            const safeNm = String(ch.name).replace(/'/g, "\\'");
+            const safeNm = escapeHtml(String(ch.name).replace(/'/g, "\\'"));
             const isChildSel = movState.selectedNamaAsset === ch.name;
             htmlOut.push(`
               <tr onclick="window.toggleMovLeftSelect('nama_asset', '${safeNm}')"
                   class="${isChildSel ? 'bg-amber-100 font-bold' : 'bg-slate-50/90 hover:bg-emerald-50/70'} text-[10.5px] text-slate-700 transition cursor-pointer">
-                <td class="py-1 pl-8 pr-2 truncate max-w-[200px]">↳ ${ch.name}</td>
+                <td class="py-1 pl-8 pr-2 truncate max-w-[200px]">↳ ${escapeHtml(ch.name)}</td>
                 <td class="py-1 px-2.5 text-right font-mono">${formatNum(ch.count)}</td>
                 <td class="py-1 px-2.5 text-right font-mono">${cStd}</td>
                 <td class="py-1 px-2.5 text-right font-mono">${cUmur}</td>
@@ -6650,6 +6698,7 @@ const PNS_SECTION_TO_DEPT = {
     renderAssetDetailPage();
   }
   window.openAssetDetailPage = window.pns.openAssetDetailPage = openAssetDetailPage;
+  window.drillToAssetDetail = window.pns.drillToAssetDetail = openAssetDetailPage;
 
   function renderAssetDetailPage() {
     const all = (typeof getAllNormalizedAssets === 'function') ? getAllNormalizedAssets() : [];
@@ -7464,7 +7513,7 @@ const PNS_SECTION_TO_DEPT = {
       <html>
       <head>
         <title>Berita Acara Penghapusan Aset - ${item.no_ba}</title>
-        <style>
+        ${'<' + 'style>'}
           body { font-family: 'Segoe UI', Arial, sans-serif; padding: 40px; color: #1e293b; line-height: 1.5; font-size: 13px; }
           .header { border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 20px; }
           .company { font-size: 18px; font-weight: 900; letter-spacing: 0.5px; }
@@ -7477,7 +7526,7 @@ const PNS_SECTION_TO_DEPT = {
           .sign-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-top: 50px; text-align: center; }
           .sign-box { border-top: 1px solid #94a3b8; padding-top: 8px; margin-top: 60px; font-weight: 700; font-size: 12px; }
           @media print { body { padding: 10px; } }
-        </style>
+        ${'</' + 'style>'}
       </head>
       <body>
         <div class="header">
@@ -7518,11 +7567,11 @@ const PNS_SECTION_TO_DEPT = {
           </div>
         </div>
 
-        <script>
+        ${'<' + 'script>'}
           window.onload = function() { window.print(); };
-        </script>
-      </body>
-      </html>
+        ${'</' + 'script>'}
+      ${'</' + 'body>'}
+      ${'</' + 'html>'}
     `);
     printWindow.document.close();
   }
@@ -13423,6 +13472,36 @@ const PNS_SECTION_TO_DEPT = {
 
     // Camera & Photo Proof
     window.closeCameraModal = closeCameraModal;
+    window.openLiveCameraModal = openLiveCameraModal;
+    window.openCameraModal = function(targetKey) {
+      openLiveCameraModal(-1);
+      const titleEl = document.getElementById('camera-asset-title');
+      if (titleEl && targetKey) titleEl.innerText = 'Dokumentasi Inspeksi: ' + targetKey;
+    };
+    window.openPhotoViewerModal = function() {
+      const gCode = document.getElementById('insp-gedung')?.value || (appState.buildings && appState.buildings[0] ? appState.buildings[0].kode_gedung : 'PNS-LH-01-01');
+      const bldg = (appState.buildings || []).find(b => b.kode_gedung === gCode);
+      openHunianPhotoModal(gCode, bldg ? bldg.nama_gedung : gCode);
+    };
+    window.handleFileUpload = function(event, targetKey) {
+      const file = event && event.target && event.target.files && event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const prev = document.getElementById('insp-photo-preview-ruang');
+        if (prev) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'w-16 h-16 rounded-lg object-cover border border-slate-300 shadow-2xs';
+          prev.appendChild(img);
+        }
+      };
+      reader.readAsDataURL(file);
+    };
+    window.resetFormInspeksi = resetInspectionForm;
+    window.exportAssetsExcel = function(format) {
+      exportAssetCatalogCsv(format || 'xlsx', false);
+    };
     window.flipCamera = flipCamera;
     window.captureLivePhoto = captureLivePhoto;
     window.retakeLivePhoto = retakeLivePhoto;
@@ -15521,7 +15600,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
       const rawHash = (typeof window !== 'undefined' && window.location && window.location.hash) ? window.location.hash.replace(/^#/, '') : '';
       if (rawHash && (HASH_VIEW_MAP[rawHash] || document.getElementById('view-' + rawHash) || document.getElementById(rawHash))) {
         const targetView = HASH_VIEW_MAP[rawHash] || (document.getElementById(rawHash) ? rawHash : ('view-' + rawHash));
-        const dom = (rawHash.startsWith('fm-') || targetView.startsWith('view-fm-') || targetView === 'view-gedung' || targetView === 'view-assets' || targetView === 'view-penghuni' || targetView === 'view-inspeksi') ? 'fm' : 'am';
+        const dom = (rawHash.startsWith('fm-') || targetView.startsWith('view-fm-')) ? 'fm' : 'am';
         switchAppDomain(dom, true);
         navTo(targetView);
         setTimeout(() => { try { renderDashboardCharts(); } catch (e) {} }, 150);
@@ -15655,7 +15734,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
       const raw = (window.location.hash || '').replace(/^#/, '');
       const matchedView = HASH_VIEW_MAP[raw] || (document.getElementById(raw) ? raw : ('view-' + raw));
       if (document.getElementById(matchedView) && matchedView !== appState.currentView) {
-        const dom = (raw.startsWith('fm-') || matchedView.startsWith('view-fm-') || matchedView === 'view-gedung' || matchedView === 'view-assets' || matchedView === 'view-penghuni' || matchedView === 'view-inspeksi') ? 'fm' : 'am';
+        const dom = (raw.startsWith('fm-') || matchedView.startsWith('view-fm-')) ? 'fm' : 'am';
         switchAppDomain(dom, true);
         navTo(matchedView);
       }

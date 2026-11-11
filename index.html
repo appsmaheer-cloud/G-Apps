@@ -33,7 +33,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 
   <!-- Modular CSS Included from CSS.html -->
-  <link rel="stylesheet" href="style.css?v=2.5.2">
+  <link rel="stylesheet" href="style.css?v=2.5.3">
   <script>
     window.toggleSidebar = function(forceState) {
       const sb = document.getElementById('app-sidebar');
@@ -59,21 +59,24 @@
     window.toggleNavGroup = function(groupId, headerBtn) {
       const grp = document.getElementById(groupId);
       if (!grp) return;
+      const navScroll = document.getElementById('sidebar-nav-scroll');
+      const savedScroll = navScroll ? navScroll.scrollTop : 0;
       const isHidden = grp.classList.contains('hidden');
-      const icon = headerBtn ? headerBtn.querySelector('.group-caret, .ph-caret-down, .ph-caret-right') : null;
+      const icon = headerBtn ? headerBtn.querySelector('.group-caret, .ph-caret-down, .ph-caret-right') : document.getElementById('caret-' + groupId);
       if (isHidden) {
         grp.classList.remove('hidden');
         if (icon) {
-          icon.classList.remove('-rotate-90', 'ph-caret-right');
+          icon.classList.remove('-rotate-90', 'rotate-180', 'ph-caret-right');
           icon.classList.add('ph-caret-down');
         }
       } else {
         grp.classList.add('hidden');
         if (icon) {
           icon.classList.remove('ph-caret-down');
-          icon.classList.add('-rotate-90', 'ph-caret-right');
+          icon.classList.add('ph-caret-right');
         }
       }
+      if (navScroll) navScroll.scrollTop = savedScroll;
     };
 
     // Keep sidebar visible by default on desktop/laptop
@@ -1176,8 +1179,6 @@
               <tbody id="table-pbi-asset-matrix" class="divide-y divide-slate-100 bg-white"></tbody>
             </table>
           </div>
-        </div>
-
         </div>
 
       </div>
@@ -5197,12 +5198,7 @@
     </div>
   </div>
 
-  <!-- Modular Core Scripts -->
-  <script src="config.js"></script>
-  <script src="pns_data_master.js"></script>
-  <script src="pns_all_assets_catalog.js"></script>
-  <script src="app.js?v=2.5.2"></script>
-<!-- ======================================================== -->
+  <!-- ======================================================== -->
   <!-- PRD MODALS: CTRL+K QUICK SEARCH & PLACE EMPLOYEE         -->
   <!-- ======================================================== -->
   <div id="cmdk-modal" class="ov hidden" onclick="if(event.target === this) closeCmdkModal();">
@@ -5243,6 +5239,12 @@
       </div>
     </div>
   </div>
+
+  <!-- Modular Core Scripts -->
+  <script src="config.js"></script>
+  <script src="pns_data_master.js"></script>
+  <script src="pns_all_assets_catalog.js"></script>
+  <script src="app.js?v=2.5.3"></script>
 
 </body>
 </html>
