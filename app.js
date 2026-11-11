@@ -22,9 +22,12 @@
     const sb = document.getElementById('app-sidebar');
     const bd = document.getElementById('sidebar-backdrop');
     if (!sb) return;
-    const isDesktop = window.innerWidth >= 768;
+    const isDesktop = (typeof window !== 'undefined') ? (window.innerWidth >= 768) : true;
 
     if (isDesktop) {
+      sb.classList.remove('-translate-x-full');
+      if (bd) bd.classList.add('hidden');
+
       const isCollapsed = sb.classList.contains('desktop-collapsed');
       const shouldCollapse = (typeof forceState === 'boolean') ? !forceState : !isCollapsed;
       if (shouldCollapse) {
@@ -35,6 +38,7 @@
         try { localStorage.removeItem('pns_sidebar_collapsed'); } catch (e) {}
       }
     } else {
+      sb.classList.remove('desktop-collapsed');
       const isClosed = sb.classList.contains('-translate-x-full');
       const shouldOpen = (typeof forceState === 'boolean') ? forceState : isClosed;
       if (shouldOpen) {
@@ -1101,12 +1105,12 @@ const PNS_SECTION_TO_DEPT = {
 
         <div class="sign-grid">
           <div>
-            <div>Dibuat Oleh:</div>
-            <div class="sign-box">Miftahul Khoiry<br><span style="font-weight:normal; font-size:9px; color:#64748b;">Asset Management PIC</span></div>
+            <div>Diajukan Oleh:</div>
+            <div class="sign-box">Asset Management<br><span style="font-weight:normal; font-size:9px; color:#64748b;">Miftahul Khoiry</span></div>
           </div>
           <div>
             <div>Diperiksa Oleh:</div>
-            <div class="sign-box">Rizal Dwi<br><span style="font-weight:normal; font-size:9px; color:#64748b;">Manager General Affairs</span></div>
+            <div class="sign-box">Coordinator Finance Accounting and Asset<br><span style="font-weight:normal; font-size:9px; color:#64748b;">Finance, Accounting &amp; Asset Dept</span></div>
           </div>
           <div>
             <div>Disetujui Oleh:</div>
@@ -1114,9 +1118,9 @@ const PNS_SECTION_TO_DEPT = {
           </div>
         </div>
 
-        <scr' + 'ipt>
+        <script>
           window.onload = function() { window.print(); };
-        </scr' + 'ipt>
+        </script>
       </body>
       </html>
     `);
@@ -1453,6 +1457,10 @@ const PNS_SECTION_TO_DEPT = {
     if (viewId === 'view-trx-asset-status') viewId = 'view-asset-status';
     if (viewId === 'view-asset-validation') viewId = 'view-validasi';
     if (viewId === 'view-trx-asset-disposal') viewId = 'view-asset-disposal';
+
+    // Auto-close any open modals when navigating
+    if (typeof closeValidasiDrillModal === 'function') closeValidasiDrillModal();
+    if (typeof closeDetailModal === 'function') closeDetailModal();
 
     // Preserve sidebar scroll position so sidebar never jumps
     const navScroll = document.getElementById('sidebar-nav-scroll');
@@ -5747,6 +5755,10 @@ const PNS_SECTION_TO_DEPT = {
     if (viewId === 'view-trx-asset-status') viewId = 'view-asset-status';
     if (viewId === 'view-asset-validation') viewId = 'view-validasi';
     if (viewId === 'view-trx-asset-disposal') viewId = 'view-asset-disposal';
+
+    // Auto-close any open modals when navigating
+    if (typeof closeValidasiDrillModal === 'function') closeValidasiDrillModal();
+    if (typeof closeDetailModal === 'function') closeDetailModal();
     if (typeof navTo === 'function') navTo(viewId);
   };
 
@@ -7514,12 +7526,12 @@ const PNS_SECTION_TO_DEPT = {
 
         <div class="sign-grid">
           <div>
-            <div>Dibuat Oleh:</div>
-            <div class="sign-box">Miftahul Khoiry<br><span style="font-weight:normal; font-size:10px; color:#64748b;">PIC Asset Management</span></div>
+            <div>Diajukan Oleh:</div>
+            <div class="sign-box">Asset Management<br><span style="font-weight:normal; font-size:10px; color:#64748b;">Miftahul Khoiry</span></div>
           </div>
           <div>
             <div>Diperiksa Oleh:</div>
-            <div class="sign-box">Rizal Dwi<br><span style="font-weight:normal; font-size:10px; color:#64748b;">Manager General Affairs</span></div>
+            <div class="sign-box">Coordinator Finance Accounting and Asset<br><span style="font-weight:normal; font-size:10px; color:#64748b;">Finance, Accounting &amp; Asset Dept</span></div>
           </div>
           <div>
             <div>Disetujui Oleh:</div>
@@ -7527,11 +7539,11 @@ const PNS_SECTION_TO_DEPT = {
           </div>
         </div>
 
-        <scr' + 'ipt>
+        <script>
           window.onload = function() { window.print(); };
-        </scr' + 'ipt>
-      </bo' + 'dy>
-      </ht' + 'ml>
+        </script>
+      </body>
+      </html>
     `);
     printWindow.document.close();
   }
@@ -11379,91 +11391,93 @@ const PNS_SECTION_TO_DEPT = {
       const zebraBg = (rowIdx % 2 === 0) ? 'bg-white' : 'bg-slate-50/40';
 
       return `
-        <tr onclick="drillToAssetDetail('${escapeHtml(no)}')" class="${zebraBg} hover:bg-sky-50/60 transition text-xs border-b border-slate-100 cursor-pointer group" title="Buka Dossier Spesifikasi & Riwayat ${escapeHtml(no)}">
+        <tr onclick="drillToAssetDetail('${escapeHtml(no)}')" class="${zebraBg} hover:bg-sky-50/60 transition text-[11px] border-b border-slate-100 cursor-pointer group" title="Buka Dossier Spesifikasi & Riwayat ${escapeHtml(no)}">
           
-          <!-- 1. Kode Unit & Tipe -->
-          <td class="px-3.5 py-3 whitespace-nowrap">
-            <div class="flex items-center gap-2">
-              <span class="font-mono font-black text-sky-900 group-hover:text-sky-600 transition tracking-tight">${escapeHtml(no)}</span>
+          <!-- 1. Kode Unit & Status -->
+          <td class="px-3 py-2 whitespace-nowrap">
+            <div class="flex items-center gap-1.5">
+              <span class="font-mono font-bold text-sky-900 group-hover:text-sky-600 transition tracking-tight">${escapeHtml(no)}</span>
               ${checkoutBadge}
-            </div>
-            <div class="mt-1">
-              ${typeBadgeHtml}
             </div>
           </td>
 
           <!-- 2. Deskripsi Aset & Kelompok -->
-          <td class="px-3.5 py-3 whitespace-normal min-w-[210px]">
-            <div class="font-bold text-slate-900 group-hover:text-sky-700 transition leading-snug" title="${escapeHtml(nama)}">
+          <td class="px-3 py-2 whitespace-normal min-w-[210px]">
+            <div class="font-semibold text-slate-900 group-hover:text-sky-700 transition leading-snug line-clamp-1" title="${escapeHtml(nama)}">
               ${escapeHtml(nama)}
             </div>
-            <div class="flex items-center gap-1.5 text-[10px] text-slate-500 mt-0.5 font-medium">
-              <span class="text-slate-400">${escapeHtml(kelompok)}</span>
+            <div class="flex items-center gap-1.5 text-[10px] text-slate-500 mt-0.5">
+              <span class="text-slate-400 truncate max-w-[120px]">${escapeHtml(kelompok)}</span>
               <span>&bull;</span>
-              <span class="text-slate-600 font-semibold">${escapeHtml(kat)}</span>
+              <span class="text-slate-600 font-medium truncate max-w-[130px]">${escapeHtml(kat)}</span>
             </div>
           </td>
 
-          <!-- 3. Checkout & Lokasi -->
-          <td class="px-3 py-3 whitespace-nowrap">
-            <div class="font-semibold text-slate-800 text-[11px]" title="${escapeHtml(checkout)}">
+          <!-- 3. Tipe Aset -->
+          <td class="px-2.5 py-2 text-center whitespace-nowrap">
+            ${typeBadgeHtml}
+          </td>
+
+          <!-- 4. Checkout & Lokasi -->
+          <td class="px-3 py-2 whitespace-nowrap">
+            <div class="font-medium text-slate-800 text-[10.5px] truncate max-w-[140px]" title="${escapeHtml(checkout)}">
               ${escapeHtml(checkout)}
             </div>
             <div class="flex items-center gap-1 mt-0.5">
-              <span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-mono text-[9.5px] border border-slate-200">
+              <span class="px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 font-mono text-[9px] border border-slate-200 truncate max-w-[120px]">
                 <i class="ph-bold ph-map-pin text-slate-400"></i> ${escapeHtml(loc)}
               </span>
             </div>
           </td>
 
-          <!-- 4. Status Validasi Fisik -->
-          <td class="px-3 py-3 text-center whitespace-nowrap">
-            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-bold border ${statusColor}">
+          <!-- 5. Status Validasi Fisik -->
+          <td class="px-3 py-2 text-center whitespace-nowrap">
+            <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[9.5px] font-bold border ${statusColor}">
               <span class="w-1.5 h-1.5 rounded-full ${dotColor}"></span>
               ${escapeHtml(statusVerif3)}
             </span>
-            ${catatanVerif ? `<div class="text-[9.5px] text-slate-400 italic mt-0.5 max-w-[140px] truncate mx-auto" title="${escapeHtml(catatanVerif)}">${escapeHtml(catatanVerif)}</div>` : ''}
+            ${catatanVerif ? `<div class="text-[9px] text-slate-400 italic mt-0.5 max-w-[130px] truncate mx-auto" title="${escapeHtml(catatanVerif)}">${escapeHtml(catatanVerif)}</div>` : ''}
           </td>
 
-          <!-- 5. Verifikator & Tgl -->
-          <td class="px-3 py-3 whitespace-nowrap">
-            <div class="font-semibold text-slate-700 text-[11px]">${escapeHtml(userVerif)}</div>
-            <div class="font-mono text-[10px] text-slate-400 mt-0.5 flex items-center gap-1">
+          <!-- 6. Verifikator & Tgl -->
+          <td class="px-3 py-2 whitespace-nowrap">
+            <div class="font-medium text-slate-700 text-[10.5px] truncate max-w-[120px]">${escapeHtml(userVerif)}</div>
+            <div class="font-mono text-[9.5px] text-slate-400 mt-0.5 flex items-center gap-1">
               <i class="ph-bold ph-calendar text-slate-300"></i> ${escapeHtml(tglVerif !== '-' ? tglVerif.slice(0, 10) : '-')}
             </div>
           </td>
 
-          <!-- 6. CAPEX (Perolehan) -->
-          <td class="px-3.5 py-3 text-right font-mono text-slate-700 whitespace-nowrap">
-            <span class="font-semibold">${fmtMoney(hpp)}</span>
+          <!-- 7. CAPEX (Perolehan) -->
+          <td class="px-3 py-2 text-right font-mono text-slate-700 whitespace-nowrap">
+            <span class="font-semibold text-[11px]">${fmtMoney(hpp)}</span>
           </td>
 
-          <!-- 7. Nilai Buku & Retensi -->
-          <td class="px-3.5 py-3 text-right whitespace-nowrap">
-            <div class="font-mono font-black text-sky-700">${fmtMoney(nbv)}</div>
-            <div class="flex items-center justify-end gap-1.5 mt-1">
-              <div class="w-16 bg-slate-200/80 rounded-full h-1.5 overflow-hidden">
+          <!-- 8. Nilai Buku & Retensi -->
+          <td class="px-3 py-2 text-right whitespace-nowrap">
+            <div class="font-mono font-bold text-sky-700 text-[11px]">${fmtMoney(nbv)}</div>
+            <div class="flex items-center justify-end gap-1 mt-0.5">
+              <div class="w-14 bg-slate-200/80 rounded-full h-1 overflow-hidden">
                 <div class="${retentionBarColor} h-full rounded-full transition-all duration-300" style="width: ${retentionPct}%"></div>
               </div>
-              <span class="text-[9.5px] font-mono font-bold text-slate-500">${retentionPct}%</span>
+              <span class="text-[9px] font-mono font-semibold text-slate-500">${retentionPct}%</span>
             </div>
           </td>
 
-          <!-- 8. Umur -->
-          <td class="px-3 py-3 text-center whitespace-nowrap">
-            <div class="font-mono font-bold text-slate-700 text-[11px]">${umur} / ${std} thn</div>
+          <!-- 9. Umur -->
+          <td class="px-2.5 py-2 text-center whitespace-nowrap">
+            <div class="font-mono font-medium text-slate-700 text-[10px]">${umur} / ${std} thn</div>
             <div class="mt-0.5">
               ${isOverAge
-                ? '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-rose-100 text-rose-700 border border-rose-200">Over-Age</span>'
-                : '<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-100 text-slate-600">Normal</span>'
+                ? '<span class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-rose-100 text-rose-700 border border-rose-200">Over-Age</span>'
+                : '<span class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-slate-100 text-slate-600">Normal</span>'
               }
             </div>
           </td>
 
-          <!-- 9. Aksi Dossier -->
-          <td class="px-3 py-3 text-center whitespace-nowrap">
-            <button type="button" onclick="event.stopPropagation(); drillToAssetDetail('${escapeHtml(no)}')" class="px-2.5 py-1.5 rounded-xl bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 text-[10.5px] font-bold transition flex items-center gap-1 mx-auto shadow-2xs border border-slate-200 group-hover:border-slate-400 cursor-pointer" title="Buka Dokumen &amp; Riwayat Aset">
-              <i class="ph-bold ph-arrow-square-out text-xs"></i>
+          <!-- 10. Aksi Dossier -->
+          <td class="px-2.5 py-2 text-center whitespace-nowrap">
+            <button type="button" onclick="event.stopPropagation(); drillToAssetDetail('${escapeHtml(no)}')" class="px-2 py-1 rounded-lg bg-slate-100 hover:bg-slate-900 hover:text-white text-slate-700 text-[10px] font-bold transition flex items-center gap-1 mx-auto shadow-2xs border border-slate-200 group-hover:border-slate-400 cursor-pointer" title="Buka Dokumen &amp; Riwayat Aset">
+              <i class="ph-bold ph-arrow-square-out text-[11px]"></i>
               <span>Dossier</span>
             </button>
           </td>
@@ -13355,13 +13369,7 @@ const PNS_SECTION_TO_DEPT = {
   if (typeof window !== "undefined") {
     // Navigation & UI
     window.navTo = navTo;
-    window.toggleSidebar = typeof toggleSidebar !== 'undefined' ? toggleSidebar : function(show) {
-      const sb = document.getElementById('app-sidebar');
-      if (sb) {
-        if (show === false) sb.classList.add('-translate-x-full');
-        else sb.classList.toggle('-translate-x-full');
-      }
-    };
+    window.toggleSidebar = toggleSidebar;
     window.toggleNavModule = toggleNavModule;
     window.refreshDashboard = refreshDashboard;
     window.syncAllFromBackend = syncAllFromBackend;
