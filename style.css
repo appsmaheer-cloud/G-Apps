@@ -481,8 +481,9 @@ textarea:focus-visible {
     padding-right: 0 !important;
     margin-left: 0 !important;
     overflow: hidden !important;
-    visibility: hidden;
-    opacity: 0;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
   }
 }
 
@@ -516,12 +517,7 @@ textarea:focus-visible {
   }
 }
 
-/* Standalone Validation Report Mode (Laporan Validasi Saja Sendiri) */
-body.validasi-standalone-view #app-sidebar,
-body.validasi-standalone-view #sidebar-backdrop,
-body.validasi-standalone-view #app-main-header {
-  display: none !important;
-}
+/* Standalone Validation Report Mode (Safe fallback - preserves navigation access) */
 body.validasi-standalone-view #main-content-scroll {
   padding: 0 !important;
   margin: 0 !important;

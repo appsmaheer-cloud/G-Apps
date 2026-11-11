@@ -21,33 +21,33 @@
   function toggleSidebar(forceState) {
     const sb = document.getElementById('app-sidebar');
     const bd = document.getElementById('sidebar-backdrop');
+    const floatBtn = document.getElementById('btn-floating-expand-sidebar');
     if (!sb) return;
     const isDesktop = (typeof window !== 'undefined') ? (window.innerWidth >= 768) : true;
 
-    if (isDesktop) {
-      sb.classList.remove('-translate-x-full');
-      if (bd) bd.classList.add('hidden');
+    const isCurrentlyHidden = sb.classList.contains('desktop-collapsed') || sb.classList.contains('-translate-x-full') || sb.classList.contains('hidden');
+    const shouldOpen = (typeof forceState === 'boolean') ? forceState : isCurrentlyHidden;
 
-      const isCollapsed = sb.classList.contains('desktop-collapsed');
-      const shouldCollapse = (typeof forceState === 'boolean') ? !forceState : !isCollapsed;
-      if (shouldCollapse) {
-        sb.classList.add('desktop-collapsed');
-        try { localStorage.setItem('pns_sidebar_collapsed', '1'); } catch (e) {}
-      } else {
-        sb.classList.remove('desktop-collapsed');
-        try { localStorage.removeItem('pns_sidebar_collapsed'); } catch (e) {}
+    if (shouldOpen) {
+      sb.classList.remove('desktop-collapsed', '-translate-x-full', 'hidden');
+      sb.style.removeProperty('display');
+      sb.style.removeProperty('width');
+      if (bd && !isDesktop) {
+        bd.classList.remove('hidden');
+      } else if (bd) {
+        bd.classList.add('hidden');
       }
+      if (floatBtn) floatBtn.classList.add('hidden');
+      try { localStorage.removeItem('pns_sidebar_collapsed'); } catch (e) {}
     } else {
-      sb.classList.remove('desktop-collapsed');
-      const isClosed = sb.classList.contains('-translate-x-full');
-      const shouldOpen = (typeof forceState === 'boolean') ? forceState : isClosed;
-      if (shouldOpen) {
-        sb.classList.remove('-translate-x-full');
-        if (bd) bd.classList.remove('hidden');
+      if (isDesktop) {
+        sb.classList.add('desktop-collapsed');
       } else {
         sb.classList.add('-translate-x-full');
-        if (bd) bd.classList.add('hidden');
       }
+      if (bd) bd.classList.add('hidden');
+      if (floatBtn) floatBtn.classList.remove('hidden');
+      try { localStorage.setItem('pns_sidebar_collapsed', '1'); } catch (e) {}
     }
   }
   window.toggleSidebar = toggleSidebar;
@@ -1510,15 +1510,8 @@ const PNS_SECTION_TO_DEPT = {
       }
     } catch (e) {}
 
-    // Close drawer ONLY on mobile screens (< 768px) so desktop sidebar never disappears
-    if (typeof window !== 'undefined' && window.innerWidth < 768) {
-      if (typeof window.toggleSidebar === 'function') {
-        window.toggleSidebar(false);
-      } else {
-        const sb = document.getElementById('app-sidebar');
-        if (sb) sb.classList.add('-translate-x-full');
-      }
-    }
+    // Stable sidebar layout: Do NOT automatically hide sidebar on menu clicks!
+    // Sidebar stays open and accessible so users can navigate comfortably.
 
     // Scroll main content container to top without disturbing sidebar
     const mainEl = document.getElementById('app-main-content');
