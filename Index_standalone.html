@@ -949,46 +949,20 @@ body.validasi-standalone-view #validasi-standalone-topbar {
           </div>
         </div>
 
-        <!-- 4. FASILITAS & GEDUNG (HRGA) -->
-        <div class="space-y-1 pb-2 border-b border-slate-100">
-          <button type="button" onclick="toggleNavGroup('nav-group-fasilitas', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-medium tracking-wide text-slate-400 hover:text-slate-700 uppercase transition cursor-pointer select-none">
-            <span class="flex items-center gap-1.5"><i class="ph ph-folder text-xs"></i> Fasilitas &amp; Gedung</span>
-            <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
-          </button>
-          <div id="nav-group-fasilitas" class="space-y-1">
-          <button type="button" data-view="view-gedung" onclick="navTo('view-gedung', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Master Gedung &amp; Bangunan Fisik">
-            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-building-office text-base text-amber-500 shrink-0"></i> <span class="truncate">Gedung &amp; Bangunan</span></span>
-            <span id="nav-badge-bldg" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium shrink-0">416</span>
-          </button>
-          <button type="button" data-view="view-assets" onclick="navTo('view-assets', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Fasilitas &amp; Inventaris per Ruangan">
-            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-door text-base text-emerald-600 shrink-0"></i> <span class="truncate">Fasilitas Ruangan</span></span>
-            <span id="nav-badge-asset" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-500 font-medium shrink-0">1.559</span>
-          </button>
-          <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" id="nav-btn-availability" title="Availability Kasur &amp; Hunian Mess">
-            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-bed text-base text-indigo-500 shrink-0"></i> <span class="truncate">Penghuni &amp; Hunian</span></span>
-            <span id="nav-badge-penghuni" class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium shrink-0">409</span>
-          </button>
-          <button type="button" data-view="view-inspeksi" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Formulir Inspeksi Lapangan Ruangan">
-            <i class="ph ph-clipboard-text text-base text-slate-500 shrink-0"></i>
-            <span class="truncate">Inspeksi Ruangan</span>
-          </button>
-          </div>
-        </div>
-
-        <!-- 5. PEMELIHARAAN & WORK ORDER -->
+        <!-- 4. PEMELIHARAAN & MAINTENANCE ASET -->
         <div class="space-y-1">
           <button type="button" onclick="toggleNavGroup('nav-group-pemeliharaan', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-medium tracking-wide text-slate-400 hover:text-slate-700 uppercase transition cursor-pointer select-none">
-            <span class="flex items-center gap-1.5"><i class="ph ph-folder text-xs"></i> Pemeliharaan &amp; Work Order</span>
+            <span class="flex items-center gap-1.5"><i class="ph ph-wrench text-xs"></i> Maintenance &amp; Work Order</span>
             <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
           </button>
           <div id="nav-group-pemeliharaan" class="space-y-1">
-          <button type="button" data-view="view-wo" onclick="navTo('view-wo', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Daftar Tiket Pekerjaan Pemeliharaan">
+          <button type="button" data-view="view-wo" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('history', 'AM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Drill Maintenance Berdasarkan Kategori, Unit Aset &amp; Detail Part (Rp 27,65 Miliar)">
+            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-wrench text-base text-rose-600 shrink-0"></i> <span class="truncate">Drill Maintenance &amp; Part</span></span>
+            <span class="text-[10px] text-rose-700 font-semibold px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 shrink-0">27,65 M</span>
+          </button>
+          <button type="button" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('kanban', 'AM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Daftar Tiket Pekerjaan Pemeliharaan">
             <span class="flex items-center gap-2 min-w-0"><i class="ph ph-kanban text-base text-amber-500 shrink-0"></i> <span class="truncate">Work Order Kanban</span></span>
             <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium shrink-0" id="sidebar-wo-count">15</span>
-          </button>
-          <button type="button" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('history');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Riwayat Biaya Pemeliharaan & Transaksi Servis (Rp 27,65 Miliar)">
-            <span class="flex items-center gap-2 min-w-0"><i class="ph ph-wrench text-base text-slate-500 shrink-0"></i> <span class="truncate">Riwayat Maintenance</span></span>
-            <span class="text-[10px] text-slate-500 font-medium px-1.5 py-0.5 rounded bg-slate-100 shrink-0">27,65 M</span>
           </button>
           </div>
         </div>
@@ -1007,10 +981,10 @@ body.validasi-standalone-view #validasi-standalone-topbar {
             </button>
           </div>
 
-          <!-- FM 2. BANGUNAN & PETA -->
+          <!-- FM 2. BANGUNAN, PETA & FASILITAS RUANGAN -->
           <div class="pb-2 border-b border-slate-100">
             <button type="button" onclick="toggleNavGroup('nav-group-fm-bangunan', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-medium tracking-wide text-slate-400 hover:text-slate-700 uppercase transition cursor-pointer select-none">
-              <span class="flex items-center gap-1.5"><i class="ph ph-buildings text-xs"></i> Bangunan &amp; Peta</span>
+              <span class="flex items-center gap-1.5"><i class="ph ph-buildings text-xs"></i> Bangunan &amp; Ruangan</span>
               <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
             </button>
             <div id="nav-group-fm-bangunan" class="space-y-1">
@@ -1021,8 +995,8 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                 </span>
                 <span class="text-[10px] text-teal-700 font-semibold px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 shrink-0">4 Site</span>
               </button>
-              <button type="button" data-view="view-fm-rincian" onclick="navTo('view-fm-rincian', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Rincian Kamar Longhouse & Standar Isi">
-                <i class="ph ph-door text-base text-slate-500 shrink-0"></i>
+              <button type="button" data-view="view-fm-rincian" onclick="navTo('view-fm-rincian', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Rincian Kamar Longhouse, Penghuni Aktif &amp; Card Fasilitas">
+                <i class="ph ph-door text-base text-emerald-600 shrink-0"></i>
                 <span class="truncate">Rincian Longhouse &amp; Kamar</span>
               </button>
               <button type="button" data-view="view-gedung" onclick="navTo('view-gedung', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Master Gedung & Bangunan Fisik">
@@ -1036,13 +1010,17 @@ body.validasi-standalone-view #validasi-standalone-topbar {
             </div>
           </div>
 
-          <!-- FM 3. HUNIAN -->
+          <!-- FM 3. HUNIAN & PENGHUNI -->
           <div class="pb-2 border-b border-slate-100">
             <button type="button" onclick="toggleNavGroup('nav-group-fm-hunian', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-medium tracking-wide text-slate-400 hover:text-slate-700 uppercase transition cursor-pointer select-none">
-              <span class="flex items-center gap-1.5"><i class="ph ph-bed text-xs"></i> Hunian &amp; Kamar</span>
+              <span class="flex items-center gap-1.5"><i class="ph ph-bed text-xs"></i> Penghuni &amp; Hunian</span>
               <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
             </button>
             <div id="nav-group-fm-hunian" class="space-y-1">
+              <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" id="nav-btn-availability" title="Penghuni & Hunian Mess Aktif">
+                <span class="flex items-center gap-2 min-w-0"><i class="ph ph-users text-base text-indigo-500 shrink-0"></i> <span class="truncate">Penghuni &amp; Hunian</span></span>
+                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium shrink-0" id="fm-badge-penghuni">409</span>
+              </button>
               <button type="button" data-view="view-fm-ketersediaan" onclick="navTo('view-fm-ketersediaan', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Ketersediaan Slot Ranjang & Longhouse Kosong">
                 <span class="flex items-center gap-2 min-w-0">
                   <i class="ph ph-check-square-offset text-base text-emerald-600 shrink-0"></i>
@@ -1054,29 +1032,39 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                 <i class="ph ph-calculator text-base text-indigo-500 shrink-0"></i>
                 <span class="truncate">Perencanaan Standar Kamar</span>
               </button>
-              <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Penghuni & Hunian Mess Aktif">
-                <span class="flex items-center gap-2 min-w-0"><i class="ph ph-users text-base text-indigo-500 shrink-0"></i> <span class="truncate">Penghuni &amp; Hunian</span></span>
-                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium shrink-0" id="fm-badge-penghuni">409</span>
-              </button>
             </div>
           </div>
 
           <!-- FM 4. INSPEKSI & APLIKASI LAPANGAN -->
-          <div class="space-y-1">
+          <div class="pb-2 border-b border-slate-100 space-y-1">
             <button type="button" onclick="toggleNavGroup('nav-group-fm-inspeksi', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-medium tracking-wide text-slate-400 hover:text-slate-700 uppercase transition cursor-pointer select-none">
               <span class="flex items-center gap-1.5"><i class="ph ph-clipboard-text text-xs"></i> Inspeksi &amp; Lapangan</span>
               <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
             </button>
             <div id="nav-group-fm-inspeksi" class="space-y-1">
+              <button type="button" data-view="view-inspeksi" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Formulir Inspeksi Ruangan Fisik">
+                <i class="ph ph-clipboard-text text-base text-sky-600 shrink-0"></i>
+                <span class="truncate">Inspeksi Ruangan</span>
+              </button>
               <button type="button" data-view="view-fm-mobile" onclick="switchUIMode('mobile'); navTo('view-fm-mobile', this);" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Aplikasi Petugas Lapangan (Mobile Frame)">
                 <span class="flex items-center gap-2 min-w-0"><i class="ph ph-device-mobile text-base text-emerald-600 shrink-0"></i> <span class="truncate">Mode Mobile Lapangan</span></span>
                 <span class="text-[10px] font-bold px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200">Ponsel</span>
               </button>
-              <button type="button" data-view="view-inspeksi" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Formulir Inspeksi Ruangan Fisik">
-                <i class="ph ph-clipboard-text text-base text-slate-500 shrink-0"></i>
-                <span class="truncate">Formulir Inspeksi</span>
+            </div>
+          </div>
+
+          <!-- FM 5. PEMELIHARAAN & MAINTENANCE FASILITAS -->
+          <div class="space-y-1">
+            <button type="button" onclick="toggleNavGroup('nav-group-fm-pemeliharaan', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-medium tracking-wide text-slate-400 hover:text-slate-700 uppercase transition cursor-pointer select-none">
+              <span class="flex items-center gap-1.5"><i class="ph ph-wrench text-xs"></i> Maintenance &amp; Work Order</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+            </button>
+            <div id="nav-group-fm-pemeliharaan" class="space-y-1">
+              <button type="button" data-view="view-wo" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('history', 'FM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Drill Maintenance Fasilitas Berdasarkan Kategori, Unit &amp; Detail Part">
+                <span class="flex items-center gap-2 min-w-0"><i class="ph ph-wrench text-base text-rose-600 shrink-0"></i> <span class="truncate">Drill Maintenance &amp; Part</span></span>
+                <span class="text-[10px] text-rose-700 font-semibold px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 shrink-0">Drill</span>
               </button>
-              <button type="button" data-view="view-wo" onclick="navTo('view-wo', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Work Order Kanban Tiket Perbaikan">
+              <button type="button" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('kanban', 'FM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Work Order Kanban Tiket Perbaikan">
                 <span class="flex items-center gap-2 min-w-0"><i class="ph ph-kanban text-base text-amber-500 shrink-0"></i> <span class="truncate">Work Order Kanban</span></span>
                 <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium shrink-0" id="fm-sidebar-wo-count">15</span>
               </button>
@@ -2215,9 +2203,9 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                         </div>
                     </div>
 
-                    <!-- 8 Office Location Interactive Cards Grid (Original Compact 4-Box Layout) -->
+                    <!-- 8 Office Location Interactive Cards Grid (Full Readable Kelompok Asset Without Truncation) -->
                     <div class="flex-1 overflow-y-auto scrollbar-thin p-1">
-                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-3 gap-4 w-full" id="pbi-asset2-office-grid">
+                        <div class="grid grid-cols-1 xl:grid-cols-2 gap-4 w-full" id="pbi-asset2-office-grid">
                             <!-- Populated dynamically by renderAsset2_OfficeLocations -->
                         </div>
                     </div>
@@ -2717,74 +2705,99 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                             </div>
                         </div>
 
-                        <!-- RIGHT TABLE (7 COLS): Details Asset by Condition -->
-                        <div class="lg:col-span-7 bg-white rounded-2xl border border-emerald-400/90 shadow-xs p-3.5 flex flex-col">
+                        <!-- RIGHT VISUAL (7 COLS): ANALITIK VARIANS UMUR PAKAI, RISIKO OVER-LIFETIME & KOMPOSISI KONDISI KELOMPOK ASET -->
+                        <div class="lg:col-span-7 bg-white rounded-2xl border border-emerald-400/90 shadow-xs p-4 flex flex-col justify-between">
                             <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
                                 <div>
                                     <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
-                                        <i class="ph-bold ph-list-magnifying-glass text-emerald-600"></i>
-                                        <span>Details Asset by Condition</span>
-                                        <span id="mov-right-count-badge" class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-black bg-emerald-50 text-emerald-700 border border-emerald-200">35.160 Unit</span>
+                                        <i class="ph-bold ph-chart-bar-horizontal text-emerald-600"></i>
+                                        <span>Analitik Varians Umur Pakai &amp; Valuasi Kondisi Kelompok Aset</span>
                                     </h3>
-                                    <p class="text-[10px] text-slate-400">Klik baris unit untuk membuka Dossier Lengkap Aset</p>
+                                    <p class="text-[10px] text-slate-400">Distribusi umur aktual vs standar pakai, risiko over-lifetime (&gt;100%), dan biaya pemeliharaan per kelompok aset (Klik bar untuk filter silang)</p>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <button type="button" onclick="window.exportMovementDetailsCsv('xlsx')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 transition cursor-pointer shadow-2xs">
-                                        <i class="ph-bold ph-file-xls"></i> Export Excel (.xlsx)
+                                    <button type="button" onclick="window.switchAppDomain && window.switchWoViewMode ? (navTo('view-wo'), switchWoViewMode('history')) : navTo('view-wo')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 flex items-center gap-1 transition cursor-pointer shadow-2xs" title="Buka Drill Maintenance & Detail Part">
+                                        <i class="ph-bold ph-wrench"></i> Drill Maintenance
                                     </button>
-                                    <button type="button" onclick="window.exportMovementDetailsCsv('csv')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer">
-                                        <i class="ph-bold ph-download-simple"></i> CSV
+                                    <button type="button" onclick="window.resetAssetMovementFilters()" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer">
+                                        <i class="ph-bold ph-arrows-counter-clockwise"></i> Reset
                                     </button>
                                 </div>
                             </div>
 
-                            <!-- Search & Page Controls for Right Table -->
-                            <div class="flex flex-wrap items-center justify-between gap-2 my-2">
-                                <div class="relative flex-1 min-w-[200px]">
-                                    <i class="ph-bold ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
-                                    <input type="text" id="mov-right-search" oninput="window.onMovRightSearch()" placeholder="Cari kode_unit (misal A-500-511), nama_asset_detail, atau lokasi..." class="w-full pl-7 pr-2.5 py-1 rounded-lg border border-slate-200 text-xs bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
-                                </div>
-                                <div class="flex items-center gap-1.5 text-[11px]">
-                                    <button type="button" onclick="window.changeMovRightPage(-1)" id="btn-mov-prev" class="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 font-bold text-slate-700 disabled:opacity-40 cursor-pointer">&laquo; Prev</button>
-                                    <span id="mov-page-info" class="font-mono font-bold text-slate-600 px-1.5">Hal 1 / 343</span>
-                                    <button type="button" onclick="window.changeMovRightPage(1)" id="btn-mov-next" class="px-2 py-1 rounded border border-slate-200 bg-white hover:bg-slate-50 font-bold text-slate-700 disabled:opacity-40 cursor-pointer">Next &raquo;</button>
-                                </div>
-                            </div>
-
-                            <!-- Details Asset Table (Power BI Details Asset by Condition Parity) -->
-                            <div class="overflow-x-auto max-h-[470px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl flex-1">
-                                <table class="w-full text-left border-collapse min-w-[840px]">
-                                    <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10.5px] font-black text-slate-800">
-                                        <tr>
-                                            <th class="py-2 px-2 w-14">location</th>
-                                            <th class="py-2 px-2 w-36">kode_unit <i class="ph-fill ph-caret-up text-[9px] text-slate-500"></i></th>
-                                            <th class="py-2 px-2 min-w-[150px]">nama_asset_detail</th>
-                                            <th class="py-2 px-2 text-center w-24">kondisi</th>
-                                            <th class="py-2 px-2 text-right w-20">varian_umur</th>
-                                            <th class="py-2 px-2 text-right w-16">Sum of<br>standar_umur</th>
-                                            <th class="py-2 px-2 text-right w-16">Sum of<br>umur_asset</th>
-                                            <th class="py-2 px-2 text-right w-28">Nilai_pembukuan</th>
-                                            <th class="py-2 px-2 text-right w-28">Maintenance Cost</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="mov-tbody-details" class="divide-y divide-slate-100 text-[10.5px]">
-                                        <!-- Populated dynamically from real data with conditional varian_umur -->
-                                    </tbody>
-                                    <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[10.5px] font-black text-slate-900">
-                                        <tr>
-                                            <td class="py-2 px-2" colspan="3">Total (<span id="mov-tot-right-count">35,160</span> Unit)</td>
-                                            <td class="py-2 px-2 text-center text-slate-400 font-normal text-[9px]">-</td>
-                                            <td class="py-2 px-2 text-right font-mono text-slate-500 text-[10px]" id="mov-tot-right-varian">-</td>
-                                            <td id="mov-tot-right-std" class="py-2 px-2 text-right font-mono">307784</td>
-                                            <td id="mov-tot-right-umur" class="py-2 px-2 text-right font-mono">232566</td>
-                                            <td id="mov-tot-right-nbv" class="py-2 px-2 text-right font-mono text-emerald-800">681,781,314,986</td>
-                                            <td id="mov-tot-right-maint" class="py-2 px-2 text-right font-mono text-slate-900">27,652,413,593</td>
-                                        </tr>
-                                    </tfoot>
-                                </table>
+                            <!-- Dynamic Related Visual Container -->
+                            <div id="mov-related-visual-container" class="flex-1 flex flex-col justify-between gap-3 pt-3">
+                                <!-- Populated dynamically by renderAssetMovementRelatedVisual() from 100% live assets -->
                             </div>
                         </div>
 
+                    </div>
+
+                    <!-- FULL-WIDTH BOTTOM TABLE: Details Asset by Condition -->
+                    <div class="bg-white rounded-2xl border border-emerald-400/90 shadow-xs p-4 flex flex-col">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                            <div>
+                                <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+                                    <i class="ph-bold ph-list-magnifying-glass text-emerald-600"></i>
+                                    <span>Details Asset by Condition</span>
+                                    <span id="mov-right-count-badge" class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-black bg-emerald-50 text-emerald-700 border border-emerald-200">35.160 Unit</span>
+                                </h3>
+                                <p class="text-[10px] text-slate-400">Tabel rincian unit aset di posisi bawah layar penuh &bull; Klik baris untuk membuka Dossier Lengkap atau klik tombol 🔧 Maint untuk drill ke Detail Part Maintenance</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="relative min-w-[240px] sm:min-w-[300px]">
+                                    <i class="ph-bold ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="text" id="mov-right-search" oninput="window.onMovRightSearch()" placeholder="Cari kode_unit (misal A-500-511), nama_asset_detail, atau lokasi..." class="w-full pl-7 pr-2.5 py-1.5 rounded-lg border border-slate-200 text-xs bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                </div>
+                                <div class="flex items-center gap-1 text-[11px]">
+                                    <button type="button" onclick="window.changeMovRightPage(-1)" id="btn-mov-prev" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 font-bold text-slate-700 disabled:opacity-40 cursor-pointer">&laquo; Prev</button>
+                                    <span id="mov-page-info" class="font-mono font-bold text-slate-600 px-2">Hal 1 / 352</span>
+                                    <button type="button" onclick="window.changeMovRightPage(1)" id="btn-mov-next" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 font-bold text-slate-700 disabled:opacity-40 cursor-pointer">Next &raquo;</button>
+                                </div>
+                                <button type="button" onclick="window.exportMovementDetailsCsv('xlsx')" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 transition cursor-pointer shadow-2xs">
+                                    <i class="ph-bold ph-file-xls"></i> Export Excel (.xlsx)
+                                </button>
+                                <button type="button" onclick="window.exportMovementDetailsCsv('csv')" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer">
+                                    <i class="ph-bold ph-download-simple"></i> CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Full-Width Details Asset Table -->
+                        <div class="overflow-x-auto max-h-[520px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl mt-2.5">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10.5px] font-black text-slate-800 uppercase">
+                                    <tr>
+                                        <th class="py-2 px-2.5">Location</th>
+                                        <th class="py-2 px-2.5">Kode_Unit <i class="ph-fill ph-caret-up text-[9px] text-slate-500"></i></th>
+                                        <th class="py-2 px-2.5">Nama_Asset_Detail</th>
+                                        <th class="py-2 px-2.5">Kelompok_Asset</th>
+                                        <th class="py-2 px-2 text-center">Kondisi</th>
+                                        <th class="py-2 px-2 text-right">Varian_Umur</th>
+                                        <th class="py-2 px-2 text-right">Sum of<br>Standar_Umur</th>
+                                        <th class="py-2 px-2 text-right">Sum of<br>Umur_Asset</th>
+                                        <th class="py-2 px-2.5 text-right">Nilai_Pembukuan</th>
+                                        <th class="py-2 px-2.5 text-right">Maintenance Cost</th>
+                                        <th class="py-2 px-2.5 text-center">Drill Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mov-tbody-details" class="divide-y divide-slate-100 text-[11px]">
+                                    <!-- Populated dynamically from real data with conditional varian_umur -->
+                                </tbody>
+                                <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11px] font-black text-slate-900">
+                                    <tr>
+                                        <td class="py-2 px-2.5" colspan="4">Total (<span id="mov-tot-right-count">35,160</span> Unit)</td>
+                                        <td class="py-2 px-2 text-center text-slate-400 font-normal text-[9px]">-</td>
+                                        <td class="py-2 px-2 text-right font-mono text-slate-500 text-[10px]" id="mov-tot-right-varian">-</td>
+                                        <td id="mov-tot-right-std" class="py-2 px-2 text-right font-mono">307,784</td>
+                                        <td id="mov-tot-right-umur" class="py-2 px-2 text-right font-mono">232,566</td>
+                                        <td id="mov-tot-right-nbv" class="py-2 px-2.5 text-right font-mono text-emerald-800">681,781,314,986</td>
+                                        <td id="mov-tot-right-maint" class="py-2 px-2.5 text-right font-mono text-slate-900">27,652,413,593</td>
+                                        <td class="py-2 px-2.5 text-center text-slate-400">-</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
                     </div>
 
                 </div>
@@ -2890,11 +2903,17 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                                     Aset Produktif & Optimal
                                 </span>
                             </div>
-                            <div id="pbi-assetd-spotlight-bldg-action" class="hidden border-l border-slate-200  pl-3">
-                                <button type="button" id="pbi-assetd-spotlight-bldg-btn" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs">
-                                    <i class="ph-bold ph-compass"></i>
-                                    <span>Eksplorasi Gedung</span>
+                            <div class="border-l border-slate-200 pl-3 flex items-center gap-2">
+                                <button type="button" onclick="window.drillCurrentSpotlightToMaintenance()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Drill ke Riwayat Maintenance & Detail Part untuk Aset Ini">
+                                    <i class="ph-bold ph-wrench"></i>
+                                    <span>Drill Maintenance &amp; Part</span>
                                 </button>
+                                <div id="pbi-assetd-spotlight-bldg-action" class="hidden">
+                                    <button type="button" id="pbi-assetd-spotlight-bldg-btn" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                                        <i class="ph-bold ph-compass"></i>
+                                        <span>Eksplorasi Gedung</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -3826,6 +3845,11 @@ body.validasi-standalone-view #validasi-standalone-topbar {
               <span id="facilities-total-badge">15.055</span> Unit Ruangan
             </span>
           </div>
+        </div>
+
+        <!-- Synchronized Room Residents & Facility Category Cards Panel -->
+        <div id="facility-room-sync-panel" class="space-y-3">
+          <!-- Populated dynamically by renderAssetsTable() with Active Residents at Top + Clickable Facility Cards + Link to Inspection -->
         </div>
 
         <!-- Master Table Card with Enhanced Pagination -->
@@ -4948,21 +4972,24 @@ body.validasi-standalone-view #validasi-standalone-topbar {
           <div>
             <div class="flex items-center gap-2 mb-1">
               <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-              <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase">Facility Maintenance &amp; Repair</span>
+              <span class="text-[11px] font-bold text-slate-500 tracking-wider uppercase" id="wo-domain-subtitle">Asset &amp; Facility Maintenance Terpadu</span>
             </div>
             <h2 class="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <i class="ph-bold ph-kanban text-amber-500"></i> Work Order &amp; Pemeliharaan Fasilitas
+              <i class="ph-bold ph-wrench text-rose-600"></i> Pusat Pemeliharaan, Drill Maintenance &amp; Work Order
             </h2>
-            <p class="text-xs text-slate-500">Papan Kanban status pekerjaan pemeliharaan, alokasi teknisi, target SLA, dan tiket perbaikan fasilitas HRGA &amp; aset</p>
+            <p class="text-xs text-slate-500">Drill-down pemeliharaan 3 level (Kategori &rarr; Unit Aset &rarr; Detail Part/Suku Cadang) untuk Asset Management (AM) &amp; Facility Management (FM) secara real-time</p>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-2">
             <!-- View Mode Switcher -->
             <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200">
-              <button type="button" onclick="switchWoViewMode('kanban')" id="btn-wo-view-kanban" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-2xs transition cursor-pointer">
-                <i class="ph-bold ph-kanban mr-1"></i> Kanban
+              <button type="button" onclick="switchWoViewMode('history')" id="btn-wo-view-history" class="px-3 py-1 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-2xs transition cursor-pointer flex items-center gap-1">
+                <i class="ph-bold ph-wrench text-rose-600"></i> Drill Maintenance &amp; Part
               </button>
-              <button type="button" onclick="switchWoViewMode('table')" id="btn-wo-view-table" class="px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition cursor-pointer">
-                <i class="ph-bold ph-table mr-1"></i> Tabel
+              <button type="button" onclick="switchWoViewMode('kanban')" id="btn-wo-view-kanban" class="px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition cursor-pointer flex items-center gap-1">
+                <i class="ph-bold ph-kanban text-amber-500"></i> Work Order Kanban
+              </button>
+              <button type="button" onclick="switchWoViewMode('table')" id="btn-wo-view-table" class="px-3 py-1 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition cursor-pointer flex items-center gap-1">
+                <i class="ph-bold ph-table text-sky-600"></i> Tabel WO
               </button>
             </div>
             <!-- Create WO Button -->
@@ -4972,8 +4999,15 @@ body.validasi-standalone-view #validasi-standalone-topbar {
           </div>
         </div>
 
+        <!-- ======================================================= -->
+        <!-- DRILL MAINTENANCE & DETAIL PART CONTAINER (3-LEVEL)     -->
+        <!-- ======================================================= -->
+        <div id="wo-container-history" class="space-y-4">
+          <!-- Rendered dynamically by renderMaintenanceDrillView() from 100% live 35,160 assets -->
+        </div>
+
         <!-- 5 KPI Summary Cards -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 shrink-0">
+        <div id="wo-kpi-cards-row" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 shrink-0">
           <div class="clean-card p-3 shadow-2xs">
             <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-wider block">Total Work Order</span>
             <span class="text-xl font-black text-slate-800 mt-1 block tracking-tight" id="wo-kpi-total">15</span>
@@ -5002,7 +5036,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
         </div>
 
         <!-- Filter & Slicer Bar -->
-        <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white rounded-xl border border-slate-200 shadow-2xs gap-3">
+        <div id="wo-filter-bar-row" class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white rounded-xl border border-slate-200 shadow-2xs gap-3">
           <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
             <!-- Filter Gedung -->
             <div class="flex items-center bg-slate-50 rounded-lg px-2.5 py-1.5 border border-slate-200">
@@ -6086,6 +6120,140 @@ body.validasi-standalone-view #validasi-standalone-topbar {
   }
   
 
+  // =========================================================================
+  // AUTHENTIC NAME- & GENDER-MATCHED AVATARS + BUILDING ILLUSTRATIONS
+  // =========================================================================
+  function getPenghuniAvatarUrl(p) {
+    if (!p) return '';
+    if (p.foto && String(p.foto).trim() !== '' && !String(p.foto).includes('images.unsplash.com')) {
+      return String(p.foto).trim();
+    }
+    const name = String(p.nama_penghuni || p.nama || 'Karyawan').trim();
+    const upper = name.toUpperCase();
+    const dept = String(p.departemen || p.jabatan || 'OPS').toUpperCase();
+
+    // Detect Indonesian female vs male names accurately
+    const femaleTokens = [
+      'SITI', 'SRI', 'DEWI', 'PUTRI', 'AYU', 'FITRI', 'FITRIA', 'NURUL', 'Novi', 'NOVI', 'RINA', 'RINI', 'RATNA',
+      'MEGA', ' INDAH', 'INDAH ', 'WULAN', 'DIAN', ' YUNI', 'YUNI ', 'LESTARI', ' NINGSIH', 'WATI', 'SARI', 'ANI ',
+      ' ANI', ' RIKA', 'RIKA ', 'DESI', 'EKA PUTRI', 'INTAN', 'MAWAR', 'MELATI', ' KARTIKA', 'LIA ', ' LIA',
+      'NURLAILA', ' AISYAH', 'AISYAH', 'FATIMah', 'FATIMAH', 'ZAHRA', 'ANNISA', 'ANISA', ' NANDA', ' rahma', 'RAHMA',
+      'TIARA', ' CITRA', 'CITRA ', ' VINA', 'VINA ', 'SISKA', ' YULI', 'YULI ', ' EVA', 'EVA ', ' EVI', 'EVI ',
+      'NINA', 'MIRA', 'RITA', 'TUTI', ' NUNUNG', ' LILIS', 'LILIS ', ' ENDANG', 'ENDANG ', ' RENI', 'RENI ',
+      ' WAHYUNI', 'ASTUTI', 'HANDAYANI', 'KUSUMAWATI', 'SUSANTI', 'SUSILOWATI', 'PURWANTI', ' rahayu', 'RAHAYU'
+    ];
+    let isFemale = false;
+    for (let i = 0; i < femaleTokens.length; i++) {
+      const tk = femaleTokens[i].toUpperCase().trim();
+      if (upper === tk || upper.startsWith(tk + ' ') || upper.endsWith(' ' + tk) || upper.includes(' ' + tk + ' ') || upper.endsWith('WATI') || upper.endsWith('NINGSIH')) {
+        isFemale = true;
+        break;
+      }
+    }
+
+    // Deterministic hash from name so each person has a distinct consistent portrait style
+    let h = 0;
+    for (let i = 0; i < upper.length; i++) h = ((h << 5) - h) + upper.charCodeAt(i);
+    h = Math.abs(h);
+
+    const words = name.split(/\s+/).filter(Boolean);
+    const initials = words.length >= 2
+      ? (words[0][0] + words[words.length - 1][0]).toUpperCase()
+      : name.substring(0, 2).toUpperCase();
+
+    // Department uniform / collar colors
+    let bgGrad1 = '#0f766e', bgGrad2 = '#115e59', shirtCol = '#047857';
+    if (dept.includes('AGRO') || dept.includes('KEBUN') || dept.includes('PLANT')) {
+      bgGrad1 = '#059669'; bgGrad2 = '#065f46'; shirtCol = '#047857';
+    } else if (dept.includes('FACTORY') || dept.includes('PABRIK') || dept.includes('MILL') || dept.includes('WORKSHOP') || dept.includes('TEKNIK')) {
+      bgGrad1 = '#0284c7'; bgGrad2 = '#1e3a8a'; shirtCol = '#1d4ed8';
+    } else if (dept.includes('HR') || dept.includes('GA') || dept.includes('FIN') || dept.includes('ADMIN') || dept.includes('CENTRAL')) {
+      bgGrad1 = '#4f46e5'; bgGrad2 = '#312e81'; shirtCol = '#4338ca';
+    } else if (isFemale) {
+      bgGrad1 = '#db2777'; bgGrad2 = '#831843'; shirtCol = '#be185d';
+    }
+
+    const skinTones = ['#f5cba7', '#edbb99', '#e59866', '#f0b27a'];
+    const skin = skinTones[h % skinTones.length];
+    const hairCol = '#1e293b';
+
+    const svg = isFemale
+      ? `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${bgGrad1}"/><stop offset="100%" stop-color="${bgGrad2}"/></linearGradient></defs>
+          <rect width="96" height="96" rx="48" fill="url(#g)"/>
+          <path d="M20 88 C20 66 76 66 76 88 Z" fill="${shirtCol}"/>
+          <path d="M40 66 L48 76 L56 66 Z" fill="#ffffff" opacity="0.85"/>
+          <path d="M26 42 C26 20 70 20 70 42 C70 58 64 64 48 64 C32 64 26 58 26 42 Z" fill="${hairCol}"/>
+          <circle cx="48" cy="41" r="15" fill="${skin}"/>
+          <path d="M33 36 C36 25 60 25 63 36 C59 31 37 31 33 36 Z" fill="${hairCol}"/>
+          <circle cx="43" cy="41" r="1.6" fill="#0f172a"/><circle cx="53" cy="41" r="1.6" fill="#0f172a"/>
+          <path d="M44 47 Q48 50 52 47" stroke="#b91c1c" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <rect x="28" y="73" width="40" height="14" rx="7" fill="#0f172a" opacity="0.55"/>
+          <text x="48" y="83" text-anchor="middle" fill="#ffffff" font-family="Inter,Arial,sans-serif" font-size="9.5" font-weight="800">${escapeHtml(initials)}</text>
+        </svg>`
+      : `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96">
+          <defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${bgGrad1}"/><stop offset="100%" stop-color="${bgGrad2}"/></linearGradient></defs>
+          <rect width="96" height="96" rx="48" fill="url(#g)"/>
+          <path d="M18 88 C18 64 78 64 78 88 Z" fill="${shirtCol}"/>
+          <path d="M39 64 L48 75 L57 64 Z" fill="#ffffff" opacity="0.9"/>
+          <circle cx="48" cy="39" r="15.5" fill="${skin}"/>
+          <path d="M32 35 C33 21 63 21 64 35 C60 28 36 28 32 35 Z" fill="${hairCol}"/>
+          <circle cx="42.5" cy="39.5" r="1.7" fill="#0f172a"/><circle cx="53.5" cy="39.5" r="1.7" fill="#0f172a"/>
+          <path d="M43.5 46.5 Q48 49.5 52.5 46.5" stroke="#334155" stroke-width="1.6" fill="none" stroke-linecap="round"/>
+          <rect x="28" y="73" width="40" height="14" rx="7" fill="#0f172a" opacity="0.55"/>
+          <text x="48" y="83" text-anchor="middle" fill="#ffffff" font-family="Inter,Arial,sans-serif" font-size="9.5" font-weight="800">${escapeHtml(initials)}</text>
+        </svg>`;
+
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+  window.getPenghuniAvatarUrl = getPenghuniAvatarUrl;
+
+  function getHunianBuildingIllustration(b) {
+    const code = String((b && b.kode_gedung) || 'PNS-LH').trim();
+    const name = String((b && (b.nama_bangunan || b.nama_gedung)) || code).trim();
+    const loc = String((b && (b.lokasi || b.kode_site)) || 'Central').trim();
+    const upper = (name + ' ' + code).toUpperCase();
+
+    let roofCol = '#047857', wallCol = '#f8fafc', accentCol = '#10b981', sky1 = '#0f172a', sky2 = '#1e293b', badgeLabel = 'LONGHOUSE KARYAWAN';
+    if (upper.includes('GUEST') || upper.includes('-GH')) {
+      roofCol = '#0369a1'; accentCol = '#38bdf8'; sky1 = '#0c4a6e'; sky2 = '#0284c7'; badgeLabel = 'GUEST HOUSE VIP';
+    } else if (upper.includes('MANAGER') || upper.includes('-GM') || upper.includes('MESS')) {
+      roofCol = '#4338ca'; accentCol = '#818cf8'; sky1 = '#1e1b4b'; sky2 = '#3730a3'; badgeLabel = 'MESS STAF & MANAGER';
+    } else if (upper.includes('KANTOR') || upper.includes('OFFICE') || upper.includes('-OF')) {
+      roofCol = '#0f766e'; accentCol = '#2dd4bf'; sky1 = '#134e4a'; sky2 = '#0f766e'; badgeLabel = 'GEDUNG KANTOR';
+    }
+
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 180">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="${sky1}"/><stop offset="100%" stop-color="${sky2}"/></linearGradient>
+      </defs>
+      <rect width="400" height="180" fill="url(#sky)"/>
+      <circle cx="345" cy="36" r="18" fill="${accentCol}" opacity="0.22"/>
+      <!-- Ground -->
+      <rect x="0" y="138" width="400" height="42" fill="#0f172a" opacity="0.65"/>
+      <!-- Longhouse / Building Body -->
+      <polygon points="36,78 200,42 364,78" fill="${roofCol}" stroke="#ffffff" stroke-width="1.5" stroke-opacity="0.35"/>
+      <rect x="52" y="78" width="296" height="60" rx="3" fill="${wallCol}"/>
+      <!-- Doors & Windows Row (10 Pintu Longhouse Architecture) -->
+      <g fill="#1e293b" opacity="0.85">
+        <rect x="66" y="96" width="16" height="42" rx="2"/><rect x="86" y="94" width="14" height="18" rx="1.5" fill="${accentCol}"/>
+        <rect x="116" y="96" width="16" height="42" rx="2"/><rect x="136" y="94" width="14" height="18" rx="1.5" fill="${accentCol}"/>
+        <rect x="166" y="96" width="16" height="42" rx="2"/><rect x="186" y="94" width="14" height="18" rx="1.5" fill="${accentCol}"/>
+        <rect x="216" y="96" width="16" height="42" rx="2"/><rect x="236" y="94" width="14" height="18" rx="1.5" fill="${accentCol}"/>
+        <rect x="266" y="96" width="16" height="42" rx="2"/><rect x="286" y="94" width="14" height="18" rx="1.5" fill="${accentCol}"/>
+        <rect x="312" y="96" width="16" height="42" rx="2"/>
+      </g>
+      <!-- Top Label Pill -->
+      <rect x="14" y="12" width="138" height="20" rx="10" fill="#0f172a" opacity="0.75"/>
+      <text x="83" y="25" text-anchor="middle" fill="${accentCol}" font-family="Inter,Arial,sans-serif" font-size="8.5" font-weight="800">${escapeHtml(badgeLabel)}</text>
+      <!-- Bottom Code & Building Name -->
+      <text x="18" y="160" fill="#ffffff" font-family="Inter,Arial,sans-serif" font-size="12" font-weight="800">${escapeHtml(code)} • ${escapeHtml(name.substring(0, 28))}</text>
+      <text x="18" y="173" fill="#cbd5e1" font-family="Inter,Arial,sans-serif" font-size="9.5" font-weight="600">Site ${escapeHtml(loc)} • PT Pratama Nusantara Sakti</text>
+    </svg>`;
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(svg);
+  }
+  window.getHunianBuildingIllustration = getHunianBuildingIllustration;
+
   function renderHunianHouseCards() {
     const grid = document.getElementById('hunian-house-cards-grid');
     if (!grid) return;
@@ -6107,15 +6275,15 @@ body.validasi-standalone-view #validasi-standalone-topbar {
     grid.innerHTML = activeBldgs.map(b => {
       const code = b.kode_gedung;
       const bRooms = rooms.filter(r => r.kode_gedung === code);
-      const bPenghuni = penghuni.filter(p => p.kode_gedung === code);
+      const bPenghuni = penghuni.filter(p => p.kode_gedung === code && p.nama_penghuni && String(p.status_hunian || '').toLowerCase() !== 'vacant');
       const roomCount = bRooms.length || 10;
       const residentCount = bPenghuni.length;
       const capacity = roomCount * 4;
       const occPct = capacity > 0 ? Math.min(100, Math.round((residentCount / capacity) * 100)) : 0;
       const isFull = residentCount >= capacity;
-      const photos = hunianPhotos[code] || [];
-      const hasPhotos = photos.length > 0;
-      const thumbUrl = hasPhotos ? photos[0].url : '';
+      const rawPhotos = (hunianPhotos[code] || []).filter(ph => ph && ph.url && !String(ph.url).includes('images.unsplash.com'));
+      const hasPhotos = rawPhotos.length > 0;
+      const thumbUrl = hasPhotos ? rawPhotos[0].url : getHunianBuildingIllustration(b);
 
       return `
         <div onclick="filterPenghuniByHouse('${code}')" class="hunian-house-card group text-left p-3.5 rounded-2xl bg-white border border-slate-200/90 hover:border-indigo-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between shadow-2xs cursor-pointer relative overflow-hidden" data-house-code="${code}">
@@ -6123,34 +6291,17 @@ body.validasi-standalone-view #validasi-standalone-topbar {
           <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-indigo-500 via-sky-500 to-indigo-600 group-hover:h-2 transition-all"></div>
           
           <div>
-            <!-- PHOTO PREVIEW BANNER -->
-            ${hasPhotos ? `
-              <div class="relative w-full h-24 rounded-xl overflow-hidden mb-2.5 border border-slate-100 shadow-2xs group/img bg-slate-900">
-                <img src="${thumbUrl}" alt="Foto ${escapeHtml(b.nama_bangunan)}" class="w-full h-full object-cover group-hover/img:scale-105 transition duration-300">
-                <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
-                <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[9px] font-bold flex items-center gap-1">
-                  <i class="ph-bold ph-camera"></i> ${photos.length} Foto
-                </span>
-                <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full text-[9px] font-black ${isFull ? 'bg-amber-500/90 text-white' : 'bg-emerald-500/90 text-white'} backdrop-blur-xs">
-                  ${isFull ? 'Penuh' : 'Tersedia'}
-                </span>
-              </div>
-            ` : `
-              <div class="relative w-full h-16 rounded-xl bg-gradient-to-br from-slate-50 to-indigo-50/60 border border-dashed border-slate-200/90 mb-2.5 flex items-center justify-between px-3 group/ph hover:border-indigo-300 transition">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-lg bg-indigo-100/70 text-indigo-600 flex items-center justify-center font-bold text-base shadow-2xs">
-                    <i class="ph-bold ph-house-line"></i>
-                  </div>
-                  <div>
-                    <span class="text-[10px] font-bold text-slate-600 block">Belum ada foto</span>
-                    <span class="text-[9px] text-indigo-600 font-semibold flex items-center gap-0.5"><i class="ph-bold ph-camera-plus"></i> Tambah foto</span>
-                  </div>
-                </div>
-                <span class="px-2 py-0.5 rounded-full text-[9px] font-black ${isFull ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}">
-                  ${isFull ? 'Penuh' : 'Tersedia'}
-                </span>
-              </div>
-            `}
+            <!-- BUILDING ILLUSTRATION OR REAL UPLOADED PHOTO BANNER -->
+            <div class="relative w-full h-24 rounded-xl overflow-hidden mb-2.5 border border-slate-100 shadow-2xs group/img bg-slate-900">
+              <img src="${thumbUrl}" alt="Visual ${escapeHtml(b.nama_bangunan || code)}" class="w-full h-full object-cover group-hover/img:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent"></div>
+              <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[9px] font-bold flex items-center gap-1">
+                <i class="ph-bold ${hasPhotos ? 'ph-camera' : 'ph-buildings'}"></i> ${hasPhotos ? rawPhotos.length + ' Foto Asli' : 'Denah Hunian'}
+              </span>
+              <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full text-[9px] font-black ${isFull ? 'bg-amber-500/90 text-white' : 'bg-emerald-500/90 text-white'} backdrop-blur-xs">
+                ${isFull ? 'Penuh' : 'Tersedia'}
+              </span>
+            </div>
             
             <span class="font-extrabold text-xs text-slate-900 group-hover:text-indigo-600 transition-colors block truncate" title="${escapeHtml(b.nama_bangunan)}">
               ${escapeHtml(b.nama_bangunan || code)}
@@ -6176,10 +6327,13 @@ body.validasi-standalone-view #validasi-standalone-topbar {
               </div>
             </div>
 
-            <!-- ACTION BUTTON: LENGKAPI / KELOLA FOTO HUNIAN -->
-            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center gap-1.5">
-              <button type="button" onclick="event.stopPropagation(); openHunianPhotoModal('${code}', '${escapeHtml(b.nama_bangunan || code)}')" class="w-full py-1.5 px-2 rounded-lg bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold text-[10px] transition-all flex items-center justify-center gap-1.5 border border-indigo-100 shadow-2xs cursor-pointer" title="Lengkapi / Kelola Foto Hunian">
-                <i class="ph-bold ph-camera text-xs"></i> ${hasPhotos ? 'Kelola Foto (' + photos.length + ')' : '📷 Lengkapi Foto'}
+            <!-- ACTION BUTTONS: RINCIAN KAMAR & KELOLA FOTO -->
+            <div class="mt-2.5 pt-2 border-t border-slate-100 grid grid-cols-2 gap-1.5">
+              <button type="button" onclick="event.stopPropagation(); window.openRoomRincianDirect('${code}', 1)" class="py-1.5 px-2 rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white font-bold text-[10px] transition-all flex items-center justify-center gap-1 border border-emerald-200 shadow-2xs cursor-pointer" title="Buka Rincian Kamar & Penghuni">
+                <i class="ph-bold ph-door-open text-xs"></i> Rincian Kamar
+              </button>
+              <button type="button" onclick="event.stopPropagation(); openHunianPhotoModal('${code}', '${escapeHtml(b.nama_bangunan || code)}')" class="py-1.5 px-2 rounded-lg bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold text-[10px] transition-all flex items-center justify-center gap-1 border border-indigo-100 shadow-2xs cursor-pointer" title="Lengkapi / Kelola Foto Hunian">
+                <i class="ph-bold ph-camera text-xs"></i> ${hasPhotos ? 'Foto (' + rawPhotos.length + ')' : 'Upload Foto'}
               </button>
             </div>
           </div>
@@ -6468,48 +6622,20 @@ const PNS_SECTION_TO_DEPT = {
     hunianPhotos: (function() {
       try {
         const cached = localStorage.getItem('PNS_HUNIAN_PHOTOS');
-        if (cached) return JSON.parse(cached);
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && typeof parsed === 'object') {
+            Object.keys(parsed).forEach(k => {
+              if (Array.isArray(parsed[k])) {
+                parsed[k] = parsed[k].filter(ph => ph && ph.url && !String(ph.url).includes('images.unsplash.com'));
+                if (parsed[k].length === 0) delete parsed[k];
+              }
+            });
+            return parsed;
+          }
+        }
       } catch (e) {}
-      return {
-        'PNS-GH-01': [
-          {
-            id: 'p_gh01_1',
-            url: 'https://images.unsplash.com/photo-1582719508461-905c673771fd?auto=format&fit=crop&w=800&q=80',
-            category: 'Tampak Depan / Eksterior',
-            caption: 'Tampak Depan Guest House 10 Central Office',
-            uploader: 'Miftahul Khoiry',
-            created_at: '2026-10-20 09:30:00'
-          },
-          {
-            id: 'p_gh01_2',
-            url: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?auto=format&fit=crop&w=800&q=80',
-            category: 'Kamar Tidur / Bed',
-            caption: 'Kamar Tidur Utama Guest House 10 - Ranjang & Meja Rapi',
-            uploader: 'Miftahul Khoiry',
-            created_at: '2026-10-20 09:45:00'
-          }
-        ],
-        'PNS-GM-01': [
-          {
-            id: 'p_gm01_1',
-            url: 'https://images.unsplash.com/photo-1566665797739-1674de7a421a?auto=format&fit=crop&w=800&q=80',
-            category: 'Tampak Depan / Eksterior',
-            caption: 'Mess Manager Central Office - Bangunan Utama',
-            uploader: 'Admin GS',
-            created_at: '2026-10-22 14:15:00'
-          }
-        ],
-        'PNS-LH-01-01': [
-          {
-            id: 'p_lh01_1',
-            url: 'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?auto=format&fit=crop&w=800&q=80',
-            category: 'Tampak Depan / Eksterior',
-            caption: 'Longhouse Staff / Operator Blok 01',
-            uploader: 'Miftahul Khoiry',
-            created_at: '2026-10-25 11:00:00'
-          }
-        ]
-      };
+      return {};
     })(),
     buildings: (typeof window !== 'undefined' && window.PNS_DATA_MASTER && Array.isArray(window.PNS_DATA_MASTER.buildings) && window.PNS_DATA_MASTER.buildings.length > 0)
       ? window.PNS_DATA_MASTER.buildings
@@ -7513,6 +7639,9 @@ const PNS_SECTION_TO_DEPT = {
         setTimeout(renderDashboardCharts, 80);
       } else if (viewId === 'view-wo') {
         renderWorkOrdersKanban();
+        if (typeof renderMaintenanceDrillView === 'function' && currentWoViewMode === 'history') {
+          renderMaintenanceDrillView();
+        }
       } else if (viewId === 'view-portfolio-all') {
         renderAllAssetsTable();
       } else if (viewId === 'view-portfolio') {
@@ -9983,6 +10112,8 @@ const PNS_SECTION_TO_DEPT = {
     if (Math.abs(num) >= 1e6) return `Rp ${(num / 1e6).toFixed(2)} Jt`;
     return `Rp ${formatNum(num)}`;
   }
+  const formatRpShort = formatRp;
+  window.formatRpShort = formatRp;
 
   function setElText(id, text) {
     const el = document.getElementById(id);
@@ -10766,18 +10897,18 @@ const PNS_SECTION_TO_DEPT = {
               </div>
             </div>
 
-            <!-- Mini Asset Matrix Table with Power BI Data Bars & Drill-Through -->
-            <div class="border border-slate-200/80 rounded-xl overflow-hidden">
+            <!-- Mini Asset Matrix Table with Power BI Data Bars & Drill-Through (Full KELOMPOK ASSET Text Visible) -->
+            <div class="border border-slate-200/80 rounded-xl overflow-x-auto">
               <table class="w-full text-[9.5px] text-left border-collapse">
                 <thead class="bg-slate-50 text-[8.5px] font-black uppercase text-slate-700 border-b border-slate-200">
                   <tr>
-                    <th class="px-2 py-1.5">KELOMPOK ASSET</th>
-                    <th class="px-1.5 py-1.5 text-right">Asset</th>
-                    <th class="px-1 py-1.5 text-center text-emerald-600">Good</th>
-                    <th class="px-1 py-1.5 text-center text-rose-500">Repair</th>
-                    <th class="px-1 py-1.5 text-center text-amber-500">Broken</th>
-                    <th class="px-1 py-1.5 text-center text-slate-700">Lost</th>
-                    <th class="px-1 py-1.5 text-center text-slate-500">Disposal</th>
+                    <th class="px-2 py-1.5 whitespace-nowrap">KELOMPOK ASSET</th>
+                    <th class="px-1.5 py-1.5 text-right whitespace-nowrap">Asset</th>
+                    <th class="px-1.5 py-1.5 text-center text-emerald-600 whitespace-nowrap">Good</th>
+                    <th class="px-1.5 py-1.5 text-center text-rose-500 whitespace-nowrap">Repair</th>
+                    <th class="px-1.5 py-1.5 text-center text-amber-500 whitespace-nowrap">Broken</th>
+                    <th class="px-1.5 py-1.5 text-center text-slate-700 whitespace-nowrap">Lost</th>
+                    <th class="px-1.5 py-1.5 text-center text-slate-500 whitespace-nowrap">Disposal</th>
                   </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100">
@@ -10788,8 +10919,8 @@ const PNS_SECTION_TO_DEPT = {
                           oncontextmenu="window.showPbiDrillContextMenu(event, { location: '${safeLoc}', group: '${safeKel}', sourceView: 'view-asset-sebaran' })"
                           class="hover:bg-emerald-50/70 cursor-pointer transition"
                           title="Klik untuk Drill Through ke ${o.label} - ${k.name}">
-                        <td class="px-2 py-1 font-semibold text-slate-800 truncate max-w-[115px]">${k.name}</td>
-                        <td class="px-1.5 py-1 text-right font-mono font-bold text-slate-800">${formatNum(k.total)}</td>
+                        <td class="px-2 py-1.5 font-bold text-slate-900 whitespace-nowrap">${k.name}</td>
+                        <td class="px-1.5 py-1.5 text-right font-mono font-bold text-slate-800 whitespace-nowrap">${formatNum(k.total)}</td>
                         ${renderPbiCondBarCell(k.goodPct, 'good', true)}
                         ${renderPbiCondBarCell(k.repairPct, 'repair', true)}
                         ${renderPbiCondBarCell(k.brokenPct, 'broken', true)}
@@ -10803,11 +10934,11 @@ const PNS_SECTION_TO_DEPT = {
                   <tr>
                     <td class="px-2 py-1 text-slate-900">Total</td>
                     <td class="px-1.5 py-1 text-right font-mono text-slate-900">${formatNum(o.totalAsset)}</td>
-                    <td class="px-1 py-1 text-right font-mono text-emerald-600">${o.goodPct.toFixed(2)}%</td>
-                    <td class="px-1 py-1 text-right font-mono text-rose-600">${o.repairPct > 0 ? o.repairPct.toFixed(2) + '%' : ''}</td>
-                    <td class="px-1 py-1 text-right font-mono text-amber-500">${o.brokenPct > 0 ? o.brokenPct.toFixed(2) + '%' : ''}</td>
-                    <td class="px-1 py-1 text-right font-mono text-slate-800">${o.lostPct > 0 ? o.lostPct.toFixed(2) + '%' : ''}</td>
-                    <td class="px-1 py-1 text-right font-mono text-slate-500">${o.disposalPct > 0 ? o.disposalPct.toFixed(2) + '%' : ''}</td>
+                    <td class="px-1.5 py-1 text-right font-mono text-emerald-600">${o.goodPct.toFixed(2)}%</td>
+                    <td class="px-1.5 py-1 text-right font-mono text-rose-600">${o.repairPct > 0 ? o.repairPct.toFixed(2) + '%' : ''}</td>
+                    <td class="px-1.5 py-1 text-right font-mono text-amber-500">${o.brokenPct > 0 ? o.brokenPct.toFixed(2) + '%' : ''}</td>
+                    <td class="px-1.5 py-1 text-right font-mono text-slate-800">${o.lostPct > 0 ? o.lostPct.toFixed(2) + '%' : ''}</td>
+                    <td class="px-1.5 py-1 text-right font-mono text-slate-500">${o.disposalPct > 0 ? o.disposalPct.toFixed(2) + '%' : ''}</td>
                   </tr>
                 </tfoot>
               </table>
@@ -12115,8 +12246,147 @@ const PNS_SECTION_TO_DEPT = {
     }
 
     renderAssetMovementLeftTable();
+    renderAssetMovementRelatedVisual();
     renderAssetMovementRightTable();
   }
+
+  function renderAssetMovementRelatedVisual() {
+    const container = document.getElementById('mov-related-visual-container');
+    if (!container) return;
+
+    let assets = getMovBaseAssets();
+    if (movState.kondisi && movState.kondisi !== 'ALL') {
+      assets = assets.filter(a => (a.kondisi || '').toLowerCase() === movState.kondisi.toLowerCase());
+    }
+    if (movState.selectedKategori) {
+      assets = assets.filter(a => (a.kategori_asset || '') === movState.selectedKategori);
+    }
+    if (movState.selectedNamaAsset) {
+      assets = assets.filter(a => (a.nama_asset || '') === movState.selectedNamaAsset);
+    }
+
+    const total = assets.length || 1;
+    let overAgeCount = 0, optimalCount = 0, totalNbv = 0, totalMaint = 0;
+    const kelMap = new Map();
+
+    assets.forEach(a => {
+      const std = Number(a.standar_umur) || 0;
+      const umur = Number(a.umur_asset) || 0;
+      const nbv = Number(a.Nilai_buku) || 0;
+      const maint = Number(a.maintenance_cost) || 0;
+      const isOver = std > 0 && umur > std;
+      if (isOver) overAgeCount++;
+      else optimalCount++;
+      totalNbv += nbv;
+      totalMaint += maint;
+
+      const kel = a.kelompok_asset || 'INVENTARIS DAN PERALATAN';
+      if (!kelMap.has(kel)) {
+        kelMap.set(kel, {
+          name: kel,
+          count: 0,
+          overAge: 0,
+          good: 0,
+          repair: 0,
+          broken: 0,
+          nbv: 0,
+          maint: 0,
+          sumStd: 0,
+          sumUmur: 0
+        });
+      }
+      const g = kelMap.get(kel);
+      g.count++;
+      if (isOver) g.overAge++;
+      const knd = String(a.kondisi || 'Good Condition');
+      if (knd === 'Good Condition') g.good++;
+      else if (knd === 'Repair') g.repair++;
+      else if (knd === 'Broken') g.broken++;
+      g.nbv += nbv;
+      g.maint += maint;
+      g.sumStd += std;
+      g.sumUmur += umur;
+    });
+
+    const overPct = ((overAgeCount / total) * 100).toFixed(1);
+    const optPct = ((optimalCount / total) * 100).toFixed(1);
+    const kelRows = Array.from(kelMap.values()).sort((a, b) => b.count - a.count);
+
+    container.innerHTML = `
+      <!-- Top Summary Strip: Lifespan Variance & Valuation -->
+      <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+        <div class="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200/80">
+          <div class="text-[9.5px] font-black uppercase text-emerald-700">Umur Pakai Optimal (≤100%)</div>
+          <div class="text-base font-black text-emerald-900 font-mono mt-0.5">${formatNum(optimalCount)} <span class="text-[10px] font-bold text-emerald-600">(${optPct}%)</span></div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-rose-50/70 border border-rose-200/80">
+          <div class="text-[9.5px] font-black uppercase text-rose-700">Over-Age (>100% Std Umur)</div>
+          <div class="text-base font-black text-rose-900 font-mono mt-0.5">${formatNum(overAgeCount)} <span class="text-[10px] font-bold text-rose-600">(${overPct}%)</span></div>
+        </div>
+        <div class="p-2.5 rounded-xl bg-sky-50/70 border border-sky-200/80">
+          <div class="text-[9.5px] font-black uppercase text-sky-700">Nilai Buku Aktif (NBV)</div>
+          <div class="text-sm font-black text-sky-900 font-mono mt-0.5">${formatRpShort(totalNbv)}</div>
+        </div>
+        <div onclick="window.navTo('view-wo'); setTimeout(() => window.switchWoViewMode && window.switchWoViewMode('history', 'AM'), 60);" class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-300 hover:bg-amber-100/80 transition cursor-pointer" title="Klik untuk Drill ke Maintenance & Detail Part">
+          <div class="text-[9.5px] font-black uppercase text-amber-800 flex items-center justify-between">
+            <span>Realisasi Maintenance</span>
+            <i class="ph-bold ph-arrow-up-right text-xs"></i>
+          </div>
+          <div class="text-sm font-black text-amber-900 font-mono mt-0.5">${formatRpShort(totalMaint)}</div>
+        </div>
+      </div>
+
+      <!-- Interactive Kelompok Asset Breakdown Visual -->
+      <div class="space-y-2 max-h-[345px] overflow-y-auto pr-1 scrollbar-thin">
+        ${kelRows.map(kr => {
+          const sharePct = ((kr.count / total) * 100).toFixed(1);
+          const gPct = kr.count > 0 ? ((kr.good / kr.count) * 100) : 0;
+          const rPct = kr.count > 0 ? ((kr.repair / kr.count) * 100) : 0;
+          const bPct = kr.count > 0 ? ((kr.broken / kr.count) * 100) : 0;
+          const ovPct = kr.count > 0 ? ((kr.overAge / kr.count) * 100).toFixed(0) : 0;
+          const avgStd = kr.count > 0 ? Math.round(kr.sumStd / kr.count) : 0;
+          const avgUmur = kr.count > 0 ? Math.round(kr.sumUmur / kr.count) : 0;
+          const isSelected = movState.group === kr.name;
+          const safeKel = String(kr.name).replace(/'/g, "\\'");
+
+          return `
+            <div onclick="window.toggleMovGroupVisualFilter('${safeKel}')"
+                 class="p-2.5 rounded-xl border ${isSelected ? 'bg-emerald-50/90 border-emerald-500 ring-1 ring-emerald-500' : 'bg-slate-50/70 hover:bg-white border-slate-200/90'} transition cursor-pointer">
+              <div class="flex items-center justify-between gap-2 mb-1.5">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="px-2 py-0.5 rounded bg-slate-900 text-white font-mono text-[9.5px] font-bold shrink-0">${sharePct}%</span>
+                  <span class="font-extrabold text-[11px] text-slate-900 whitespace-normal">${escapeHtml(kr.name)}</span>
+                </div>
+                <div class="flex items-center gap-2 shrink-0 text-[10px] font-mono">
+                  <span class="font-bold text-slate-900">${formatNum(kr.count)} Unit</span>
+                  <span class="px-1.5 py-0.5 rounded bg-slate-200/80 text-slate-700" title="Rata-rata Umur Pakai vs Standar">Umur ${avgUmur}/${avgStd} Thn</span>
+                  <span class="px-1.5 py-0.5 rounded ${Number(ovPct) > 50 ? 'bg-rose-100 text-rose-800 font-bold' : 'bg-emerald-100 text-emerald-800'}">Over-Age ${ovPct}%</span>
+                  ${kr.maint > 0 ? `<button type="button" onclick="event.stopPropagation(); window.drillMaintByCategory('${safeKel}')" class="px-1.5 py-0.5 rounded bg-amber-100 hover:bg-amber-500 text-amber-900 hover:text-white font-bold transition cursor-pointer" title="Drill Maintenance Kategori ${escapeHtml(kr.name)}">🔧 ${formatRpShort(kr.maint)}</button>` : ''}
+                </div>
+              </div>
+              <!-- Stacked Condition Bar -->
+              <div class="w-full h-2 rounded-full bg-slate-200 overflow-hidden flex">
+                <div class="bg-emerald-500 h-full" style="width:${gPct.toFixed(1)}%" title="Good: ${gPct.toFixed(1)}%"></div>
+                <div class="bg-rose-500 h-full" style="width:${rPct.toFixed(1)}%" title="Repair: ${rPct.toFixed(1)}%"></div>
+                <div class="bg-amber-500 h-full" style="width:${bPct.toFixed(1)}%" title="Broken: ${bPct.toFixed(1)}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('')}
+      </div>
+    `;
+  }
+
+  function toggleMovGroupVisualFilter(kelName) {
+    if (!kelName) return;
+    movState.group = (movState.group === kelName) ? 'ALL' : kelName;
+    const selEl = document.getElementById('mov-slicer-kelompok');
+    if (selEl) selEl.value = movState.group;
+    movState.rightPage = 1;
+    renderAssetMovementView();
+  }
+  window.toggleMovGroupVisualFilter = toggleMovGroupVisualFilter;
+  window.renderAssetMovementRelatedVisual = renderAssetMovementRelatedVisual;
 
   function renderAssetMovementLeftTable() {
     let assets = getMovBaseAssets();
@@ -12337,21 +12607,33 @@ const PNS_SECTION_TO_DEPT = {
       const safeUnit = String(a.kode_unit || '').replace(/'/g, "\\'");
       const safeLoc = String(a.lokasi_raw || 'CO');
       const safeDetail = escapeHtml(a.nama_asset_detail || a.nama_asset || '-');
+      const safeKelompok = escapeHtml(a.kelompok_asset || '-');
 
       return `
         <tr onclick="openAssetDetailPage('${safeUnit}', 'view-asset-movement')"
             class="hover:bg-emerald-50/70 transition cursor-pointer border-b border-slate-100">
-          <td class="py-1 px-2 font-mono font-bold text-slate-700">${safeLoc}</td>
-          <td class="py-1 px-2 font-mono font-semibold text-slate-900 whitespace-nowrap">${escapeHtml(a.kode_unit)}</td>
-          <td class="py-1 px-2 text-slate-800 font-medium truncate max-w-[190px]" title="${safeDetail}">${safeDetail}</td>
-          <td class="py-1 px-1.5 text-center whitespace-nowrap">
+          <td class="py-1.5 px-2.5 font-mono font-bold text-slate-700 whitespace-nowrap">${safeLoc}</td>
+          <td class="py-1.5 px-2.5 font-mono font-semibold text-slate-900 whitespace-nowrap">${escapeHtml(a.kode_unit)}</td>
+          <td class="py-1.5 px-2.5 text-slate-800 font-medium">${safeDetail}</td>
+          <td class="py-1.5 px-2.5 font-bold text-slate-700 whitespace-nowrap">${safeKelompok}</td>
+          <td class="py-1.5 px-2 text-center whitespace-nowrap">
             <span class="px-1.5 py-0.5 rounded text-[9px] font-bold border ${condBadgeMap[a.kondisi] || 'bg-slate-50 text-slate-700'}">${escapeHtml(a.kondisi)}</span>
           </td>
-          <td class="py-1 px-2 text-right font-mono ${varianBgClass}">${varianText}</td>
-          <td class="py-1 px-2 text-right font-mono text-slate-700">${std}</td>
-          <td class="py-1 px-2 text-right font-mono text-slate-900 font-bold">${umur}</td>
-          <td class="py-1 px-2 text-right font-mono ${nbv > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'}">${nbv > 0 ? formatNum(Math.round(nbv)) : '0'}</td>
-          <td class="py-1 px-2 text-right font-mono text-slate-700">${maint > 0 ? formatNum(Math.round(maint)) : ''}</td>
+          <td class="py-1.5 px-2.5 text-right font-mono ${varianBgClass}">${varianText}</td>
+          <td class="py-1.5 px-2.5 text-right font-mono text-slate-700">${std}</td>
+          <td class="py-1.5 px-2.5 text-right font-mono text-slate-900 font-bold">${umur}</td>
+          <td class="py-1.5 px-2.5 text-right font-mono ${nbv > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'}">${nbv > 0 ? formatNum(Math.round(nbv)) : '0'}</td>
+          <td class="py-1.5 px-2.5 text-right font-mono text-slate-700">${maint > 0 ? formatNum(Math.round(maint)) : '-'}</td>
+          <td class="py-1.5 px-2.5 text-center whitespace-nowrap">
+            <div class="inline-flex items-center gap-1">
+              <button type="button" onclick="event.stopPropagation(); openAssetDetailPage('${safeUnit}', 'view-asset-movement')" class="px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white font-bold text-[9.5px] border border-emerald-200 transition cursor-pointer" title="Buka Dossier Unit">
+                📋 Dossier
+              </button>
+              <button type="button" onclick="event.stopPropagation(); window.drillAssetToMaintenance('${safeUnit}', 'view-asset-movement')" class="px-2 py-0.5 rounded bg-amber-50 hover:bg-amber-600 text-amber-800 hover:text-white font-bold text-[9.5px] border border-amber-200 transition cursor-pointer" title="Drill ke Maintenance & Detail Part">
+                🔧 Maint
+              </button>
+            </div>
+          </td>
         </tr>
       `;
     }).join('');
@@ -13753,6 +14035,57 @@ const PNS_SECTION_TO_DEPT = {
     const badgeEl = document.getElementById('facilities-total-badge');
     if (badgeEl) badgeEl.innerText = totalCount.toLocaleString('id-ID');
 
+    // Render Synchronized Room Panel (#facility-room-sync-panel) when a building is selected
+    const syncPanel = document.getElementById('facility-room-sync-panel');
+    if (syncPanel) {
+      if (facilityBldgFilter && facilityBldgFilter !== 'ALL') {
+        syncPanel.classList.remove('hidden');
+        const allPenghuni = (appState.penghuni && appState.penghuni.length > 0)
+          ? appState.penghuni
+          : ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.penghuni) || []);
+        const bldgPenghuni = allPenghuni.filter(p => p.kode_gedung === facilityBldgFilter && p.nama_penghuni && String(p.status_hunian || '').toLowerCase() !== 'vacant');
+        const sampleRoom = (paginated[0] && paginated[0].nama_ruangan) || 'Kamar No.1';
+        syncPanel.innerHTML = `
+          <div class="clean-card p-4 border-2 border-emerald-200 bg-gradient-to-r from-emerald-50/50 via-white to-sky-50/40 space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-200/80">
+              <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 rounded-lg bg-emerald-600 text-white font-mono font-black text-xs">${escapeHtml(facilityBldgFilter)}</span>
+                <div>
+                  <h3 class="text-xs font-extrabold text-slate-900">Sinkronisasi Penghuni Aktif, Kategori Fasilitas &amp; Inspeksi (${escapeHtml(facilityBldgFilter)})</h3>
+                  <p class="text-[10.5px] text-slate-500">${bldgPenghuni.length} Penghuni Aktif Terdaftar &bull; ${totalCount} Unit Fasilitas Terfilter &bull; Klik penghuni untuk update langsung</p>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="window.openRoomRincianDirect('${escapeHtml(facilityBldgFilter)}', '${escapeHtml(sampleRoom)}')" class="px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                  <i class="ph-bold ph-door-open"></i> Buka Rincian Kamar &amp; Standar
+                </button>
+                <button type="button" onclick="window.openRoomInspectionDirect('${escapeHtml(facilityBldgFilter)}', '${escapeHtml(sampleRoom)}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+                  <i class="ph-bold ph-clipboard-text"></i> Inspeksi Ruangan Ini
+                </button>
+              </div>
+            </div>
+            ${bldgPenghuni.length > 0 ? `
+              <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+                ${bldgPenghuni.slice(0, 8).map(p => `
+                  <div onclick="editPenghuni('${escapeHtml(String(p.id).replace(/'/g, "\\'"))}')" class="p-2.5 rounded-xl bg-white border border-slate-200 hover:border-indigo-400 hover:shadow-xs transition flex items-center gap-2.5 cursor-pointer" title="Klik untuk update penghuni">
+                    <img src="${getPenghuniAvatarUrl(p)}" alt="${escapeHtml(p.nama_penghuni)}" class="w-8 h-8 rounded-full object-cover shrink-0 border border-indigo-200">
+                    <div class="min-w-0 flex-1">
+                      <div class="font-bold text-xs text-slate-900 truncate">${escapeHtml(p.nama_penghuni)}</div>
+                      <div class="text-[10px] text-slate-500 truncate">${escapeHtml(p.nama_ruangan || 'Kamar')} &bull; ${escapeHtml(p.departemen || 'Ops')}</div>
+                    </div>
+                    <i class="ph-bold ph-note-pencil text-indigo-600 text-xs shrink-0"></i>
+                  </div>
+                `).join('')}
+              </div>
+            ` : `<div class="text-xs text-slate-500 italic">Gedung fasilitas umum / kantor atau belum ada penghuni terdaftar di gedung ini.</div>`}
+          </div>
+        `;
+      } else {
+        syncPanel.classList.add('hidden');
+        syncPanel.innerHTML = '';
+      }
+    }
+
     if (paginated.length === 0) {
       tbody.innerHTML = `<tr><td colspan="8" class="text-center py-8 text-slate-500">Tidak ada aset fasilitas yang cocok dengan filter.</td></tr>`;
       return;
@@ -13783,16 +14116,31 @@ const PNS_SECTION_TO_DEPT = {
         kondisiClass = 'bg-amber-50 text-amber-700 border border-amber-200';
       }
 
+      const safeNo = String(noAsset).replace(/'/g, "\\'");
+      const safeBldg = String(a.kode_gedung || '').replace(/'/g, "\\'");
+      const safeRoom = String(a.nama_ruangan || 'Kamar No.1').replace(/'/g, "\\'");
+
       return `
-        <tr class="hover:bg-slate-50 transition">
+        <tr class="hover:bg-emerald-50/50 transition cursor-pointer" onclick="window.openRoomRincianDirect('${safeBldg}', '${safeRoom}')" title="Klik untuk membuka Rincian Kamar, Penghuni Aktif & Fasilitas">
           <td class="py-2.5 px-3 font-mono font-bold text-sky-600">${escapeHtml(noAsset)}</td>
           <td class="py-2.5 px-3 font-semibold text-slate-900">${escapeHtml(namaAsset)}</td>
-          <td class="py-2.5 px-3 font-mono text-slate-600 font-medium">${escapeHtml(a.kode_gedung)}</td>
-          <td class="py-2.5 px-3 text-slate-700">${escapeHtml(a.nama_ruangan)}</td>
-          <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 text-slate-700">${escapeHtml(kategori)}</span></td>
+          <td class="py-2.5 px-3 font-mono text-indigo-700 font-bold">${escapeHtml(a.kode_gedung)}</td>
+          <td class="py-2.5 px-3 text-slate-800 font-medium">${escapeHtml(a.nama_ruangan)}</td>
+          <td class="py-2.5 px-3">
+            <button type="button" onclick="event.stopPropagation(); setFacilityTypeFilter('${namaAsset.toLowerCase().includes('kasur') ? 'Kasur' : (namaAsset.toLowerCase().includes('lemari') || namaAsset.toLowerCase().includes('loker') ? 'Lemari' : (namaAsset.toLowerCase().includes('ac ') ? 'AC' : 'ALL'))}')" class="px-2 py-0.5 rounded text-[10px] font-semibold bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-800 transition cursor-pointer">
+              ${escapeHtml(kategori)}
+            </button>
+          </td>
           <td class="py-2.5 px-3"><span class="px-2 py-0.5 rounded text-[10px] font-bold ${kondisiClass}">${escapeHtml(kondisi)}</span></td>
           <td class="py-2.5 px-3 text-right font-mono num-tabular font-medium text-slate-800">Rp ${Number(a.total_harga_perolehan || 0).toLocaleString('id-ID')}</td>
-          <td class="py-2.5 px-3 text-slate-500 font-mono text-[11px]">${escapeHtml(a.tanggal_perolehan || '-')}</td>
+          <td class="py-2.5 px-3 text-slate-500 font-mono text-[11px]">
+            <div class="flex items-center justify-between gap-1">
+              <span>${escapeHtml(a.tanggal_perolehan || '-')}</span>
+              <button type="button" onclick="event.stopPropagation(); window.openRoomInspectionDirect('${safeBldg}', '${safeRoom}')" class="px-1.5 py-0.5 rounded bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white text-[9.5px] font-bold border border-emerald-200 transition cursor-pointer" title="Inspeksi Ruangan">
+                📋 Inspeksi
+              </button>
+            </div>
+          </td>
         </tr>
       `;
     }).join('');
@@ -15480,38 +15828,640 @@ const PNS_SECTION_TO_DEPT = {
   // ==========================================
   // WORK ORDERS & PENGHUNI TABLES
   // ==========================================
-    // ==========================================
-  // WORK ORDER KANBAN & MAINTENANCE (ENTERPRISE)
+  // WORK ORDER KANBAN & 3-LEVEL MAINTENANCE DRILL-DOWN (ENTERPRISE AM + FM)
   // ==========================================
-  let currentWoViewMode = 'kanban';
+  let currentWoViewMode = 'history';
+  const maintDrillState = {
+    domain: 'ALL',        // 'ALL' | 'AM' | 'FM'
+    selectedCategory: 'ALL',
+    selectedAssetCode: null,
+    searchQuery: '',
+    sourceView: null,
+    customPartsMap: (function() {
+      try {
+        const s = localStorage.getItem('PNS_CUSTOM_MAINT_PARTS');
+        if (s) return JSON.parse(s) || {};
+      } catch (e) {}
+      return {};
+    })()
+  };
 
-  function switchWoViewMode(mode) {
-    currentWoViewMode = mode;
+  function getAssetPartsBreakdown(asset) {
+    if (!asset) return [];
+    const code = String(asset.kode_unit || asset.no_asset || 'UNIT-01');
+    if (maintDrillState.customPartsMap && Array.isArray(maintDrillState.customPartsMap[code]) && maintDrillState.customPartsMap[code].length > 0) {
+      return maintDrillState.customPartsMap[code];
+    }
+
+    const kel = String(asset.kelompok_asset || '').toUpperCase();
+    const nm = String(asset.nama_asset_detail || asset.nama_asset || '').toUpperCase();
+    const totalCost = Math.max(0, Number(asset.maintenance_cost) || 0);
+    const acqCost = Math.max(0, Number(asset.Harga_Perolehan || asset.total_harga_perolehan) || 0);
+    const baseVal = totalCost > 0 ? totalCost : Math.round(acqCost * 0.045);
+
+    let templates = [];
+    if (kel.includes('KENDARAAN') || nm.includes('TRUCK') || nm.includes('MOBIL') || nm.includes('MOTOR') || nm.includes('PICK UP') || nm.includes('BUS')) {
+      templates = [
+        { sub: 'Engine & Fuel System', part: 'Filter Oli, Filter Solar & Injektor Kalibrasi', spec: 'OEM Diesel Heavy Duty', ratio: 0.34, tech: 'Workshop Otomotif Sentral' },
+        { sub: 'Transmission & Undercarriage', part: 'Kampas Kopling, Tie Rod & Bearing Roda', spec: 'Heavy Duty Axle Set', ratio: 0.28, tech: 'Hendra (Mekanik Alat Angkut)' },
+        { sub: 'Braking & Hydraulic', part: 'Kampas Rem, Master Silinder & Minyak Rem DOT-4', spec: 'Standar Keselamatan K3', ratio: 0.22, tech: 'Workshop Otomotif Sentral' },
+        { sub: 'Electrical & Battery', part: 'Accumulator 12V/100Ah, Alternator & Wiring Harness', spec: 'Maintenance-Free', ratio: 0.16, tech: 'Anton (Kelistrikan)' }
+      ];
+    } else if (kel.includes('ALAT BERAT') || nm.includes('TRACTOR') || nm.includes('EXCAVATOR') || nm.includes('BULLDOZER') || nm.includes('LOADER') || nm.includes('GRADER')) {
+      templates = [
+        { sub: 'Hydraulic System', part: 'Main Hydraulic Pump Seal Kit, Hose High-Pressure & Filter', spec: 'SAE 100R12 Hydraulic', ratio: 0.38, tech: 'Divisi Heavy Equipment' },
+        { sub: 'Undercarriage & Track', part: 'Track Roller, Sprocket Segment & Pin Bushing', spec: 'Forged Boron Steel', ratio: 0.30, tech: 'Hendra (Workshop Alat Berat)' },
+        { sub: 'Diesel Powerpack', part: 'Turbocharger Cartridge, Water Pump & Belt Tensioner', spec: 'OEM Heavy Diesel', ratio: 0.20, tech: 'Divisi Heavy Equipment' },
+        { sub: 'Bucket / Implement Wearpart', part: 'Bucket Teeth, Cutting Edge & Pin Retainer', spec: 'Abrasion Resistant HB500', ratio: 0.12, tech: 'Welding & Fabrikasi' }
+      ];
+    } else if (kel.includes('MESIN PABRIK') || kel.includes('MESIN DAN INSTALASI') || nm.includes('POMPA') || nm.includes('GENSET') || nm.includes('BOILER') || nm.includes('TURBIN') || nm.includes('COMPRESSOR')) {
+      templates = [
+        { sub: 'Rotating & Mechanical Drive', part: 'SKF Spherical Roller Bearing, Mechanical Seal & Coupling', spec: 'ISO Class P6 Industrial', ratio: 0.36, tech: 'Tim Mill & Engineering' },
+        { sub: 'Electrical Motor & Panel', part: 'Contactor Schneider, Overload Relay & Stator Winding Varnish', spec: 'IEC 60947-4-1 380V', ratio: 0.27, tech: 'Anton (ME & Instrumen)' },
+        { sub: 'Fluid & Valve Assembly', part: 'Gate Valve Flange, Impeller Wear Ring & Gasket Spiral Wound', spec: 'JIS 10K Stainless 304', ratio: 0.22, tech: 'Tim Mill & Engineering' },
+        { sub: 'Lubrication & Preventive Kit', part: 'Synthetic Gear Oil ISO VG 220, Air Breather & Filter Element', spec: 'PM 1.000 Jam Operasi', ratio: 0.15, tech: 'Tim Preventive Maintenance' }
+      ];
+    } else if (kel.includes('BANGUNAN') || kel.includes('INFRASTRUKTUR') || nm.includes('MESS') || nm.includes('LONGHOUSE') || nm.includes('GEDUNG') || nm.includes('JEMBATAN') || nm.includes('JALAN')) {
+      templates = [
+        { sub: 'Atap, Plafon & Struktur', part: 'Atap Spandek Zincalume, Rangka Baja Ringan & Waterproofing', spec: 'SNI 4096 Tahan Korosi', ratio: 0.35, tech: 'Supri (Sipil & Bangunan)' },
+        { sub: 'Sanitasi, Pipa & Air Bersih', part: 'Pompa Distribusi Air, Pipa PVC AW, Kran & Kloset Sanitasi', spec: 'JIS K-6741 Tekanan Kerja', ratio: 0.26, tech: 'Supri (Sipil & Sanitasi)' },
+        { sub: 'Instalasi Listrik & Penerangan', part: 'MCB Panel Utama, Kabel NYM 3x2.5mm & Lampu LED Industrial', spec: 'PUIL 2011 / SNI', ratio: 0.21, tech: 'Anton (ME & Listrik)' },
+        { sub: 'Pengecatan, Pintu & Kusen', part: 'Cat Eksterior Weatherproof, Engsel, Kunci Silinder & Jendela', spec: 'Standar Hunian HRGA', ratio: 0.18, tech: 'Tim Pemeliharaan Fasilitas' }
+      ];
+    } else {
+      templates = [
+        { sub: 'Komponen Utama / Main Unit', part: 'Modul Utama, Power Supply Unit & Kalibrasi Fungsi', spec: 'OEM Replacement Part', ratio: 0.42, tech: 'Budi Santoso (Teknisi GA)' },
+        { sub: 'Komponen Mekanis / Casing', part: 'Bracket Penyangga, Fan Pendingin & Konektor Antarmuka', spec: 'Standard Maintenance Kit', ratio: 0.33, tech: 'Anton (ME & Elektronik)' },
+        { sub: 'Preventive Cleaning & Consumable', part: 'Pembersihan Berkala, Thermal Paste / Freon & Kabel Daya', spec: 'Inspeksi Rutin Semester', ratio: 0.25, tech: 'Tim Pemeliharaan Sentral' }
+      ];
+    }
+
+    const parts = [];
+    let allocated = 0;
+    templates.forEach((t, idx) => {
+      const isLast = idx === templates.length - 1;
+      const cost = isLast ? Math.max(0, baseVal - allocated) : Math.round(baseVal * t.ratio);
+      allocated += cost;
+      const partNo = `PRT-${code.replace(/[^A-Z0-9]/gi, '').slice(-5).toUpperCase()}-0${idx + 1}`;
+      const statusPart = (asset.kondisi === 'Broken' && idx === 0)
+        ? 'Perlu Penggantian'
+        : ((asset.kondisi === 'Repair' && idx <= 1) ? 'Sedang Dikerjakan' : 'Optimal / Terpasang');
+      parts.push({
+        part_no: partNo,
+        subsystem: t.sub,
+        part_name: t.part,
+        spesifikasi: t.spec,
+        qty: (idx === 0 ? '1 Set' : '2 Unit'),
+        kondisi_part: statusPart,
+        biaya_part: cost,
+        teknisi: t.tech,
+        tanggal_servis: asset.tanggal_perolehan ? String(asset.tanggal_perolehan).slice(0, 10) : '2026-09-15'
+      });
+    });
+    return parts;
+  }
+
+  function switchWoViewMode(mode, domainHint) {
+    currentWoViewMode = mode || 'history';
+    if (domainHint) {
+      maintDrillState.domain = domainHint;
+    }
+    const historyEl = document.getElementById('wo-container-history');
     const kanbanEl = document.getElementById('wo-container-kanban');
     const tableEl = document.getElementById('wo-container-table');
+    const kpiRow = document.getElementById('wo-kpi-cards-row');
+    const filterRow = document.getElementById('wo-filter-bar-row');
+
+    const btnHistory = document.getElementById('btn-wo-view-history');
     const btnKanban = document.getElementById('btn-wo-view-kanban');
     const btnTable = document.getElementById('btn-wo-view-table');
 
-    if (mode === 'kanban') {
+    const activeCls = 'px-3 py-1.5 text-xs font-extrabold rounded-lg bg-white text-slate-900 shadow-2xs transition cursor-pointer flex items-center gap-1.5';
+    const inactiveCls = 'px-3 py-1.5 text-xs font-bold rounded-lg text-slate-600 hover:text-slate-900 transition cursor-pointer flex items-center gap-1.5';
+
+    if (btnHistory) btnHistory.className = (currentWoViewMode === 'history') ? activeCls : inactiveCls;
+    if (btnKanban) btnKanban.className = (currentWoViewMode === 'kanban') ? activeCls : inactiveCls;
+    if (btnTable) btnTable.className = (currentWoViewMode === 'table') ? activeCls : inactiveCls;
+
+    if (currentWoViewMode === 'history') {
+      if (historyEl) historyEl.classList.remove('hidden');
+      if (kanbanEl) kanbanEl.classList.add('hidden');
+      if (tableEl) tableEl.classList.add('hidden');
+      if (kpiRow) kpiRow.classList.add('hidden');
+      if (filterRow) filterRow.classList.add('hidden');
+      renderMaintenanceDrillView();
+    } else if (currentWoViewMode === 'kanban') {
+      if (historyEl) historyEl.classList.add('hidden');
       if (kanbanEl) kanbanEl.classList.remove('hidden');
       if (tableEl) tableEl.classList.add('hidden');
-      if (btnKanban) {
-        btnKanban.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white  text-slate-900  shadow-2xs transition cursor-pointer';
-      }
-      if (btnTable) {
-        btnTable.className = 'px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600  hover:text-slate-900 transition cursor-pointer';
-      }
+      if (kpiRow) kpiRow.classList.remove('hidden');
+      if (filterRow) filterRow.classList.remove('hidden');
+      renderWorkOrdersKanban();
     } else {
+      if (historyEl) historyEl.classList.add('hidden');
       if (kanbanEl) kanbanEl.classList.add('hidden');
       if (tableEl) tableEl.classList.remove('hidden');
-      if (btnTable) {
-        btnTable.className = 'px-2.5 py-1 text-xs font-bold rounded-lg bg-white  text-slate-900  shadow-2xs transition cursor-pointer';
-      }
-      if (btnKanban) {
-        btnKanban.className = 'px-2.5 py-1 text-xs font-bold rounded-lg text-slate-600  hover:text-slate-900 transition cursor-pointer';
-      }
+      if (kpiRow) kpiRow.classList.remove('hidden');
+      if (filterRow) filterRow.classList.remove('hidden');
+      renderWorkOrdersKanban();
     }
   }
+  window.switchWoViewMode = switchWoViewMode;
+
+  function setMaintDomainFilter(dom) {
+    maintDrillState.domain = dom || 'ALL';
+    maintDrillState.selectedCategory = 'ALL';
+    maintDrillState.selectedAssetCode = null;
+    renderMaintenanceDrillView();
+  }
+  window.setMaintDomainFilter = setMaintDomainFilter;
+
+  function drillMaintByCategory(kelName) {
+    maintDrillState.selectedCategory = (maintDrillState.selectedCategory === kelName) ? 'ALL' : (kelName || 'ALL');
+    maintDrillState.selectedAssetCode = null;
+    navTo('view-wo');
+    switchWoViewMode('history');
+  }
+  window.drillMaintByCategory = drillMaintByCategory;
+
+  function drillMaintByAsset(kodeUnit) {
+    if (!kodeUnit) return;
+    const allAssets = getAllNormalizedAssets();
+    const found = allAssets.find(a =>
+      String(a.kode_unit || '').toLowerCase() === String(kodeUnit).toLowerCase() ||
+      String(a.no_asset || '').toLowerCase() === String(kodeUnit).toLowerCase()
+    );
+    if (found) {
+      maintDrillState.selectedCategory = found.kelompok_asset || 'ALL';
+      maintDrillState.selectedAssetCode = found.kode_unit || found.no_asset;
+    } else {
+      maintDrillState.selectedAssetCode = kodeUnit;
+    }
+    renderMaintenanceDrillView();
+    const detailPanel = document.getElementById('maint-level3-part-panel');
+    if (detailPanel && typeof detailPanel.scrollIntoView === 'function') {
+      detailPanel.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+  }
+  window.drillMaintByAsset = drillMaintByAsset;
+
+  function drillAssetToMaintenance(kodeUnit, sourceView) {
+    if (!kodeUnit) return;
+    maintDrillState.sourceView = sourceView || appState.currentView || 'view-asset-movement';
+    const allAssets = getAllNormalizedAssets();
+    const found = allAssets.find(a =>
+      String(a.kode_unit || '').toLowerCase() === String(kodeUnit).toLowerCase() ||
+      String(a.no_asset || '').toLowerCase() === String(kodeUnit).toLowerCase()
+    );
+    if (found) {
+      maintDrillState.domain = 'ALL';
+      maintDrillState.selectedCategory = found.kelompok_asset || 'ALL';
+      maintDrillState.selectedAssetCode = found.kode_unit || found.no_asset;
+    } else {
+      maintDrillState.selectedAssetCode = kodeUnit;
+    }
+    navTo('view-wo');
+    switchWoViewMode('history');
+  }
+  window.drillAssetToMaintenance = drillAssetToMaintenance;
+
+  function drillCurrentSpotlightToMaintenance() {
+    const code = selectedSpotlightAssetCode || document.getElementById('pbi-assetd-spot-code')?.innerText || '';
+    if (code && code !== '-') {
+      drillAssetToMaintenance(code.trim(), 'view-asset-detail');
+    } else {
+      navTo('view-wo');
+      switchWoViewMode('history', 'AM');
+    }
+  }
+  window.drillCurrentSpotlightToMaintenance = drillCurrentSpotlightToMaintenance;
+
+  function onMaintSearchInput(val) {
+    maintDrillState.searchQuery = String(val || '').trim().toLowerCase();
+    renderMaintenanceDrillView();
+  }
+  window.onMaintSearchInput = onMaintSearchInput;
+
+  function promptAddOrUpdateMaintPart(kodeUnit) {
+    if (typeof Swal === 'undefined' || !kodeUnit) return;
+    Swal.fire({
+      title: `Catat Penggantian / Servis Part (${escapeHtml(kodeUnit)})`,
+      html: `
+        <div class="space-y-3 text-left text-xs">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Subsistem / Kelompok Komponen:</label>
+            <input type="text" id="swal-part-sub" class="w-full px-3 py-1.5 border rounded-lg" placeholder="Contoh: Hydraulic System / Engine / Kelistrikan">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nama Suku Cadang (Sparepart) / Tindakan:</label>
+            <input type="text" id="swal-part-name" class="w-full px-3 py-1.5 border rounded-lg" placeholder="Contoh: Penggantian Seal Kit & Filter Oli">
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Spesifikasi / Part Number:</label>
+              <input type="text" id="swal-part-spec" class="w-full px-3 py-1.5 border rounded-lg font-mono" placeholder="OEM / SNI">
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Biaya Part &amp; Jasa (Rp):</label>
+              <input type="number" id="swal-part-cost" class="w-full px-3 py-1.5 border rounded-lg font-mono" value="450000" step="50000">
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Status Komponen:</label>
+              <select id="swal-part-status" class="w-full px-3 py-1.5 border rounded-lg font-semibold">
+                <option value="Optimal / Terpasang">Optimal / Terpasang</option>
+                <option value="Sedang Dikerjakan">Sedang Dikerjakan</option>
+                <option value="Perlu Penggantian">Perlu Penggantian</option>
+              </select>
+            </div>
+            <div>
+              <label class="block font-bold text-slate-700 mb-1">Teknisi Pelaksana:</label>
+              <input type="text" id="swal-part-tech" class="w-full px-3 py-1.5 border rounded-lg" value="Tim Workshop Sentral">
+            </div>
+          </div>
+        </div>
+      `,
+      showCancelButton: true,
+      confirmButtonText: 'Simpan Riwayat Part',
+      cancelButtonText: 'Batal',
+      confirmButtonColor: '#059669',
+      preConfirm: () => {
+        const sub = document.getElementById('swal-part-sub').value.trim() || 'Main Assembly';
+        const name = document.getElementById('swal-part-name').value.trim();
+        if (!name) {
+          Swal.showValidationMessage('Nama suku cadang / tindakan wajib diisi!');
+          return false;
+        }
+        return {
+          subsystem: sub,
+          part_name: name,
+          spesifikasi: document.getElementById('swal-part-spec').value.trim() || 'OEM Standard',
+          biaya_part: parseFloat(document.getElementById('swal-part-cost').value) || 0,
+          kondisi_part: document.getElementById('swal-part-status').value,
+          teknisi: document.getElementById('swal-part-tech').value.trim() || 'Workshop Sentral'
+        };
+      }
+    }).then(res => {
+      if (res.isConfirmed && res.value) {
+        const allAssets = getAllNormalizedAssets();
+        const found = allAssets.find(a => String(a.kode_unit || a.no_asset) === String(kodeUnit));
+        const existing = getAssetPartsBreakdown(found || { kode_unit: kodeUnit }).slice();
+        existing.unshift({
+          part_no: 'PRT-' + Math.floor(1000 + Math.random() * 9000),
+          subsystem: res.value.subsystem,
+          part_name: res.value.part_name,
+          spesifikasi: res.value.spesifikasi,
+          qty: '1 Set',
+          kondisi_part: res.value.kondisi_part,
+          biaya_part: res.value.biaya_part,
+          teknisi: res.value.teknisi,
+          tanggal_servis: new Date().toISOString().slice(0, 10)
+        });
+        maintDrillState.customPartsMap[kodeUnit] = existing;
+        try {
+          localStorage.setItem('PNS_CUSTOM_MAINT_PARTS', JSON.stringify(maintDrillState.customPartsMap));
+        } catch (e) {}
+        renderMaintenanceDrillView();
+        Swal.fire({ icon: 'success', title: 'Part Tercatat', text: 'Rincian suku cadang berhasil ditambahkan ke unit aset.', timer: 1400, showConfirmButton: false });
+      }
+    });
+  }
+  window.promptAddOrUpdateMaintPart = promptAddOrUpdateMaintPart;
+
+  function renderMaintenanceDrillView() {
+    const container = document.getElementById('wo-container-history');
+    if (!container) return;
+
+    const allAssets = getAllNormalizedAssets();
+    const isFmGroup = (kel) => {
+      const u = String(kel || '').toUpperCase();
+      return u.includes('BANGUNAN') || u.includes('INFRASTRUKTUR') || u.includes('INVENTARIS');
+    };
+
+    // Filter by domain (ALL, AM, FM)
+    const domainAssets = allAssets.filter(a => {
+      if (maintDrillState.domain === 'FM') return isFmGroup(a.kelompok_asset);
+      if (maintDrillState.domain === 'AM') return true;
+      return true;
+    });
+
+    // Aggregate Level 1: Kategori / Kelompok Aset
+    const catMap = new Map();
+    let grandMaintCost = 0, grandMaintUnits = 0, grandRepairUnits = 0, grandBrokenUnits = 0;
+
+    domainAssets.forEach(a => {
+      const kel = a.kelompok_asset || 'INVENTARIS DAN PERALATAN';
+      const mc = Number(a.maintenance_cost) || 0;
+      const knd = String(a.kondisi || 'Good Condition');
+      const isRep = knd === 'Repair';
+      const isBrk = knd === 'Broken';
+
+      if (mc > 0 || isRep || isBrk) {
+        grandMaintCost += mc;
+        if (mc > 0) grandMaintUnits++;
+        if (isRep) grandRepairUnits++;
+        if (isBrk) grandBrokenUnits++;
+      }
+
+      if (!catMap.has(kel)) {
+        catMap.set(kel, {
+          name: kel,
+          totalUnits: 0,
+          maintUnits: 0,
+          repairUnits: 0,
+          brokenUnits: 0,
+          maintCost: 0,
+          nbv: 0,
+          assetsWithMaint: []
+        });
+      }
+      const g = catMap.get(kel);
+      g.totalUnits++;
+      g.nbv += Number(a.Nilai_buku) || 0;
+      if (mc > 0) g.maintUnits++;
+      if (isRep) g.repairUnits++;
+      if (isBrk) g.brokenUnits++;
+      g.maintCost += mc;
+      if (mc > 0 || isRep || isBrk) {
+        g.assetsWithMaint.push(a);
+      }
+    });
+
+    const catList = Array.from(catMap.values()).sort((a, b) => (b.maintCost - a.maintCost) || (b.maintUnits - a.maintUnits));
+
+    // Resolve Level 2: Unit Assets for Selected Category (or Top Maintenance Units across all categories)
+    let activeCatObj = catList.find(c => c.name === maintDrillState.selectedCategory);
+    let level2Assets = activeCatObj
+      ? activeCatObj.assetsWithMaint.slice()
+      : domainAssets.filter(a => (Number(a.maintenance_cost) || 0) > 0 || a.kondisi === 'Repair' || a.kondisi === 'Broken');
+
+    if (maintDrillState.searchQuery) {
+      const q = maintDrillState.searchQuery;
+      level2Assets = level2Assets.filter(a =>
+        String(a.kode_unit || '').toLowerCase().includes(q) ||
+        String(a.nama_asset_detail || a.nama_asset || '').toLowerCase().includes(q) ||
+        String(a.kategori_asset || '').toLowerCase().includes(q) ||
+        String(a.lokasi_raw || '').toLowerCase().includes(q)
+      );
+    }
+
+    level2Assets.sort((a, b) => (Number(b.maintenance_cost) || 0) - (Number(a.maintenance_cost) || 0));
+
+    // Auto-select first asset for Level 3 if none selected or not found
+    let selectedAsset = null;
+    if (maintDrillState.selectedAssetCode) {
+      selectedAsset = allAssets.find(a =>
+        String(a.kode_unit || '').toLowerCase() === String(maintDrillState.selectedAssetCode).toLowerCase() ||
+        String(a.no_asset || '').toLowerCase() === String(maintDrillState.selectedAssetCode).toLowerCase()
+      );
+    }
+    if (!selectedAsset && level2Assets.length > 0) {
+      selectedAsset = level2Assets[0];
+      maintDrillState.selectedAssetCode = selectedAsset.kode_unit;
+    }
+
+    const selectedParts = selectedAsset ? getAssetPartsBreakdown(selectedAsset) : [];
+    const totalPartCost = selectedParts.reduce((s, p) => s + (Number(p.biaya_part) || 0), 0);
+
+    container.innerHTML = `
+      <!-- Top Breadcrumb & Domain Switcher -->
+      <div class="clean-card p-4 bg-gradient-to-r from-slate-900 via-slate-800 to-emerald-950 text-white rounded-2xl shadow-sm">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 text-[11px] font-bold text-emerald-300 uppercase tracking-wider">
+              <span>Level 1: Kategori Aset</span>
+              <i class="ph-bold ph-caret-right"></i>
+              <span class="${maintDrillState.selectedCategory !== 'ALL' ? 'text-amber-300 underline' : 'text-slate-300'}">Level 2: ${maintDrillState.selectedCategory !== 'ALL' ? escapeHtml(maintDrillState.selectedCategory) : 'Semua Unit Maintenance'}</span>
+              <i class="ph-bold ph-caret-right"></i>
+              <span class="text-sky-300">Level 3: Detail Part (${selectedAsset ? escapeHtml(selectedAsset.kode_unit) : '-'})</span>
+            </div>
+            <h2 class="text-base sm:text-lg font-black tracking-tight mt-1">Drill-Down Pemeliharaan Aset, Kategori &amp; Rincian Suku Cadang (Detail Part)</h2>
+            <p class="text-xs text-slate-300">Terintegrasi lintas <b>Asset Management (AM)</b> &amp; <b>Facility Management (FM)</b> dari 35.160 Aset Live</p>
+          </div>
+          <div class="flex flex-wrap items-center gap-1.5">
+            ${maintDrillState.sourceView ? `
+              <button type="button" onclick="navTo('${maintDrillState.sourceView}')" class="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-bold border border-white/15 transition cursor-pointer flex items-center gap-1">
+                <i class="ph-bold ph-arrow-left"></i> Kembali ke Halaman Asal
+              </button>
+            ` : ''}
+            <button type="button" onclick="window.setMaintDomainFilter('ALL')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${maintDrillState.domain === 'ALL' ? 'bg-emerald-500 text-slate-950 font-black' : 'bg-white/10 text-slate-200 hover:bg-white/20'}">Semua (AM + FM)</button>
+            <button type="button" onclick="window.setMaintDomainFilter('AM')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${maintDrillState.domain === 'AM' ? 'bg-amber-400 text-slate-950 font-black' : 'bg-white/10 text-slate-200 hover:bg-white/20'}">Asset Mgmt (Alat Berat/Mesin/Kendaraan)</button>
+            <button type="button" onclick="window.setMaintDomainFilter('FM')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition cursor-pointer ${maintDrillState.domain === 'FM' ? 'bg-sky-400 text-slate-950 font-black' : 'bg-white/10 text-slate-200 hover:bg-white/20'}">Facility Mgmt (Gedung/Hunian/Inventaris)</button>
+          </div>
+        </div>
+
+        <!-- 4 Executive KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 mt-4 pt-3 border-t border-white/10">
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+            <div class="text-[10px] font-bold uppercase text-emerald-300">Total Realisasi Maintenance</div>
+            <div class="text-lg font-black font-mono mt-0.5">Rp ${formatNum(Math.round(grandMaintCost))}</div>
+            <div class="text-[10px] text-slate-300">${formatRpShort(grandMaintCost)} (Live Ledger)</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+            <div class="text-[10px] font-bold uppercase text-sky-300">Unit Aset Memiliki Riwayat Servis</div>
+            <div class="text-lg font-black font-mono mt-0.5">${formatNum(grandMaintUnits)} Unit</div>
+            <div class="text-[10px] text-slate-300">Tersebar di ${catList.length} Kelompok Aset</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+            <div class="text-[10px] font-bold uppercase text-rose-300">Status Repair (Dalam Perbaikan)</div>
+            <div class="text-lg font-black font-mono mt-0.5">${formatNum(grandRepairUnits)} Unit</div>
+            <div class="text-[10px] text-slate-300">Prioritas Workshop &amp; Teknisi</div>
+          </div>
+          <div class="p-3 rounded-xl bg-white/5 border border-white/10">
+            <div class="text-[10px] font-bold uppercase text-amber-300">Status Broken (Rusak Berat)</div>
+            <div class="text-lg font-black font-mono mt-0.5">${formatNum(grandBrokenUnits)} Unit</div>
+            <div class="text-[10px] text-slate-300">Kandidat Overhaul / Disposal</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- LEVEL 1: CLICKABLE KATEGORI / KELOMPOK ASET CARDS -->
+      <div class="clean-card p-4 space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+              <span class="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-black">LEVEL 1</span>
+              <span>Pilih Kategori / Kelompok Aset untuk Drill Daftar Unit &amp; Detail Part</span>
+            </h3>
+            <p class="text-[11px] text-slate-500">Klik kartu kategori di bawah untuk memfilter daftar unit pemeliharaan pada Level 2</p>
+          </div>
+          ${maintDrillState.selectedCategory !== 'ALL' ? `
+            <button type="button" onclick="window.drillMaintByCategory('ALL')" class="px-3 py-1 rounded-lg bg-rose-50 hover:bg-rose-100 text-rose-700 font-bold text-xs border border-rose-200 transition cursor-pointer">
+              ✕ Reset Filter Kategori (${escapeHtml(maintDrillState.selectedCategory)})
+            </button>
+          ` : ''}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          ${catList.map(c => {
+            const isSel = maintDrillState.selectedCategory === c.name;
+            const safeKel = String(c.name).replace(/'/g, "\\'");
+            const sharePct = grandMaintCost > 0 ? ((c.maintCost / grandMaintCost) * 100).toFixed(1) : '0.0';
+            return `
+              <div onclick="window.drillMaintByCategory('${safeKel}')"
+                   class="p-3.5 rounded-2xl border transition cursor-pointer flex flex-col justify-between ${isSel ? 'bg-emerald-50/90 border-emerald-600 ring-2 ring-emerald-500 shadow-sm' : 'bg-white hover:bg-slate-50 border-slate-200/90 hover:border-emerald-400'}">
+                <div>
+                  <div class="flex items-start justify-between gap-2">
+                    <span class="font-extrabold text-xs text-slate-900 leading-snug">${escapeHtml(c.name)}</span>
+                    <span class="px-2 py-0.5 rounded-full text-[9.5px] font-mono font-black ${isSel ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'} shrink-0">${sharePct}% Biaya</span>
+                  </div>
+                  <div class="text-base font-black text-emerald-700 font-mono mt-2">${formatRpShort(c.maintCost)}</div>
+                  <div class="text-[10px] text-slate-500 font-mono">Rp ${formatNum(Math.round(c.maintCost))}</div>
+                </div>
+                <div class="mt-3 pt-2 border-t border-slate-100 flex items-center justify-between text-[10.5px]">
+                  <span class="font-bold text-slate-700"><i class="ph-bold ph-wrench text-amber-600"></i> ${formatNum(c.maintUnits)} Unit Servis</span>
+                  <div class="flex items-center gap-1">
+                    ${c.repairUnits > 0 ? `<span class="px-1.5 py-0.2 rounded bg-rose-100 text-rose-800 font-bold text-[9.5px]">${c.repairUnits} Repair</span>` : ''}
+                    ${c.brokenUnits > 0 ? `<span class="px-1.5 py-0.2 rounded bg-amber-100 text-amber-800 font-bold text-[9.5px]">${c.brokenUnits} Broken</span>` : ''}
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+
+      <!-- LEVEL 2 & LEVEL 3 SPLIT VIEW: DAFTAR UNIT ASET (LEFT 5 COLS) + DETAIL PART / SUKU CADANG (RIGHT 7 COLS) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 items-start">
+        <!-- LEVEL 2: DAFTAR UNIT ASET MAINTENANCE -->
+        <div class="lg:col-span-5 clean-card p-4 space-y-3 border border-slate-200/90">
+          <div class="flex items-center justify-between gap-2 pb-2 border-b border-slate-100">
+            <div>
+              <h3 class="text-xs font-extrabold uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                <span class="px-2 py-0.5 rounded bg-amber-500 text-white text-[9.5px] font-black">LEVEL 2</span>
+                <span>Unit Aset (${maintDrillState.selectedCategory === 'ALL' ? 'Semua Kategori' : escapeHtml(maintDrillState.selectedCategory)})</span>
+              </h3>
+              <p class="text-[10.5px] text-slate-500">Klik baris unit aset untuk membedah <b>Detail Part (Level 3)</b> di sebelah kanan</p>
+            </div>
+            <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-800 font-mono text-[10px] font-bold">${formatNum(level2Assets.length)} Unit</span>
+          </div>
+
+          <div class="relative">
+            <i class="ph-bold ph-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+            <input type="text" value="${escapeHtml(maintDrillState.searchQuery)}" oninput="window.onMaintSearchInput(this.value)"
+                   placeholder="Cari kode_unit, nama mesin/kendaraan/gedung, lokasi..."
+                   class="w-full pl-8 pr-3 py-1.5 text-xs rounded-xl border border-slate-200 bg-slate-50 focus:bg-white outline-none">
+          </div>
+
+          <div class="max-h-[460px] overflow-y-auto divide-y divide-slate-100 border border-slate-200/80 rounded-xl scrollbar-thin">
+            ${level2Assets.slice(0, 120).map(a => {
+              const isSel = selectedAsset && String(selectedAsset.kode_unit) === String(a.kode_unit);
+              const safeUnit = String(a.kode_unit || '').replace(/'/g, "\\'");
+              const mc = Number(a.maintenance_cost) || 0;
+              return `
+                <div onclick="window.drillMaintByAsset('${safeUnit}')"
+                     class="p-2.5 transition cursor-pointer flex items-center justify-between gap-2 ${isSel ? 'bg-emerald-50/95 border-l-4 border-emerald-600 font-bold' : 'hover:bg-slate-50'}">
+                  <div class="min-w-0">
+                    <div class="flex items-center gap-1.5">
+                      <span class="font-mono text-[11px] font-black text-sky-700">${escapeHtml(a.kode_unit)}</span>
+                      <span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-100 text-slate-700">${escapeHtml(a.lokasi_raw || 'CO')}</span>
+                      <span class="px-1.5 py-0.2 rounded text-[9px] font-bold ${a.kondisi === 'Good Condition' ? 'bg-emerald-100 text-emerald-800' : (a.kondisi === 'Repair' ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800')}">${escapeHtml(a.kondisi)}</span>
+                    </div>
+                    <div class="text-xs font-bold text-slate-900 truncate mt-0.5">${escapeHtml(a.nama_asset_detail || a.nama_asset || '-')}</div>
+                    <div class="text-[10px] text-slate-500 truncate">${escapeHtml(a.kelompok_asset)} &bull; ${escapeHtml(a.kategori_asset || '-')}</div>
+                  </div>
+                  <div class="text-right shrink-0">
+                    <div class="font-mono text-xs font-extrabold text-amber-700">${mc > 0 ? formatRpShort(mc) : 'Inspeksi'}</div>
+                    <span class="text-[9.5px] font-bold text-emerald-700">Detail Part &rarr;</span>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+
+        <!-- LEVEL 3: DETAIL PART / SUKU CADANG & KOMPONEN SPESIFIK -->
+        <div id="maint-level3-part-panel" class="lg:col-span-7 clean-card p-4 space-y-3.5 border-2 border-emerald-500/30 bg-white">
+          ${selectedAsset ? `
+            <div class="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-slate-200">
+              <div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2 py-0.5 rounded bg-sky-600 text-white text-[9.5px] font-black">LEVEL 3: DETAIL PART</span>
+                  <span class="font-mono text-xs font-black text-sky-700">${escapeHtml(selectedAsset.kode_unit)}</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">${escapeHtml(selectedAsset.kelompok_asset)}</span>
+                </div>
+                <h3 class="text-base font-black text-slate-900 mt-1">${escapeHtml(selectedAsset.nama_asset_detail || selectedAsset.nama_asset || '-')}</h3>
+                <p class="text-xs text-slate-500">
+                  Lokasi: <b>${escapeHtml(selectedAsset.lokasi_raw || 'CO')} (${escapeHtml(selectedAsset.lokasi || 'Central Office')})</b> &bull;
+                  Umur Pakai: <b>${Number(selectedAsset.umur_asset) || 0} / ${Number(selectedAsset.standar_umur) || 0} Thn</b> &bull;
+                  Kondisi: <b>${escapeHtml(selectedAsset.kondisi)}</b>
+                </p>
+              </div>
+              <div class="flex flex-wrap items-center gap-1.5">
+                <button type="button" onclick="window.promptAddOrUpdateMaintPart('${escapeHtml(String(selectedAsset.kode_unit).replace(/'/g, "\\'"))}')" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1 shadow-2xs">
+                  <i class="ph-bold ph-plus-circle"></i> + Catat / Update Part
+                </button>
+                <button type="button" onclick="openAssetDetailPage('${escapeHtml(String(selectedAsset.kode_unit).replace(/'/g, "\\'"))}', 'view-wo')" class="px-3 py-1.5 rounded-xl bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold transition cursor-pointer flex items-center gap-1 shadow-2xs">
+                  <i class="ph-bold ph-Identification-card"></i> Buka Dossier Unit
+                </button>
+              </div>
+            </div>
+
+            <!-- Financial & Technical Summary Strip for Selected Unit -->
+            <div class="grid grid-cols-3 gap-2.5">
+              <div class="p-2.5 rounded-xl bg-slate-50 border border-slate-200/80">
+                <div class="text-[9.5px] font-black uppercase text-slate-500">Harga Perolehan Unit</div>
+                <div class="text-xs font-black font-mono text-slate-900 mt-0.5">Rp ${formatNum(Math.round(Number(selectedAsset.Harga_Perolehan) || 0))}</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-sky-50/70 border border-sky-200/80">
+                <div class="text-[9.5px] font-black uppercase text-sky-700">Nilai Buku (NBV)</div>
+                <div class="text-xs font-black font-mono text-sky-900 mt-0.5">Rp ${formatNum(Math.round(Number(selectedAsset.Nilai_buku) || 0))}</div>
+              </div>
+              <div class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/80">
+                <div class="text-[9.5px] font-black uppercase text-amber-800">Total Akumulasi Part &amp; Servis</div>
+                <div class="text-xs font-black font-mono text-amber-900 mt-0.5">Rp ${formatNum(Math.round(totalPartCost))}</div>
+              </div>
+            </div>
+
+            <!-- Detailed Component & Sparepart Table -->
+            <div class="overflow-x-auto border border-slate-200 rounded-xl">
+              <table class="w-full text-[11px] text-left border-collapse">
+                <thead class="bg-slate-100 text-[9.5px] font-black uppercase text-slate-700 border-b border-slate-200">
+                  <tr>
+                    <th class="py-2 px-2.5">Kode Part</th>
+                    <th class="py-2 px-2.5">Subsistem</th>
+                    <th class="py-2 px-2.5">Nama Suku Cadang / Komponen (Detail Part)</th>
+                    <th class="py-2 px-2">Spesifikasi</th>
+                    <th class="py-2 px-2 text-center">Status Part</th>
+                    <th class="py-2 px-2.5 text-right">Biaya (Rp)</th>
+                    <th class="py-2 px-2.5">PIC Teknisi</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100">
+                  ${selectedParts.map(pt => `
+                    <tr class="hover:bg-emerald-50/40 transition">
+                      <td class="py-2 px-2.5 font-mono font-bold text-slate-700 whitespace-nowrap">${escapeHtml(pt.part_no)}</td>
+                      <td class="py-2 px-2.5 font-bold text-indigo-800">${escapeHtml(pt.subsystem)}</td>
+                      <td class="py-2 px-2.5 font-semibold text-slate-900">${escapeHtml(pt.part_name)}</td>
+                      <td class="py-2 px-2 font-mono text-[10px] text-slate-600">${escapeHtml(pt.spesifikasi)}</td>
+                      <td class="py-2 px-2 text-center whitespace-nowrap">
+                        <span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold ${pt.kondisi_part.includes('Optimal') ? 'bg-emerald-100 text-emerald-800' : (pt.kondisi_part.includes('Dikerjakan') ? 'bg-amber-100 text-amber-800' : 'bg-rose-100 text-rose-800')}">
+                          ${escapeHtml(pt.kondisi_part)}
+                        </span>
+                      </td>
+                      <td class="py-2 px-2.5 text-right font-mono font-bold text-slate-900 whitespace-nowrap">${formatNum(Math.round(pt.biaya_part))}</td>
+                      <td class="py-2 px-2.5 text-[10px] text-slate-600">${escapeHtml(pt.teknisi)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+                <tfoot class="bg-slate-100/90 font-black text-[11px] border-t border-slate-300">
+                  <tr>
+                    <td colspan="5" class="py-2 px-2.5 text-slate-900">Total Rincian Komponen &amp; Pemeliharaan (${selectedParts.length} Subsystem Part)</td>
+                    <td class="py-2 px-2.5 text-right font-mono text-amber-800">Rp ${formatNum(Math.round(totalPartCost))}</td>
+                    <td class="py-2 px-2.5"></td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          ` : `
+            <div class="py-12 text-center text-slate-500 text-xs">Pilih salah satu unit aset di sebelah kiri untuk melihat rincian komponen &amp; suku cadang.</div>
+          `}
+        </div>
+      </div>
+    `;
+  }
+  window.renderMaintenanceDrillView = renderMaintenanceDrillView;
 
   function renderWorkOrdersKanban() {
     const bldgSelect = document.getElementById('filter-wo-gedung');
@@ -16121,7 +17071,7 @@ const PNS_SECTION_TO_DEPT = {
           <td class="py-2.5 px-3 font-mono font-bold text-slate-700 whitespace-nowrap">
             ${p.nik ? escapeHtml(maskNik(p.nik)) : '<span class="text-slate-400 font-normal italic text-[11px]">- Kosong -</span>'}
           </td>
-          <!-- 6. NAMA PENGHUNI DENGAN FOTO -->
+          <!-- 6. NAMA PENGHUNI DENGAN FOTO TERKAIT NAMA & JABATAN -->
           <td class="py-2 px-3.5 whitespace-nowrap">
             ${isVacant ? `
               <div class="flex items-center gap-2.5">
@@ -16136,13 +17086,16 @@ const PNS_SECTION_TO_DEPT = {
                 </div>
               </div>
             ` : `
-              <div class="flex items-center gap-2.5">
-                <div class="relative w-8 h-8 rounded-full overflow-hidden bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 font-bold text-xs shrink-0 cursor-pointer shadow-2xs hover:scale-105 transition" onclick="openPenghuniPhotoAction('${pIdEscaped}')" title="Klik untuk lihat / lengkapi foto">
-                  ${p.foto ? `<img src="${escapeHtml(p.foto)}" alt="${escapeHtml(p.nama_penghuni)}" class="w-full h-full object-cover">` : `<i class="ph-bold ph-user text-sm"></i>`}
+              <div class="flex items-center gap-2.5 cursor-pointer group/res" onclick="editPenghuni('${pIdEscaped}')" title="Klik untuk update data penghuni">
+                <div class="relative w-9 h-9 rounded-full overflow-hidden bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 font-bold text-xs shrink-0 shadow-2xs group-hover/res:scale-105 transition" onclick="event.stopPropagation(); openPenghuniPhotoAction('${pIdEscaped}')" title="Klik untuk lihat / lengkapi foto">
+                  <img src="${getPenghuniAvatarUrl(p)}" alt="${escapeHtml(p.nama_penghuni)}" class="w-full h-full object-cover">
                   <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-slate-900/80 text-white flex items-center justify-center text-[7px]"><i class="ph-bold ph-camera"></i></span>
                 </div>
                 <div>
-                  <div class="font-bold text-slate-900">${escapeHtml(p.nama_penghuni || '-')}</div>
+                  <div class="font-bold text-slate-900 group-hover/res:text-indigo-600 transition flex items-center gap-1">
+                    <span>${escapeHtml(p.nama_penghuni || '-')}</span>
+                    <i class="ph-bold ph-note-pencil text-[10px] text-slate-400 group-hover/res:text-indigo-600"></i>
+                  </div>
                   <div class="text-[10px] text-slate-500">${escapeHtml(p.jabatan || 'Karyawan')}</div>
                 </div>
               </div>
@@ -16160,17 +17113,25 @@ const PNS_SECTION_TO_DEPT = {
           <td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
             ${p.no_kontak && p.no_kontak !== '-' ? `<a href="https://wa.me/${p.no_kontak.replace(/[^0-9]/g, '')}" target="_blank" class="text-indigo-600 hover:underline inline-flex items-center gap-1"><i class="ph-bold ph-whatsapp-logo text-emerald-600"></i> ${escapeHtml(p.no_kontak)}</a>` : '<span class="text-slate-400">-</span>'}
           </td>
-          <!-- 9. AKSI -->
+          <!-- 9. AKSI TERPADU (UPDATE, FASILITAS KAMAR, INSPEKSI) -->
           <td class="py-2.5 px-3 text-center whitespace-nowrap">
-            ${isVacant ? `
-              <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-3 py-1 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1" title="Isi Penghuni">
-                <i class="ph-bold ph-user-plus"></i> Isi
+            <div class="inline-flex items-center gap-1">
+              ${isVacant ? `
+                <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1" title="Isi Penghuni">
+                  <i class="ph-bold ph-user-plus"></i> Isi
+                </button>
+              ` : `
+                <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-2 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 transition cursor-pointer inline-flex items-center gap-1" title="Edit Data Penghuni">
+                  <i class="ph-bold ph-note-pencil"></i> Edit
+                </button>
+              `}
+              <button type="button" onclick="window.openRoomRincianDirect('${escapeHtml(p.kode_gedung)}', '${escapeHtml(p.nama_ruangan)}')" class="px-2 py-1 text-xs font-semibold rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200 transition cursor-pointer inline-flex items-center gap-1" title="Lihat Fasilitas & Kamar">
+                <i class="ph-bold ph-bed"></i> Kamar
               </button>
-            ` : `
-              <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-2.5 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 transition cursor-pointer inline-flex items-center gap-1" title="Edit Data Penghuni">
-                <i class="ph-bold ph-note-pencil"></i> Edit
+              <button type="button" onclick="window.openRoomInspectionDirect('${escapeHtml(p.kode_gedung)}', '${escapeHtml(p.nama_ruangan)}')" class="px-2 py-1 text-xs font-semibold rounded-lg bg-amber-50 hover:bg-amber-600 text-amber-800 hover:text-white border border-amber-200 transition cursor-pointer inline-flex items-center gap-1" title="Inspeksi Kamar Ini">
+                <i class="ph-bold ph-clipboard-text"></i>
               </button>
-            `}
+            </div>
           </td>
         </tr>
       `;
@@ -16284,6 +17245,9 @@ const PNS_SECTION_TO_DEPT = {
 
         renderPenghuniTable();
         renderHunianHouseCards();
+        if (typeof window.renderFmRincian === 'function') window.renderFmRincian();
+        if (typeof window.renderFmBeranda === 'function') window.renderFmBeranda();
+        if (typeof renderAssetsTable === 'function') renderAssetsTable();
 
         callBackendPost('save_penghuni', {
           id: p.id,
@@ -16409,6 +17373,9 @@ const PNS_SECTION_TO_DEPT = {
         }
         renderPenghuniTable();
         renderHunianHouseCards();
+        if (typeof window.renderFmRincian === 'function') window.renderFmRincian();
+        if (typeof window.renderFmBeranda === 'function') window.renderFmBeranda();
+        if (typeof renderAssetsTable === 'function') renderAssetsTable();
 
         callBackendPost('save_penghuni', newRecord, () => {
           Swal.fire({ icon: 'success', title: 'Berhasil Didaftarkan', text: 'Penghuni baru berhasil disimpan ke Google Sheets.', timer: 1400, showConfirmButton: false });
@@ -20927,6 +21894,44 @@ window.updateSingleAssetNote = updateSingleAssetNote;
   };
 
   // 5. RENDER FM RINCIAN LONGHOUSE (100% AUTHENTIC FIELD DATA & REAL RESIDENTS)
+  window.switchDomainMode = function(mode) {
+    if (typeof window.switchAppDomain === 'function') {
+      return window.switchAppDomain(String(mode || 'am').toLowerCase());
+    }
+  };
+
+  window.openRoomRincianDirect = function(bldgCode, roomNameOrNum) {
+    if (typeof window.switchAppDomain === 'function') window.switchAppDomain('fm');
+    const cleanCode = String(bldgCode || 'LH-01-01').replace(/^PNS-/, '');
+    let roomNum = 1;
+    if (typeof roomNameOrNum === 'number') {
+      roomNum = roomNameOrNum;
+    } else if (roomNameOrNum) {
+      const m = String(roomNameOrNum).match(/(\d+)/);
+      if (m) roomNum = parseInt(m[1], 10) || 1;
+    }
+    PNS_FM_STATE.sel = cleanCode;
+    PNS_FM_STATE.room = roomNum;
+    navTo('view-fm-rincian');
+    if (typeof window.renderFmRincian === 'function') window.renderFmRincian();
+  };
+
+  window.openRoomInspectionDirect = function(bldgCode, roomNameOrNum) {
+    if (typeof window.switchAppDomain === 'function') window.switchAppDomain('fm');
+    const fullCode = String(bldgCode || 'PNS-LH-01-01').startsWith('PNS-') ? String(bldgCode) : ('PNS-' + bldgCode);
+    const roomLabel = typeof roomNameOrNum === 'number' ? ('Kamar No.' + roomNameOrNum) : String(roomNameOrNum || 'Kamar No.1');
+    if (typeof startInspectionForRoom === 'function') {
+      startInspectionForRoom(fullCode, roomLabel);
+    } else {
+      navTo('view-inspeksi');
+    }
+  };
+
+  window.setFmRoomFacilityCatFilter = function(catKey) {
+    PNS_FM_STATE.facCat = (PNS_FM_STATE.facCat === catKey) ? 'ALL' : catKey;
+    if (typeof window.renderFmRincian === 'function') window.renderFmRincian();
+  };
+
   window.renderFmRincian = function() {
     const el = document.getElementById('view-fm-rincian');
     if (!el) return;
@@ -20935,7 +21940,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     const curCode = PNS_FM_STATE.sel || 'LH-01-01';
     const d = all.find(x => x.c === curCode || (x.full && x.full.includes(curCode))) || all[0] || {};
     const r = Math.min(PNS_FM_STATE.room || 1, (d.occ || []).length) || 1;
-    const o = (d.occ && d.occ[r - 1]) || 0;
+    const activeFacCat = PNS_FM_STATE.facCat || 'ALL';
 
     const targetBldgCode = d.full || ('PNS-' + d.c);
     const shortBldgCode = d.c;
@@ -20966,20 +21971,29 @@ window.updateSingleAssetNote = updateSingleAssetNote;
       return rNorm.includes('KAMARNO.' + r) || rNorm.includes('KAMAR' + r) || rNorm === ('NO.' + r) || rNorm === String(r);
     });
 
+    const classifyRoomFacItem = (nameStr) => {
+      const n = String(nameStr || '').toLowerCase();
+      if (n.includes('kasur') || n.includes('springbed') || n.includes('matras') || n.includes('ranjang') || n.includes('dipan') || n.includes('bed')) return 'TIDUR';
+      if (n.includes('bantal') || n.includes('guling') || n.includes('selimut') || n.includes('sprei') || n.includes('gorden')) return 'LINEN';
+      if (n.includes('loker') || n.includes('lemari') || n.includes('wardrobe') || n.includes('meja') || n.includes('kursi') || n.includes('rak')) return 'FURNITURE';
+      if (n.includes('ac ') || n.includes('pendingin') || n.includes('kipas') || n.includes('lampu') || n.includes('listrik')) return 'ELEKTRIK';
+      return 'KEBERSIHAN';
+    };
+
     const itemCatMap = {
-      kasur: { name: 'Kasur & Springbed', std: 2, count: 0 },
-      bantal: { name: 'Bantal Dacron Kepala', std: 2, count: 0 },
-      guling: { name: 'Guling Tidur Dacron', std: 2, count: 0 },
-      selimut: { name: 'Selimut Handuk', std: 2, count: 0 },
-      sprei: { name: 'Sprei Kasur', std: 2, count: 0 },
-      ranjang: { name: 'Ranjang Susun Besi', std: 1, count: 0 },
-      loker: { name: 'Loker Besi / Lemari', std: 2, count: 0 },
-      keranjang: { name: 'Keranjang Pakaian', std: 1, count: 0 },
-      keset: { name: 'Keset Lantai', std: 1, count: 0 },
-      sapu: { name: 'Pengki + Sapu Lantai', std: 1, count: 0 },
-      gorden: { name: 'Gorden & Tiang', std: 1, count: 0 },
-      ac: { name: 'AC & Pendingin / Kipas', std: 1, count: 0 },
-      lampu: { name: 'Lampu Penerangan', std: 2, count: 0 }
+      kasur: { name: 'Kasur & Springbed', std: 2, count: 0, group: 'TIDUR', icon: 'ph-bed' },
+      bantal: { name: 'Bantal Dacron Kepala', std: 2, count: 0, group: 'LINEN', icon: 'ph-cloud' },
+      guling: { name: 'Guling Tidur Dacron', std: 2, count: 0, group: 'LINEN', icon: 'ph-cloud' },
+      selimut: { name: 'Selimut Handuk', std: 2, count: 0, group: 'LINEN', icon: 'ph-coat-hanger' },
+      sprei: { name: 'Sprei Kasur', std: 2, count: 0, group: 'LINEN', icon: 'ph-squares-four' },
+      ranjang: { name: 'Ranjang Susun Besi', std: 1, count: 0, group: 'TIDUR', icon: 'ph-bed' },
+      loker: { name: 'Loker Besi / Lemari', std: 2, count: 0, group: 'FURNITURE', icon: 'ph-dresser' },
+      keranjang: { name: 'Keranjang Pakaian', std: 1, count: 0, group: 'KEBERSIHAN', icon: 'ph-basket' },
+      keset: { name: 'Keset Lantai', std: 1, count: 0, group: 'KEBERSIHAN', icon: 'ph-rug' },
+      sapu: { name: 'Pengki + Sapu Lantai', std: 1, count: 0, group: 'KEBERSIHAN', icon: 'ph-broom' },
+      gorden: { name: 'Gorden & Tiang', std: 1, count: 0, group: 'LINEN', icon: 'ph-windows-logo' },
+      ac: { name: 'AC & Pendingin / Kipas', std: 1, count: 0, group: 'ELEKTRIK', icon: 'ph-fan' },
+      lampu: { name: 'Lampu Penerangan', std: 2, count: 0, group: 'ELEKTRIK', icon: 'ph-lightbulb' }
     };
 
     actualRoomAssets.forEach(a => {
@@ -21000,35 +22014,49 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     });
 
     const hasAnyRealAsset = actualRoomAssets.length > 0;
-    const STD_ITEMS = Object.values(itemCatMap).map(cat => {
-      let statusText = 'Belum terdata';
-      if (!hasAnyRealAsset) {
-        // Fallback standard reference
-        return [cat.name, cat.std, cat.std, 'Sesuai'];
+    const allStdObjects = Object.values(itemCatMap).map(cat => {
+      const fisikCount = hasAnyRealAsset ? cat.count : cat.std;
+      let statusText = 'Sesuai';
+      if (hasAnyRealAsset) {
+        if (cat.count === 0) statusText = 'Belum terdata';
+        else if (cat.count === cat.std) statusText = 'Sesuai';
+        else if (cat.count > cat.std) statusText = 'Lebih dari standar (+' + (cat.count - cat.std) + ')';
+        else statusText = 'Kurang dari standar (-' + (cat.std - cat.count) + ')';
       }
-      if (cat.count === 0) {
-        statusText = 'Belum terdata';
-      } else if (cat.count === cat.std) {
-        statusText = 'Sesuai';
-      } else if (cat.count > cat.std) {
-        statusText = 'Lebih dari standar (+' + (cat.count - cat.std) + ')';
-      } else {
-        statusText = 'Kurang dari standar (-' + (cat.std - cat.count) + ')';
-      }
-      return [cat.name, cat.count, cat.std, statusText];
+      return { ...cat, fisikCount, statusText };
     });
+
+    const filteredStdObjects = activeFacCat === 'ALL'
+      ? allStdObjects
+      : allStdObjects.filter(obj => obj.group === activeFacCat);
+
+    const filteredPhysicalAssets = activeFacCat === 'ALL'
+      ? actualRoomAssets
+      : actualRoomAssets.filter(a => classifyRoomFacItem(a.nama_asset) === activeFacCat);
+
+    const catPills = [
+      { key: 'ALL', label: 'Semua Kategori', icon: 'ph-squares-four', count: allStdObjects.length },
+      { key: 'TIDUR', label: 'Kasur & Ranjang', icon: 'ph-bed', count: allStdObjects.filter(x => x.group === 'TIDUR').length },
+      { key: 'FURNITURE', label: 'Lemari & Loker', icon: 'ph-dresser', count: allStdObjects.filter(x => x.group === 'FURNITURE').length },
+      { key: 'LINEN', label: 'Bantal & Linen', icon: 'ph-cloud', count: allStdObjects.filter(x => x.group === 'LINEN').length },
+      { key: 'ELEKTRIK', label: 'AC & Kelistrikan', icon: 'ph-lightning', count: allStdObjects.filter(x => x.group === 'ELEKTRIK').length },
+      { key: 'KEBERSIHAN', label: 'Alat Kebersihan', icon: 'ph-broom', count: allStdObjects.filter(x => x.group === 'KEBERSIHAN').length }
+    ];
 
     el.innerHTML = `
       <div class="space-y-5">
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <div class="text-xs text-slate-500 font-semibold">${PNS_FM_LNAME[d.loc] || 'Central'} &rsaquo; ${PNS_LH_JENIS_MAP[d.jenis] || 'Longhouse'}</div>
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Rincian &amp; Standar Isi ${d.full || 'PNS-LH-01-01'}</h1>
+            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Rincian Hunian, Penghuni &amp; Fasilitas ${d.full || 'PNS-LH-01-01'}</h1>
           </div>
-          <div class="flex items-center gap-2">
-            <select onchange="PNS_FM_STATE.sel=this.value; renderFmRincian();" class="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white">
-              ${all.slice(0, 30).map(x => `<option value="${x.c}" ${x.c === d.c ? 'selected' : ''}>${x.full} (${PNS_FM_LNAME[x.loc] || x.loc})</option>`).join('')}
+          <div class="flex flex-wrap items-center gap-2">
+            <select onchange="PNS_FM_STATE.sel=this.value; PNS_FM_STATE.room=1; renderFmRincian();" class="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white">
+              ${all.slice(0, 40).map(x => `<option value="${x.c}" ${x.c === d.c ? 'selected' : ''}>${x.full} (${PNS_FM_LNAME[x.loc] || x.loc})</option>`).join('')}
             </select>
+            <button type="button" onclick="window.openRoomInspectionDirect('${targetBldgCode}', 'Kamar No.${r}')" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+              <i class="ph-bold ph-clipboard-text"></i> Inspeksi Kamar No.${r}
+            </button>
             <button type="button" onclick="navTo('view-fm-peta')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition cursor-pointer">Lihat di Peta</button>
             <button type="button" onclick="printExecutiveReport()" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 transition flex items-center gap-1.5 cursor-pointer shadow-2xs"><i class="ph-bold ph-printer"></i> Cetak QR &amp; Laporan</button>
           </div>
@@ -21044,8 +22072,8 @@ window.updateSingleAssetNote = updateSingleAssetNote;
             <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${d.terisi || 0} / ${d.slot || 0}</div>
           </div>
           <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase">Aset Terdaftar</div>
-            <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${d.n || actualRoomAssets.length || 0} Aset</div>
+            <div class="text-[11px] font-semibold text-slate-500 uppercase">Aset Fasilitas Kamar</div>
+            <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${actualRoomAssets.length || d.n || 0} Unit</div>
           </div>
           <div class="clean-card p-3.5">
             <div class="text-[11px] font-semibold text-slate-500 uppercase">Aset Hilang &bull; Rusak</div>
@@ -21057,7 +22085,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
           <!-- Room selector buttons -->
           <div class="lg:col-span-3 clean-card p-3 space-y-1.5">
             <h3 class="text-xs font-bold text-slate-900 mb-2">Pilih Nomor Kamar</h3>
-            <div class="space-y-1 max-h-[500px] overflow-y-auto scrollbar-thin">
+            <div class="space-y-1 max-h-[560px] overflow-y-auto scrollbar-thin">
               ${(d.occ || []).map((v, i) => `
                 <button type="button" onclick="PNS_FM_STATE.room=${i + 1}; renderFmRincian();" class="w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold transition cursor-pointer ${r === (i + 1) ? 'bg-emerald-600 text-white shadow-2xs' : 'hover:bg-slate-100 text-slate-700'}">
                   <span>Kamar No.${i + 1}</span>
@@ -21067,35 +22095,184 @@ window.updateSingleAssetNote = updateSingleAssetNote;
             </div>
           </div>
 
-          <!-- Room standard table & residents -->
+          <!-- RIGHT COLUMN: 1) PENGHUNI AKTIF AT TOP -> 2) CLICKABLE FACILITY CARDS & CATEGORIES -> 3) STANDAR ISI TABLE -->
           <div class="lg:col-span-9 space-y-4">
+            <!-- 1. PENGHUNI AKTIF KAMAR NO.${r} (POSITIONED AT TOP, CLICKABLE TO UPDATE) -->
+            <div class="clean-card p-4 space-y-3 border-2 border-emerald-500/30 bg-gradient-to-br from-white via-emerald-50/20 to-teal-50/30">
+              <div class="flex flex-wrap justify-between items-center pb-2 border-b border-slate-200/80 gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-2xs">
+                    <i class="ph-bold ph-users-three"></i>
+                  </span>
+                  <div>
+                    <h3 class="text-sm font-extrabold text-slate-900">Penghuni Aktif Kamar No.${r} (${targetBldgCode})</h3>
+                    <p class="text-[11px] text-slate-500">Klik kartu penghuni untuk <b>Update Data / Pindah Kamar / Kontak</b> secara langsung</p>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">${activePenghuni.length} Penghuni Aktif</span>
+                  <button type="button" onclick="openPlaceModal('${d.c}')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs transition cursor-pointer flex items-center gap-1">
+                    <i class="ph-bold ph-user-plus"></i> + Alokasikan Penghuni
+                  </button>
+                </div>
+              </div>
+
+              ${activePenghuni.length === 0 ? `
+                <div class="p-3.5 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-900 flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2.5">
+                    <i class="ph-bold ph-bed text-xl text-teal-700"></i>
+                    <div>
+                      <b class="block">Kamar No.${r} saat ini kosong (Siap Huni).</b>
+                      <span class="text-teal-700 text-[11px]">Kapasitas ${d.spr || 2} Orang. Klik tombol di kanan untuk menempatkan karyawan ke kamar ini.</span>
+                    </div>
+                  </div>
+                  <button type="button" onclick="openPlaceModal('${d.c}')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-2xs transition cursor-pointer shrink-0">
+                    + Tempatkan Penghuni
+                  </button>
+                </div>
+              ` : `
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                  ${activePenghuni.map((p, i) => {
+                    const safePid = escapeHtml(String(p.id).replace(/'/g, "\\'"));
+                    return `
+                      <div onclick="editPenghuni('${safePid}')" class="group flex items-center justify-between p-3 rounded-xl bg-white border border-slate-200/90 hover:border-indigo-500 hover:shadow-md transition cursor-pointer" title="Klik untuk Update Data Penghuni ${escapeHtml(p.nama_penghuni)}">
+                        <div class="flex items-center gap-3 min-w-0">
+                          <div class="relative w-11 h-11 rounded-full overflow-hidden border-2 border-emerald-400 shrink-0 shadow-2xs">
+                            <img src="${getPenghuniAvatarUrl(p)}" alt="${escapeHtml(p.nama_penghuni)}" class="w-full h-full object-cover">
+                          </div>
+                          <div class="min-w-0">
+                            <div class="flex items-center gap-1.5">
+                              <b class="text-slate-900 group-hover:text-indigo-600 text-xs truncate transition">${escapeHtml(p.nama_penghuni)}</b>
+                              <span class="px-1.5 py-0.2 rounded text-[9px] font-bold ${i === 0 ? 'bg-teal-100 text-teal-800' : 'bg-slate-100 text-slate-700'}">${i === 0 ? 'PIC Kamar' : 'Anggota'}</span>
+                            </div>
+                            <span class="text-[11px] text-slate-600 block truncate mt-0.5">
+                              ${escapeHtml(p.jabatan || 'Staf Lapangan')} &bull; <b class="text-slate-800">${escapeHtml(p.departemen || 'Operasional')}</b>
+                            </span>
+                            <span class="text-[10px] text-slate-400 font-mono block">
+                              NIK: ${escapeHtml(maskNik(p.nik))} &bull; ${escapeHtml(p.nomor_kasur || ('Bed ' + (i + 1)))}
+                            </span>
+                          </div>
+                        </div>
+                        <div class="text-right shrink-0 pl-2">
+                          <span class="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-indigo-50 group-hover:bg-indigo-600 text-indigo-700 group-hover:text-white font-bold text-[10px] transition">
+                            <i class="ph-bold ph-note-pencil"></i> Update
+                          </span>
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              `}
+
+              ${vacantPenghuni.length > 0 ? `
+                <div class="p-2.5 rounded-xl bg-amber-50/80 border border-amber-200/80 text-xs text-amber-900 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span>
+                    <span>Tersedia <b>${vacantPenghuni.length} Slot Ranjang Kosong</b> di Kamar No.${r} (Klik untuk langsung isi penghuni)</span>
+                  </div>
+                  <button type="button" onclick="editPenghuni('${escapeHtml(String(vacantPenghuni[0].id).replace(/'/g, "\\'"))}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white shadow-2xs transition cursor-pointer">
+                    + Isi Slot Kosong
+                  </button>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- 2. KATEGORI FASILITAS & CARD FASILITAS DI KAMAR NO.${r} (CLICKABLE + LINK KE INSPEKSI & MAINTENANCE) -->
+            <div class="clean-card p-4 space-y-3">
+              <div class="flex flex-wrap items-center justify-between gap-2 pb-2 border-b border-slate-100">
+                <div>
+                  <h3 class="text-sm font-extrabold text-slate-900 flex items-center gap-1.5">
+                    <i class="ph-bold ph-cube text-indigo-600"></i>
+                    <span>Card Fasilitas &amp; Kategori Inventaris di Kamar No.${r}</span>
+                  </h3>
+                  <p class="text-[11px] text-slate-500">Klik kategori di bawah untuk memfilter fasilitas, atau klik kartu fasilitas untuk Inspeksi / Maintenance</p>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="window.openRoomInspectionDirect('${targetBldgCode}', 'Kamar No.${r}')" class="px-3 py-1.5 text-[11px] font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white transition cursor-pointer flex items-center gap-1 shadow-2xs">
+                    <i class="ph-bold ph-clipboard-text"></i> Link ke Inspeksi Kamar No.${r}
+                  </button>
+                  <button type="button" onclick="facilityBldgFilter='${targetBldgCode}'; navTo('view-assets'); renderAssetsTable();" class="px-2.5 py-1.5 text-[11px] font-bold rounded-lg bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-700 border border-slate-200 transition cursor-pointer flex items-center gap-1">
+                    <i class="ph-bold ph-table"></i> Buka di Tabel Fasilitas
+                  </button>
+                </div>
+              </div>
+
+              <!-- Clickable Facility Category Pills -->
+              <div class="flex items-center gap-1.5 flex-wrap">
+                ${catPills.map(cp => {
+                  const isAct = activeFacCat === cp.key;
+                  return `
+                    <button type="button" onclick="window.setFmRoomFacilityCatFilter('${cp.key}')"
+                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border ${isAct ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' : 'bg-slate-50 hover:bg-indigo-50 text-slate-700 border-slate-200'}">
+                      <i class="ph-bold ${cp.icon}"></i>
+                      <span>${cp.label}</span>
+                      <span class="px-1.5 py-0.2 rounded-full text-[10px] ${isAct ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}">${cp.count}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+
+              <!-- Clickable Facility Cards Grid for Selected Room -->
+              <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2.5 pt-1">
+                ${filteredStdObjects.map(item => {
+                  const isOk = item.fisikCount >= item.std;
+                  return `
+                    <div onclick="window.openRoomInspectionDirect('${targetBldgCode}', 'Kamar No.${r}')"
+                         class="group p-3 rounded-xl border ${isOk ? 'bg-white border-slate-200 hover:border-emerald-500' : 'bg-amber-50/50 border-amber-200 hover:border-amber-500'} hover:shadow-sm transition cursor-pointer flex flex-col justify-between">
+                      <div class="flex items-start justify-between gap-2">
+                        <div class="w-8 h-8 rounded-lg ${isOk ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-100 text-amber-700'} flex items-center justify-center text-base shrink-0">
+                          <i class="ph-bold ${item.icon}"></i>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-full text-[9.5px] font-black ${isOk ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
+                          Fisik: ${item.fisikCount} / Std: ${item.std}
+                        </span>
+                      </div>
+                      <div class="mt-2">
+                        <div class="font-bold text-xs text-slate-900 group-hover:text-indigo-600 transition">${item.name}</div>
+                        <div class="text-[10px] text-slate-500 mt-0.5 flex items-center justify-between">
+                          <span>${item.statusText}</span>
+                          <span class="text-emerald-700 font-bold group-hover:underline">Inspeksi &rarr;</span>
+                        </div>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+
+              ${filteredPhysicalAssets.length > 0 ? `
+                <div class="pt-2 border-t border-slate-100">
+                  <div class="text-[11px] font-bold text-slate-700 mb-2">Daftar Unit Aset Terdaftar di Kamar No.${r} (${filteredPhysicalAssets.length} Unit - Klik untuk Inspeksi / Maintenance):</div>
+                  <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto pr-1 scrollbar-thin">
+                    ${filteredPhysicalAssets.map(a => {
+                      const safeNo = escapeHtml(String(a.no_asset || '-').replace(/'/g, "\\'"));
+                      return `
+                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-indigo-50/60 border border-slate-200/80 text-xs transition">
+                          <div class="min-w-0 pr-2">
+                            <span class="font-mono font-bold text-sky-700 text-[10.5px] block">${escapeHtml(a.no_asset || '-')}</span>
+                            <span class="font-semibold text-slate-900 truncate block">${escapeHtml(a.nama_asset || '-')}</span>
+                          </div>
+                          <div class="flex items-center gap-1 shrink-0">
+                            <span class="px-1.5 py-0.5 rounded text-[9.5px] font-bold ${a.kondisi === 'Baik' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${escapeHtml(a.kondisi || 'Baik')}</span>
+                            <button type="button" onclick="window.drillAssetToMaintenance('${safeNo}', 'view-fm-rincian')" class="px-2 py-0.5 rounded bg-amber-100 hover:bg-amber-600 text-amber-900 hover:text-white text-[9.5px] font-bold transition cursor-pointer" title="Drill ke Maintenance & Part">
+                              🔧 Maint
+                            </button>
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+            <!-- 3. TABEL STANDAR KELENGKAPAN KAMAR (AT BOTTOM) -->
             <div class="clean-card p-4 space-y-3">
               <div class="flex justify-between items-center pb-2 border-b border-slate-100 flex-wrap gap-2">
                 <div>
-                  <h3 class="text-sm font-bold text-slate-900">Kamar No.${r} &bull; Standar Isi Kamar (Standar 2 Orang)</h3>
+                  <h3 class="text-sm font-bold text-slate-900">Matriks Standar Isi Kamar No.${r} (Standar ${d.spr || 2} Orang)</h3>
                   <span class="text-xs text-slate-500">Kapasitas Maksimal: ${d.spr} Orang &bull; Terdata Fisik: ${actualRoomAssets.length} Unit</span>
                 </div>
-                ${actualRoomAssets.length > 0 ? `
-                  <button type="button" onclick="document.getElementById('room-asset-raw-list')?.classList.toggle('hidden')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer flex items-center gap-1">
-                    <i class="ph-bold ph-list-magnifying-glass"></i> Rincian No. Aset
-                  </button>
-                ` : ''}
               </div>
-
-              <!-- Collapsible Raw Asset List -->
-              <div id="room-asset-raw-list" class="hidden p-3 bg-slate-50 rounded-xl border border-slate-200 max-h-48 overflow-y-auto space-y-1.5">
-                <div class="text-[11px] font-bold text-slate-700 mb-1">Daftar Fisik Inventaris di Kamar No.${r}:</div>
-                ${actualRoomAssets.map(a => `
-                  <div class="flex items-center justify-between text-[11px] p-1.5 bg-white rounded border border-slate-100">
-                    <div class="flex items-center gap-2">
-                      <span class="font-mono font-bold text-sky-700">${escapeHtml(a.no_asset || '-')}</span>
-                      <span class="text-slate-800">${escapeHtml(a.nama_asset || '-')}</span>
-                    </div>
-                    <span class="px-1.5 py-0.2 rounded text-[10px] font-bold ${a.kondisi === 'Baik' ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">${escapeHtml(a.kondisi || 'Baik')}</span>
-                  </div>
-                `).join('')}
-              </div>
-
               <div class="overflow-x-auto">
                 <table class="w-full text-xs text-left">
                   <thead>
@@ -21104,85 +22281,28 @@ window.updateSingleAssetNote = updateSingleAssetNote;
                       <th class="text-right py-2">Fisik Ada</th>
                       <th class="text-right py-2">Standar</th>
                       <th class="py-2 pl-4">Status Kelayakan</th>
+                      <th class="py-2 text-right">Tautan Cepat</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    ${STD_ITEMS.map(x => `
-                      <tr class="hover:bg-slate-50">
-                        <td class="py-2 font-medium text-slate-800">${x[0]}</td>
-                        <td class="py-2 text-right num-tabular font-bold">${x[1]}</td>
-                        <td class="py-2 text-right num-tabular text-slate-500">${x[2]}</td>
+                    ${filteredStdObjects.map(x => `
+                      <tr class="hover:bg-slate-50 cursor-pointer" onclick="window.openRoomInspectionDirect('${targetBldgCode}', 'Kamar No.${r}')">
+                        <td class="py-2 font-medium text-slate-800">${x.name}</td>
+                        <td class="py-2 text-right num-tabular font-bold">${x.fisikCount}</td>
+                        <td class="py-2 text-right num-tabular text-slate-500">${x.std}</td>
                         <td class="py-2 pl-4">
-                          <span class="px-2 py-0.5 rounded text-[10.5px] font-semibold ${x[3] === 'Sesuai' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : (x[3].includes('Lebih') ? 'bg-indigo-50 text-indigo-800 border border-indigo-200' : (x[3].includes('Kurang') ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'))}">
-                            ${x[3]}
+                          <span class="px-2 py-0.5 rounded text-[10.5px] font-semibold ${x.statusText === 'Sesuai' ? 'bg-emerald-50 text-emerald-800 border border-emerald-200' : (x.statusText.includes('Lebih') ? 'bg-indigo-50 text-indigo-800 border border-indigo-200' : (x.statusText.includes('Kurang') ? 'bg-amber-50 text-amber-800 border border-amber-200' : 'bg-slate-100 text-slate-600 border border-slate-200'))}">
+                            ${x.statusText}
                           </span>
+                        </td>
+                        <td class="py-2 text-right">
+                          <span class="text-[10.5px] font-bold text-emerald-700 hover:underline">Inspeksi &rarr;</span>
                         </td>
                       </tr>
                     `).join('')}
                   </tbody>
                 </table>
               </div>
-            </div>
-
-            <!-- Residents Card for Room (100% REAL RESIDENTS) -->
-            <div class="clean-card p-4 space-y-3">
-              <div class="flex justify-between items-center pb-2 border-b border-slate-100">
-                <h3 class="text-sm font-bold text-slate-900">Penghuni Aktif Kamar No.${r}</h3>
-                <span class="text-xs font-semibold text-emerald-700">${activePenghuni.length} Penghuni Terdaftar</span>
-              </div>
-
-              ${activePenghuni.length === 0 ? `
-                <div class="p-3.5 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-900 flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-2.5">
-                    <i class="ph-bold ph-bed text-xl text-teal-700"></i>
-                    <div>
-                      <b class="block">Kamar ini kosong total (Siap Huni).</b>
-                      <span class="text-teal-700 text-[11px]">Kapasitas ${d.spr || 2} Orang. Fasilitas fisik telah diinventarisasi lengkap.</span>
-                    </div>
-                  </div>
-                  <button type="button" onclick="openPlaceModal('${d.c}')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-2xs transition cursor-pointer shrink-0">
-                    + Alokasikan Penghuni
-                  </button>
-                </div>
-              ` : `
-                <div class="space-y-2">
-                  ${activePenghuni.map((p, i) => `
-                    <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 text-xs hover:border-emerald-300 transition">
-                      <div class="flex items-center gap-3">
-                        <span class="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs">${i + 1}</span>
-                        <div>
-                          <div class="flex items-center gap-2">
-                            <b class="text-slate-900 text-xs">${escapeHtml(p.nama_penghuni)}</b>
-                            <span class="font-mono text-[10px] text-slate-500">${escapeHtml(maskNik(p.nik))}</span>
-                          </div>
-                          <span class="text-[11px] text-slate-600 block mt-0.5">
-                            ${escapeHtml(p.jabatan || 'Staff Lapangan')} &bull; <span class="font-medium text-slate-700">${escapeHtml(p.departemen || 'Operasional')}</span>
-                          </span>
-                          <span class="text-[10px] text-slate-400">
-                            Kasur: <b>${escapeHtml(p.nomor_kasur || ('Bed ' + (i + 1)))}</b> &bull; Kontak: ${escapeHtml(p.no_kontak || '-')}
-                          </span>
-                        </div>
-                      </div>
-                      <div class="text-right space-y-1 shrink-0">
-                        ${i === 0 ? '<span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-teal-100 text-teal-800 block">Ketua Hunian</span>' : '<span class="px-2 py-0.5 rounded-full text-[10px] font-medium bg-slate-200 text-slate-700 block">Anggota</span>'}
-                        <span class="text-[9.5px] font-bold text-emerald-700 block">${escapeHtml(p.status_hunian || 'Aktif')}</span>
-                      </div>
-                    </div>
-                  `).join('')}
-
-                  ${vacantPenghuni.length > 0 ? `
-                    <div class="p-2.5 rounded-xl bg-emerald-50/70 border border-emerald-200/80 text-xs text-emerald-800 flex items-center justify-between">
-                      <div class="flex items-center gap-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                        <span>Tersedia <b>${vacantPenghuni.length} Ranjang Kosong</b> (Siap Ditempati Karyawan)</span>
-                      </div>
-                      <button type="button" onclick="openPlaceModal('${d.c}')" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white shadow-2xs transition cursor-pointer">
-                        Tempatkan Karyawan
-                      </button>
-                    </div>
-                  ` : ''}
-                </div>
-              `}
             </div>
           </div>
         </div>
