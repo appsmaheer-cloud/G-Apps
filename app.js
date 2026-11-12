@@ -14610,6 +14610,18 @@ const PNS_SECTION_TO_DEPT = {
     activeCameraAssetIdx = assetIdx;
     capturedPhotoBase64 = null;
 
+    // CRITICAL FIX: Hide any currently open background modals so they NEVER cover the camera
+    const hunianModal = document.getElementById('modal-hunian-photos');
+    if (hunianModal && !hunianModal.classList.contains('hidden')) {
+      window._returnToHunianModal = true;
+      hunianModal.classList.add('hidden');
+    }
+    const penghuniModal = document.getElementById('modal-edit-penghuni');
+    if (penghuniModal && !penghuniModal.classList.contains('hidden')) {
+      window._returnToPenghuniModal = true;
+      penghuniModal.classList.add('hidden');
+    }
+
     const modal = document.getElementById('modal-camera');
     const video = document.getElementById('camera-video');
     const preview = document.getElementById('camera-preview-img');
@@ -14618,7 +14630,10 @@ const PNS_SECTION_TO_DEPT = {
     const reviewGroup = document.getElementById('camera-review-group');
     const titleEl = document.getElementById('camera-asset-title');
 
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      modal.classList.remove('hidden');
+      modal.style.zIndex = '9999';
+    }
     if (preview) preview.classList.add('hidden');
     if (video) video.classList.remove('hidden');
     if (overlay) overlay.classList.remove('hidden');
@@ -14639,7 +14654,6 @@ const PNS_SECTION_TO_DEPT = {
     if (!video) return;
 
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      // Fallback for older browsers: trigger file input with capture="environment"
       triggerNativeCameraFallback();
       return;
     }
@@ -14700,7 +14714,6 @@ const PNS_SECTION_TO_DEPT = {
     const w = video.videoWidth || 640;
     const h = video.videoHeight || 480;
 
-    // Scale down if image is too large to keep fast sync (~80-120KB)
     const maxDimension = 1024;
     let targetW = w;
     let targetH = h;
@@ -14784,7 +14797,22 @@ const PNS_SECTION_TO_DEPT = {
   function closeCameraModal() {
     stopCameraStream();
     const modal = document.getElementById('modal-camera');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      modal.style.removeProperty('z-index');
+    }
+
+    // Restore background modal cleanly
+    if (window._returnToHunianModal) {
+      const hunianModal = document.getElementById('modal-hunian-photos');
+      if (hunianModal) hunianModal.classList.remove('hidden');
+      window._returnToHunianModal = false;
+    }
+    if (window._returnToPenghuniModal) {
+      const penghuniModal = document.getElementById('modal-edit-penghuni');
+      if (penghuniModal) penghuniModal.classList.remove('hidden');
+      window._returnToPenghuniModal = false;
+    }
   }
 
   function stopCameraStream() {
@@ -14796,18 +14824,45 @@ const PNS_SECTION_TO_DEPT = {
 
   function uploadAssetPhotoFromInput(evt) {
     const file = evt.target.files && evt.target.files[0];
-    if (!file || activeCameraAssetIdx < 0) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-      if (appState.currentInspAssets && appState.currentInspAssets[activeCameraAssetIdx]) {
-        appState.currentInspAssets[activeCameraAssetIdx].foto_asset = e.target.result;
-        loadRoomAssetsChecklist(appState.currentInspAssets);
-      }
-    };
-    reader.readAsDataURL(file);
+    if (!file) return;
+
+    if (cameraTarget && cameraTarget.type === 'hunian') {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        compressImage(e.target.result, 1280, 0.78, function(compressedBase64) {
+          saveHunianPhotoDirect(cameraTarget.code, compressedBase64, cameraTarget.category, cameraTarget.caption);
+        });
+      };
+      reader.readAsDataURL(file);
+      closeCameraModal();
+      return;
+    }
+
+    if (cameraTarget && cameraTarget.type === 'penghuni') {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        compressImage(e.target.result, 640, 0.78, function(compressedBase64) {
+          savePenghuniPhotoDirect(cameraTarget.id, compressedBase64);
+        });
+      };
+      reader.readAsDataURL(file);
+      closeCameraModal();
+      return;
+    }
+
+    if (activeCameraAssetIdx >= 0 && appState.currentInspAssets && appState.currentInspAssets[activeCameraAssetIdx]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        if (appState.currentInspAssets && appState.currentInspAssets[activeCameraAssetIdx]) {
+          appState.currentInspAssets[activeCameraAssetIdx].foto_asset = e.target.result;
+          loadRoomAssetsChecklist(appState.currentInspAssets);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
     closeCameraModal();
   }
-    
+
   // Global window exposure for inline onclick handlers
   if (typeof window !== "undefined") {
     // Navigation & UI
@@ -15124,9 +15179,24 @@ window.updateSingleAssetNote = updateSingleAssetNote;
       category: document.getElementById('hunian-pending-category') ? document.getElementById('hunian-pending-category').value : 'Tampak Depan / Eksterior',
       caption: document.getElementById('hunian-pending-caption') ? document.getElementById('hunian-pending-caption').value : ''
     };
+
+    // On mobile devices, trigger native camera input directly for 100% full-screen camera without any popup blocking
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent || '');
+    const nativeCamInput = document.getElementById('hunian-native-camera-input');
+    if (isMobile && nativeCamInput) {
+      nativeCamInput.click();
+      return;
+    }
+
+    // For desktop/webcam mode: hide hunian modal so it NEVER covers the camera viewfinder
+    const hunianModal = document.getElementById('modal-hunian-photos');
+    if (hunianModal) {
+      window._returnToHunianModal = true;
+      hunianModal.classList.add('hidden');
+    }
     openLiveCameraModal(-1);
     const titleEl = document.getElementById('camera-asset-title');
-    if (titleEl) titleEl.innerText = `Foto Hunian: ${activeHunianName} (${activeHunianCode})`;
+    if (titleEl) titleEl.innerText = 'Foto Hunian: ' + activeHunianName + ' (' + activeHunianCode + ')';
   }
 
   function handleHunianFileUpload(event) {

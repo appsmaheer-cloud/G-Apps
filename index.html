@@ -4689,7 +4689,7 @@
   </div>
 
   <!-- MODAL LIVE CAMERA VIEWFINDER UNTUK HP & DESKTOP (Screenshot 2) -->
-  <div id="modal-camera" role="dialog" aria-modal="true" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 hidden">
+  <div id="modal-camera" role="dialog" aria-modal="true" class="fixed inset-0 z-[100] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-3 hidden">
     <div class="bg-white rounded-2xl max-w-md w-full shadow-2xl overflow-hidden border border-slate-200">
       <!-- Header -->
       <div class="p-3.5 bg-slate-900 text-white flex items-center justify-between">
@@ -4791,6 +4791,7 @@
             <button type="button" onclick="triggerHunianCamera()" class="flex-1 sm:flex-none px-3.5 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
               <i class="ph-bold ph-camera text-base"></i> Buka Kamera HP
             </button>
+            <input type="file" id="hunian-native-camera-input" accept="image/*" capture="environment" onchange="handleHunianFileUpload(event)" class="hidden">
             <label class="flex-1 sm:flex-none px-3.5 py-2 rounded-lg bg-white border border-slate-300 hover:bg-slate-50 text-slate-700 font-bold text-xs flex items-center justify-center gap-1.5 shadow-2xs transition cursor-pointer">
               <i class="ph-bold ph-upload-simple text-base text-indigo-600"></i> Unggah File
               <input type="file" id="hunian-file-input" accept="image/*" onchange="handleHunianFileUpload(event)" class="hidden">
