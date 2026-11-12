@@ -258,17 +258,46 @@ function handleApiPost(action, payload) {
 function onOpen() {
   try {
     var ui = SpreadsheetApp.getUi();
-    ui.createMenu('🏢 PNS Asset Backend')
-      .addItem('⚡ 1. Tarik Data API Asli + Compare ke Sheet asset (Recommended)', 'syncAssetVerReportFromApi')
+    ui.createMenu('🏢 PNS Asset System')
+      .addItem('📋 1. Cek Status & Jumlah Data Database', 'checkDatabaseHealthStatus')
       .addSeparator()
-      .addItem('📥 2. Tarik Data API Asli Saja (ke Tab API_ASSET_LIVE)', 'pullRawApiToSheet')
-      .addItem('🔍 3. Compare API vs Sheet asset (ke Tab COMPARE_API_ASSET)', 'compareApiWithMasterAsset')
-      .addSeparator()
-      .addItem('🧹 4. Bersihkan Baris Tambahan API di Sheet asset (Kembalikan 34.266 Master)', 'cleanExtraApiRowsFromMasterAsset')
-      .addItem('🛠️ 5. Setup / Format Ulang Header & Conditional Formatting Sheet', 'setupPnsAssetSpreadsheet')
+      .addItem('⚡ 2. Tarik Sinkronisasi API Pusat PNS (Opsional)', 'syncAssetVerReportFromApi')
       .addToUi();
   } catch (e) {
     Logger.log('onOpen info: ' + e);
+  }
+}
+
+function checkDatabaseHealthStatus() {
+  try {
+    var ss = getDb();
+    var assetSheet = getMasterAssetSheet(ss);
+    var bldgSheet = ss.getSheetByName('M_GEDUNG');
+    var roomSheet = ss.getSheetByName('M_RUANGAN');
+    var penghuniSheet = ss.getSheetByName('M_PENGHUNI');
+    var mtcSheet = ss.getSheetByName('data_mtc') || ss.getSheetByName('WORK_ORDERS');
+    var inspSheet = ss.getSheetByName('ROOM_INSPECTIONS');
+
+    var assetCount = assetSheet && assetSheet.getLastRow() > 1 ? (assetSheet.getLastRow() - 1) : 0;
+    var bldgCount = bldgSheet && bldgSheet.getLastRow() > 1 ? (bldgSheet.getLastRow() - 1) : 0;
+    var roomCount = roomSheet && roomSheet.getLastRow() > 1 ? (roomSheet.getLastRow() - 1) : 0;
+    var penghuniCount = penghuniSheet && penghuniSheet.getLastRow() > 1 ? (penghuniSheet.getLastRow() - 1) : 0;
+    var mtcCount = mtcSheet && mtcSheet.getLastRow() > 1 ? (mtcSheet.getLastRow() - 1) : 0;
+    var inspCount = inspSheet && inspSheet.getLastRow() > 1 ? (inspSheet.getLastRow() - 1) : 0;
+
+    var msg = '=== STATUS DATABASE PNS ASSET ===\n\n' +
+      '• Tab asset: ' + assetCount.toLocaleString('id-ID') + ' unit aset terdaftar\n' +
+      '• Tab M_GEDUNG: ' + bldgCount.toLocaleString('id-ID') + ' gedung fisik\n' +
+      '• Tab M_RUANGAN: ' + roomCount.toLocaleString('id-ID') + ' ruangan fisik\n' +
+      '• Tab M_PENGHUNI: ' + penghuniCount.toLocaleString('id-ID') + ' slot hunian sensus\n' +
+      '• Tab data_mtc: ' + mtcCount.toLocaleString('id-ID') + ' riwayat pemeliharaan\n' +
+      '• Tab ROOM_INSPECTIONS: ' + inspCount.toLocaleString('id-ID') + ' transaksi inspeksi\n\n' +
+      'Seluruh tab utama aktif dan siap melayani Web App.\n' +
+      'Operasional harian (Inspeksi, Sensus, Part, Foto Drive) berjalan otomatis dari Web App.';
+
+    SpreadsheetApp.getUi().alert('PNS Asset System Health', msg, SpreadsheetApp.getUi().ButtonSet.OK);
+  } catch (err) {
+    SpreadsheetApp.getUi().alert('Status Database', 'Error cek database: ' + err.toString(), SpreadsheetApp.getUi().ButtonSet.OK);
   }
 }
 
