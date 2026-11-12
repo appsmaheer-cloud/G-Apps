@@ -13407,10 +13407,34 @@ const PNS_SECTION_TO_DEPT = {
     const status = document.getElementById('val-filter-status')?.value || '';
     const kond = document.getElementById('val-filter-kondisi')?.value || '';
 
+    // Set of assets inspected in 2026 (Live from room inspections)
+    const inspected2026Keys = new Set();
+    if (appState.inspections && Array.isArray(appState.inspections)) {
+      appState.inspections.forEach(insp => {
+        if (insp.items && Array.isArray(insp.items)) {
+          insp.items.forEach(it => {
+            const no = String(it.no_asset || it.kode_asset || '').trim();
+            if (no) inspected2026Keys.add(no);
+          });
+        }
+      });
+    }
+
     return all.filter(a => {
-      // REQUIREMENT: Validasi aset TIDAK TERMASUK yang belum validasi!
       const vSt = String(a.statusVerif || a.status_verifikasi || '').toUpperCase();
-      if (vSt.includes('BELUM') || a.isUnvalidated) return false;
+      const isNewAsset = vSt.includes('BELUM') || a.isUnvalidated || String(a.rawSec || '').includes('BELUM');
+      const isInspected2026 = inspected2026Keys.has(String(a.no_asset || a.kode_unit || '').trim());
+
+      // Filter Status / Siklus
+      if (status) {
+        const st = status.toLowerCase();
+        if (st === 'sudah_2025' && isNewAsset) return false;
+        if (st === 'new_asset' && !isNewAsset) return false;
+        if (st === 'belum_2026' && isInspected2026) return false;
+        if (st === 'sudah_2026' && !isInspected2026) return false;
+        if (st === 'sesuai' && isNewAsset) return false;
+        if (st === 'belum' && !isNewAsset) return false;
+      }
 
       // 1. Filter Location
       if (loc && a.locRaw !== loc && a.loc !== loc) return false;
@@ -13421,37 +13445,30 @@ const PNS_SECTION_TO_DEPT = {
         if (aDeptKey !== dept && a.rawSec !== dept) return false;
       }
 
-      // 3. Filter Status Validasi
-      if (status) {
-        const st = status.toUpperCase();
-        const isSesuai = !String(a.statusVerif || '').toUpperCase().includes('TIDAK') && !String(a.statusVerif || '').toUpperCase().includes('SELISIH');
-        if ((st === 'SESUAI' || st === 'ALOKASI SESUAI') && !isSesuai) return false;
-        if ((st === 'SELISIH' || st === 'TIDAK SESUAI' || st === 'SELISIH ALOKASI') && isSesuai) return false;
-        if (st === 'BELUM' && !String(a.statusVerif || '').toUpperCase().includes('BELUM')) return false;
-      }
-
-      // 4. Filter Kondisi Fisik
+      // 3. Filter Kondisi Fisik
       if (kond) {
-        const c = String(a.kond || '').toUpperCase();
-        if (!c.includes(kond.toUpperCase())) return false;
+        const k = kond.toUpperCase();
+        const aKond = String(a.kond || a.kondisi || '').toUpperCase();
+        if (k === 'GOOD' && !aKond.includes('GOOD') && !aKond.includes('BAIK')) return false;
+        if (k === 'REPAIR' && !aKond.includes('REPAIR') && !aKond.includes('PERBAIKAN')) return false;
+        if (k === 'BROKEN' && !aKond.includes('BROKEN') && !aKond.includes('RUSAK')) return false;
+        if (k === 'LOST' && !aKond.includes('LOST') && !aKond.includes('HILANG')) return false;
+        if (k === 'DISPOSAL' && !aKond.includes('DISPOSAL') && !aKond.includes('AFKIR')) return false;
       }
 
-      // 5. Global Search
+      // 4. Global Search
       if (q) {
-        const match = (a.kodeUnit && a.kodeUnit.toLowerCase().includes(q)) ||
-                      (a.namaAsset && a.namaAsset.toLowerCase().includes(q)) ||
-                      (a.kel && a.kel.toLowerCase().includes(q)) ||
-                      (a.kat && a.kat.toLowerCase().includes(q)) ||
-                      (a.rawSec && a.rawSec.toLowerCase().includes(q)) ||
-                      (a.locRaw && a.locRaw.toLowerCase().includes(q));
-        if (!match) return false;
+        const matchNo = String(a.no_asset || a.kode_unit || '').toLowerCase().includes(q);
+        const matchNama = String(a.nama_asset || a.nama_asset_detail || '').toLowerCase().includes(q);
+        const matchDept = String(a.rawSec || '').toLowerCase().includes(q);
+        const matchLoc = String(a.locRaw || a.loc || '').toLowerCase().includes(q);
+        if (!matchNo && !matchNama && !matchDept && !matchLoc) return false;
       }
 
       return true;
     });
   }
 
-  // Calculate metrics for any set of assets
   function computeValidasiMetrics(assets) {
     let total = 0, sesuai = 0, tdkSesuai = 0;
     let good = 0, repair = 0, disp = 0, broken = 0, lost = 0;

@@ -1479,16 +1479,16 @@ body.validasi-standalone-view #validasi-standalone-topbar {
         <!-- Top Action & Slicer Bar -->
         <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white rounded-2xl border border-slate-200/90 shadow-xs shrink-0 gap-3">
           <div class="flex items-center gap-2">
-            <!-- Segment Slicer Pills: Sesuai 2 Pilihan Utama (Seluruh Asset vs Asset Validasi) -->
+              <!-- Segment Slicer Pills: Sesuai Siklus Validasi 2025 vs New Asset vs Siklus 2026 -->
             <div class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/90 shrink-0 gap-1">
-              <button type="button" id="btn-segment-asset-all" onclick="window.setAssetCatalogSegment('ALL')" class="px-3 py-1 rounded-lg text-xs font-semibold bg-white text-slate-800 shadow-xs border border-slate-200 transition cursor-pointer" title="Seluruh Portofolio Aset Terdaftar &amp; Terintegrasi Live API">
-                Seluruh Asset
+              <button type="button" id="btn-segment-asset-all" onclick="window.setAssetCatalogSegment('ALL')" class="px-3 py-1 rounded-lg text-xs font-semibold bg-white text-slate-800 shadow-xs border border-slate-200 transition cursor-pointer" title="Seluruh Portofolio 35.160 Aset Perusahaan">
+                Semua Aset (35.160)
               </button>
-              <button type="button" id="btn-segment-asset-master" onclick="window.setAssetCatalogSegment('VALIDASI')" class="px-3 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 transition cursor-pointer" title="Hanya Asset Validasi Terverifikasi Fisik">
-                Asset Validasi
+              <button type="button" id="btn-segment-asset-master" onclick="window.setAssetCatalogSegment('VALIDASI')" class="px-3 py-1 rounded-lg text-xs font-medium text-slate-500 hover:text-slate-800 transition cursor-pointer" title="Aset yang Sudah Divalidasi pada Siklus Sensus 2025 (34.806 Unit)">
+                Sudah Validasi 2025 (34.806)
               </button>
-              <button type="button" id="btn-segment-asset-bc" onclick="window.setAssetCatalogSegment('BELUM_CHECKOUT')" class="px-3 py-1 rounded-lg text-xs font-medium text-amber-700 hover:text-amber-900 transition cursor-pointer flex items-center gap-1" title="Antrean Belum Verifikasi">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Belum Verifikasi
+              <button type="button" id="btn-segment-asset-bc" onclick="window.setAssetCatalogSegment('BELUM_CHECKOUT')" class="px-3 py-1 rounded-lg text-xs font-medium text-amber-700 hover:text-amber-900 transition cursor-pointer flex items-center gap-1" title="Aset Baru / Belum Checkout yang Belum Terverifikasi (354 Unit)">
+                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> New Asset (354)
               </button>
             </div>
             <!-- Tombol Compare API Live -->
@@ -4512,13 +4512,14 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                 </select>
               </div>
 
-              <!-- Filter Status Validasi -->
-              <div class="w-full sm:w-auto min-w-[140px]">
+              <!-- Filter Status Validasi & Siklus -->
+              <div class="w-full sm:w-auto min-w-[170px]">
                 <select id="val-filter-status" onchange="onFilterValidasiReport()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-medium">
-                  <option value="">Semua Status</option>
-                  <option value="sesuai">Sesuai Fisik</option>
-                  <option value="selisih">Selisih Alokasi</option>
-                  <option value="belum">Belum Verifikasi</option>
+                  <option value="">Semua Aset (35.160)</option>
+                  <option value="sudah_2025">Sudah Validasi 2025 (34.806)</option>
+                  <option value="new_asset">New Asset / Belum Sensus (354)</option>
+                  <option value="sudah_2026">Sudah Validasi 2026 (Live Inspeksi)</option>
+                  <option value="belum_2026">Belum Validasi 2026</option>
                 </select>
               </div>
             </div>
@@ -19415,10 +19416,34 @@ const PNS_SECTION_TO_DEPT = {
     const status = document.getElementById('val-filter-status')?.value || '';
     const kond = document.getElementById('val-filter-kondisi')?.value || '';
 
+    // Set of assets inspected in 2026 (Live from room inspections)
+    const inspected2026Keys = new Set();
+    if (appState.inspections && Array.isArray(appState.inspections)) {
+      appState.inspections.forEach(insp => {
+        if (insp.items && Array.isArray(insp.items)) {
+          insp.items.forEach(it => {
+            const no = String(it.no_asset || it.kode_asset || '').trim();
+            if (no) inspected2026Keys.add(no);
+          });
+        }
+      });
+    }
+
     return all.filter(a => {
-      // REQUIREMENT: Validasi aset TIDAK TERMASUK yang belum validasi!
       const vSt = String(a.statusVerif || a.status_verifikasi || '').toUpperCase();
-      if (vSt.includes('BELUM') || a.isUnvalidated) return false;
+      const isNewAsset = vSt.includes('BELUM') || a.isUnvalidated || String(a.rawSec || '').includes('BELUM');
+      const isInspected2026 = inspected2026Keys.has(String(a.no_asset || a.kode_unit || '').trim());
+
+      // Filter Status / Siklus
+      if (status) {
+        const st = status.toLowerCase();
+        if (st === 'sudah_2025' && isNewAsset) return false;
+        if (st === 'new_asset' && !isNewAsset) return false;
+        if (st === 'belum_2026' && isInspected2026) return false;
+        if (st === 'sudah_2026' && !isInspected2026) return false;
+        if (st === 'sesuai' && isNewAsset) return false;
+        if (st === 'belum' && !isNewAsset) return false;
+      }
 
       // 1. Filter Location
       if (loc && a.locRaw !== loc && a.loc !== loc) return false;
@@ -19429,37 +19454,30 @@ const PNS_SECTION_TO_DEPT = {
         if (aDeptKey !== dept && a.rawSec !== dept) return false;
       }
 
-      // 3. Filter Status Validasi
-      if (status) {
-        const st = status.toUpperCase();
-        const isSesuai = !String(a.statusVerif || '').toUpperCase().includes('TIDAK') && !String(a.statusVerif || '').toUpperCase().includes('SELISIH');
-        if ((st === 'SESUAI' || st === 'ALOKASI SESUAI') && !isSesuai) return false;
-        if ((st === 'SELISIH' || st === 'TIDAK SESUAI' || st === 'SELISIH ALOKASI') && isSesuai) return false;
-        if (st === 'BELUM' && !String(a.statusVerif || '').toUpperCase().includes('BELUM')) return false;
-      }
-
-      // 4. Filter Kondisi Fisik
+      // 3. Filter Kondisi Fisik
       if (kond) {
-        const c = String(a.kond || '').toUpperCase();
-        if (!c.includes(kond.toUpperCase())) return false;
+        const k = kond.toUpperCase();
+        const aKond = String(a.kond || a.kondisi || '').toUpperCase();
+        if (k === 'GOOD' && !aKond.includes('GOOD') && !aKond.includes('BAIK')) return false;
+        if (k === 'REPAIR' && !aKond.includes('REPAIR') && !aKond.includes('PERBAIKAN')) return false;
+        if (k === 'BROKEN' && !aKond.includes('BROKEN') && !aKond.includes('RUSAK')) return false;
+        if (k === 'LOST' && !aKond.includes('LOST') && !aKond.includes('HILANG')) return false;
+        if (k === 'DISPOSAL' && !aKond.includes('DISPOSAL') && !aKond.includes('AFKIR')) return false;
       }
 
-      // 5. Global Search
+      // 4. Global Search
       if (q) {
-        const match = (a.kodeUnit && a.kodeUnit.toLowerCase().includes(q)) ||
-                      (a.namaAsset && a.namaAsset.toLowerCase().includes(q)) ||
-                      (a.kel && a.kel.toLowerCase().includes(q)) ||
-                      (a.kat && a.kat.toLowerCase().includes(q)) ||
-                      (a.rawSec && a.rawSec.toLowerCase().includes(q)) ||
-                      (a.locRaw && a.locRaw.toLowerCase().includes(q));
-        if (!match) return false;
+        const matchNo = String(a.no_asset || a.kode_unit || '').toLowerCase().includes(q);
+        const matchNama = String(a.nama_asset || a.nama_asset_detail || '').toLowerCase().includes(q);
+        const matchDept = String(a.rawSec || '').toLowerCase().includes(q);
+        const matchLoc = String(a.locRaw || a.loc || '').toLowerCase().includes(q);
+        if (!matchNo && !matchNama && !matchDept && !matchLoc) return false;
       }
 
       return true;
     });
   }
 
-  // Calculate metrics for any set of assets
   function computeValidasiMetrics(assets) {
     let total = 0, sesuai = 0, tdkSesuai = 0;
     let good = 0, repair = 0, disp = 0, broken = 0, lost = 0;
