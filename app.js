@@ -8522,21 +8522,18 @@ const PNS_SECTION_TO_DEPT = {
       roomBtnContainer.innerHTML = roomsToRender.map((r, idx) => {
         const isFirst = idx === 0;
         const initialCls = isFirst
-          ? 'insp-room-pill active px-3.5 py-2.5 rounded-xl border-2 border-sky-600 bg-sky-600 text-white shadow-xs font-bold text-left transition flex items-center justify-between gap-3 text-xs cursor-pointer'
-          : 'insp-room-pill px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:border-sky-400 hover:bg-sky-50/60 text-slate-800 text-left transition flex items-center justify-between gap-3 text-xs font-semibold cursor-pointer';
+          ? 'insp-room-pill active px-2.5 py-1.5 rounded-lg border-2 border-sky-600 bg-sky-600 text-white shadow-2xs font-bold text-left transition flex items-center justify-between gap-2 text-xs cursor-pointer'
+          : 'insp-room-pill px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:border-sky-400 hover:bg-sky-50 text-slate-700 text-left transition flex items-center justify-between gap-2 text-xs font-semibold cursor-pointer';
 
         const assetBadge = isFirst
-          ? `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/20 text-white">${r.total_asset || 0} Aset</span>`
-          : `<span class="px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600">${r.total_asset || 0} Aset</span>`;
+          ? `<span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-white/20 text-white shrink-0">${r.total_asset || 0} Aset</span>`
+          : `<span class="px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 text-slate-600 shrink-0">${r.total_asset || 0} Aset</span>`;
 
         return `
           <button type="button" onclick="selectInspRoom('${escapeHtml(r.nama_ruangan)}', this)" class="${initialCls}" data-room="${escapeHtml(r.nama_ruangan)}" data-asset-count="${r.total_asset || 0}">
-            <div class="flex items-center gap-2">
-              <i class="ph-bold ph-door text-sm shrink-0"></i>
-              <div>
-                <span class="block leading-tight">${escapeHtml(r.nama_ruangan)}</span>
-                <span class="text-[10px] opacity-75 font-normal block">${escapeHtml(r.tipe_ruangan || 'Kamar')}</span>
-              </div>
+            <div class="flex items-center gap-1.5 min-w-0">
+              <i class="ph-bold ph-door text-xs shrink-0"></i>
+              <span class="truncate block leading-tight">${escapeHtml(r.nama_ruangan)}</span>
             </div>
             ${assetBadge}
           </button>
@@ -8563,39 +8560,214 @@ const PNS_SECTION_TO_DEPT = {
   }
   window.onInspGedungChange = onInspGedungChange;
 
+  
+  // ========================================================
+  // REVISI GAMBAR 1, 2, 3, 4 & ENTERPRISE HUNIAN
+  // ========================================================
+  window.setPnsBldgCat = function(catKey) {
+    if (!window.PNS_FM_STATE) window.PNS_FM_STATE = {};
+    window.PNS_FM_STATE.bldgCat = catKey || 'ALL';
+    
+    // Resolve buildings according to category
+    const allRawBldgs = (typeof PNS_FM_SITES !== 'undefined' && typeof PNS_FM_ALL !== 'undefined')
+      ? PNS_FM_SITES.flatMap(([k]) => (PNS_FM_ALL[k] || []))
+      : [];
+    let filtered = allRawBldgs;
+    if (catKey === 'HUNIAN') {
+      filtered = allRawBldgs.filter(b => b.kd === 'lh' || /LH|SPV|SPTD|MESS|RUMAH|GUEST/i.test(b.c) || /Longhouse|Mess|Rumah/i.test(b.nm));
+    } else if (catKey === 'FASUM') {
+      filtered = allRawBldgs.filter(b => /KANTIN|KLINIK|MASJID|MUSHOLA|SPORT|GOR|LAUNDRY/i.test(b.c) || /Kantin|Klinik|Masjid|Musholla|Olahraga|GOR|Laundry/i.test(b.nm));
+    } else if (catKey === 'KANTOR') {
+      filtered = allRawBldgs.filter(b => /OFFICE|KANTOR|WORKSHOP|GUDANG|POS|PABRIK|FACTORY/i.test(b.c) || /Kantor|Office|Workshop|Gudang|Pos/i.test(b.nm));
+    }
+    if (filtered.length > 0) {
+      window.PNS_FM_STATE.sel = filtered[0].c;
+      window.PNS_FM_STATE.room = 1;
+    }
+    if (typeof window.renderFmRincian === 'function') window.renderFmRincian();
+  };
+
+  window.onPenghuniLocFilterChange = function() {
+    const locEl = document.getElementById('filter-penghuni-loc');
+    const locVal = locEl ? locEl.value : '';
+    const bldgSelect = document.getElementById('filter-penghuni-bldg');
+    if (!bldgSelect) return;
+
+    const sourceData = (appState.penghuni && appState.penghuni.length > 0)
+      ? appState.penghuni
+      : ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.penghuni) ? PNS_MASTER_DATA.penghuni : []);
+
+    let bldgs = Array.from(new Set(sourceData.map(p => p.kode_gedung).filter(Boolean))).sort();
+    if (locVal) {
+      bldgs = bldgs.filter(b => {
+        const bUpper = String(b).toUpperCase();
+        if (locVal === 'central') return bUpper.includes('LH-') || bUpper.includes('CO') || bUpper.includes('CENTRAL');
+        if (locVal === 'e12') return bUpper.includes('E1') || bUpper.includes('E2') || bUpper.includes('ESTATE');
+        if (locVal === 'e3') return bUpper.includes('E3');
+        if (locVal === 'factory') return bUpper.includes('FR') || bUpper.includes('PABRIK') || bUpper.includes('FACTORY');
+        if (locVal === 'HO') return bUpper.includes('HO');
+        if (locVal === 'RO') return bUpper.includes('RO');
+        return true;
+      });
+    }
+
+    bldgSelect.innerHTML = '<option value="">Semua Gedung / LH (' + bldgs.length + ')</option>' +
+      bldgs.map(b => '<option value="' + escapeHtml(b) + '">' + escapeHtml(b) + '</option>').join('');
+
+    if (typeof onPenghuniBldgFilterChange === 'function') onPenghuniBldgFilterChange();
+    else if (typeof renderPenghuniTable === 'function') renderPenghuniTable();
+  };
+
+  window.relocateInspectionAsset = function(origIdx) {
+    const ast = appState.currentInspAssets && appState.currentInspAssets[origIdx];
+    if (!ast) return;
+
+    const bCode = document.getElementById('insp-gedung') ? document.getElementById('insp-gedung').value : '';
+    const curRoom = (document.getElementById('insp-ruangan') && document.getElementById('insp-ruangan').value) || ast.nama_ruangan || 'Kamar Saat Ini';
+    
+    // Resolve room list in current building
+    const matchingRooms = (appState.rooms || []).filter(r => 
+      r.kode_gedung === bCode || r.nama_gedung === bCode || (bCode && String(bCode).includes(r.kode_gedung))
+    );
+    const roomList = matchingRooms.length > 0 
+      ? matchingRooms.map(r => r.nama_ruangan)
+      : ['Kamar No.1', 'Kamar No.2', 'Kamar No.3', 'Kamar No.4', 'Kamar No.5', 'Kamar No.6', 'Ruang Tamu', 'Dapur', 'Area Bersama'];
+
+    const roomOptionsHtml = roomList
+      .filter(rn => rn !== curRoom)
+      .map(rn => '<option value="' + escapeHtml(rn) + '">' + escapeHtml(rn) + '</option>')
+      .join('');
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: 'Relokasi / Update Lokasi Aset',
+        html: `
+          <div class="text-left text-xs space-y-3 pt-2">
+            <div class="p-2.5 bg-sky-50 border border-sky-200 rounded-lg">
+              <b class="text-sky-900 block">${escapeHtml(ast.nama_asset)}</b>
+              <span class="font-mono text-sky-700 text-[11px]">${escapeHtml(ast.no_asset || '-')}</span>
+              <div class="text-[10px] text-slate-500 mt-0.5">Lokasi Terdaftar: <b>${escapeHtml(curRoom)}</b></div>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Ditemukan di Ruangan / Kamar Mana?</label>
+              <select id="swal-target-room" class="w-full p-2 rounded-lg border border-slate-300 text-xs font-semibold bg-white text-slate-800">
+                ${roomOptionsHtml}
+              </select>
+            </div>
+            <div>
+              <label class="font-bold text-slate-700 block mb-1">Catatan Relokasi Fisik:</label>
+              <input type="text" id="swal-relocate-note" placeholder="Misal: Dipindahkan oleh mandor/penghuni..." class="w-full p-2 rounded-lg border border-slate-300 text-xs bg-white text-slate-800">
+            </div>
+          </div>
+        `,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonText: 'Simpan Relokasi',
+        confirmButtonColor: '#0284c7',
+        cancelButtonText: 'Batal',
+        preConfirm: () => {
+          const targetRoom = document.getElementById('swal-target-room').value;
+          const note = document.getElementById('swal-relocate-note').value;
+          if (!targetRoom) {
+            Swal.showValidationMessage('Silakan pilih kamar target relokasi');
+            return false;
+          }
+          return { targetRoom, note };
+        }
+      }).then(res => {
+        if (res.isConfirmed && res.value) {
+          const targetRoom = res.value.targetRoom;
+          const userNote = res.value.note ? ' - ' + res.value.note : '';
+          const oldRoom = curRoom;
+
+          ast.nama_ruangan = targetRoom;
+          ast.kondisi_inspeksi = 'Ditemukan di ' + targetRoom;
+          ast.catatan_inspeksi = 'Aset ditemukan di ' + targetRoom + ' (Sebelumnya terdaftar di ' + oldRoom + ')' + userNote;
+
+          // Sync to master asset pools
+          if (Array.isArray(appState.assets)) {
+            const masterAst = appState.assets.find(x => x.no_asset === ast.no_asset);
+            if (masterAst) {
+              masterAst.nama_ruangan = targetRoom;
+              masterAst.catatan = ast.catatan_inspeksi;
+            }
+          }
+          if (Array.isArray(appState.hrgaAssets)) {
+            const hrgaAst = appState.hrgaAssets.find(x => x.no_asset === ast.no_asset);
+            if (hrgaAst) {
+              hrgaAst.nama_ruangan = targetRoom;
+            }
+          }
+
+          if (typeof renderInspectionChecklistTable === 'function') renderInspectionChecklistTable();
+          if (typeof renderInspectionVisualCards === 'function') renderInspectionVisualCards();
+
+          Swal.fire({
+            icon: 'success',
+            title: 'Lokasi Aset Berhasil Diupdate',
+            text: `Aset ${ast.nama_asset} telah dipindahkan dari ${oldRoom} ke ${targetRoom}.`,
+            timer: 2000,
+            showConfirmButton: false
+          });
+        }
+      });
+    }
+  };
+
+  window.viewInspectionPhoto = function(origIdx) {
+    const ast = appState.currentInspAssets && appState.currentInspAssets[origIdx];
+    if (!ast || !ast.foto_asset) return;
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: escapeHtml(ast.nama_asset),
+        html: `
+          <div class="text-center space-y-2">
+            <span class="text-xs font-mono text-slate-500">${escapeHtml(ast.no_asset)} &bull; ${escapeHtml(ast.nama_ruangan || '-')}</span>
+            <div class="max-h-[70vh] overflow-hidden rounded-xl border border-slate-200 mt-2">
+              <img src="${ast.foto_asset}" class="w-full h-auto object-contain">
+            </div>
+          </div>
+        `,
+        showCloseButton: true,
+        confirmButtonText: 'Tutup'
+      });
+    }
+  };
+
   function selectInspRoom(roomName, btnEl) {
     const rInput = document.getElementById('insp-ruangan');
     const badge = document.getElementById('insp-room-selected-badge');
     if (rInput) rInput.value = roomName;
     if (badge) {
       badge.innerText = roomName;
-      badge.className = 'px-2.5 py-1 rounded text-xs font-bold bg-sky-600 text-white shadow-xs';
+      badge.className = 'px-2.5 py-1 rounded text-xs font-bold bg-sky-600 text-white shadow-2xs';
     }
 
-    // Reset other buttons styling
+    // Reset other buttons styling to compact size
     const container = document.getElementById('insp-room-button-list');
     if (container) {
       container.querySelectorAll('.insp-room-pill').forEach(btn => {
-        btn.className = 'insp-room-pill px-3.5 py-2.5 rounded-xl border border-slate-200 bg-white hover:border-sky-400 hover:bg-sky-50/60 text-slate-800 text-left transition flex items-center justify-between gap-3 text-xs font-semibold cursor-pointer';
-        const spanBadge = btn.querySelector('span[class*="rounded-md"]');
+        btn.className = 'insp-room-pill px-2.5 py-1.5 rounded-lg border border-slate-200 bg-white hover:border-sky-400 hover:bg-sky-50 text-slate-700 text-left transition flex items-center justify-between gap-2 text-xs font-semibold cursor-pointer';
+        const spanBadge = btn.querySelector('span[class*="rounded"]');
         if (spanBadge) {
-          spanBadge.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600';
+          spanBadge.className = 'px-1.5 py-0.2 rounded text-[10px] font-bold bg-slate-100 text-slate-600 shrink-0';
         }
       });
     }
 
     // Highlight clicked button
     if (btnEl) {
-      btnEl.className = 'insp-room-pill active px-3.5 py-2.5 rounded-xl border-2 border-sky-600 bg-sky-600 text-white shadow-xs font-bold text-left transition flex items-center justify-between gap-3 text-xs cursor-pointer';
-      const activeSpan = btnEl.querySelector('span[class*="rounded-md"]');
+      btnEl.className = 'insp-room-pill active px-2.5 py-1.5 rounded-lg border-2 border-sky-600 bg-sky-600 text-white shadow-2xs font-bold text-left transition flex items-center justify-between gap-2 text-xs cursor-pointer';
+      const activeSpan = btnEl.querySelector('span[class*="rounded"]');
       if (activeSpan) {
-        activeSpan.className = 'px-2 py-0.5 rounded-md text-[10px] font-bold bg-white/20 text-white';
+        activeSpan.className = 'px-1.5 py-0.2 rounded text-[10px] font-bold bg-white/20 text-white shrink-0';
       }
     }
 
     onInspRuanganChange();
   }
   window.selectInspRoom = selectInspRoom;
+
 
   function submitInspeksiRuangan() {
     const bCode = document.getElementById('insp-gedung')?.value;
@@ -9057,100 +9229,39 @@ const PNS_SECTION_TO_DEPT = {
     const filterAllCount = document.getElementById('filter-all-count');
     if (filterAllCount) filterAllCount.innerText = totalAssets;
 
-    // Dynamically update the category pill buttons based on authentic items in this room
     if (pillsContainer) {
       const allActiveCls = !activeInspTypeFilter
-        ? 'px-2.5 py-1 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-2xs transition cursor-pointer'
-        : 'px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer';
+        ? 'px-3 py-1.5 rounded-lg text-xs font-bold bg-slate-900 text-white shadow-2xs transition cursor-pointer flex items-center gap-1.5'
+        : 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-slate-100 hover:bg-slate-200 text-slate-700 transition cursor-pointer flex items-center gap-1.5';
 
-      let pillsHtml = `<button type="button" onclick="resetInspectionAssetFilter()" id="btn-filter-fac-all" class="${allActiveCls}">Semua (<span id="filter-all-count">${totalAssets}</span>)</button>`;
+      let pillsHtml = `<button type="button" onclick="resetInspectionAssetFilter()" id="btn-filter-fac-all" class="${allActiveCls}"><i class="ph-bold ph-squares-four"></i> Semua (<span id="filter-all-count">${totalAssets}</span>)</button>`;
 
       groupList.forEach(g => {
         const isSelected = activeInspTypeFilter === g.key;
-        const pillCls = isSelected
-          ? 'btn-fac-filter px-2.5 py-1 rounded-lg text-xs font-bold bg-emerald-600 text-white shadow-2xs border border-emerald-600 transition cursor-pointer flex items-center gap-1'
-          : 'btn-fac-filter px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 hover:bg-emerald-50 hover:text-emerald-700 text-slate-700 border border-slate-200 transition cursor-pointer flex items-center gap-1';
+        let condText = (g.rusak > 0) ? `⚠️ ${g.rusak} Rusak` : ((g.hilang > 0) ? `✕ ${g.hilang} Hilang` : `✓ ${g.baik} Baik`);
+        let condCls = (g.rusak > 0) ? 'bg-amber-100 text-amber-800' : ((g.hilang > 0) ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800');
 
-        pillsHtml += `<button type="button" onclick="filterInspectionTableByType('${g.key}', this)" class="${pillCls}"><i class="ph-bold ${g.icon} ${isSelected ? 'text-white' : 'text-emerald-600'}"></i> ${escapeHtml(g.label)} (${g.total})</button>`;
+        const pillCls = isSelected
+          ? 'btn-fac-filter px-3 py-1.5 rounded-lg text-xs font-bold bg-indigo-600 text-white shadow-2xs border border-indigo-600 transition cursor-pointer flex items-center gap-2'
+          : 'btn-fac-filter px-3 py-1.5 rounded-lg text-xs font-medium bg-white hover:bg-indigo-50 hover:text-indigo-700 text-slate-700 border border-slate-200 shadow-2xs transition cursor-pointer flex items-center gap-2';
+
+        pillsHtml += `
+          <button type="button" onclick="filterInspectionTableByType('${g.key}', this)" class="${pillCls}">
+            <i class="ph-bold ${g.icon} ${isSelected ? 'text-white' : 'text-indigo-600'}"></i>
+            <span>${escapeHtml(g.label)} (${g.total})</span>
+            <span class="px-1.5 py-0.2 rounded text-[10px] font-bold ${isSelected ? 'bg-white/20 text-white' : condCls}">${condText}</span>
+          </button>
+        `;
       });
 
       pillsContainer.innerHTML = pillsHtml;
     }
 
-    if (!container) return;
-
-    if (groupList.length === 0) {
-      container.innerHTML = `
-        <div class="col-span-full p-4 bg-slate-50 border border-slate-200 rounded-xl text-center text-xs text-slate-500">
-          <i class="ph-bold ph-cube text-xl block mb-1 text-slate-400"></i>
-          Pilih gedung dan ruangan terlebih dahulu untuk melihat ringkasan visual jenis aset.
-        </div>
-      `;
-      return;
+    // Gambar 3 Revisi: Sembunyikan kontainer kartu besar ganda agar tidak ada pengulangan yang membingungkan
+    if (container) {
+      container.innerHTML = '';
+      container.classList.add('hidden');
     }
-
-    container.innerHTML = groupList.map(g => {
-      const isSelected = activeInspTypeFilter === g.key;
-      let condBadge = '';
-      if (g.rusak > 0 && g.hilang > 0) {
-        condBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200">⚠️ ${g.rusak}R, ${g.hilang}H</span>`;
-      } else if (g.rusak > 0) {
-        condBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200">⚠️ ${g.rusak} Rusak</span>`;
-      } else if (g.hilang > 0) {
-        condBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-rose-50 text-rose-700 border border-rose-200">✕ ${g.hilang} Hilang</span>`;
-      } else {
-        condBadge = `<span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">✓ ${g.baik} Baik</span>`;
-      }
-
-      // Color maps for icon backgrounds
-      const bgMap = {
-        indigo: 'bg-indigo-50 text-indigo-600',
-        emerald: 'bg-emerald-50 text-emerald-600',
-        amber: 'bg-amber-50 text-amber-600',
-        blue: 'bg-blue-50 text-blue-600',
-        cyan: 'bg-cyan-50 text-cyan-600',
-        purple: 'bg-purple-50 text-purple-600',
-        teal: 'bg-teal-50 text-teal-600',
-        rose: 'bg-rose-50 text-rose-600',
-        pink: 'bg-pink-50 text-pink-600',
-        orange: 'bg-orange-50 text-orange-600',
-        lime: 'bg-lime-50 text-lime-600',
-        sky: 'bg-sky-50 text-sky-600',
-        stone: 'bg-stone-50 text-stone-600',
-        violet: 'bg-violet-50 text-violet-600',
-        slate: 'bg-slate-100 text-slate-600'
-      };
-      const iconCls = bgMap[g.color] || bgMap.slate;
-
-      return `
-        <button type="button" onclick="filterInspectionTableByType('${g.key}', this)" class="insp-asset-visual-card relative flex flex-col justify-between p-3 rounded-xl border text-left transition-all cursor-pointer ${isSelected ? 'bg-indigo-50/50 border-indigo-500 ring-2 ring-indigo-500/20 shadow-xs' : 'bg-white border-slate-200/90 hover:border-indigo-400 hover:shadow-2xs'}" data-type-key="${g.key}">
-          <!-- Top Row: Icon container + Big Bold Quantity -->
-          <div class="flex items-center justify-between gap-1.5 mb-2 w-full">
-            <div class="w-8 h-8 rounded-lg ${iconCls} flex items-center justify-center font-bold text-base shrink-0 shadow-2xs">
-              <i class="ph-bold ${g.icon}"></i>
-            </div>
-            <div class="text-right">
-              <span class="text-xl font-semibold text-slate-800 num-tabular tracking-tight block">${g.total}</span>
-              <span class="text-[9px] font-bold text-slate-400 uppercase tracking-wider -mt-1 block">Unit</span>
-            </div>
-          </div>
-
-          <!-- Middle: Label & Subtitle -->
-          <div class="mb-2">
-            <div class="font-bold text-xs text-slate-900 leading-tight truncate" title="${escapeHtml(g.label)}">${escapeHtml(g.label)}</div>
-            <div class="text-[10px] text-slate-500 font-medium mt-0.5">Standar: ${g.std} Unit</div>
-          </div>
-
-          <!-- Bottom: Condition Tag & Filter Indicator -->
-          <div class="flex items-center justify-between pt-2 border-t border-slate-100 w-full text-[10px]">
-            ${condBadge}
-            <span class="${isSelected ? 'text-indigo-700 font-extrabold' : 'text-slate-400 font-medium group-hover:text-indigo-600'} text-[10px]">
-              ${isSelected ? 'Aktif ✓' : 'Filter &rarr;'}
-            </span>
-          </div>
-        </button>
-      `;
-    }).join('');
   }
 
   function filterInspectionTableByType(typeKey, cardEl) {
@@ -9395,34 +9506,67 @@ const PNS_SECTION_TO_DEPT = {
     if (!tbody) return;
 
     if (itemsToRender.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-500 font-medium"><div class="space-y-2 max-w-md mx-auto"><i class="ph-bold ph-funnel text-2xl text-slate-300 block mb-1"></i><p class="text-slate-600 font-semibold text-xs">Tidak ada item inventaris fisik untuk filter kategori <span class="text-emerald-700 font-bold">"' + escapeHtml(activeInspTypeFilter || '') + '"</span> di ruangan ini.</p><button type="button" onclick="resetInspectionAssetFilter()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer shadow-2xs transition">Tampilkan Semua (' + fullList.length + ' Item) Aset Ruangan</button></div></td></tr>';
+      tbody.innerHTML = '<tr><td colspan="7" class="text-center py-8 text-slate-500 font-medium"><div class="space-y-2 max-w-md mx-auto"><i class="ph-bold ph-funnel text-2xl text-slate-300 block mb-1"></i><p class="text-slate-600 font-semibold text-xs">Tidak ada item inventaris fisik untuk filter kategori <span class="text-emerald-700 font-bold">"' + escapeHtml(activeInspTypeFilter || '') + '"</span> di ruangan ini.</p><button type="button" onclick="resetInspectionAssetFilter()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs cursor-pointer shadow-2xs transition">Tampilkan Semua (' + fullList.length + ' Item) Aset Ruangan</button></div></td></tr>';
       return;
     }
 
     tbody.innerHTML = itemsToRender.map(({ ast, origIdx }, displayIdx) => {
-      const isGood = (ast.kondisi_inspeksi === 'Baik' || ast.kondisi === 'Baik');
-      const isRusak = (ast.kondisi_inspeksi === 'Rusak' || ast.kondisi === 'Rusak' || ast.kondisi === 'Rusak Berat' || ast.kondisi === 'Rusak Ringan');
-      const isHilang = (ast.kondisi_inspeksi === 'Hilang' || ast.kondisi === 'Hilang');
+      const st = String(ast.kondisi_inspeksi || ast.kondisi || 'Baik');
+      const isBaik = (st === 'Baik' || st === 'Ada - Baik');
+      const isRusak = (st === 'Rusak' || st === 'Ada - Rusak' || st.includes('Rusak'));
+      const isHilang = (st === 'Hilang' || st.includes('Tidak Ditemukan') || st.includes('Belum Ditemukan'));
+      const isTidakAda = isHilang;
+      const isPindah = (st.includes('Pindah') || st.includes('Ditemukan di Kamar'));
 
-      return '<tr class="hover:bg-slate-50 transition text-xs border-b border-slate-100">' +
-        '<td class="py-2.5 px-3 num-tabular text-slate-500 font-medium">' + (displayIdx + 1) + '</td>' +
-        '<td class="py-2.5 px-3 font-mono font-semibold text-sky-800">' + escapeHtml(ast.no_asset || '-') + '</td>' +
-        '<td class="py-2.5 px-3">' +
-          '<span class="font-bold text-slate-900 block">' + escapeHtml(ast.nama_asset || 'Fasilitas') + '</span>' +
-          '<span class="text-[10px] text-slate-400">' + escapeHtml(ast.qty || '1 Unit') + ' &bull; ' + escapeHtml(ast.jenis_aset || 'Fasilitas') + '</span>' +
-        '</td>' +
-        '<td class="py-2.5 px-2 text-slate-600">' + escapeHtml(ast.kategori_asset || 'FASILITAS') + '</td>' +
-        '<td class="py-2.5 px-3 text-center">' +
-          '<div class="inline-flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">' +
-            '<button type="button" onclick="setAssetInspectionKondisi(' + origIdx + ', \'Baik\')" class="px-2 py-0.5 text-[10px] font-bold rounded ' + (isGood ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600 hover:text-emerald-700') + ' transition cursor-pointer">Baik</button>' +
-            '<button type="button" onclick="setAssetInspectionKondisi(' + origIdx + ', \'Rusak\')" class="px-2 py-0.5 text-[10px] font-bold rounded ' + (isRusak ? 'bg-amber-600 text-white shadow-xs' : 'text-slate-600 hover:text-amber-700') + ' transition cursor-pointer">Rusak</button>' +
-            '<button type="button" onclick="setAssetInspectionKondisi(' + origIdx + ', \'Hilang\')" class="px-2 py-0.5 text-[10px] font-bold rounded ' + (isHilang ? 'bg-rose-600 text-white shadow-xs' : 'text-slate-600 hover:text-rose-700') + ' transition cursor-pointer">Hilang</button>' +
-          '</div>' +
-        '</td>' +
-        '<td class="py-2.5 px-3">' +
-          '<input type="text" value="' + escapeHtml(ast.catatan_inspeksi || '') + '" onchange="updateAssetNote(' + origIdx + ', this.value)" placeholder="Catatan kondisi fisik..." class="w-full px-2 py-1 text-xs rounded border border-slate-200 bg-white text-slate-800">' +
-        '</td>' +
-      '</tr>';
+      // Foto cell dengan tombol upload & preview
+      let photoHtml = '';
+      if (ast.foto_asset) {
+        photoHtml = `
+          <div class="relative w-8 h-8 rounded-lg overflow-hidden border border-emerald-400 shrink-0 shadow-2xs group cursor-pointer inline-block" onclick="window.viewInspectionPhoto(${origIdx})" title="Klik untuk lihat foto aset">
+            <img src="${ast.foto_asset}" class="w-full h-full object-cover">
+            <button type="button" onclick="removeAssetPhoto(${origIdx}, event)" class="absolute -top-1 -right-1 w-4 h-4 bg-rose-600 hover:bg-rose-700 text-white rounded-full flex items-center justify-center text-[9px] shadow-xs" title="Hapus foto">&times;</button>
+          </div>
+        `;
+      } else {
+        photoHtml = `
+          <label class="inline-flex items-center gap-1 px-2 py-1 rounded-md border border-dashed border-slate-300 hover:border-sky-500 bg-slate-50 hover:bg-sky-50 text-slate-600 hover:text-sky-700 text-[10px] font-bold cursor-pointer transition shadow-2xs shrink-0" title="Ambil Foto Kamera / Upload">
+            <i class="ph-bold ph-camera text-xs"></i>
+            <span>Foto</span>
+            <input type="file" accept="image/*" capture="environment" onchange="uploadAssetPhotoDirect(${origIdx}, event)" class="hidden">
+          </label>
+        `;
+      }
+
+      const roomTag = ast.nama_ruangan ? `<span class="px-1.5 py-0.2 rounded text-[9.5px] font-semibold bg-slate-100 text-slate-600 border border-slate-200 block truncate mt-0.5 max-w-[130px]">${escapeHtml(ast.nama_ruangan)}</span>` : '';
+
+      return `
+        <tr class="hover:bg-slate-50 transition text-xs border-b border-slate-100">
+          <td class="py-2.5 px-3 num-tabular text-slate-500 font-medium">${displayIdx + 1}</td>
+          <td class="py-2.5 px-3 font-mono font-bold text-sky-800 whitespace-nowrap">
+            <div>${escapeHtml(ast.no_asset || '-')}</div>
+            ${roomTag}
+          </td>
+          <td class="py-2.5 px-2 text-center">${photoHtml}</td>
+          <td class="py-2.5 px-3">
+            <span class="font-bold text-slate-900 block">${escapeHtml(ast.nama_asset || 'Fasilitas')}</span>
+            <span class="text-[10px] text-slate-400">${escapeHtml(ast.qty || '1 Unit')} &bull; ${escapeHtml(ast.jenis_aset || 'Fasilitas')}</span>
+          </td>
+          <td class="py-2.5 px-2 text-slate-600">${escapeHtml(ast.kategori_asset || 'FASILITAS')}</td>
+          <td class="py-2.5 px-3 text-center">
+            <div class="inline-flex items-center gap-1 bg-slate-100 p-1 rounded-lg flex-wrap justify-center">
+              <button type="button" onclick="setAssetInspectionKondisi(${origIdx}, 'Ada - Baik')" class="px-2 py-1 text-[10px] font-bold rounded transition cursor-pointer ${isBaik ? 'bg-emerald-600 text-white shadow-2xs' : 'text-slate-600 hover:text-emerald-700 hover:bg-white'}">Ada - Baik</button>
+              <button type="button" onclick="setAssetInspectionKondisi(${origIdx}, 'Ada - Rusak')" class="px-2 py-1 text-[10px] font-bold rounded transition cursor-pointer ${isRusak ? 'bg-amber-600 text-white shadow-2xs' : 'text-slate-600 hover:text-amber-700 hover:bg-white'}">Ada - Rusak</button>
+              <button type="button" onclick="setAssetInspectionKondisi(${origIdx}, 'Belum Ditemukan')" class="px-2 py-1 text-[10px] font-bold rounded transition cursor-pointer ${isTidakAda ? 'bg-rose-600 text-white shadow-2xs' : 'text-slate-600 hover:text-rose-700 hover:bg-white'}" title="Tidak ada di kamar ini (Kemungkinan pindah lokasi)">Belum Ditemukan</button>
+              <button type="button" onclick="window.relocateInspectionAsset(${origIdx})" class="px-2 py-1 text-[10px] font-bold rounded transition cursor-pointer ${isPindah ? 'bg-indigo-600 text-white shadow-2xs' : 'text-indigo-700 hover:bg-indigo-100 hover:text-indigo-900'}" title="Aset ditemukan di kamar/ruangan lain &rarr; Update lokasi">
+                ${isPindah ? '✓ Di Kamar Lain' : 'Ditemukan di Kamar Lain ↗'}
+              </button>
+            </div>
+          </td>
+          <td class="py-2.5 px-3">
+            <input type="text" value="${escapeHtml(ast.catatan_inspeksi || '')}" onchange="updateAssetNote(${origIdx}, this.value)" placeholder="Catatan temuan / relokasi..." class="w-full px-2.5 py-1 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 focus:border-indigo-500">
+          </td>
+        </tr>
+      `;
     }).join('');
   }
   window.renderInspectionChecklistTable = renderInspectionChecklistTable;
@@ -9610,14 +9754,40 @@ const PNS_SECTION_TO_DEPT = {
 
   function startInspectionForRoom(kodeGedung, namaRuangan) {
     navTo('view-inspeksi');
+    if (kodeGedung && (/LH|LONGHOUSE|MESS|SPV|SPTD/i.test(kodeGedung))) {
+      currentInspBldgCategory = 'HUNIAN';
+      const hunianBtn = document.getElementById('cat-btn-hunian');
+      if (typeof setInspBldgCategory === 'function' && hunianBtn) {
+        setInspBldgCategory('HUNIAN', hunianBtn);
+      }
+    } else {
+      filterAndPopulateInspGedung();
+    }
     const gSelect = document.getElementById('insp-gedung');
-    gSelect.value = kodeGedung;
-    onInspGedungChange();
+    if (gSelect) {
+      // Find matching option
+      for (let i = 0; i < gSelect.options.length; i++) {
+        const opt = gSelect.options[i];
+        if (opt.value === kodeGedung || opt.value.includes(kodeGedung) || (kodeGedung && kodeGedung.includes(opt.value))) {
+          gSelect.selectedIndex = i;
+          break;
+        }
+      }
+      onInspGedungChange();
+    }
     setTimeout(() => {
       const rSelect = document.getElementById('insp-ruangan');
-      rSelect.value = namaRuangan;
-      onInspRuanganChange();
-    }, 60);
+      if (rSelect) {
+        rSelect.value = namaRuangan;
+      }
+      // Also highlight button in insp-room-button-list if found
+      const btn = document.querySelector(`.insp-room-pill[data-room*="${namaRuangan}"]`);
+      if (btn && typeof selectInspRoom === 'function') {
+        selectInspRoom(namaRuangan, btn);
+      } else {
+        onInspRuanganChange();
+      }
+    }, 120);
   }
 
   function promptAddAssetToRoom() {
@@ -11189,6 +11359,7 @@ const PNS_SECTION_TO_DEPT = {
 
     const searchEl = document.getElementById('search-penghuni');
     const query = String((searchEl && searchEl.value) || '').toLowerCase().trim();
+    const locFilter = document.getElementById('filter-penghuni-loc') ? document.getElementById('filter-penghuni-loc').value : '';
     const bldgFilter = document.getElementById('filter-penghuni-bldg') ? document.getElementById('filter-penghuni-bldg').value : '';
     const roomFilter = document.getElementById('filter-penghuni-room') ? document.getElementById('filter-penghuni-room').value : '';
     const statusFilter = document.getElementById('filter-penghuni-status') ? document.getElementById('filter-penghuni-status').value : '';
@@ -11213,11 +11384,22 @@ const PNS_SECTION_TO_DEPT = {
         String(p.nomor_kasur || '').toLowerCase().includes(query) ||
         String(p.no_kontak || '').toLowerCase().includes(query);
 
+      let matchLoc = true;
+      if (locFilter) {
+        const bUpper = String(p.kode_gedung || '').toUpperCase();
+        if (locFilter === 'central') matchLoc = bUpper.includes('LH-') || bUpper.includes('CO') || bUpper.includes('CENTRAL');
+        else if (locFilter === 'e12') matchLoc = bUpper.includes('E1') || bUpper.includes('E2') || bUpper.includes('ESTATE');
+        else if (locFilter === 'e3') matchLoc = bUpper.includes('E3');
+        else if (locFilter === 'factory') matchLoc = bUpper.includes('FR') || bUpper.includes('PABRIK') || bUpper.includes('FACTORY');
+        else if (locFilter === 'HO') matchLoc = bUpper.includes('HO');
+        else if (locFilter === 'RO') matchLoc = bUpper.includes('RO');
+      }
+
       const matchBldg = !bldgFilter || p.kode_gedung === bldgFilter;
       const matchRoom = !roomFilter || p.nama_ruangan === roomFilter;
       const matchStatus = !statusFilter || p.status_hunian === statusFilter;
 
-      return matchQuery && matchBldg && matchRoom && matchStatus;
+      return matchQuery && matchLoc && matchBldg && matchRoom && matchStatus;
     });
 
     // Sorting: Penghuni aktif (yang ada orangnya & nama) selalu tampil di ATAS secara prioritas
@@ -16198,10 +16380,24 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     const el = document.getElementById('view-fm-rincian');
     if (!el) return;
 
-    const all = pnsAllLh();
+    const activeBldgCat = PNS_FM_STATE.bldgCat || 'ALL';
+    const allRawBldgs = (typeof PNS_FM_SITES !== 'undefined' && typeof PNS_FM_ALL !== 'undefined')
+      ? PNS_FM_SITES.flatMap(([k]) => (PNS_FM_ALL[k] || []))
+      : pnsAllLh();
+
+    let all = allRawBldgs;
+    if (activeBldgCat === 'HUNIAN') {
+      all = allRawBldgs.filter(b => b.kd === 'lh' || /LH|SPV|SPTD|MESS|RUMAH|GUEST/i.test(b.c) || /Longhouse|Mess|Rumah/i.test(b.nm));
+    } else if (activeBldgCat === 'FASUM') {
+      all = allRawBldgs.filter(b => /KANTIN|KLINIK|MASJID|MUSHOLA|SPORT|GOR|LAUNDRY/i.test(b.c) || /Kantin|Klinik|Masjid|Musholla|Olahraga|GOR|Laundry/i.test(b.nm));
+    } else if (activeBldgCat === 'KANTOR') {
+      all = allRawBldgs.filter(b => /OFFICE|KANTOR|WORKSHOP|GUDANG|POS|PABRIK|FACTORY/i.test(b.c) || /Kantor|Office|Workshop|Gudang|Pos/i.test(b.nm));
+    }
+    if (!all || all.length === 0) all = pnsAllLh();
+
     const curCode = PNS_FM_STATE.sel || 'LH-01-01';
     const d = all.find(x => x.c === curCode || (x.full && x.full.includes(curCode))) || all[0] || {};
-    const r = Math.min(PNS_FM_STATE.room || 1, (d.occ || []).length) || 1;
+    const r = Math.min(PNS_FM_STATE.room || 1, (d.occ || []).length || 1) || 1;
     const activeFacCat = PNS_FM_STATE.facCat || 'ALL';
 
     const targetBldgCode = d.full || ('PNS-' + d.c);
@@ -16313,10 +16509,24 @@ window.updateSingleAssetNote = updateSingleAssetNote;
             <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Rincian Hunian, Penghuni &amp; Fasilitas ${d.full || 'PNS-LH-01-01'}</h1>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <select onchange="PNS_FM_STATE.sel=this.value; PNS_FM_STATE.room=1; renderFmRincian();" class="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white">
-              ${all.slice(0, 40).map(x => `<option value="${x.c}" ${x.c === d.c ? 'selected' : ''}>${x.full} (${PNS_FM_LNAME[x.loc] || x.loc})</option>`).join('')}
+            <!-- Pilihan Kategori Bangunan (Revisi Gambar 1) -->
+            <div class="flex items-center bg-white rounded-lg px-2.5 py-1.5 border border-slate-300 shadow-2xs">
+              <span class="text-[10px] font-bold text-slate-400 uppercase mr-1.5">Kategori:</span>
+              <select onchange="window.setPnsBldgCat(this.value);" class="text-xs font-bold text-slate-800 bg-transparent focus:outline-none cursor-pointer">
+                <option value="ALL" ${activeBldgCat === 'ALL' ? 'selected' : ''}>🏢 Semua Gedung</option>
+                <option value="HUNIAN" ${activeBldgCat === 'HUNIAN' ? 'selected' : ''}>🏠 Mess &amp; Hunian</option>
+                <option value="FASUM" ${activeBldgCat === 'FASUM' ? 'selected' : ''}>🍽️ Fasum (Kantin/Klinik)</option>
+                <option value="KANTOR" ${activeBldgCat === 'KANTOR' ? 'selected' : ''}>🏛️ Kantor &amp; Workshop</option>
+              </select>
+            </div>
+
+            <!-- Pilihan Gedung -->
+            <select onchange="PNS_FM_STATE.sel=this.value; PNS_FM_STATE.room=1; renderFmRincian();" class="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white shadow-2xs">
+              ${all.slice(0, 50).map(x => `<option value="${x.c}" ${x.c === d.c ? 'selected' : ''}>${x.full || ('PNS-' + x.c)} (${PNS_FM_LNAME[x.loc] || x.loc})</option>`).join('')}
             </select>
-            <button type="button" onclick="window.openRoomInspectionDirect('${targetBldgCode}', 'Kamar No.${r}')" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition flex items-center gap-1.5 cursor-pointer shadow-2xs">
+
+            <!-- Tombol Khusus Inspeksi (Hanya Melalui Tombol Khusus Ini, Sesuai Permintaan User) -->
+            <button type="button" onclick="window.openRoomInspectionDirect('${targetBldgCode}', 'Kamar No.${r}')" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-amber-500 hover:bg-amber-600 text-white transition flex items-center gap-1.5 cursor-pointer shadow-2xs" title="Inspeksi Kamar (Supervisor Facility Management)">
               <i class="ph-bold ph-clipboard-text"></i> Inspeksi Kamar No.${r}
             </button>
             <button type="button" onclick="navTo('view-fm-peta')" class="px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 transition cursor-pointer">Lihat di Peta</button>
@@ -16479,8 +16689,9 @@ window.updateSingleAssetNote = updateSingleAssetNote;
                 ${filteredStdObjects.map(item => {
                   const isOk = item.fisikCount >= item.std;
                   return `
-                    <div onclick="window.openRoomInspectionDirect('${targetBldgCode}', 'Kamar No.${r}')"
-                         class="group p-3 rounded-xl border ${isOk ? 'bg-white border-slate-200 hover:border-emerald-500' : 'bg-amber-50/50 border-amber-200 hover:border-amber-500'} hover:shadow-sm transition cursor-pointer flex flex-col justify-between">
+                    <div onclick="window.setFmRoomFacilityCatFilter('${item.group}')"
+                         class="group p-3 rounded-xl border ${isOk ? 'bg-white border-slate-200 hover:border-indigo-500' : 'bg-amber-50/50 border-amber-200 hover:border-amber-500'} hover:shadow-sm transition cursor-pointer flex flex-col justify-between"
+                         title="Klik untuk filter aset ${item.name} di bawah (View Only)">
                       <div class="flex items-start justify-between gap-2">
                         <div class="w-8 h-8 rounded-lg ${isOk ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-100 text-amber-700'} flex items-center justify-center text-base shrink-0">
                           <i class="ph-bold ${item.icon}"></i>
@@ -16493,7 +16704,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
                         <div class="font-bold text-xs text-slate-900 group-hover:text-indigo-600 transition">${item.name}</div>
                         <div class="text-[10px] text-slate-500 mt-0.5 flex items-center justify-between">
                           <span>${item.statusText}</span>
-                          <span class="text-emerald-700 font-bold group-hover:underline">Inspeksi &rarr;</span>
+                          <span class="text-indigo-600 font-bold group-hover:underline">Filter &rarr;</span>
                         </div>
                       </div>
                     </div>
@@ -16548,7 +16759,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     ${filteredStdObjects.map(x => `
-                      <tr class="hover:bg-slate-50 cursor-pointer" onclick="window.openRoomInspectionDirect('${targetBldgCode}', 'Kamar No.${r}')">
+                      <tr class="hover:bg-slate-50">
                         <td class="py-2 font-medium text-slate-800">${x.name}</td>
                         <td class="py-2 text-right num-tabular font-bold">${x.fisikCount}</td>
                         <td class="py-2 text-right num-tabular text-slate-500">${x.std}</td>

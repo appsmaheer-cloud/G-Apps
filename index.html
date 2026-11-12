@@ -3373,7 +3373,7 @@
                 </label>
                 <input type="hidden" id="insp-ruangan" value="">
                 <!-- Container Tombol Ruangan -->
-                <div id="insp-room-button-list" class="flex flex-wrap gap-2 max-h-48 overflow-y-auto p-3 rounded-xl border border-slate-200 bg-slate-50/70 scrollbar-thin">
+                <div id="insp-room-button-list" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 max-h-40 overflow-y-auto p-2.5 rounded-xl border border-slate-200 bg-slate-50/70 scrollbar-thin">
                   <div class="text-xs text-slate-400 py-3 px-1 w-full text-center">
                     <i class="ph-bold ph-door text-base block mb-1 text-slate-300"></i>
                     Silakan pilih gedung di atas terlebih dahulu untuk menampilkan daftar tombol ruangan.
@@ -3421,7 +3421,7 @@
             </div>
 
             <!-- Grid Visual Cards Fasilitas Lapangan (Bantal, Kasur, Lemari, AC, dll) -->
-            <div id="insp-visual-cards-grid" class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 pt-1">
+            <div id="insp-visual-cards-grid" class="hidden">
               <!-- Populated dynamically via renderInspectionVisualCards() -->
             </div>
           </div>
@@ -3453,10 +3453,11 @@
                   <tr>
                     <th class="py-2.5 px-3">No</th>
                     <th class="py-2.5 px-3">Kode / No Asset</th>
+                    <th class="py-2.5 px-2 text-center">Foto</th>
                     <th class="py-2.5 px-3">Nama Asset &amp; Fasilitas</th>
                     <th class="py-2.5 px-2">Kelompok</th>
-                    <th class="py-2.5 px-3 text-center">Status Kondisi Fisik</th>
-                    <th class="py-2.5 px-3">Keterangan / Temuan</th>
+                    <th class="py-2.5 px-3 text-center">Status Keberadaan &amp; Kondisi</th>
+                    <th class="py-2.5 px-3">Keterangan / Catatan</th>
                   </tr>
                 </thead>
                 <tbody id="insp-asset-checklist-body" class="divide-y divide-slate-100 font-medium">
@@ -4536,14 +4537,27 @@
           </div>
 
           <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5">
-            <!-- Kolom Pencarian LH / Kamar / NIK / Nama (Area Kuning Screenshot 5) -->
-            <div class="lg:col-span-5 relative">
+            <!-- Filter Site / Lokasi -->
+            <div class="lg:col-span-3">
+              <select id="filter-penghuni-loc" onchange="window.onPenghuniLocFilterChange()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition cursor-pointer">
+                <option value="">🏢 Semua Site / Lokasi</option>
+                <option value="central">Central Office (CO)</option>
+                <option value="e12">Estate 1-2 (E1/E2)</option>
+                <option value="e3">Estate 3 (E3)</option>
+                <option value="factory">Factory / Pabrik</option>
+                <option value="HO">Head Office (HO)</option>
+                <option value="RO">Regional Office (RO)</option>
+              </select>
+            </div>
+
+            <!-- Kolom Pencarian LH / Kamar / NIK / Nama -->
+            <div class="lg:col-span-3 relative">
               <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-sm"></i>
-              <input type="text" id="search-penghuni" oninput="onSearchPenghuni()" placeholder="Cari LH / Kamar (misal: LH 01, Kamar 1, NIK, Nama)..." class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
+              <input type="text" id="search-penghuni" oninput="onSearchPenghuni()" placeholder="Cari NIK, Nama, Kamar..." class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
             </div>
 
             <!-- Filter Gedung / LH -->
-            <div class="lg:col-span-3">
+            <div class="lg:col-span-2">
               <select id="filter-penghuni-bldg" onchange="onPenghuniBldgFilterChange()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition cursor-pointer">
                 <option value="">Semua Gedung / LH</option>
               </select>
@@ -4556,12 +4570,12 @@
               </select>
             </div>
 
-            <!-- Filter Status Hunian & Reset -->
+            <!-- Filter Status Availability & Reset -->
             <div class="lg:col-span-2 flex items-center gap-1.5">
               <select id="filter-penghuni-status" onchange="renderPenghuniTable()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition cursor-pointer">
-                <option value="">Semua Status</option>
+                <option value="">Availability Slot</option>
                 <option value="Aktif">Aktif (Terisi)</option>
-                <option value="Vacant">Vacant (Kosong)</option>
+                <option value="Vacant">Vacant (Ada Slot Kosong)</option>
               </select>
               <button type="button" onclick="resetPenghuniFilters()" class="px-2.5 py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1 shadow-2xs" title="Reset Filter Penghuni">
                 <i class="ph-bold ph-arrows-counter-clockwise"></i>
