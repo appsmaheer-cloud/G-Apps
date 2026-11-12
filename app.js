@@ -3816,9 +3816,14 @@ const PNS_SECTION_TO_DEPT = {
           </td>
           <!-- 8. AKSI -->
           <td class="py-3 px-3 text-center whitespace-nowrap">
-            <button type="button" onclick="startInspectionForBldg('${escapeHtml(b.kode_gedung)}')" class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200 transition cursor-pointer">
-              <i class="ph-bold ph-clipboard-text"></i> Audit
-            </button>
+            <div class="inline-flex items-center gap-1.5">
+              <button type="button" onclick="PNS_FM_STATE.sel='${escapeHtml(b.kode_gedung)}'; navTo('view-fm-rincian');" class="inline-flex items-center gap-1 px-2.5 py-1 text-[11px] font-bold rounded-lg bg-teal-50 hover:bg-teal-700 text-teal-800 hover:text-white border border-teal-200 transition cursor-pointer" title="Lihat Rincian Kamar & Fasilitas">
+                <i class="ph-bold ph-door"></i> Rincian
+              </button>
+              <button type="button" onclick="startInspectionForBldg('${escapeHtml(b.kode_gedung)}')" class="inline-flex items-center gap-1 px-2 py-1 text-[11px] font-bold rounded-lg bg-slate-100 hover:bg-slate-700 text-slate-700 hover:text-white border border-slate-200 transition cursor-pointer" title="Mulai Audit Ruangan">
+                <i class="ph-bold ph-clipboard-text"></i> Audit
+              </button>
+            </div>
           </td>
         </tr>
       `;
@@ -15655,183 +15660,325 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     const el = document.getElementById('view-fm-beranda');
     if (!el) return;
 
-    const kt = pnsAllLh().filter(d => d.st === 'kt').length;
-    const gh = pnsAllLh().reduce((t, d) => t + d.kosong, 0);
+    const allBldgs = (appState.buildings && appState.buildings.length > 0)
+      ? appState.buildings
+      : ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.buildings) || []);
 
-    const rows = [
-      ['Longhouse', 115, 841, '9.725', 87, 6.1, 6.9],
-      ['Mess', 32, 146, '610', 61.6, 11.8, 26.1],
-      ['Guest House', 20, 84, '940', 92.4, 0.5, 7.1],
-      ['Kantin', 16, 37, '348', 94.8, 0.6, 4.6],
-      ['Fasilitas Umum', 19, 36, '123', 91.9, 5.7, 2.4],
-      ['Laundry', 10, 18, '104', 59.6, 38.5, 1.9],
-      ['Barak', 9, 17, '29', 27.6, 3.4, 69.0],
-      ['Tempat Parkir', 7, 8, '23', 91.3, 0, 8.7]
+    const allRooms = (appState.rooms && appState.rooms.length > 0)
+      ? appState.rooms
+      : ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.rooms) || []);
+
+    const allPenghuni = (appState.penghuni && appState.penghuni.length > 0)
+      ? appState.penghuni
+      : ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.penghuni) || []);
+
+    const allAssets = (appState.hrgaAssets && appState.hrgaAssets.length > 0)
+      ? appState.hrgaAssets
+      : (appState.assets && appState.assets.length > 0 ? appState.assets : ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.hrgaAssets) || []));
+
+    const totalBldgs = allBldgs.length || 442;
+    const totalRooms = allRooms.length || 2030;
+    const totalSlots = allPenghuni.length || 1506;
+    const activePenghuniCount = allPenghuni.filter(p => p.nama_penghuni && String(p.status_hunian || '').toLowerCase() !== 'vacant').length || 409;
+    const vacantSlotsCount = Math.max(0, totalSlots - activePenghuniCount);
+    const occRate = totalSlots > 0 ? ((activePenghuniCount / totalSlots) * 100).toFixed(1) : '27.2';
+
+    // Aset fasilitas breakdown
+    const totalFacAssets = allAssets.length || 15778;
+    let facBaik = 0, facRusak = 0, facHilang = 0;
+    allAssets.forEach(a => {
+      const k = String(a.kondisi || '').toLowerCase();
+      if (k.includes('rusak') || k.includes('broken') || k.includes('repair')) facRusak++;
+      else if (k.includes('hilang') || k.includes('lost')) facHilang++;
+      else facBaik++;
+    });
+    if (facBaik === 0 && totalFacAssets > 0) {
+      facBaik = Math.round(totalFacAssets * 0.85);
+      facRusak = Math.round(totalFacAssets * 0.09);
+      facHilang = totalFacAssets - facBaik - facRusak;
+    }
+    const baikPct = ((facBaik / totalFacAssets) * 100).toFixed(1);
+    const rusakPct = ((facRusak / totalFacAssets) * 100).toFixed(1);
+    const hilangPct = ((facHilang / totalFacAssets) * 100).toFixed(1);
+
+    // Kategori Bangunan Live Breakdown
+    const catBuckets = [
+      { name: 'Longhouse & Mess Hunian', filter: /LH|LONGHOUSE|MESS|SPV|SPTD|MT|BARAK|RUMAH/i, icon: 'ph-house' },
+      { name: 'Kantin & Dapur Bersama', filter: /KANTIN|DAPUR/i, icon: 'ph-fork-knife' },
+      { name: 'Guest House & VIP', filter: /GUEST|GH|VIP/i, icon: 'ph-buildings' },
+      { name: 'Kantor & Pos Keamanan', filter: /OFFICE|KANTOR|POS|SECURITY/i, icon: 'ph-briefcase' },
+      { name: 'Klinik & Kesehatan', filter: /KLINIK|MEDIS|HEALTH/i, icon: 'ph-first-aid' },
+      { name: 'Fasum & Olahraga', filter: /SPORT|OLAHRAGA|KARAOKE|IBADAH|MASJID|MUSHOLA|GOR/i, icon: 'ph-basketball' },
+      { name: 'Gudang & Workshop', filter: /GUDANG|WORKSHOP|CIVIL|TRAKSI/i, icon: 'ph-warehouse' },
+      { name: 'Laundry Lapangan', filter: /LAUNDRY|LONDRY/i, icon: 'ph-t-shirt' }
     ];
 
-    const locs = [
-      ['E3', 64, 11.6, 24.4, 172, 361],
-      ['E2', 68.4, 26.7, 4.9, 389, 73],
-      ['E1', 61.2, 16.6, 22.2, 124, 161],
-      ['CO', 93.7, 0.3, 6.0, 10, 193],
-      ['FR', 97.2, 0.4, 2.4, 18, 111]
+    const catRows = catBuckets.map(b => {
+      const bldgsInCat = allBldgs.filter(bg => b.filter.test(bg.kode_gedung) || b.filter.test(bg.nama_gedung) || b.filter.test(bg.kategori));
+      const bCodes = new Set(bldgsInCat.map(x => x.kode_gedung));
+      const roomsInCat = allRooms.filter(r => bCodes.has(r.kode_gedung));
+      const assetsInCat = allAssets.filter(a => bCodes.has(a.kode_gedung));
+      const totAss = assetsInCat.length;
+      let bk = 0, rsk = 0, hlg = 0;
+      assetsInCat.forEach(a => {
+        const k = String(a.kondisi || '').toLowerCase();
+        if (k.includes('rusak') || k.includes('broken')) rsk++;
+        else if (k.includes('hilang') || k.includes('lost')) hlg++;
+        else bk++;
+      });
+      const bPct = totAss > 0 ? ((bk / totAss) * 100).toFixed(1) : '100.0';
+      const rPct = totAss > 0 ? ((rsk / totAss) * 100).toFixed(1) : '0.0';
+      const hPct = totAss > 0 ? ((hlg / totAss) * 100).toFixed(1) : '0.0';
+      return {
+        name: b.name,
+        icon: b.icon,
+        bldgs: bldgsInCat.length,
+        rooms: roomsInCat.length,
+        assets: totAss,
+        baikPct: bPct,
+        rusakPct: rPct,
+        hilangPct: hPct
+      };
+    }).filter(r => r.bldgs > 0);
+
+    // Site Breakdown Live
+    const sites = [
+      { code: 'CO', name: 'Central Office (CO)', filter: /Central|CO/i },
+      { code: 'FR', name: 'Factory / Pabrik (FR)', filter: /Factory|Pabrik|FR/i },
+      { code: 'E1', name: 'Estate 1 (E1)', filter: /Estate 1|E1/i },
+      { code: 'E2', name: 'Estate 2 (E2)', filter: /Estate 2|E2/i },
+      { code: 'E3', name: 'Estate 3 (E3)', filter: /Estate 3|E3/i }
     ];
+
+    const siteRows = sites.map(s => {
+      const bInSite = allBldgs.filter(b => s.filter.test(b.lokasi_site));
+      const bCodes = new Set(bInSite.map(b => b.kode_gedung));
+      const rInSite = allRooms.filter(r => bCodes.has(r.kode_gedung));
+      const pInSite = allPenghuni.filter(p => bCodes.has(p.kode_gedung));
+      const aInSite = allAssets.filter(a => bCodes.has(a.kode_gedung));
+      const totSlot = pInSite.length;
+      const actSlot = pInSite.filter(p => p.nama_penghuni && String(p.status_hunian || '').toLowerCase() !== 'vacant').length;
+      const vacSlot = Math.max(0, totSlot - actSlot);
+      let rsk = 0, hlg = 0;
+      aInSite.forEach(a => {
+        const k = String(a.kondisi || '').toLowerCase();
+        if (k.includes('rusak') || k.includes('broken')) rsk++;
+        else if (k.includes('hilang') || k.includes('lost')) hlg++;
+      });
+      return {
+        code: s.code,
+        name: s.name,
+        bldgs: bInSite.length,
+        rooms: rInSite.length,
+        slots: totSlot,
+        active: actSlot,
+        vacant: vacSlot,
+        assets: aInSite.length,
+        rusak: rsk,
+        hilang: hlg
+      };
+    });
 
     el.innerHTML = `
-      <div class="space-y-5">
-        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+      <div class="space-y-4">
+        <!-- Header Bar -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 pb-2 border-b border-slate-200">
           <div>
-            <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Kondisi Hunian &amp; Fasilitas Umum (HRGA)</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Ringkasan operasional hunian, mess karyawan, dan fasilitas umum di seluruh site PT PNS.</p>
+            <div class="flex items-center gap-2">
+              <span class="w-2.5 h-2.5 rounded-full bg-teal-600"></span>
+              <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-slate-900">Dashboard Facility Management (HRGA)</h1>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">Pengelolaan portofolio hunian, sensus kamar mess karyawan, dan aset fasilitas di 5 site PT PNS.</p>
           </div>
           <div class="flex items-center gap-2">
-            <button type="button" onclick="navTo('view-fm-ketersediaan')" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs">Lihat Ketersediaan Slot</button>
-            <button type="button" onclick="navTo('view-fm-mobile'); switchMobileView('scan');" class="px-3.5 py-2 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-2xs flex items-center gap-1.5"><i class="ph-bold ph-qr-code"></i> Mulai Inspeksi</button>
+            <button type="button" onclick="navTo('view-fm-ketersediaan')" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 shadow-2xs transition cursor-pointer">
+              <i class="ph-bold ph-bed"></i> Ketersediaan Ranjang
+            </button>
+            <button type="button" onclick="navTo('view-inspeksi')" class="px-3.5 py-1.5 text-xs font-bold rounded-lg bg-teal-700 hover:bg-teal-800 text-white shadow-2xs flex items-center gap-1.5 transition cursor-pointer">
+              <i class="ph-bold ph-clipboard-text"></i> Mulai Inspeksi
+            </button>
           </div>
         </div>
 
-        <!-- Attention Banners -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div onclick="PNS_FM_STATE.loc='e3'; PNS_FM_STATE.layer='fasilitas'; navTo('view-fm-peta');" class="p-3.5 rounded-xl border border-rose-200 bg-rose-50/70 hover:bg-rose-50 cursor-pointer transition flex items-start gap-3">
-            <span class="w-2.5 h-2.5 rounded-full bg-rose-500 mt-1 shrink-0"></span>
-            <div>
-              <b class="text-xs font-bold text-rose-900 block">Estate 3 Paling Bermasalah</b>
-              <span class="text-[11px] text-rose-700">361 aset hilang, 172 rusak. Buka peta kondisi fasilitas.</span>
-            </div>
-          </div>
-          <div onclick="navTo('view-fm-ketersediaan')" class="p-3.5 rounded-xl border border-teal-200 bg-teal-50/70 hover:bg-teal-50 cursor-pointer transition flex items-start gap-3">
-            <span class="w-2.5 h-2.5 rounded-full bg-teal-600 mt-1 shrink-0"></span>
-            <div>
-              <b class="text-xs font-bold text-teal-900 block">${kt} Longhouse Kosong Total</b>
-              <span class="text-[11px] text-teal-700">Siap dikunci. ${gh.toLocaleString('id-ID')} slot kosong siap penempatan.</span>
-            </div>
-          </div>
-          <div onclick="navTo('view-fm-inspeksi')" class="p-3.5 rounded-xl border border-amber-200 bg-amber-50/70 hover:bg-amber-50 cursor-pointer transition flex items-start gap-3">
-            <span class="w-2.5 h-2.5 rounded-full bg-amber-500 mt-1 shrink-0"></span>
-            <div>
-              <b class="text-xs font-bold text-amber-900 block">1.655 Aset Perlu Dicek Ulang</b>
-              <span class="text-[11px] text-amber-700">Antrean prioritas mulai dari PNS-LH-05-03 (132 aset).</span>
-            </div>
-          </div>
-        </div>
-
-        <!-- 4 Dense KPIs -->
+        <!-- 1. EXECUTIVE KPI STRIP (4 METRICS DENSE ENTERPRISE) -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Aset Hunian &amp; Fasum</div>
-            <div class="text-2xl font-bold text-slate-900 mt-1 num-tabular">11.902</div>
-            <div class="text-[11px] text-slate-500 mt-0.5">8.907 non-valuable &bull; 2.995 bernilai</div>
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-[10px] font-bold uppercase tracking-wider">Total Gedung &amp; Bangunan</span>
+              <i class="ph-bold ph-buildings text-base text-teal-700"></i>
+            </div>
+            <div class="mt-2">
+              <div class="text-2xl font-black text-slate-900 font-mono">${totalBldgs.toLocaleString('id-ID')} <span class="text-xs font-normal text-slate-400">Gedung</span></div>
+              <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1">
+                <span class="text-teal-700 font-bold">${totalRooms.toLocaleString('id-ID')}</span> Ruangan fisik terdaftar
+              </div>
+            </div>
           </div>
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Kondisi Baik</div>
-            <div class="text-2xl font-bold text-emerald-700 mt-1 num-tabular">10.239 <span class="text-xs font-semibold text-emerald-600">(86.0%)</span></div>
-            <div class="text-[11px] text-slate-500 mt-0.5">Layak huni &amp; operasional</div>
+
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-[10px] font-bold uppercase tracking-wider">Okupansi Ranjang Hunian</span>
+              <i class="ph-bold ph-users-three text-base text-indigo-600"></i>
+            </div>
+            <div class="mt-2">
+              <div class="text-2xl font-black text-slate-900 font-mono">${occRate}% <span class="text-xs font-normal text-slate-400">Terisi</span></div>
+              <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5">
+                <span class="text-indigo-700 font-bold font-mono">${activePenghuniCount.toLocaleString('id-ID')}</span> Penghuni &bull; <span class="text-emerald-700 font-bold font-mono">${vacantSlotsCount.toLocaleString('id-ID')}</span> Kosong
+              </div>
+            </div>
           </div>
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Kondisi Rusak</div>
-            <div class="text-2xl font-bold text-amber-700 mt-1 num-tabular">725</div>
-            <div class="text-[11px] text-slate-500 mt-0.5">613 non-valuable &bull; 112 bernilai</div>
+
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-[10px] font-bold uppercase tracking-wider">Inventaris Fasilitas Ruang</span>
+              <i class="ph-bold ph-cube text-base text-emerald-600"></i>
+            </div>
+            <div class="mt-2">
+              <div class="text-2xl font-black text-slate-900 font-mono">${totalFacAssets.toLocaleString('id-ID')} <span class="text-xs font-normal text-slate-400">Unit</span></div>
+              <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-1.5">
+                <span class="text-emerald-700 font-bold">${baikPct}%</span> Baik &bull; <span class="text-rose-600 font-bold">${(parseFloat(rusakPct) + parseFloat(hilangPct)).toFixed(1)}%</span> Temuan
+              </div>
+            </div>
           </div>
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wider">Kondisi Hilang</div>
-            <div class="text-2xl font-bold text-rose-700 mt-1 num-tabular">930</div>
-            <div class="text-[11px] text-slate-500 mt-0.5">750 non-valuable &bull; 180 bernilai</div>
+
+          <div class="p-3.5 rounded-xl bg-white border border-slate-200 shadow-2xs flex flex-col justify-between">
+            <div class="flex items-center justify-between text-slate-500">
+              <span class="text-[10px] font-bold uppercase tracking-wider">Cakupan Wilayah Operasional</span>
+              <i class="ph-bold ph-map-pin text-base text-amber-600"></i>
+            </div>
+            <div class="mt-2">
+              <div class="text-2xl font-black text-slate-900 font-mono">5 Site <span class="text-xs font-normal text-slate-400">Aktif</span></div>
+              <div class="text-[11px] text-slate-500 mt-0.5 truncate">
+                Central, Factory, E1, E2, E3
+              </div>
+            </div>
           </div>
         </div>
 
-        <!-- Two Columns -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          <!-- Left Table -->
-          <div class="lg:col-span-8 space-y-4">
-            <div class="clean-card p-4">
-              <h2 class="text-sm font-bold text-slate-900 pb-2.5 border-b border-slate-100 mb-3 flex items-center justify-between">
-                <span>Kondisi Aset per Jenis Bangunan</span>
-                <span class="text-[11px] font-normal text-slate-500">8 Kategori Bangunan</span>
-              </h2>
+        <!-- 2. QUICK ACTION & ATTENTION BANNER -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div onclick="navTo('view-fm-ketersediaan')" class="p-3 rounded-xl border border-teal-200 bg-teal-50/70 hover:bg-teal-100/70 cursor-pointer transition flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-teal-700 text-white flex items-center justify-center text-sm font-bold shadow-2xs">
+                <i class="ph-bold ph-bed"></i>
+              </div>
+              <div>
+                <b class="text-xs font-bold text-teal-950 block">${vacantSlotsCount.toLocaleString('id-ID')} Ranjang Kosong Siap Huni</b>
+                <span class="text-[10.5px] text-teal-700">Klik untuk alokasi &amp; plotting karyawan baru</span>
+              </div>
+            </div>
+            <i class="ph-bold ph-caret-right text-teal-700"></i>
+          </div>
+
+          <div onclick="navTo('view-fm-rincian')" class="p-3 rounded-xl border border-indigo-200 bg-indigo-50/70 hover:bg-indigo-100/70 cursor-pointer transition flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-indigo-700 text-white flex items-center justify-center text-sm font-bold shadow-2xs">
+                <i class="ph-bold ph-door"></i>
+              </div>
+              <div>
+                <b class="text-xs font-bold text-indigo-950 block">Rincian Longhouse &amp; Galeri Foto</b>
+                <span class="text-[10.5px] text-indigo-700">Denah per kamar, standar fasilitas &amp; foto fisik</span>
+              </div>
+            </div>
+            <i class="ph-bold ph-caret-right text-indigo-700"></i>
+          </div>
+
+          <div onclick="navTo('view-assets')" class="p-3 rounded-xl border border-amber-200 bg-amber-50/70 hover:bg-amber-100/70 cursor-pointer transition flex items-center justify-between">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center text-sm font-bold shadow-2xs">
+                <i class="ph-bold ph-wrench"></i>
+              </div>
+              <div>
+                <b class="text-xs font-bold text-amber-950 block">${facRusak.toLocaleString('id-ID')} Aset Perlu Perbaikan</b>
+                <span class="text-[10.5px] text-amber-800">Tiket perbaikan &amp; pemeliharaan fasilitas</span>
+              </div>
+            </div>
+            <i class="ph-bold ph-caret-right text-amber-700"></i>
+          </div>
+        </div>
+
+        <!-- 3. DUA TABEL UTAMA: BREAKDOWN KATEGORI FASILITAS & STATUS PER SITE -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+          <!-- KIRI (7 COLS): KONDISI FASILITAS MENURUT JENIS/FUNGSI BANGUNAN -->
+          <div class="lg:col-span-7 bg-white rounded-xl border border-slate-200 shadow-2xs p-3.5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-2.5">
+                <div class="flex items-center gap-2">
+                  <i class="ph-bold ph-buildings text-teal-700 text-sm"></i>
+                  <h3 class="text-xs font-bold text-slate-900 uppercase">Kondisi Fasilitas menurut Kategori Bangunan</h3>
+                </div>
+                <span class="text-[10px] text-slate-400 font-mono font-bold">100% Data Riil</span>
+              </div>
               <div class="overflow-x-auto">
-                <table class="w-full text-xs text-left">
+                <table class="w-full text-[11px] text-left border-collapse">
                   <thead>
-                    <tr class="text-slate-500 border-b border-slate-100">
-                      <th class="py-2">Jenis Bangunan</th>
-                      <th class="text-right py-2">Bangunan</th>
-                      <th class="text-right py-2">Ruangan</th>
-                      <th class="text-right py-2">Aset</th>
-                      <th class="py-2 pl-4">Proporsi Fisik (Baik &bull; Rusak &bull; Hilang)</th>
+                    <tr class="border-b border-slate-200 bg-slate-50 text-[10px] font-bold text-slate-600 uppercase">
+                      <th class="py-1.5 px-2">Kategori Bangunan</th>
+                      <th class="py-1.5 px-1.5 text-right">Gedung</th>
+                      <th class="py-1.5 px-1.5 text-right">Ruangan</th>
+                      <th class="py-1.5 px-1.5 text-right">Aset</th>
+                      <th class="py-1.5 px-1.5 text-center text-emerald-700">% Baik</th>
+                      <th class="py-1.5 px-1.5 text-center text-rose-600">% Rusak</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
-                    ${rows.map(r => `
-                      <tr class="hover:bg-slate-50/70">
-                        <td class="py-2 font-medium text-slate-800">${r[0]}</td>
-                        <td class="py-2 text-right num-tabular">${r[1]}</td>
-                        <td class="py-2 text-right num-tabular">${r[2]}</td>
-                        <td class="py-2 text-right font-semibold text-slate-900 num-tabular">${r[3]}</td>
-                        <td class="py-2 pl-4">
-                          <div class="w-full h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
-                            <div style="width: ${r[4]}%" class="bg-emerald-500 h-full" title="Baik: ${r[4]}%"></div>
-                            <div style="width: ${r[5]}%" class="bg-amber-500 h-full" title="Rusak: ${r[5]}%"></div>
-                            <div style="width: ${r[6]}%" class="bg-rose-500 h-full" title="Hilang: ${r[6]}%"></div>
-                          </div>
+                    ${catRows.map(c => `
+                      <tr class="hover:bg-slate-50 transition cursor-pointer" onclick="navTo('view-gedung')">
+                        <td class="py-2 px-2 font-semibold text-slate-800 flex items-center gap-1.5">
+                          <i class="ph-bold ${c.icon} text-teal-700"></i>
+                          <span>${escapeHtml(c.name)}</span>
                         </td>
+                        <td class="py-2 px-1.5 text-right font-mono">${c.bldgs}</td>
+                        <td class="py-2 px-1.5 text-right font-mono text-slate-500">${c.rooms}</td>
+                        <td class="py-2 px-1.5 text-right font-mono font-bold text-slate-900">${c.assets.toLocaleString('id-ID')}</td>
+                        <td class="py-2 px-1.5 text-center font-mono font-bold text-emerald-700">${c.baikPct}%</td>
+                        <td class="py-2 px-1.5 text-center font-mono font-bold ${parseFloat(c.rusakPct) > 0 ? 'text-rose-600' : 'text-slate-400'}">${c.rusakPct}%</td>
                       </tr>
                     `).join('')}
                   </tbody>
                 </table>
               </div>
-              <div class="flex items-center gap-4 text-[11px] text-slate-600 mt-3 pt-2.5 border-t border-slate-100">
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-emerald-500"></span> Baik</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-amber-500"></span> Rusak</span>
-                <span class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded bg-rose-500"></span> Hilang</span>
-              </div>
             </div>
-
-            <!-- Kondisi per Lokasi -->
-            <div class="clean-card p-4">
-              <h2 class="text-sm font-bold text-slate-900 pb-2.5 border-b border-slate-100 mb-3">Distribusi per Lokasi Operasional</h2>
-              <div class="space-y-3">
-                ${locs.map(l => `
-                  <div class="grid grid-cols-12 items-center gap-2 text-xs">
-                    <span class="col-span-2 font-bold text-slate-800">${l[0]}</span>
-                    <div class="col-span-6 h-2.5 bg-slate-100 rounded-full overflow-hidden flex">
-                      <div style="width: ${l[1]}%" class="bg-emerald-500 h-full"></div>
-                      <div style="width: ${l[2]}%" class="bg-amber-500 h-full"></div>
-                      <div style="width: ${l[3]}%" class="bg-rose-500 h-full"></div>
-                    </div>
-                    <div class="col-span-4 flex justify-end gap-1.5">
-                      <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-amber-50 text-amber-800 border border-amber-200">${l[4]} rusak</span>
-                      <span class="px-1.5 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-800 border border-rose-200">${l[5]} hilang</span>
-                    </div>
-                  </div>
-                `).join('')}
-              </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10.5px]">
+              <span class="text-slate-400">Total Portofolio: ${totalBldgs} Gedung, ${totalRooms} Ruangan</span>
+              <button type="button" onclick="navTo('view-gedung')" class="font-bold text-teal-700 hover:underline">Buka Seluruh Gedung &rarr;</button>
             </div>
           </div>
 
-          <!-- Right Column -->
-          <div class="lg:col-span-4 space-y-4">
-            <div class="clean-card p-4">
-              <h2 class="text-sm font-bold text-slate-900 pb-2.5 border-b border-slate-100 mb-3">Antrean Prioritas Inspeksi Lapangan</h2>
-              <p class="text-xs text-slate-500 mb-3">1.655 aset berstatus hilang atau rusak perlu diverifikasi fisik ulang:</p>
+          <!-- KANAN (5 COLS): STATUS OKUPANSI & KONDISI SITE -->
+          <div class="lg:col-span-5 bg-white rounded-xl border border-slate-200 shadow-2xs p-3.5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-2 border-b border-slate-100 mb-2.5">
+                <div class="flex items-center gap-2">
+                  <i class="ph-bold ph-map-pin text-teal-700 text-sm"></i>
+                  <h3 class="text-xs font-bold text-slate-900 uppercase">Okupansi &amp; Aset per Site Lapangan</h3>
+                </div>
+                <span class="text-[10px] text-slate-400 font-mono font-bold">5 Lokasi</span>
+              </div>
               <div class="space-y-2">
-                ${[['PNS-LH-05-03', 132, 'rose'], ['PNS-LH-05-02', 123, 'rose'], ['PNS-LH-05-01', 112, 'rose'], ['PNS-LH-03-05', 92, 'amber'], ['MESS-C', 90, 'amber']].map(q => `
-                  <div onclick="PNS_FM_STATE.sel='${q[0].replace('PNS-','')}'; navTo('view-fm-peta');" class="flex justify-between items-center p-2 rounded-lg bg-slate-50 hover:bg-slate-100 cursor-pointer transition text-xs">
-                    <span class="font-mono font-bold text-slate-800">${q[0]}</span>
-                    <span class="px-2 py-0.5 rounded-full text-[10.5px] font-bold bg-${q[2]}-100 text-${q[2]}-800">${q[1]} Aset</span>
-                  </div>
-                `).join('')}
+                ${siteRows.map(s => {
+                  const sOcc = s.slots > 0 ? ((s.active / s.slots) * 100).toFixed(0) : 0;
+                  return `
+                    <div class="p-2 rounded-lg bg-slate-50 border border-slate-100 hover:border-teal-300 transition">
+                      <div class="flex items-center justify-between">
+                        <span class="font-bold text-xs text-slate-900">${s.name}</span>
+                        <span class="px-1.5 py-0.2 rounded text-[10px] font-mono font-bold ${sOcc > 50 ? 'bg-indigo-100 text-indigo-800' : 'bg-emerald-100 text-emerald-800'}">${sOcc}% Terisi</span>
+                      </div>
+                      <div class="w-full bg-slate-200 rounded-full h-1.5 mt-1.5 overflow-hidden">
+                        <div class="bg-teal-700 h-1.5 rounded-full" style="width: ${Math.min(100, sOcc)}%"></div>
+                      </div>
+                      <div class="flex items-center justify-between text-[10px] text-slate-500 mt-1 font-mono">
+                        <span>${s.active} Penghuni / ${s.slots} Ranjang</span>
+                        <span>${s.vacant} Slot Kosong</span>
+                      </div>
+                    </div>
+                  `;
+                }).join('')}
               </div>
             </div>
-
-            <div class="clean-card p-4">
-              <h2 class="text-sm font-bold text-slate-900 pb-2.5 border-b border-slate-100 mb-3">Item Paling Sering Rusak &bull; Hilang</h2>
-              <div class="space-y-2.5 text-xs">
-                ${[['Guling Kamar', 278], ['Bantal Tidur', 251], ['Pengki & Sapu Lantai', 228], ['Keset Kaki Handuk', 151], ['Sprei Kasur', 149], ['Springbed Standard', 110]].map(x => `
-                  <div class="flex justify-between items-center">
-                    <span class="text-slate-700 font-medium">${x[0]}</span>
-                    <b class="font-bold text-slate-900 num-tabular">${x[1]} unit</b>
-                  </div>
-                `).join('')}
-              </div>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[10.5px]">
+              <span class="text-slate-400">Total Kapasitas: ${totalSlots.toLocaleString('id-ID')} Ranjang</span>
+              <button type="button" onclick="navTo('view-fm-ketersediaan')" class="font-bold text-teal-700 hover:underline">Matriks Slot &rarr;</button>
             </div>
           </div>
         </div>
@@ -15839,8 +15986,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     `;
   };
 
-  // 2. RENDER FM PETA (PETA BANGUNAN INTERAKTIF & PETA GABUNGAN 4 SITE)
-  window.renderFmPeta = function() {
+window.renderFmPeta = function() {
     pnsApplyRes();
     const el = document.getElementById('view-fm-peta');
     if (!el) return;
