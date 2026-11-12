@@ -115,12 +115,76 @@ function getMasterAssetSheet(ss) {
   return sheet;
 }
 
+
+function apiGetLiveAssets(params) {
+  params = params || {};
+  var limit = parseInt(params.limit || 0, 10);
+  var ss = getDb();
+  var sheet = getMasterAssetSheet(ss);
+  if (!sheet || sheet.getLastRow() <= 1) return { success: true, live_timestamp: new Date().toISOString(), total_in_sheet: 0, returned_count: 0, items: [] };
+
+  var numRows = sheet.getLastRow() - 1;
+  var numCols = Math.min(42, sheet.getLastColumn());
+  var rows = sheet.getRange(2, 1, numRows, numCols).getValues();
+
+  var items = [];
+  var search = (params.search || '').toLowerCase();
+  var locFilter = (params.location || '').toUpperCase();
+  var condFilter = (params.kondisi || '').toUpperCase();
+
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var noAsset = String(r[7] || r[0] || '').trim();
+    var kodeUnit = String(r[9] || '').trim();
+    var namaAsset = String(r[11] || '').trim();
+    var namaDetail = String(r[12] || '').trim();
+    var kondisi = String(r[13] || 'GOOD CONDITION').trim();
+    var loc = String(r[1] || 'CO').trim();
+    var kelompok = String(r[36] || r[4] || '').trim();
+    var hpp = Number(r[18]) || 0;
+
+    if (locFilter && loc.toUpperCase() !== locFilter) continue;
+    if (condFilter && kondisi.toUpperCase().indexOf(condFilter) === -1) continue;
+    if (search) {
+      var comb = (noAsset + ' ' + kodeUnit + ' ' + namaAsset + ' ' + namaDetail).toLowerCase();
+      if (comb.indexOf(search) === -1) continue;
+    }
+
+    items.push({
+      asset_id: r[0],
+      location: loc,
+      no_asset: noAsset,
+      kode_unit: kodeUnit,
+      nama_asset: namaAsset,
+      nama_asset_detail: namaDetail,
+      kondisi: kondisi,
+      kelompok_asset: kelompok,
+      total_harga_perolehan: hpp,
+      standar_umur: r[16],
+      varian_umur: r[23],
+      checkout: r[15]
+    });
+
+    if (limit > 0 && items.length >= limit) break;
+  }
+
+  return {
+    success: true,
+    live_timestamp: new Date().toISOString(),
+    total_in_sheet: numRows,
+    returned_count: items.length,
+    items: items
+  };
+}
+
 function handleApiGet(params) {
   var api = params.api;
   var res = { success: true, data: null };
 
   try {
-    if (api === 'bootstrap') {
+    if (api === 'live_assets' || api === 'assets_live') {
+      res.data = apiGetLiveAssets(params);
+    } else if (api === 'bootstrap') {
       res.data = apiGetBootstrapData();
     } else if (api === 'dashboard_stats') {
       res.data = apiGetDashboardStats();

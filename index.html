@@ -802,6 +802,11 @@
               <i class="ph-bold ph-arrows-left-right text-emerald-600"></i>
               <span>Compare Live</span>
             </button>
+            <!-- Tombol 1-Query Live API Aset -->
+            <button type="button" onclick="window.pullLiveAssetsFromApi(true)" class="px-3 py-1.5 rounded-xl border border-sky-300 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-bold flex items-center gap-1.5 transition cursor-pointer" title="Tarik 1-Query Live Aset Langsung dari Google Sheet (0 Menit Delay)">
+              <i class="ph-bold ph-arrows-clockwise text-sky-600"></i>
+              <span>Tarik Live API Aset</span>
+            </button>
           </div>
 
           <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-0 justify-end">
@@ -4299,6 +4304,10 @@
                 <i class="ph-bold ph-table text-sky-600"></i> Tabel WO
               </button>
             </div>
+            <!-- Generator Kode Part & Umur -->
+            <button type="button" onclick="window.openSparepartCodeModal()" class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-teal-700 hover:bg-teal-600 text-white shadow-xs transition cursor-pointer" title="Generate Kode Part Berbasis Tanggal &amp; BKB serta Cek Umur Suku Cadang">
+              <i class="ph-bold ph-barcode text-sm"></i> Generator Kode Part &amp; Umur
+            </button>
             <!-- Create WO Button -->
             <button type="button" onclick="promptCreateWo()" class="flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-xs transition cursor-pointer">
               <i class="ph-bold ph-plus-circle text-sm" aria-hidden="true"></i> + Buat Work Order Baru

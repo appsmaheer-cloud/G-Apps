@@ -16548,9 +16548,96 @@ window.renderFmPeta = function() {
     }
   };
 
-  window.setFmRoomFacilityCatFilter = function(catKey) {
-    PNS_FM_STATE.facCat = (PNS_FM_STATE.facCat === catKey) ? 'ALL' : catKey;
-    if (typeof window.renderFmRincian === 'function') window.renderFmRincian();
+  // IN-PLACE FACILITY CATEGORY & CARD FILTERING (ZERO SCROLL JUMPING)
+  window.setFmRoomFacilityCatFilter = function(catKey, btnEl) {
+    const targetKey = (PNS_FM_STATE.facCat === catKey && catKey !== 'ALL') ? 'ALL' : catKey;
+    PNS_FM_STATE.facCat = targetKey;
+
+    // 1. Update Category Pills Active State in DOM
+    const pills = document.querySelectorAll('.fm-fac-pill');
+    pills.forEach(p => {
+      const isAct = p.getAttribute('data-cat') === targetKey;
+      if (isAct) {
+        p.className = 'fm-fac-pill px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border bg-indigo-600 text-white border-indigo-600 shadow-2xs';
+        const badge = p.querySelector('.fm-fac-pill-badge');
+        if (badge) badge.className = 'fm-fac-pill-badge px-1.5 py-0.2 rounded-full text-[10px] bg-white/20 text-white';
+      } else {
+        p.className = 'fm-fac-pill px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border bg-slate-50 hover:bg-indigo-50 text-slate-700 border-slate-200';
+        const badge = p.querySelector('.fm-fac-pill-badge');
+        if (badge) badge.className = 'fm-fac-pill-badge px-1.5 py-0.2 rounded-full text-[10px] bg-slate-200 text-slate-700';
+      }
+    });
+
+    // 2. Filter Facility Cards Grid in DOM
+    const cards = document.querySelectorAll('.fm-fac-card');
+    cards.forEach(card => {
+      const g = card.getAttribute('data-group') || '';
+      if (targetKey === 'ALL' || g === targetKey) {
+        card.style.display = '';
+        card.classList.remove('hidden');
+      } else {
+        card.style.display = 'none';
+        card.classList.add('hidden');
+      }
+    });
+
+    // 3. Filter Asset Unit List Below in DOM
+    const assetItems = document.querySelectorAll('.fm-fac-asset-item');
+    let visibleCount = 0;
+    assetItems.forEach(item => {
+      const g = item.getAttribute('data-group') || '';
+      if (targetKey === 'ALL' || g === targetKey) {
+        item.style.display = '';
+        visibleCount++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    const countLabel = document.getElementById('fm-fac-asset-count');
+    if (countLabel) countLabel.innerText = visibleCount;
+  };
+
+  window.selectFmFacilityCard = function(cardEl, itemGroup, itemName) {
+    if (!cardEl) return;
+    const isAlreadySelected = cardEl.classList.contains('ring-2');
+
+    // Reset other cards
+    document.querySelectorAll('.fm-fac-card').forEach(c => {
+      c.classList.remove('ring-2', 'ring-indigo-500', 'bg-indigo-50/60', 'border-indigo-500');
+      const actionText = c.querySelector('.fm-fac-action-text');
+      if (actionText) actionText.innerHTML = 'Filter &rarr;';
+    });
+
+    if (isAlreadySelected) {
+      // Revert to group filter
+      window.setFmRoomFacilityCatFilter(PNS_FM_STATE.facCat || 'ALL');
+      return;
+    }
+
+    // Mark card selected
+    cardEl.classList.add('ring-2', 'ring-indigo-500', 'bg-indigo-50/60', 'border-indigo-500');
+    const actText = cardEl.querySelector('.fm-fac-action-text');
+    if (actText) actText.innerHTML = '<span class="text-indigo-700 font-black">✓ Aktif &times;</span>';
+
+    // Filter physical assets list to match exact item
+    const assetItems = document.querySelectorAll('.fm-fac-asset-item');
+    let visibleCount = 0;
+    const targetName = String(itemName || '').toLowerCase();
+
+    assetItems.forEach(item => {
+      const name = (item.getAttribute('data-name') || '').toLowerCase();
+      const g = item.getAttribute('data-group') || '';
+      if (name.includes(targetName) || targetName.includes(name) || g === itemGroup) {
+        item.style.display = '';
+        visibleCount++;
+      } else {
+        item.style.display = 'none';
+      }
+    });
+
+    const countLabel = document.getElementById('fm-fac-asset-count');
+    if (countLabel) countLabel.innerText = visibleCount;
   };
 
   
@@ -16907,11 +16994,11 @@ window.renderFmPeta = function() {
                 ${catPills.map(cp => {
                   const isAct = activeFacCat === cp.key;
                   return `
-                    <button type="button" onclick="window.setFmRoomFacilityCatFilter('${cp.key}')"
-                            class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border ${isAct ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' : 'bg-slate-50 hover:bg-indigo-50 text-slate-700 border-slate-200'}">
+                    <button type="button" data-cat="${cp.key}" onclick="window.setFmRoomFacilityCatFilter('${cp.key}', this)"
+                            class="fm-fac-pill px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer border ${isAct ? 'bg-indigo-600 text-white border-indigo-600 shadow-2xs' : 'bg-slate-50 hover:bg-indigo-50 text-slate-700 border-slate-200'}">
                       <i class="ph-bold ${cp.icon}"></i>
                       <span>${cp.label}</span>
-                      <span class="px-1.5 py-0.2 rounded-full text-[10px] ${isAct ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}">${cp.count}</span>
+                      <span class="fm-fac-pill-badge px-1.5 py-0.2 rounded-full text-[10px] ${isAct ? 'bg-white/20 text-white' : 'bg-slate-200 text-slate-700'}">${cp.count}</span>
                     </button>
                   `;
                 }).join('')}
@@ -16922,8 +17009,8 @@ window.renderFmPeta = function() {
                 ${filteredStdObjects.map(item => {
                   const isOk = item.fisikCount >= item.std;
                   return `
-                    <div onclick="window.setFmRoomFacilityCatFilter('${item.group}')"
-                         class="group p-3 rounded-xl border ${isOk ? 'bg-white border-slate-200 hover:border-indigo-500' : 'bg-amber-50/50 border-amber-200 hover:border-amber-500'} hover:shadow-sm transition cursor-pointer flex flex-col justify-between"
+                    <div data-group="${item.group}" data-item="${escapeHtml(item.name)}" onclick="window.selectFmFacilityCard(this, '${item.group}', '${escapeHtml(item.name)}')"
+                         class="fm-fac-card group p-3 rounded-xl border ${isOk ? 'bg-white border-slate-200 hover:border-indigo-500' : 'bg-amber-50/50 border-amber-200 hover:border-amber-500'} hover:shadow-sm transition cursor-pointer flex flex-col justify-between"
                          title="Klik untuk filter aset ${item.name} di bawah (View Only)">
                       <div class="flex items-start justify-between gap-2">
                         <div class="w-8 h-8 rounded-lg ${isOk ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-100 text-amber-700'} flex items-center justify-center text-base shrink-0">
@@ -16937,7 +17024,7 @@ window.renderFmPeta = function() {
                         <div class="font-bold text-xs text-slate-900 group-hover:text-indigo-600 transition">${item.name}</div>
                         <div class="text-[10px] text-slate-500 mt-0.5 flex items-center justify-between">
                           <span>${item.statusText}</span>
-                          <span class="text-indigo-600 font-bold group-hover:underline">Filter &rarr;</span>
+                          <span class="fm-fac-action-text text-indigo-600 font-bold group-hover:underline">Filter &rarr;</span>
                         </div>
                       </div>
                     </div>
@@ -16952,7 +17039,7 @@ window.renderFmPeta = function() {
                     ${filteredPhysicalAssets.map(a => {
                       const safeNo = escapeHtml(String(a.no_asset || '-').replace(/'/g, "\\'"));
                       return `
-                        <div class="flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-indigo-50/60 border border-slate-200/80 text-xs transition">
+                        <div data-group="${escapeHtml(a.kategori_asset || '')}" data-name="${escapeHtml(a.nama_asset || '')}" class="fm-fac-asset-item flex items-center justify-between p-2 rounded-lg bg-slate-50 hover:bg-indigo-50/60 border border-slate-200/80 text-xs transition">
                           <div class="min-w-0 pr-2">
                             <span class="font-mono font-bold text-sky-700 text-[10.5px] block">${escapeHtml(a.no_asset || '-')}</span>
                             <span class="font-semibold text-slate-900 truncate block">${escapeHtml(a.nama_asset || '-')}</span>
@@ -17050,162 +17137,121 @@ window.renderFmPeta = function() {
     const el = document.getElementById('view-fm-mobile');
     if (!el) return;
 
-    const cur = PNS_FM_STATE.mview || 'beranda';
-    const now = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }).replace('.', ':');
-    const I = PNS_FM_STATE.insp;
+    // Synchronized Enterprise Mobile Field Inspector
+    const bldgs = (appState.buildings && appState.buildings.length > 0)
+      ? appState.buildings
+      : ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.buildings) || []);
 
-    let bodyContent = '';
-    if (cur === 'scan') {
-      bodyContent = `
-        <div class="scan">
-          <div class="text-sm font-bold">Arahkan kamera ke QR Code di pintu kamar</div>
-          <div class="vf"><div class="scanline"></div></div>
-          <div class="text-xs text-slate-300">Memindai kode inventaris...</div>
-          <button type="button" onclick="switchMobileView('inspeksi')" class="px-4 py-2 rounded-lg bg-white/20 text-white text-xs font-semibold hover:bg-white/30">Simulasi Scan Terbaca</button>
-          <button type="button" onclick="switchMobileView('beranda')" class="text-xs text-slate-400 underline">Batal</button>
-        </div>
-      `;
-    } else if (cur === 'inspeksi') {
-      bodyContent = `
-        <div class="mh">
-          <div class="t">
-            <b>Kamar No.1</b>
-            <span class="text-[11px] text-slate-500 font-mono">PNS-LH-01-01 &bull; Central</span>
-          </div>
-          <span class="px-2 py-0.5 rounded bg-slate-100 text-[10px] font-bold text-slate-600">3 / 12 Item</span>
-        </div>
-        <div class="w-full bg-slate-200 h-1"><div class="bg-emerald-600 h-1" style="width: 25%"></div></div>
-        <div class="mb">
-          <div class="sec">Checklist Fisik Standar Kamar</div>
-          ${[['springbed', 'Springbed Standard', 2, 4], ['bantal', 'Bantal Tidur', 2, 4], ['guling', 'Guling', 2, 4]].map(item => `
-            <div class="it ${I[item[0]] === 'rs' ? 'rs' : (I[item[0]] === 'hl' ? 'hl' : '')}">
-              <div class="flex justify-between items-center text-xs">
-                <b class="font-bold text-slate-800">${item[1]}</b>
-                <span class="text-[10px] text-slate-400 font-mono">Std: ${item[2]} &bull; Ada: ${item[3]}</span>
-              </div>
-              <div class="opt">
-                <button type="button" onclick="setPnsInsp('${item[0]}', 'ok')" class="${I[item[0]] === 'ok' ? 's-ok' : ''}">Baik</button>
-                <button type="button" onclick="setPnsInsp('${item[0]}', 'rs')" class="${I[item[0]] === 'rs' ? 's-rs' : ''}">Rusak</button>
-                <button type="button" onclick="setPnsInsp('${item[0]}', 'hl')" class="${I[item[0]] === 'hl' ? 's-hl' : ''}">Hilang</button>
-              </div>
-            </div>
-          `).join('')}
+    const curBldgCode = appState.currentInspGedung || (bldgs[0] ? bldgs[0].kode_gedung : 'PNS-LH-01-01');
+    const bldgObj = bldgs.find(b => b.kode_gedung === curBldgCode) || bldgs[0] || {};
 
-          <div class="sec">Pemeriksaan Stepper Standar</div>
-          ${[['lemari', 'Lemari 2 Pintu', 2], ['gorden', 'Gorden & Tiang', 1]].map(st => `
-            <div class="it flex items-center justify-between">
-              <div>
-                <b class="text-xs font-bold text-slate-800 block">${st[1]}</b>
-                <span class="text-[10px] text-slate-400">Standar: ${st[2]} unit</span>
-              </div>
-              <div class="step">
-                <button type="button" onclick="stepPnsInsp('${st[0]}', -1)">&minus;</button>
-                <b>${I[st[0]]}</b>
-                <button type="button" onclick="stepPnsInsp('${st[0]}', 1)">+</button>
-              </div>
-            </div>
-          `).join('')}
-        </div>
-        <div class="mf">
-          <button type="button" onclick="switchMobileView('tiket')" class="mbtn">Simpan &bull; Buat Tiket Temuan</button>
-        </div>
-      `;
-    } else if (cur === 'tiket') {
-      const stNames = ['Open (Baru)', 'Dikerjakan', 'Selesai'];
-      bodyContent = `
-        <div class="mh">
-          <div class="t">
-            <b>Tiket Temuan Lapangan</b>
-            <span class="text-[11px] text-slate-500 font-mono">WO-2026-11-0023</span>
-          </div>
-          <span class="px-2 py-0.5 rounded bg-rose-100 text-rose-800 text-[10px] font-bold">Urgent</span>
-        </div>
-        <div class="mb">
-          <div class="it space-y-1">
-            <h4 class="font-bold text-slate-900 text-sm">Gorden &amp; Lemari Kamar Rusak</h4>
-            <p class="text-xs text-slate-500">Kamar No.1 &bull; Longhouse PNS-LH-01-01 &bull; Central</p>
-          </div>
-          <div class="it space-y-2">
-            <div class="sec">Tahapan Status Work Order</div>
-            <div class="stg">
-              ${stNames.map((s, idx) => `
-                <button type="button" onclick="PNS_FM_STATE.tstat=${idx}; renderFmMobile();" class="${PNS_FM_STATE.tstat === idx ? 'on' : ''}">${s}</button>
-              `).join('')}
-            </div>
-          </div>
-          <div class="it space-y-2 text-xs">
-            <div class="flex justify-between text-slate-600"><span>Teknisi Ditugaskan</span><b class="text-slate-900">Bambang S. (Civil Maintenance)</b></div>
-            <div class="flex justify-between text-slate-600"><span>Waktu Laporan</span><b class="text-slate-900">Hari ini, 09:30 WIB</b></div>
-            <div class="flex justify-between text-slate-600"><span>Material Dibutuhkan</span><b class="text-slate-900">1 Set Engsel Lemari + Rel Gorden</b></div>
-          </div>
-        </div>
-        <div class="mf flex gap-2">
-          <button type="button" onclick="switchMobileView('beranda')" class="px-3 py-2 text-xs font-semibold rounded-lg border border-slate-200 bg-white">Kembali</button>
-          <button type="button" onclick="PNS_FM_STATE.tstat=2; renderFmMobile();" class="mbtn flex-1">Selesaikan Tiket</button>
-        </div>
-      `;
-    } else {
-      // cur === 'beranda'
-      bodyContent = `
-        <div class="mh flex-col items-start gap-1 p-4 bg-slate-900 text-white">
-          <span class="text-xs text-slate-400">Selamat Bekerja,</span>
-          <b class="text-base font-bold text-white">Petugas Inspeksi HRGA</b>
-          <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-500/20 text-emerald-300">Central Office Site</span>
-        </div>
-        <div class="mb space-y-3">
-          <button type="button" onclick="switchMobileView('scan')" class="w-full p-4 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-3.5 shadow-md">
-            <i class="ph-bold ph-qr-code text-3xl"></i>
-            <div class="text-left">
-              <b class="text-sm block">Scan QR Code Ruangan</b>
-              <span class="text-xs text-emerald-100">Mulai audit checklist fisik</span>
-            </div>
-          </button>
-          <div class="grid grid-cols-2 gap-2 text-xs">
-            <div class="it text-center">
-              <span class="text-slate-400 block text-[10px] uppercase font-bold">Perlu Cek Ulang</span>
-              <b class="text-xl font-bold text-rose-600 num-tabular">1.655</b>
-              <span class="text-[10px] text-slate-500 block">Aset Rusak/Hilang</span>
-            </div>
-            <div class="it text-center">
-              <span class="text-slate-400 block text-[10px] uppercase font-bold">Tiket Terbuka</span>
-              <b class="text-xl font-bold text-amber-600 num-tabular">4 Tiket</b>
-              <span class="text-[10px] text-slate-500 block">1 Urgent</span>
-            </div>
-          </div>
-          <div class="sec">Jadwal Inspeksi Terdekat</div>
-          <div onclick="switchMobileView('inspeksi')" class="job space-y-1 hover:border-emerald-500">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-mono font-bold text-slate-800">PNS-LH-05-03</span>
-              <span class="px-1.5 py-0.5 rounded bg-rose-100 text-rose-800 font-bold text-[10px]">132 Aset Temuan</span>
-            </div>
-            <div class="text-[11px] text-slate-500">Longhouse Karyawan &bull; Estate 3</div>
-          </div>
-        </div>
-      `;
-    }
+    const allRooms = (appState.rooms && appState.rooms.length > 0)
+      ? appState.rooms
+      : ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.rooms) || []);
+
+    const bldgRooms = allRooms.filter(r => r.kode_gedung === curBldgCode);
+    const curRoom = appState.currentInspRoom || (bldgRooms[0] ? bldgRooms[0].nama_ruangan : 'Kamar No.1');
 
     el.innerHTML = `
-      <div class="stage">
-        <div class="phone">
-          <div class="sbar">
-            <span>${now}</span>
-            <span class="text-slate-400 font-semibold text-[11px]">Field Inspector &bull; PNS FM</span>
+      <!-- Top Mobile Navigation Header -->
+      <div class="bg-gradient-to-r from-teal-800 to-emerald-900 text-white p-4 rounded-2xl shadow-md space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center text-lg font-bold">
+              <i class="ph-bold ph-device-mobile"></i>
+            </span>
+            <div>
+              <h2 class="text-sm font-extrabold leading-tight">Inspeksi Mobile Lapangan</h2>
+              <span class="text-[10px] text-teal-200">Terintegrasi Master Data 442 Gedung &amp; Drive Photo</span>
+            </div>
           </div>
-          <div class="flex-1 flex flex-col min-h-0 overflow-hidden">
-            ${bodyContent}
+          <button type="button" onclick="navTo('view-inspeksi')" class="px-2.5 py-1 rounded-lg bg-white/20 hover:bg-white/30 text-white text-[11px] font-bold flex items-center gap-1 transition">
+            <i class="ph-bold ph-desktop"></i> Mode Desktop
+          </button>
+        </div>
+
+        <!-- Target Building & Room Selectors -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 pt-1 text-slate-800 text-xs">
+          <div>
+            <label class="text-[10px] font-bold text-teal-100 uppercase block mb-0.5">Pilih Gedung / Mess:</label>
+            <select onchange="appState.currentInspGedung=this.value; if(typeof startInspectionForBldg==='function') startInspectionForBldg(this.value); renderFmMobile();" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-teal-300 text-slate-800 font-bold focus:outline-none">
+              ${bldgs.slice(0, 80).map(b => `
+                <option value="${escapeHtml(b.kode_gedung)}" ${b.kode_gedung === curBldgCode ? 'selected' : ''}>
+                  ${escapeHtml(b.kode_gedung)} - ${escapeHtml(b.nama_gedung)} (${escapeHtml(b.lokasi_site || 'CO')})
+                </option>
+              `).join('')}
+            </select>
           </div>
-          <nav class="tabs">
-            <button type="button" onclick="switchMobileView('beranda')" class="tab ${cur === 'beranda' ? 'on' : ''}"><i class="ph-bold ph-house text-lg"></i> Beranda</button>
-            <button type="button" onclick="switchMobileView('scan')" class="tab ${cur === 'scan' ? 'on' : ''}"><i class="ph-bold ph-qr-code text-lg"></i> Scan QR</button>
-            <button type="button" onclick="switchMobileView('inspeksi')" class="tab ${cur === 'inspeksi' ? 'on' : ''}"><i class="ph-bold ph-clipboard-text text-lg"></i> Inspeksi</button>
-            <button type="button" onclick="switchMobileView('tiket')" class="tab ${cur === 'tiket' ? 'on' : ''}"><i class="ph-bold ph-wrench text-lg"></i> Tiket</button>
-          </nav>
+          <div>
+            <label class="text-[10px] font-bold text-teal-100 uppercase block mb-0.5">Target Ruangan / Kamar:</label>
+            <select onchange="appState.currentInspRoom=this.value; if(typeof selectInspectionRoom==='function') selectInspectionRoom(this.value); renderFmMobile();" class="w-full px-2.5 py-1.5 rounded-lg bg-white border border-teal-300 text-slate-800 font-bold focus:outline-none">
+              ${bldgRooms.length > 0 ? bldgRooms.map(r => `
+                <option value="${escapeHtml(r.nama_ruangan)}" ${r.nama_ruangan === curRoom ? 'selected' : ''}>
+                  ${escapeHtml(r.nama_ruangan)} (Kapasitas: ${r.kapasitas || 4} Bed)
+                </option>
+              `).join('') : `
+                <option value="${curRoom}">${curRoom}</option>
+              `}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Asset Verification Action Bar -->
+      <div class="clean-card p-4 space-y-3">
+        <div class="flex items-center justify-between flex-wrap gap-2 pb-2 border-b border-slate-100">
+          <div>
+            <h3 class="text-xs font-bold text-slate-800">Checklist Inventaris &amp; Fasilitas Fisik</h3>
+            <span class="text-[11px] text-slate-500">Kamar: <b>${escapeHtml(curRoom)}</b> &bull; Gedung: ${escapeHtml(curBldgCode)}</span>
+          </div>
+          <button type="button" onclick="if(typeof markAllRoomAssetsGood==='function') markAllRoomAssetsGood();" class="px-2.5 py-1 text-[11px] font-bold rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 transition">
+            ✓ Tandai Semua Baik
+          </button>
+        </div>
+
+        <!-- Render Current Inspection Room Assets Checklist -->
+        <div id="fm-mobile-checklist-container" class="space-y-2">
+          ${(appState.currentInspAssets && appState.currentInspAssets.length > 0) ? appState.currentInspAssets.map((a, i) => `
+            <div class="p-2.5 rounded-xl border border-slate-200 bg-white shadow-2xs space-y-2">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <span class="font-mono text-[10px] text-sky-700 font-bold block">${escapeHtml(a.no_asset || a.kode_asset || '-')}</span>
+                  <span class="font-bold text-slate-900 text-xs block leading-snug">${escapeHtml(a.nama_asset || a.nama_barang || 'Inventaris Kamar')}</span>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-bold ${a.status_kondisi === 'Rusak' ? 'bg-amber-100 text-amber-800' : (a.status_kondisi === 'Hilang' ? 'bg-rose-100 text-rose-800' : 'bg-emerald-100 text-emerald-800')}">
+                  ${a.status_kondisi || 'Baik'}
+                </span>
+              </div>
+              <div class="grid grid-cols-3 gap-1 pt-1">
+                <button type="button" onclick="if(typeof setInspectionItemStatus==='function') setInspectionItemStatus(${i}, 'Baik'); renderFmMobile();" class="py-1 rounded-lg text-xs font-bold ${(a.status_kondisi || 'Baik') === 'Baik' ? 'bg-emerald-600 text-white' : 'bg-slate-100 text-slate-700'}">Baik</button>
+                <button type="button" onclick="if(typeof setInspectionItemStatus==='function') setInspectionItemStatus(${i}, 'Rusak'); renderFmMobile();" class="py-1 rounded-lg text-xs font-bold ${a.status_kondisi === 'Rusak' ? 'bg-amber-500 text-white' : 'bg-slate-100 text-slate-700'}">Rusak</button>
+                <button type="button" onclick="if(typeof setInspectionItemStatus==='function') setInspectionItemStatus(${i}, 'Hilang'); renderFmMobile();" class="py-1 rounded-lg text-xs font-bold ${a.status_kondisi === 'Hilang' ? 'bg-rose-600 text-white' : 'bg-slate-100 text-slate-700'}">Hilang</button>
+              </div>
+            </div>
+          `).join('') : `
+            <div class="text-center py-6 text-slate-400 text-xs">
+              Pilih gedung dan ruangan di atas untuk memuat daftar aset inventaris kamar.
+            </div>
+          `}
+        </div>
+
+        <!-- Documentation & Submission in Mobile -->
+        <div class="pt-3 border-t border-slate-200 space-y-2.5">
+          <label class="block font-bold text-xs text-slate-800">Foto Temuan Lapangan (Kamera / Drive Upload):</label>
+          <div class="flex items-center gap-2">
+            <input type="file" id="fm-mobile-photo-input" accept="image/*" capture="environment" onchange="if(typeof handleInspectionPhotoSelect==='function') handleInspectionPhotoSelect(event);" class="text-xs file:mr-2 file:py-1 file:px-2.5 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-teal-50 file:text-teal-700 hover:file:bg-teal-100">
+          </div>
+          <textarea id="fm-mobile-notes" placeholder="Catatan inspektur / temuan fisik kerusakan..." class="w-full p-2.5 text-xs rounded-xl border border-slate-300 focus:outline-none focus:ring-1 focus:ring-teal-500"></textarea>
+
+          <button type="button" onclick="if(typeof submitInspectionForm==='function') submitInspectionForm();" class="w-full py-2.5 rounded-xl bg-teal-700 hover:bg-teal-800 text-white font-bold text-xs shadow-md transition flex items-center justify-center gap-2">
+            <i class="ph-bold ph-paper-plane-tilt"></i> Simpan Hasil Inspeksi (Sync ke Drive &amp; Sheets)
+          </button>
         </div>
       </div>
     `;
   };
 
-  window.switchMobileView = function(view) {
+window.switchMobileView = function(view) {
     window.PNS_FM_STATE.mview = view;
     renderFmMobile();
   };
@@ -17546,3 +17592,221 @@ window.renderFmPeta = function() {
       }
     });
   }
+
+
+  // ==========================================================================
+  // SPAREPART BKB CODE GENERATOR & LIFESPAN (UMUR PAKAI) CALCULATOR
+  // ==========================================================================
+  function generateSparepartCode(tanggal, noBkb, seq) {
+    let d = tanggal ? new Date(tanggal) : new Date();
+    if (isNaN(d.getTime())) d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    const cleanBkb = String(noBkb || 'BKB01').toUpperCase().replace(/[^A-Z0-9]/g, '');
+    const seqNum = String(seq || 1).padStart(2, '0');
+    return 'PRT-' + yyyy + mm + dd + '-' + cleanBkb + '-' + seqNum;
+  }
+  window.generateSparepartCode = generateSparepartCode;
+
+  function calculateSparepartLifespan(tglPasang, standarUmurHari) {
+    let start = tglPasang ? new Date(tglPasang) : new Date();
+    if (isNaN(start.getTime())) start = new Date();
+    const now = new Date();
+    const diffTime = Math.max(0, now - start);
+    const daysUsed = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const std = Number(standarUmurHari) || 180;
+    const remainingDays = std - daysUsed;
+    const pctUsed = Math.round((daysUsed / std) * 100);
+
+    let status = 'Normal (Baik)';
+    let badgeClass = 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (pctUsed > 100) {
+      status = 'Expired / Wajib Ganti';
+      badgeClass = 'bg-rose-50 text-rose-700 border-rose-200';
+    } else if (pctUsed >= 75) {
+      status = 'Mendekati Batas Umur (Siapkan PO Part)';
+      badgeClass = 'bg-amber-50 text-amber-700 border-amber-200';
+    }
+
+    return {
+      daysUsed: daysUsed,
+      std: std,
+      remainingDays: remainingDays,
+      pctUsed: pctUsed,
+      status: status,
+      badgeClass: badgeClass
+    };
+  }
+  window.calculateSparepartLifespan = calculateSparepartLifespan;
+
+  window.openSparepartCodeModal = function() {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const defaultCode = generateSparepartCode(todayStr, 'BKB-1108', 1);
+    const defaultLife = calculateSparepartLifespan(todayStr, 180);
+
+    const htmlContent = `
+      <div class="text-left space-y-4 p-1 text-xs">
+        <p class="text-slate-600">Alat bantu resmi generate kode sparepart standar PT PNS berbasis <b>Tanggal Transaksi + Nomor BKB</b> dan kalkulasi otomatis umur pakai suku cadang.</p>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 bg-slate-50 p-3 rounded-xl border border-slate-200">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Tanggal BKB:</label>
+            <input type="date" id="modal-sp-date" value="${todayStr}" oninput="window.updateModalSpPreview()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-mono text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Nomor BKB:</label>
+            <input type="text" id="modal-sp-bkb" value="BKB-2026-1108" oninput="window.updateModalSpPreview()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-mono text-xs">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Urutan Item (Seq):</label>
+            <input type="number" id="modal-sp-seq" value="1" min="1" max="99" oninput="window.updateModalSpPreview()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-mono text-xs">
+          </div>
+        </div>
+
+        <div class="p-3 bg-teal-50 border border-teal-200 rounded-xl">
+          <span class="text-[10px] font-bold uppercase tracking-wider text-teal-800 block">Kode Sparepart Hasil Generate:</span>
+          <div class="text-base font-mono font-extrabold text-teal-900 mt-1 flex items-center justify-between" id="modal-sp-generated-code">
+            <span>${defaultCode}</span>
+            <button type="button" onclick="navigator.clipboard.writeText(document.getElementById('modal-sp-generated-code').innerText.trim()); alert('Kode part disalin!');" class="px-2 py-0.5 text-[10px] rounded bg-teal-600 text-white font-sans font-bold hover:bg-teal-700 transition">Salin</button>
+          </div>
+        </div>
+
+        <div class="border-t border-slate-200 pt-3 space-y-2.5">
+          <span class="font-bold text-slate-800 text-xs block">Simulasi Perhitungan Umur Sparepart:</span>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+            <div>
+              <label class="block text-slate-600 mb-1">Tanggal Pasang Suku Cadang:</label>
+              <input type="date" id="modal-sp-install-date" value="${todayStr}" oninput="window.updateModalSpPreview()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white font-mono text-xs">
+            </div>
+            <div>
+              <label class="block text-slate-600 mb-1">Standar Rekomendasi OEM (Hari):</label>
+              <select id="modal-sp-std-days" onchange="window.updateModalSpPreview()" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs">
+                <option value="90">90 Hari (3 Bulan - Filter Oli / Filter Solar)</option>
+                <option value="180" selected>180 Hari (6 Bulan - Vanbelt / Kampas Rem / Seal)</option>
+                <option value="240">240 Hari (8 Bulan - Cutting Edge Blade)</option>
+                <option value="365">365 Hari (1 Tahun - Bearing / Ban / Pompa)</option>
+                <option value="540">540 Hari (18 Bulan - Track Link Excavator)</option>
+                <option value="730">730 Hari (2 Tahun - Aki Battery / Kompresor)</option>
+                <option value="1095">1.095 Hari (3 Tahun - Springbed Standard)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="p-2.5 rounded-xl border bg-slate-50 flex items-center justify-between" id="modal-sp-life-result">
+            <div>
+              <span class="text-[11px] text-slate-600 block">Umur Terpakai: <b id="modal-sp-days-used">0 Hari</b> &bull; Sisa: <b id="modal-sp-remaining">180 Hari</b></span>
+              <span class="text-[10px] text-slate-500">Persentase Terpakai: <b id="modal-sp-pct">0.0%</b></span>
+            </div>
+            <span class="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200" id="modal-sp-status-badge">Normal (Baik)</span>
+          </div>
+        </div>
+      </div>
+    `;
+
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: 'Generator Kode Sparepart & Cek Umur',
+        html: htmlContent,
+        width: 580,
+        showCloseButton: true,
+        confirmButtonText: 'Tutup',
+        confirmButtonColor: '#0E5E63'
+      });
+    }
+  };
+
+  window.updateModalSpPreview = function() {
+    const dVal = (document.getElementById('modal-sp-date') || {}).value;
+    const bVal = (document.getElementById('modal-sp-bkb') || {}).value;
+    const sVal = (document.getElementById('modal-sp-seq') || {}).value;
+    const iVal = (document.getElementById('modal-sp-install-date') || {}).value;
+    const stdVal = (document.getElementById('modal-sp-std-days') || {}).value;
+
+    const code = generateSparepartCode(dVal, bVal, sVal);
+    const codeEl = document.getElementById('modal-sp-generated-code');
+    if (codeEl) {
+      codeEl.innerHTML = '<span>' + code + '</span><button type="button" onclick="navigator.clipboard.writeText(\'' + code + '\'); alert(\'Kode part disalin!\');" class="px-2 py-0.5 text-[10px] rounded bg-teal-600 text-white font-sans font-bold hover:bg-teal-700 transition">Salin</button>';
+    }
+
+    const life = calculateSparepartLifespan(iVal, stdVal);
+    const daysUsedEl = document.getElementById('modal-sp-days-used');
+    const remEl = document.getElementById('modal-sp-remaining');
+    const pctEl = document.getElementById('modal-sp-pct');
+    const badgeEl = document.getElementById('modal-sp-status-badge');
+
+    if (daysUsedEl) daysUsedEl.innerText = life.daysUsed + ' Hari';
+    if (remEl) remEl.innerText = life.remainingDays + ' Hari';
+    if (pctEl) pctEl.innerText = life.pctUsed + '%';
+    if (badgeEl) {
+      badgeEl.innerText = life.status;
+      badgeEl.className = 'px-2.5 py-1 rounded-full text-[11px] font-bold border ' + life.badgeClass;
+    }
+  };
+
+  // ==========================================================================
+  // 1-QUERY LIVE ASSET API PULL
+  // ==========================================================================
+  window.pullLiveAssetsFromApi = function(showToast) {
+    setSyncIndicator('Pulling Live Asset Sheet...', true);
+
+    if (isGasEnvironment()) {
+      google.script.run
+        .withSuccessHandler(res => {
+          setSyncIndicator('Sheets Synchronized', false);
+          if (res && res.items && Array.isArray(res.items)) {
+            appState.assets = res.items;
+            appState.enterpriseAssets = res.items;
+            if (typeof renderAssetsTable === 'function') renderAssetsTable();
+            if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
+            if (typeof updateFacilitiesKpi === 'function') updateFacilitiesKpi();
+            if (showToast && typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'success',
+                title: 'Data Live Berhasil Ditarik!',
+                html: '<p class="text-xs text-slate-600">Sebanyak <b>' + res.items.length.toLocaleString('id-ID') + ' unit aset</b> ditarik langsung dari sheet <b>asset</b> (0 menit delay). Seluruh perubahan/penghapusan langsung aktif.</p>',
+                timer: 2000,
+                showConfirmButton: false
+              });
+            }
+          }
+        })
+        .withFailureHandler(err => {
+          setSyncIndicator('Offline Cache', false);
+          if (showToast && typeof Swal !== 'undefined') {
+            Swal.fire({ icon: 'error', title: 'Gagal Menarik API', text: String(err) });
+          }
+        })
+        .apiGetLiveAssets();
+      return;
+    }
+
+    const remoteUrl = getRemoteGasUrl();
+    if (remoteUrl) {
+      fetch(remoteUrl + '?api=live_assets')
+        .then(r => r.json())
+        .then(res => {
+          setSyncIndicator('Sheets Synchronized', false);
+          const data = (res && res.data) ? res.data : res;
+          if (data && data.items && Array.isArray(data.items)) {
+            appState.assets = data.items;
+            appState.enterpriseAssets = data.items;
+            if (typeof renderAssetsTable === 'function') renderAssetsTable();
+            if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
+            if (typeof updateFacilitiesKpi === 'function') updateFacilitiesKpi();
+            if (showToast && typeof Swal !== 'undefined') {
+              Swal.fire({
+                icon: 'success',
+                title: '1-Query Live Sync Berhasil!',
+                html: '<p class="text-xs text-slate-600">Sebanyak <b>' + data.items.length.toLocaleString('id-ID') + ' unit aset</b> ditarik seketika dari sheet <b>asset</b>.</p>',
+                timer: 2000,
+                showConfirmButton: false
+              });
+            }
+          }
+        })
+        .catch(() => {
+          setSyncIndicator('Offline Cache', false);
+        });
+    }
+  };
