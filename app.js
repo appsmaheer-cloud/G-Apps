@@ -1192,26 +1192,41 @@ const PNS_SECTION_TO_DEPT = {
 
         <div class="sign-grid">
           <div>
-            <div>Diajukan Oleh:</div>
-            <div class="sign-box">Asset Management<br><span style="font-weight:normal; font-size:9px; color:#64748b;">Miftahul Khoiry</span></div>
+            <div style="font-weight: 700; color: #334155; margin-bottom: 5px;">Diajukan Oleh:</div>
+            <div class="sign-box">
+              <span style="font-size: 11px; font-weight: 800; color: #0f172a;">Asset Management</span><br>
+              <span style="font-weight: 500; font-size: 10px; color: #64748b;">Miftahul Khoiry</span>
+            </div>
           </div>
           <div>
-            <div>Diperiksa Oleh:</div>
-            <div class="sign-box">Coordinator Finance Accounting and Asset<br><span style="font-weight:normal; font-size:9px; color:#64748b;">Finance, Accounting &amp; Asset Dept</span></div>
+            <div style="font-weight: 700; color: #334155; margin-bottom: 5px;">Diperiksa Oleh:</div>
+            <div class="sign-box">
+              <span style="font-size: 11px; font-weight: 800; color: #0f172a;">Coordinator Finance Accounting and Asset</span><br>
+              <span style="font-weight: 500; font-size: 10px; color: #64748b;">Finance, Accounting &amp; Asset Dept</span>
+            </div>
           </div>
           <div>
-            <div>Disetujui Oleh:</div>
-            <div class="sign-box">General Manager<br><span style="font-weight:normal; font-size:9px; color:#64748b;">PT Pratama Nusantara Sakti</span></div>
+            <div style="font-weight: 700; color: #334155; margin-bottom: 5px;">Disetujui Oleh:</div>
+            <div class="sign-box">
+              <span style="font-size: 11px; font-weight: 800; color: #0f172a;">General Manager</span><br>
+              <span style="font-weight: 500; font-size: 10px; color: #64748b;">PT Pratama Nusantara Sakti</span>
+            </div>
           </div>
         </div>
 
-        ${'<' + 'script>'}
-          window.onload = function() { window.print(); };
-        ${'</' + 'script>'}
-      ${'</' + 'body>'}
-      ${'</' + 'html>'}
+        </div>
+      </body>
+      </html>
     `);
     printWindow.document.close();
+    setTimeout(function() {
+      try {
+        printWindow.focus();
+        printWindow.print();
+      } catch (e) {
+        console.warn('Print trigger error:', e);
+      }
+    }, 500);
   }
   window.printValidasiReport = printValidasiReport;
   window.printExecutiveReport = printValidasiReport;
@@ -4935,7 +4950,7 @@ const PNS_SECTION_TO_DEPT = {
                           oncontextmenu="window.showPbiDrillContextMenu(event, { location: '${safeLoc}', group: '${safeKel}', sourceView: 'view-asset-sebaran' })"
                           class="hover:bg-emerald-50/70 cursor-pointer transition"
                           title="Klik untuk Drill Through ke ${o.label} - ${k.name}">
-                        <td class="px-2 py-1.5 font-bold text-slate-900 whitespace-nowrap">${k.name}</td>
+                        <td class="px-2 py-1.5 font-bold text-slate-900 min-w-[130px] whitespace-normal text-[9.5px] leading-tight" title="${k.name}">${k.name}</td>
                         <td class="px-1.5 py-1.5 text-right font-mono font-bold text-slate-800 whitespace-nowrap">${formatNum(k.total)}</td>
                         ${renderPbiCondBarCell(k.goodPct, 'good', true)}
                         ${renderPbiCondBarCell(k.repairPct, 'repair', true)}
@@ -6616,7 +6631,7 @@ const PNS_SECTION_TO_DEPT = {
       const pct = std > 0 ? ((umur / std) * 100) : 0;
       const varianText = pct.toFixed(2) + '%';
       const isOverAge = pct > 100;
-      const varianBgClass = isOverAge ? 'bg-[#e6b8af] text-[#5b1f14] font-bold' : 'bg-[#a2c4c9] text-[#0f3c42] font-bold';
+      const varianBgClass = isOverAge ? 'bg-amber-50 text-amber-800 font-bold border border-amber-200' : 'bg-emerald-50 text-emerald-800 font-bold border border-emerald-200';
 
       const nbv = Number(a.Nilai_buku) || 0;
       const maint = Number(a.maintenance_cost) || 0;
@@ -7816,13 +7831,19 @@ const PNS_SECTION_TO_DEPT = {
           </div>
         </div>
 
-        ${'<' + 'script>'}
-          window.onload = function() { window.print(); };
-        ${'</' + 'script>'}
-      ${'</' + 'body>'}
-      ${'</' + 'html>'}
+        </div>
+      </body>
+      </html>
     `);
     printWindow.document.close();
+    setTimeout(function() {
+      try {
+        printWindow.focus();
+        printWindow.print();
+      } catch (e) {
+        console.warn('Print trigger error:', e);
+      }
+    }, 500);
   }
 
   function exportDisposalArchiveCsv(format) {
@@ -8190,6 +8211,7 @@ const PNS_SECTION_TO_DEPT = {
 
     const bName = bldg ? (bldg.nama_gedung || '') : '';
     const bIdStr = (bldg && bldg.gedung_id) ? String(bldg.gedung_id) : (bId ? String(bId) : '');
+    const targetSite = bSite || (bldg ? (bldg.lokasi_site || '') : '');
 
     const seenNames = new Set();
     const matched = [];
@@ -8199,6 +8221,12 @@ const PNS_SECTION_TO_DEPT = {
       const rBCode = String(r.kode_gedung || '').trim();
       const rBName = String(r.nama_gedung || '').trim();
       const rBId = r.gedung_id ? String(r.gedung_id).trim() : '';
+      const rSite = String(r.lokasi_site || '').trim();
+
+      // Enforce site boundary if site is known
+      if (targetSite && rSite && !rSite.includes(targetSite) && !targetSite.includes(rSite)) {
+        continue;
+      }
 
       const isMatch = (rBCode && rBCode.toUpperCase() === bCode.toUpperCase()) ||
                       (bIdStr && rBId && rBId === bIdStr) ||
@@ -16376,6 +16404,61 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     if (typeof window.renderFmRincian === 'function') window.renderFmRincian();
   };
 
+  
+  // ====================================================
+  // AUTHENTIC LONGHOUSE & MESS PHYSICAL PHOTO GALLERY
+  // ====================================================
+  function getLhBuildingPhotos(bldgCode, bldgName) {
+    const code = String(bldgCode || '').toUpperCase();
+    const name = String(bldgName || '').toUpperCase();
+
+    if (code.includes('SPV') || name.includes('SPV')) {
+      return [
+        { src: 'img/lh/Depan mess spv.jpeg', label: 'Tampak Depan Mess SPV' },
+        { src: 'img/lh/SAMPING MESS SPV.jpeg', label: 'Tampak Samping Mess SPV' },
+        { src: 'img/lh/Pantry mess SPV.jpeg', label: 'Area Pantry Mess SPV' },
+        { src: 'img/lh/Lorong.jpeg', label: 'Lorong Akses Kamar SPV' }
+      ];
+    }
+    if (code.includes('SPTD') || name.includes('SPTD')) {
+      return [
+        { src: 'img/lh/Depan Mess SPTD.jpeg', label: 'Tampak Depan Mess SPTD' },
+        { src: 'img/lh/Samping Mess SPTD.jpeg', label: 'Tampak Samping Mess SPTD' },
+        { src: 'img/lh/Pantry Mess SPTD.jpeg', label: 'Area Dapur & Pantry SPTD' },
+        { src: 'img/lh/Pantry Mess 7 Kamar SPTD.jpeg', label: 'Pantry Mess 7 Kamar SPTD' },
+        { src: 'img/lh/Lorong.jpeg', label: 'Lorong Penghubung Kamar' }
+      ];
+    }
+    // Default Longhouse Staff & Operator
+    return [
+      { src: 'img/lh/Depan Mess Staff dan Operator.jpeg', label: 'Tampak Depan Mess Staff & Operator' },
+      { src: 'img/lh/Samping Area Jemuran Staff dan Operator.jpeg', label: 'Area Jemuran & Samping' },
+      { src: 'img/lh/Pantry Mess Staff Operator 1.jpeg', label: 'Pantry & Ruang Bersama 1' },
+      { src: 'img/lh/Pantry mess staff operator.jpeg', label: 'Pantry Staff & Operator' },
+      { src: 'img/lh/Lorong.jpeg', label: 'Lorong Antar Kamar' },
+      { src: 'img/lh/PANTRY.jpeg', label: 'Pantry Utama Fasilitas' }
+    ];
+  }
+  window.getLhBuildingPhotos = getLhBuildingPhotos;
+
+  window.previewLhPhoto = function(src, title) {
+    if (typeof Swal !== 'undefined') {
+      Swal.fire({
+        title: title || 'Dokumentasi Fisik Lapangan',
+        imageUrl: src,
+        imageAlt: title,
+        imageWidth: '90%',
+        imageHeight: 'auto',
+        showCloseButton: true,
+        confirmButtonText: '<i class="ph-bold ph-check"></i> Tutup Preview',
+        confirmButtonColor: '#059669',
+        backdrop: 'rgba(15, 23, 42, 0.75)'
+      });
+    } else {
+      window.open(src, '_blank');
+    }
+  };
+
   window.renderFmRincian = function() {
     const el = document.getElementById('view-fm-rincian');
     if (!el) return;
@@ -16402,6 +16485,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
 
     const targetBldgCode = d.full || ('PNS-' + d.c);
     const shortBldgCode = d.c;
+    const bldgPhotos = typeof getLhBuildingPhotos === 'function' ? getLhBuildingPhotos(targetBldgCode, d.nm || d.c) : [];
 
     // 1. Resolve authentic residents from master data
     const allPenghuni = (appState.penghuni && appState.penghuni.length > 0)
@@ -16775,6 +16859,35 @@ window.updateSingleAssetNote = updateSingleAssetNote;
                     `).join('')}
                   </tbody>
                 </table>
+              </div>
+            </div>
+
+            <!-- 3. DOKUMENTASI FOTO FISIK & FASILITAS LAPANGAN (AUTENTIK DARI CONTOH GAMBAR LH) -->
+            <div class="clean-card p-4 space-y-2.5">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <div class="flex items-center gap-2">
+                  <i class="ph-bold ph-camera text-emerald-600 text-base"></i>
+                  <div>
+                    <h4 class="text-xs font-black text-slate-900 uppercase">Dokumentasi Foto Fisik &amp; Fasilitas Bangunan</h4>
+                    <span class="text-[10px] text-slate-500">Foto autentik kondisi fisik tampak depan, samping, lorong kamar, dan pantry</span>
+                  </div>
+                </div>
+                <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  ${bldgPhotos.length} Foto Autentik
+                </span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2">
+                ${bldgPhotos.map(p => `
+                  <div onclick="window.previewLhPhoto('${p.src}', '${escapeHtml(p.label)}')" class="group relative rounded-xl overflow-hidden border border-slate-200 bg-slate-100 aspect-4/3 cursor-pointer hover:border-emerald-500 hover:shadow-md transition" title="Klik untuk perbesar foto ${escapeHtml(p.label)}">
+                    <img src="${p.src}" alt="${escapeHtml(p.label)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='img/lh/Lorong.jpeg'">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-1.5 opacity-90 group-hover:opacity-100 transition">
+                      <span class="text-[9px] font-semibold text-white truncate drop-shadow-xs">${escapeHtml(p.label)}</span>
+                    </div>
+                    <div class="absolute top-1 right-1 w-5 h-5 rounded-full bg-black/50 text-white flex items-center justify-center text-[10px] opacity-0 group-hover:opacity-100 transition">
+                      <i class="ph-bold ph-magnifying-glass-plus"></i>
+                    </div>
+                  </div>
+                `).join('')}
               </div>
             </div>
           </div>
