@@ -172,8 +172,8 @@ function handleApiPost(action, payload) {
     return apiSaveWorkOrder(payload);
   } else if (action === 'save_penghuni') {
     return apiSavePenghuni(payload);
-  } else if (action === 'save_hunian_photo') {
-    return apiSaveHunianPhoto(payload);
+  } else if (action === 'save_hunian_photo' || action === 'upload_photo' || action === 'upload_asset_photo') {
+    return apiUploadPhotoToDrive(payload);
   } else if (action === 'sync_api_report') {
     return syncAssetVerReportFromApi();
   } else if (action === 'pull_raw_api') {
@@ -381,7 +381,16 @@ function apiSaveInspection(payload) {
         parseInt(payload.skor_kelaikan, 10) || 100,
         payload.catatan_temuan || '',
         payload.status_tindak_lanjut || 'Aman',
-        payload.foto_inspeksi || '',
+        (function() {
+          var f = payload.foto_inspeksi || '';
+          if (typeof f === 'string' && f.indexOf('data:image') === 0) {
+            var resDrive = saveBase64ImageToDrive(f, 'INSP_' + noInspeksi + '.jpg', 'PNS ASSET & FACILITY PHOTOS');
+            if (resDrive.success && resDrive.fileUrl) {
+              return '=HYPERLINK("' + resDrive.fileUrl + '", "📸 Buka Foto Temuan Drive")';
+            }
+          }
+          return f;
+        })(),
         assetItems.length,
         JSON.stringify(assetItems),
         nowStr
@@ -1331,29 +1340,156 @@ function cleanExtraApiRowsFromMasterAsset() {
 /**
  * Simpan Foto Dokumentasi Fasilitas Hunian / Mess ke tab M_FOTO_HUNIAN
  */
-function apiSaveHunianPhoto(payload) {
-  return SheetDB.withLock(function() {
-    var sheet = SheetDB.ensureSheet('M_FOTO_HUNIAN', [
-      'id', 'kode_gedung', 'kategori_foto', 'caption', 'foto_url', 'uploader', 'created_at'
-    ]);
-    var newId = SheetDB.getNextId(sheet);
-    var nowStr = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
-    sheet.appendRow([
-      newId,
-      payload.kode_gedung || '',
-      payload.kategori || 'Tampak Depan / Eksterior',
-      payload.caption || '',
-      payload.foto_url || '',
-      payload.uploader || 'Petugas Hunian',
-      nowStr
-    ]);
+
+/**
+ * Helper untuk Menyimpan Base64 Image langsung ke Folder Google Drive
+ * Mengembalikan Object: { success: true, fileId: '...', fileUrl: '...', directUrl: '...' }
+ */
+function saveBase64ImageToDrive(base64Data, customFileName, customFolderName) {
+  try {
+    if (!base64Data || typeof base64Data !== 'string') {
+      return { success: false, message: 'Data base64 kosong' };
+    }
+
+    var folderName = customFolderName || 'PNS ASSET & FACILITY PHOTOS';
+    var folders = DriveApp.getFoldersByName(folderName);
+    var folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(folderName);
+
+    // Ekstrak mimeType dan payload base64 murni
+    var matches = base64Data.match(/^data:(image\/[a-zA-Z0-9\+\-\.]+);base64,(.+)$/);
+    var mimeType = (matches && matches[1]) ? matches[1] : MimeType.JPEG;
+    var rawClean = (matches && matches[2]) ? matches[2] : base64Data.replace(/^data:[^;]+;base64,/, '');
+
+    var ext = mimeType.indexOf('png') !== -1 ? '.png' : '.jpg';
+    var nowTag = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyyMMdd_HHmmss');
+    var fileName = customFileName ? (customFileName + (customFileName.indexOf('.') !== -1 ? '' : ext)) : ('PNS_FOTO_' + nowTag + ext);
+
+    var blob = Utilities.newBlob(Utilities.base64Decode(rawClean), mimeType, fileName);
+    var driveFile = folder.createFile(blob);
+
+    try {
+      driveFile.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    } catch (eShare) {
+      Logger.log('Set sharing notice: ' + eShare.toString());
+    }
+
+    var fileId = driveFile.getId();
+    var fileUrl = driveFile.getUrl();
+    var directUrl = 'https://drive.google.com/uc?export=view&id=' + fileId;
+
     return {
       success: true,
-      id: newId,
-      message: 'Foto fasilitas hunian berhasil disimpan ke Google Sheets (tab M_FOTO_HUNIAN).'
+      fileId: fileId,
+      fileUrl: fileUrl,
+      directUrl: directUrl,
+      fileName: fileName
     };
-  });
+  } catch (err) {
+    Logger.log('saveBase64ImageToDrive error: ' + err.toString());
+    return { success: false, message: err.toString() };
+  }
 }
+
+
+/**
+ * ============================================================================
+ * UPLOAD FOTO KE GOOGLE DRIVE & SIMPAN TAUTAN KLIK DI SPREADSHEET
+ * ============================================================================
+ * Menyimpan foto dokumentasi fisik aset/hunian ke folder Google Drive resmi
+ * dan mencatatkan baris log dengan rumus =HYPERLINK() agar bisa diklik langsung di sheet.
+ */
+function apiUploadPhotoToDrive(payload) {
+  return SheetDB.withLock(function() {
+    try {
+      if (!payload) return { success: false, message: 'Payload foto kosong.' };
+      var rawPhoto = payload.foto_base64 || payload.foto_url || payload.url || '';
+      if (!rawPhoto) return { success: false, message: 'Tidak ada data foto yang dikirim.' };
+
+      var fileUrl = '';
+      var fileId = '';
+      var directUrl = '';
+
+      if (rawPhoto.indexOf('data:image') === 0) {
+        var bCode = (payload.kode_gedung || payload.no_asset || 'UMUM').replace(/[^a-zA-Z0-9_\-]/g, '_');
+        var nowTag = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyyMMdd_HHmmss');
+        var fileName = payload.file_name || ('PNS_' + bCode + '_' + nowTag + '.jpg');
+        var driveRes = saveBase64ImageToDrive(rawPhoto, fileName, 'PNS ASSET & FACILITY PHOTOS');
+        if (driveRes.success) {
+          fileId = driveRes.fileId;
+          fileUrl = driveRes.fileUrl;
+          directUrl = driveRes.directUrl;
+        } else {
+          return { success: false, message: 'Gagal simpan ke Drive: ' + driveRes.message };
+        }
+      } else {
+        fileUrl = rawPhoto;
+      }
+
+      var nowStr = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
+      
+      // 1. Simpan ke tab LOG_FOTO_ASET dengan formula =HYPERLINK
+      var logSheet = SheetDB.ensureSheet('LOG_FOTO_ASET', [
+        'ID', 'TANGGAL', 'KODE_GEDUNG', 'NAMA_GEDUNG', 'NAMA_RUANGAN', 'NO_ASSET',
+        'KATEGORI_FOTO', 'CAPTION', 'DRIVE_FILE_ID', 'DRIVE_URL', 'KLIK_BUKA_FOTO', 'UPLOADER'
+      ]);
+      var nextId = SheetDB.getNextId(logSheet);
+      var hyperlinkFormula = fileUrl ? ('=HYPERLINK("' + fileUrl + '", "📸 Buka Foto di Google Drive")') : '-';
+
+      logSheet.appendRow([
+        nextId,
+        nowStr,
+        payload.kode_gedung || '',
+        payload.nama_gedung || '',
+        payload.nama_ruangan || '',
+        payload.no_asset || '',
+        payload.kategori || 'Dokumentasi Lapangan',
+        payload.caption || '',
+        fileId,
+        fileUrl,
+        hyperlinkFormula,
+        payload.uploader || 'Petugas Lapangan'
+      ]);
+
+      // 2. Simpan juga ke tab M_FOTO_HUNIAN untuk kompatibilitas data hunian
+      try {
+        var hunianSheet = SheetDB.ensureSheet('M_FOTO_HUNIAN', [
+          'id', 'kode_gedung', 'kategori_foto', 'caption', 'foto_url', 'link_spreadsheet', 'uploader', 'created_at'
+        ]);
+        hunianSheet.appendRow([
+          SheetDB.getNextId(hunianSheet),
+          payload.kode_gedung || '',
+          payload.kategori || 'Tampak Depan / Eksterior',
+          payload.caption || '',
+          fileUrl,
+          hyperlinkFormula,
+          payload.uploader || 'Petugas Hunian',
+          nowStr
+        ]);
+      } catch (eH) {
+        Logger.log('Notice M_FOTO_HUNIAN: ' + eH.toString());
+      }
+
+      return {
+        success: true,
+        id: nextId,
+        fileId: fileId,
+        fileUrl: fileUrl,
+        directUrl: directUrl,
+        hyperlink: hyperlinkFormula,
+        message: 'Foto berhasil diunggah ke Google Drive dan link klik tersimpan di Spreadsheet.'
+      };
+    } catch (err) {
+      Logger.log('apiUploadPhotoToDrive error: ' + err.toString());
+      return { success: false, message: 'Error server: ' + err.toString() };
+    }
+  }, 30000);
+}
+
+// Alias untuk kompatibilitas fungsi lama
+function apiSaveHunianPhoto(payload) {
+  return apiUploadPhotoToDrive(payload);
+}
+
 
 /**
  * Ambil daftar foto fasilitas hunian berdasarkan kode gedung

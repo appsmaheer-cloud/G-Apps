@@ -1035,6 +1035,9 @@ const PNS_SECTION_TO_DEPT = {
       else if (action === 'save_asset_mutation') runner.apiSaveAssetMutation(fullPayload);
       else if (action === 'save_work_order') runner.apiSaveWorkOrder(fullPayload);
       else if (action === 'save_penghuni') runner.apiSavePenghuni(fullPayload);
+      else if (action === 'save_hunian_photo' || action === 'upload_photo' || action === 'upload_asset_photo') runner.apiUploadPhotoToDrive(fullPayload);
+      else if (action === 'save_pmak') runner.apiSavePmak(fullPayload);
+      else if (typeof runner[action] === 'function') runner[action](fullPayload);
       return;
     }
 
