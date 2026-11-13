@@ -6021,6 +6021,13 @@ body.validasi-standalone-view #validasi-standalone-topbar {
   </script>
   <script>
 
+  window.selectPnsFacItem = function(itemKey) {
+    if (!window.PNS_FM_STATE) window.PNS_FM_STATE = {};
+    window.PNS_FM_STATE.selectedFacItem = (window.PNS_FM_STATE.selectedFacItem === itemKey) ? 'ALL' : itemKey;
+    if (typeof window.renderFmRincian === 'function') window.renderFmRincian();
+  };
+
+
   function normalizeAssetKondisi(raw) {
     const s = String(raw || '').trim().toUpperCase();
     if (s.includes('REPAIR') || s.includes('PERBAIKAN')) return 'Repair';
@@ -22834,6 +22841,7 @@ window.renderFmPeta = function() {
     const el = document.getElementById('view-fm-rincian');
     if (!el) return;
 
+    if (!window.PNS_FM_STATE) window.PNS_FM_STATE = {};
     const activeBldgCat = PNS_FM_STATE.bldgCat || 'ALL';
     const allRawBldgs = (typeof PNS_FM_SITES !== 'undefined' && typeof PNS_FM_ALL !== 'undefined')
       ? PNS_FM_SITES.flatMap(([k]) => (PNS_FM_ALL[k] || []))
@@ -22851,11 +22859,8 @@ window.renderFmPeta = function() {
 
     const curCode = PNS_FM_STATE.sel || 'LH-01-01';
     const d = all.find(x => x.c === curCode || (x.full && x.full.includes(curCode))) || all[0] || {};
-    const activeFacCat = PNS_FM_STATE.facCat || 'ALL';
-
     const targetBldgCode = d.full || ('PNS-' + d.c);
     const shortBldgCode = d.c;
-    const bldgPhotos = typeof getLhBuildingPhotos === 'function' ? getLhBuildingPhotos(targetBldgCode, d.nm || d.c) : [];
 
     // 1. Resolve authentic building rooms dynamically from M_RUANGAN (appState.rooms or PNS_MASTER_DATA.rooms)
     const allMasterRooms = (appState.rooms && appState.rooms.length > 0)
@@ -22909,7 +22914,6 @@ window.renderFmPeta = function() {
     });
 
     const activePenghuni = roomPenghuni.filter(p => p.nama_penghuni && String(p.status_hunian || '').toLowerCase() !== 'vacant');
-    const vacantPenghuni = roomPenghuni.filter(p => !p.nama_penghuni || String(p.status_hunian || '').toLowerCase() === 'vacant');
 
     // 3. Resolve authentic physical room assets from M_RUANGAN_ASSETS / master data
     const allHrga = ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.hrgaAssets) || (appState.hrgaAssets || []));
@@ -22932,29 +22936,21 @@ window.renderFmPeta = function() {
       return bMatch && p.nama_penghuni && String(p.status_hunian || '').toLowerCase() !== 'vacant';
     }).length || (d.terisi || 0);
 
-    const classifyRoomFacItem = (nameStr) => {
-      const n = String(nameStr || '').toLowerCase();
-      if (n.includes('kasur') || n.includes('springbed') || n.includes('matras') || n.includes('ranjang') || n.includes('dipan') || n.includes('bed')) return 'TIDUR';
-      if (n.includes('bantal') || n.includes('guling') || n.includes('selimut') || n.includes('sprei') || n.includes('gorden')) return 'LINEN';
-      if (n.includes('loker') || n.includes('lemari') || n.includes('wardrobe') || n.includes('meja') || n.includes('kursi') || n.includes('rak')) return 'FURNITURE';
-      if (n.includes('ac ') || n.includes('pendingin') || n.includes('kipas') || n.includes('lampu') || n.includes('listrik')) return 'ELEKTRIK';
-      return 'KEBERSIHAN';
-    };
-
+    // Standard Facility Categories & Item Definitions
     const itemCatMap = {
-      kasur: { name: 'Kasur & Springbed', std: 2, count: 0, group: 'TIDUR', icon: 'ph-bed' },
-      bantal: { name: 'Bantal Dacron Kepala', std: 2, count: 0, group: 'LINEN', icon: 'ph-cloud' },
-      guling: { name: 'Guling Tidur Dacron', std: 2, count: 0, group: 'LINEN', icon: 'ph-cloud' },
-      selimut: { name: 'Selimut Handuk', std: 2, count: 0, group: 'LINEN', icon: 'ph-coat-hanger' },
-      sprei: { name: 'Sprei Kasur', std: 2, count: 0, group: 'LINEN', icon: 'ph-squares-four' },
-      ranjang: { name: 'Ranjang Susun Besi', std: 1, count: 0, group: 'TIDUR', icon: 'ph-bed' },
-      loker: { name: 'Loker Besi / Lemari', std: 2, count: 0, group: 'FURNITURE', icon: 'ph-dresser' },
-      keranjang: { name: 'Keranjang Pakaian', std: 1, count: 0, group: 'KEBERSIHAN', icon: 'ph-basket' },
-      keset: { name: 'Keset Lantai', std: 1, count: 0, group: 'KEBERSIHAN', icon: 'ph-rug' },
-      sapu: { name: 'Pengki + Sapu Lantai', std: 1, count: 0, group: 'KEBERSIHAN', icon: 'ph-broom' },
-      gorden: { name: 'Gorden & Tiang', std: 1, count: 0, group: 'LINEN', icon: 'ph-windows-logo' },
-      ac: { name: 'AC & Pendingin / Kipas', std: 1, count: 0, group: 'ELEKTRIK', icon: 'ph-fan' },
-      lampu: { name: 'Lampu Penerangan', std: 2, count: 0, group: 'ELEKTRIK', icon: 'ph-lightbulb' }
+      kasur: { key: 'kasur', name: 'Kasur & Springbed', std: 2, count: 0, group: 'TIDUR', icon: 'ph-bed' },
+      bantal: { key: 'bantal', name: 'Bantal Dacron', std: 2, count: 0, group: 'LINEN', icon: 'ph-cloud' },
+      guling: { key: 'guling', name: 'Guling Tidur', std: 2, count: 0, group: 'LINEN', icon: 'ph-cloud' },
+      selimut: { key: 'selimut', name: 'Selimut Handuk', std: 2, count: 0, group: 'LINEN', icon: 'ph-coat-hanger' },
+      sprei: { key: 'sprei', name: 'Sprei Kasur', std: 2, count: 0, group: 'LINEN', icon: 'ph-squares-four' },
+      ranjang: { key: 'ranjang', name: 'Ranjang Susun', std: 1, count: 0, group: 'TIDUR', icon: 'ph-bed' },
+      loker: { key: 'loker', name: 'Loker / Lemari', std: 2, count: 0, group: 'FURNITURE', icon: 'ph-dresser' },
+      keranjang: { key: 'keranjang', name: 'Keranjang', std: 1, count: 0, group: 'KEBERSIHAN', icon: 'ph-basket' },
+      keset: { key: 'keset', name: 'Keset Lantai', std: 1, count: 0, group: 'KEBERSIHAN', icon: 'ph-rug' },
+      sapu: { key: 'sapu', name: 'Pengki + Sapu', std: 1, count: 0, group: 'KEBERSIHAN', icon: 'ph-broom' },
+      gorden: { key: 'gorden', name: 'Gorden & Tiang', std: 1, count: 0, group: 'LINEN', icon: 'ph-windows-logo' },
+      ac: { key: 'ac', name: 'AC & Kipas', std: 1, count: 0, group: 'ELEKTRIK', icon: 'ph-fan' },
+      lampu: { key: 'lampu', name: 'Lampu Penerangan', std: 2, count: 0, group: 'ELEKTRIK', icon: 'ph-lightbulb' }
     };
 
     actualRoomAssets.forEach(a => {
@@ -22962,7 +22958,7 @@ window.renderFmPeta = function() {
       if (n.includes('kasur') || n.includes('springbed') || n.includes('matras')) itemCatMap.kasur.count++;
       else if (n.includes('bantal')) itemCatMap.bantal.count++;
       else if (n.includes('guling')) itemCatMap.guling.count++;
-      else if (n.includes('selimut')) itemCatMap.selimut.count++;
+      else if (n.includes('selimut') || n.includes('handuk')) itemCatMap.selimut.count++;
       else if (n.includes('sprei')) itemCatMap.sprei.count++;
       else if (n.includes('ranjang') || n.includes('dipan')) itemCatMap.ranjang.count++;
       else if (n.includes('loker') || n.includes('lemari') || n.includes('wardrobe')) itemCatMap.loker.count++;
@@ -22981,31 +22977,41 @@ window.renderFmPeta = function() {
       if (hasAnyRealAsset) {
         if (cat.count === 0) statusText = 'Belum terdata';
         else if (cat.count === cat.std) statusText = 'Sesuai';
-        else if (cat.count > cat.std) statusText = 'Lebih dari standar (+' + (cat.count - cat.std) + ')';
-        else statusText = 'Kurang dari standar (-' + (cat.std - cat.count) + ')';
+        else if (cat.count > cat.std) statusText = 'Lebih (+ ' + (cat.count - cat.std) + ')';
+        else statusText = 'Kurang (- ' + (cat.std - cat.count) + ')';
       }
       return { ...cat, fisikCount, statusText };
     });
 
-    const filteredStdObjects = activeFacCat === 'ALL'
-      ? allStdObjects
-      : allStdObjects.filter(obj => obj.group === activeFacCat);
+    // Active facility filter state (Card button filter jadikan 1)
+    const activeFacItem = PNS_FM_STATE.selectedFacItem || 'ALL';
 
-    const filteredPhysicalAssets = activeFacCat === 'ALL'
-      ? actualRoomAssets
-      : actualRoomAssets.filter(a => classifyRoomFacItem(a.nama_asset) === activeFacCat);
+    const matchesFacItem = (assetName, itemKey) => {
+      if (!itemKey || itemKey === 'ALL') return true;
+      const n = String(assetName || '').toLowerCase();
+      if (itemKey === 'kasur') return n.includes('kasur') || n.includes('springbed') || n.includes('matras');
+      if (itemKey === 'bantal') return n.includes('bantal');
+      if (itemKey === 'guling') return n.includes('guling');
+      if (itemKey === 'selimut') return n.includes('selimut') || n.includes('handuk');
+      if (itemKey === 'sprei') return n.includes('sprei');
+      if (itemKey === 'ranjang') return n.includes('ranjang') || n.includes('dipan') || n.includes('bed');
+      if (itemKey === 'loker') return n.includes('loker') || n.includes('lemari') || n.includes('wardrobe');
+      if (itemKey === 'keranjang') return n.includes('keranjang');
+      if (itemKey === 'keset') return n.includes('keset') || n.includes('karpet');
+      if (itemKey === 'sapu') return n.includes('sapu') || n.includes('pengki');
+      if (itemKey === 'gorden') return n.includes('gorden');
+      if (itemKey === 'ac') return n.includes('ac ') || n.includes('pendingin') || n.includes('kipas');
+      if (itemKey === 'lampu') return n.includes('lampu') || n.includes('listrik');
+      return true;
+    };
 
-    const catPills = [
-      { key: 'ALL', label: 'Semua Kategori', icon: 'ph-squares-four', count: allStdObjects.length },
-      { key: 'TIDUR', label: 'Kasur & Ranjang', icon: 'ph-bed', count: allStdObjects.filter(x => x.group === 'TIDUR').length },
-      { key: 'FURNITURE', label: 'Lemari & Loker', icon: 'ph-dresser', count: allStdObjects.filter(x => x.group === 'FURNITURE').length },
-      { key: 'LINEN', label: 'Bantal & Linen', icon: 'ph-cloud', count: allStdObjects.filter(x => x.group === 'LINEN').length },
-      { key: 'ELEKTRIK', label: 'AC & Kelistrikan', icon: 'ph-lightning', count: allStdObjects.filter(x => x.group === 'ELEKTRIK').length },
-      { key: 'KEBERSIHAN', label: 'Alat Kebersihan', icon: 'ph-broom', count: allStdObjects.filter(x => x.group === 'KEBERSIHAN').length }
-    ];
+    const filteredPhysicalAssets = actualRoomAssets.filter(a => matchesFacItem(a.nama_asset, activeFacItem));
+    const activeItemMeta = (activeFacItem !== 'ALL') ? itemCatMap[activeFacItem] : null;
+    const activeItemTitle = activeItemMeta ? activeItemMeta.name : 'Semua Fasilitas Terpasang';
 
     el.innerHTML = `
-      <div class="space-y-5">
+      <div class="space-y-4">
+        <!-- Top Title & Controls -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <div class="text-xs text-slate-500 font-semibold">${PNS_FM_LNAME[d.loc] || 'Central'} &rsaquo; ${PNS_LH_JENIS_MAP[d.jenis] || d.kategori || 'Mess & Hunian'}</div>
@@ -23024,7 +23030,7 @@ window.renderFmPeta = function() {
             </div>
 
             <!-- Pilihan Gedung -->
-            <select onchange="PNS_FM_STATE.sel=this.value; PNS_FM_STATE.room=1; renderFmRincian();" class="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white shadow-2xs">
+            <select onchange="PNS_FM_STATE.sel=this.value; PNS_FM_STATE.room=1; PNS_FM_STATE.selectedFacItem='ALL'; renderFmRincian();" class="text-xs font-semibold px-3 py-2 rounded-lg border border-slate-200 bg-white shadow-2xs cursor-pointer">
               ${all.slice(0, 100).map(x => `<option value="${x.c}" ${x.c === d.c ? 'selected' : ''}>${x.full || ('PNS-' + x.c)} (${PNS_FM_LNAME[x.loc] || x.loc})</option>`).join('')}
             </select>
 
@@ -23037,6 +23043,7 @@ window.renderFmPeta = function() {
           </div>
         </div>
 
+        <!-- 4 KPI Summary Cards -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div class="clean-card p-3.5">
             <div class="text-[11px] font-semibold text-slate-500 uppercase">Jumlah Ruangan / Kamar</div>
@@ -23056,13 +23063,16 @@ window.renderFmPeta = function() {
           </div>
         </div>
 
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5">
-          <!-- Room selector buttons -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <!-- Room selector buttons (Left Column) -->
           <div class="lg:col-span-3 clean-card p-3 space-y-1.5">
-            <h3 class="text-xs font-bold text-slate-900 mb-2">Pilih Ruangan / Kamar</h3>
+            <div class="flex items-center justify-between mb-1.5">
+              <h3 class="text-xs font-bold text-slate-900">Pilih Ruangan / Kamar</h3>
+              <span class="text-[10px] font-semibold text-slate-400">${totalRoomsCount} Item</span>
+            </div>
             <div class="space-y-1 max-h-[560px] overflow-y-auto scrollbar-thin">
               ${roomItems.map(rm => `
-                <button type="button" onclick="PNS_FM_STATE.room=${rm.index}; renderFmRincian();" class="w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold transition cursor-pointer ${r === rm.index ? 'bg-emerald-600 text-white shadow-2xs' : 'hover:bg-slate-100 text-slate-700'}">
+                <button type="button" onclick="PNS_FM_STATE.room=${rm.index}; PNS_FM_STATE.selectedFacItem='ALL'; renderFmRincian();" class="w-full flex items-center justify-between p-2 rounded-lg text-xs font-semibold transition cursor-pointer ${r === rm.index ? 'bg-emerald-600 text-white shadow-2xs' : 'hover:bg-slate-100 text-slate-700'}">
                   <div class="truncate text-left pr-2">
                     <span class="block truncate font-bold">${escapeHtml(rm.name)}</span>
                     <span class="text-[10px] ${r === rm.index ? 'text-emerald-100' : 'text-slate-400'}">${escapeHtml(rm.type)}</span>
@@ -23073,165 +23083,195 @@ window.renderFmPeta = function() {
             </div>
           </div>
 
-          <!-- RIGHT COLUMN: 1) PENGHUNI AKTIF AT TOP -> 2) CLICKABLE FACILITY CARDS & CATEGORIES -> 3) STANDAR ISI TABLE -->
-          <div class="lg:col-span-9 space-y-4">
-            <!-- 1. PENGHUNI AKTIF KAMAR (POSITIONED AT TOP, CLICKABLE TO UPDATE) -->
-            <div class="clean-card p-4 space-y-3 border-2 border-emerald-500/30 bg-gradient-to-br from-white via-emerald-50/20 to-teal-50/30">
+          <!-- RIGHT COLUMN: 1) Penghuni -> 2) Compact Unified Facility Cards -> 3) Detail Table -->
+          <div class="lg:col-span-9 space-y-3.5">
+            <!-- 1. PENGHUNI AKTIF KAMAR (CLICKABLE TO UPDATE) -->
+            <div class="clean-card p-3.5 space-y-2.5 border-2 border-emerald-500/30 bg-gradient-to-br from-white via-emerald-50/20 to-teal-50/30">
               <div class="flex flex-wrap justify-between items-center pb-2 border-b border-slate-200/80 gap-2">
                 <div class="flex items-center gap-2">
-                  <span class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center font-black text-sm shadow-2xs">
+                  <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs shadow-2xs">
                     <i class="ph-bold ph-users-three"></i>
                   </span>
                   <div>
-                    <h3 class="text-sm font-extrabold text-slate-900">Penghuni Aktif: ${escapeHtml(curRoomName)} (${targetBldgCode})</h3>
-                    <p class="text-[11px] text-slate-500">Klik kartu penghuni untuk <b>Update Data / Pindah Kamar / Kontak</b> secara langsung</p>
+                    <h3 class="text-xs sm:text-sm font-extrabold text-slate-900">Penghuni: ${escapeHtml(curRoomName)} (${targetBldgCode})</h3>
+                    <p class="text-[10.5px] text-slate-500">Klik kartu penghuni untuk <b>Update Data / Pindah Kamar</b></p>
                   </div>
                 </div>
                 <div class="flex items-center gap-2">
-                  <span class="px-2.5 py-1 rounded-full text-xs font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">${activePenghuni.length} Penghuni Aktif</span>
-                  <button type="button" onclick="openPlaceModal('${d.c}')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs transition cursor-pointer flex items-center gap-1">
-                    <i class="ph-bold ph-user-plus"></i> + Alokasikan Penghuni
+                  <span class="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-200">${activePenghuni.length} Penghuni Aktif</span>
+                  <button type="button" onclick="openPlaceModal('${d.c}')" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white shadow-2xs transition cursor-pointer flex items-center gap-1">
+                    <i class="ph-bold ph-user-plus"></i> + Alokasikan
                   </button>
                 </div>
               </div>
 
               ${activePenghuni.length === 0 ? `
-                <div class="p-3.5 bg-teal-50 border border-teal-200 rounded-xl text-xs text-teal-900 flex items-center justify-between gap-3">
-                  <div class="flex items-center gap-2.5">
-                    <i class="ph-bold ph-bed text-xl text-teal-700"></i>
+                <div class="p-3 bg-teal-50/80 border border-teal-200 rounded-xl text-xs text-teal-900 flex items-center justify-between gap-3">
+                  <div class="flex items-center gap-2">
+                    <i class="ph-bold ph-bed text-lg text-teal-700"></i>
                     <div>
                       <b class="block">${escapeHtml(curRoomName)} saat ini kosong (Siap Huni).</b>
-                      <span class="text-teal-700 text-[11px]">Kapasitas ${curRoomObj.kapasitas || 2} Orang. Klik tombol di kanan untuk menempatkan karyawan ke kamar ini.</span>
+                      <span class="text-teal-700 text-[10.5px]">Kapasitas ${curRoomObj.kapasitas || 2} Orang. Klik tombol di kanan untuk menempatkan karyawan ke kamar ini.</span>
                     </div>
                   </div>
-                  <button type="button" onclick="openPlaceModal('${d.c}')" class="px-3 py-1.5 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white shadow-2xs transition cursor-pointer">
-                    + Isi Slot Kosong
+                  <button type="button" onclick="openPlaceModal('${d.c}')" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-amber-600 hover:bg-amber-700 text-white shadow-2xs transition cursor-pointer shrink-0">
+                    + Isi Slot
                   </button>
                 </div>
               ` : `
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                   ${activePenghuni.map((p, idx) => `
-                    <div onclick="openPenghuniDetailModal('${p.nik}')" class="p-3 bg-white rounded-xl border border-slate-200 shadow-2xs hover:border-emerald-500 hover:shadow-xs transition cursor-pointer flex items-center justify-between gap-2.5 group">
-                      <div class="flex items-center gap-2.5 min-w-0">
-                        <div class="w-10 h-10 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-sm shrink-0 border border-emerald-200 group-hover:scale-105 transition">
+                    <div onclick="openPenghuniDetailModal('${p.nik}')" class="p-2.5 bg-white rounded-xl border border-slate-200 shadow-2xs hover:border-emerald-500 hover:shadow-xs transition cursor-pointer flex items-center justify-between gap-2 group">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center font-bold text-xs shrink-0 border border-emerald-200 group-hover:scale-105 transition">
                           ${p.foto_url ? `<img src="${p.foto_url}" class="w-full h-full rounded-full object-cover">` : `<i class="ph-bold ph-user"></i>`}
                         </div>
                         <div class="min-w-0">
-                          <div class="flex items-center gap-1.5">
+                          <div class="flex items-center gap-1">
                             <span class="font-bold text-slate-900 text-xs truncate group-hover:text-emerald-700 transition">${p.nama_penghuni}</span>
-                            ${idx === 0 ? `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-amber-100 text-amber-800">PIC Kamar</span>` : `<span class="px-1.5 py-0.2 rounded text-[9px] font-bold bg-slate-100 text-slate-600">Anggota</span>`}
+                            ${idx === 0 ? `<span class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-amber-100 text-amber-800">PIC</span>` : `<span class="px-1.5 py-0.2 rounded text-[8.5px] font-bold bg-slate-100 text-slate-600">Anggota</span>`}
                           </div>
-                          <div class="text-[11px] text-slate-500 truncate">${p.jabatan || 'Karyawan'} &bull; ${p.departemen || 'Operational'}</div>
-                          <div class="text-[10px] text-slate-400 font-mono">NIK: ${window.maskNik(p.nik)} &bull; ${p.posisi_kasur || ('Bed ' + String.fromCharCode(65 + idx))}</div>
+                          <div class="text-[10px] text-slate-500 truncate">${p.jabatan || 'Karyawan'} &bull; ${p.departemen || 'Operational'}</div>
+                          <div class="text-[9.5px] text-slate-400 font-mono">NIK: ${window.maskNik(p.nik)} &bull; ${p.posisi_kasur || ('Bed ' + String.fromCharCode(65 + idx))}</div>
                         </div>
                       </div>
-                      <div class="shrink-0 flex items-center gap-1">
-                        <button type="button" class="px-2 py-1 text-[10px] font-bold rounded bg-slate-100 text-slate-700 hover:bg-emerald-600 hover:text-white transition shadow-2xs flex items-center gap-1">
-                          <i class="ph-bold ph-pencil-simple"></i> Update
-                        </button>
-                      </div>
+                      <button type="button" class="px-2 py-1 text-[9.5px] font-bold rounded bg-slate-100 text-slate-700 hover:bg-emerald-600 hover:text-white transition shadow-2xs shrink-0 flex items-center gap-1">
+                        <i class="ph-bold ph-pencil-simple"></i> Update
+                      </button>
                     </div>
                   `).join('')}
                 </div>
               `}
             </div>
 
-            <!-- 2. CARD FASILITAS & KATEGORI INVENTARIS DI KAMAR -->
-            <div class="clean-card p-4 space-y-3.5">
+            <!-- 2. CARD BUTTON FILTER FASILITAS (JADIKAN 1 & KOMPAK - KLIK UNTUK DETAIL) -->
+            <div class="clean-card p-3.5 space-y-2.5">
               <div class="flex flex-wrap justify-between items-center pb-2 border-b border-slate-200 gap-2">
                 <div>
-                  <h3 class="text-sm font-bold text-slate-900 flex items-center gap-1.5">
-                    <i class="ph-bold ph-package text-indigo-600"></i> Card Fasilitas &amp; Kategori Inventaris di ${escapeHtml(curRoomName)}
+                  <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
+                    <i class="ph-bold ph-faders text-emerald-600"></i>
+                    <span>Kategori &amp; Card Fasilitas ${escapeHtml(curRoomName)}</span>
+                    <span class="text-[11px] font-normal text-slate-400">(${allStdObjects.length} Standar)</span>
                   </h3>
-                  <p class="text-[11px] text-slate-500">Klik kategori di bawah untuk memfilter fasilitas, atau klik kartu fasilitas untuk Inspeksi / Maintenance</p>
+                  <p class="text-[10.5px] text-slate-500">Klik salah satu card fasilitas di bawah untuk langsung membuka rincian fisiknya</p>
                 </div>
-                <div class="flex items-center gap-2">
-                  <button type="button" onclick="window.openRoomInspectionDirect('${targetBldgCode}', '${escapeHtml(curRoomName)}')" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
-                    <i class="ph-bold ph-arrow-square-out"></i> Link ke Inspeksi ${escapeHtml(curRoomName)}
+                <div class="flex items-center gap-1.5">
+                  <button type="button" onclick="window.selectPnsFacItem('ALL')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer shadow-2xs ${activeFacItem === 'ALL' ? 'bg-emerald-600 text-white' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}">
+                    Semua (${actualRoomAssets.length} Fisik)
                   </button>
-                  <button type="button" onclick="navTo('view-assets')" class="px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition flex items-center gap-1.5 shadow-2xs cursor-pointer">
-                    <i class="ph-bold ph-table"></i> Buka di Tabel Fasilitas
+                  <button type="button" onclick="window.openRoomInspectionDirect('${targetBldgCode}', '${escapeHtml(curRoomName)}')" class="px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Inspeksi Kamar Ini">
+                    <i class="ph-bold ph-clipboard-text"></i> Inspeksi
                   </button>
                 </div>
               </div>
 
-              <!-- Filter Kategori Fasilitas (Pills) -->
-              <div class="flex flex-wrap items-center gap-2">
-                ${catPills.map(p => `
-                  <button type="button" onclick="window.setPnsFacCat('${p.key}')" class="px-3 py-1.5 rounded-xl text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs ${activeFacCat === p.key ? 'bg-indigo-600 text-white ring-2 ring-indigo-400' : 'bg-slate-100 hover:bg-slate-200 text-slate-700'}">
-                    <i class="ph-bold ${p.icon}"></i>
-                    <span>${p.label}</span>
-                    <span class="px-1.5 py-0.2 rounded-full text-[10px] ${activeFacCat === p.key ? 'bg-white/20 text-white font-extrabold' : 'bg-slate-200 text-slate-700 font-bold'}">${p.count}</span>
-                  </button>
-                `).join('')}
-              </div>
+              <!-- Compact Unified Facility Filter Cards Grid (Kecil & Bisa Diklik Langsung) -->
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 gap-2">
+                ${allStdObjects.map(obj => {
+                  const isSelected = (activeFacItem === obj.key);
+                  const isZero = (obj.fisikCount === 0);
+                  const isOk = (obj.fisikCount >= obj.std);
 
-              <!-- Interactive Facility Cards -->
-              <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-                ${filteredStdObjects.map(obj => `
-                  <div class="p-3 rounded-xl border ${obj.fisikCount === 0 ? 'border-amber-200 bg-amber-50/20' : 'border-slate-200/90 bg-white'} shadow-2xs flex flex-col justify-between hover:shadow-xs hover:border-indigo-400 transition">
-                    <div class="flex justify-between items-start gap-1 mb-2">
-                      <div class="w-8 h-8 rounded-lg ${obj.fisikCount === 0 ? 'bg-amber-100 text-amber-800' : 'bg-emerald-50 text-emerald-700'} flex items-center justify-center text-sm shrink-0">
-                        <i class="ph-bold ${obj.icon}"></i>
+                  let cardStyle = '';
+                  let badgeStyle = '';
+                  if (isSelected) {
+                    cardStyle = 'bg-emerald-50/90 border-emerald-500 ring-2 ring-emerald-500 shadow-xs';
+                    badgeStyle = 'bg-emerald-600 text-white';
+                  } else if (isZero) {
+                    cardStyle = 'bg-white border-amber-200 hover:border-amber-400 hover:bg-amber-50/20';
+                    badgeStyle = 'bg-amber-100 text-amber-800 border border-amber-200';
+                  } else if (isOk) {
+                    cardStyle = 'bg-white border-slate-200 hover:border-emerald-400 hover:bg-emerald-50/10';
+                    badgeStyle = 'bg-emerald-100 text-emerald-800 border border-emerald-200';
+                  } else {
+                    cardStyle = 'bg-white border-slate-200 hover:border-rose-400 hover:bg-rose-50/10';
+                    badgeStyle = 'bg-rose-100 text-rose-800 border border-rose-200';
+                  }
+
+                  return `
+                    <button type="button" onclick="window.selectPnsFacItem('${obj.key}')" class="p-2 sm:p-2.5 rounded-xl border text-left flex items-center justify-between gap-2 transition cursor-pointer shadow-2xs group ${cardStyle}">
+                      <div class="flex items-center gap-2 min-w-0">
+                        <div class="w-7 h-7 rounded-lg ${isZero ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'} flex items-center justify-center text-sm shrink-0 group-hover:scale-105 transition">
+                          <i class="ph-bold ${obj.icon}"></i>
+                        </div>
+                        <div class="min-w-0">
+                          <span class="font-bold text-[11px] text-slate-900 block truncate group-hover:text-emerald-700 transition">${obj.name}</span>
+                          <span class="text-[9.5px] text-slate-400 block truncate">${obj.statusText}</span>
+                        </div>
                       </div>
-                      <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold ${obj.fisikCount === 0 ? 'bg-amber-100 text-amber-800' : (obj.fisikCount >= obj.std ? 'bg-emerald-100 text-emerald-800' : 'bg-rose-100 text-rose-800')}">
-                        Fisik: ${obj.fisikCount} / Std: ${obj.std}
+                      <span class="px-1.5 py-0.5 rounded text-[10px] font-mono font-bold shrink-0 ${badgeStyle}">
+                        ${obj.fisikCount}/${obj.std}
                       </span>
-                    </div>
-                    <div>
-                      <div class="font-bold text-xs text-slate-900 leading-tight">${obj.name}</div>
-                      <div class="text-[11px] ${obj.fisikCount === 0 ? 'text-amber-700 font-medium' : 'text-slate-500'} mt-0.5">${obj.statusText}</div>
-                    </div>
-                    <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px]">
-                      <button type="button" onclick="window.openRoomInspectionDirect('${targetBldgCode}', '${escapeHtml(curRoomName)}')" class="text-indigo-600 hover:text-indigo-800 font-bold flex items-center gap-1 cursor-pointer">
-                        <span>Inspeksi</span> &rarr;
-                      </button>
-                    </div>
-                  </div>
-                `).join('')}
+                    </button>
+                  `;
+                }).join('')}
               </div>
             </div>
 
-            <!-- 3. TABEL AUDIT INVENTARIS FISIK -->
-            <div class="clean-card p-4 space-y-3">
-              <div class="flex justify-between items-center pb-2 border-b border-slate-200">
-                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-                  <i class="ph-bold ph-list-checks text-emerald-600"></i>
-                  Rincian Aset Fisik Terpasang (${filteredPhysicalAssets.length} Item)
-                </h3>
-                <span class="text-[11px] text-slate-500">Tersinkronisasi dengan Master Asset &amp; Inspeksi</span>
+            <!-- 3. DETAIL INVENTARIS FISIK (LANGSUNG JADI DETAIL) -->
+            <div class="clean-card p-3.5 space-y-3">
+              <div class="flex flex-wrap justify-between items-center pb-2 border-b border-slate-200 gap-2">
+                <div class="flex items-center gap-2">
+                  <span class="w-6 h-6 rounded-lg bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold">
+                    <i class="ph-bold ph-list-checks"></i>
+                  </span>
+                  <div>
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center gap-1.5">
+                      <span>Detail Aset Fisik:</span>
+                      <span class="text-emerald-700 font-black normal-case">${activeItemTitle}</span>
+                    </h3>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2.5 py-0.5 rounded-full">
+                    ${filteredPhysicalAssets.length} Unit Terpasang
+                  </span>
+                  ${activeFacItem !== 'ALL' ? `
+                    <button type="button" onclick="window.selectPnsFacItem('ALL')" class="text-[11px] text-slate-500 hover:text-slate-800 underline">
+                      Reset Filter
+                    </button>
+                  ` : ''}
+                </div>
               </div>
 
               ${filteredPhysicalAssets.length === 0 ? `
-                <div class="text-center py-6 text-slate-400 text-xs">
-                  <i class="ph-bold ph-archive text-2xl text-slate-300 mb-1 block"></i>
-                  Belum ada item aset fisik bernomor inventaris khusus untuk kategori ini di ${escapeHtml(curRoomName)}.
+                <div class="p-6 text-center rounded-xl bg-slate-50 border border-dashed border-slate-300 space-y-2">
+                  <div class="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center mx-auto text-lg">
+                    <i class="ph-bold ph-archive"></i>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold text-slate-800">Belum ada aset fisik khusus "${activeItemTitle}" terdaftar di ruangan ini</div>
+                    <p class="text-[11px] text-slate-500 mt-0.5">Standar fasilitas kamar: ${activeItemMeta ? activeItemMeta.std + ' Unit' : 'Sesuai SOP'}. Catat kondisi fisik saat inspeksi ruangan.</p>
+                  </div>
+                  <button type="button" onclick="window.openRoomInspectionDirect('${targetBldgCode}', '${escapeHtml(curRoomName)}')" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold shadow-2xs transition cursor-pointer">
+                    <i class="ph-bold ph-plus-circle"></i> Input / Inspeksi Fisik Ruangan
+                  </button>
                 </div>
               ` : `
                 <div class="overflow-x-auto">
                   <table class="w-full text-left text-xs">
                     <thead class="bg-slate-50 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold tracking-wider">
                       <tr>
-                        <th class="py-2 px-3">Kode Aset</th>
-                        <th class="py-2 px-3">Nama Aset</th>
-                        <th class="py-2 px-3">Kategori</th>
-                        <th class="py-2 px-3">Kondisi</th>
-                        <th class="py-2 px-3 text-right">Aksi</th>
+                        <th class="py-2.5 px-3">Kode Aset</th>
+                        <th class="py-2.5 px-3">Nama Aset &amp; Spesifikasi</th>
+                        <th class="py-2.5 px-3">Kategori</th>
+                        <th class="py-2.5 px-3">Kondisi Fisik</th>
+                        <th class="py-2.5 px-3 text-right">Aksi</th>
                       </tr>
                     </thead>
                     <tbody class="divide-y divide-slate-100">
                       ${filteredPhysicalAssets.map(a => `
-                        <tr class="hover:bg-slate-50/80 transition">
-                          <td class="py-2 px-3 font-mono font-bold text-sky-700">${a.no_asset || a.kode_unit || '-'}</td>
-                          <td class="py-2 px-3 font-semibold text-slate-800">${a.nama_asset || '-'}</td>
-                          <td class="py-2 px-3 text-slate-600">${a.kategori_asset || a.kelompok_asset || '-'}</td>
-                          <td class="py-2 px-3">
+                        <tr class="hover:bg-emerald-50/20 transition">
+                          <td class="py-2.5 px-3 font-mono font-bold text-sky-700">${escapeHtml(a.no_asset || a.kode_unit || '-')}</td>
+                          <td class="py-2.5 px-3 font-semibold text-slate-800">${escapeHtml(a.nama_asset || '-')}</td>
+                          <td class="py-2.5 px-3 text-slate-600">${escapeHtml(a.kategori_asset || a.kelompok_asset || '-')}</td>
+                          <td class="py-2.5 px-3">
                             <span class="px-2 py-0.5 rounded text-[10px] font-bold ${String(a.kondisi || '').toLowerCase().includes('good') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                              ${a.kondisi || 'Good Condition'}
+                              ${escapeHtml(a.kondisi || 'Good Condition')}
                             </span>
                           </td>
-                          <td class="py-2 px-3 text-right">
-                            <button type="button" onclick="window.drillToAssetDetail('${a.no_asset || a.kode_unit}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 text-[10px] font-bold transition shadow-2xs">
+                          <td class="py-2.5 px-3 text-right">
+                            <button type="button" onclick="window.drillToAssetDetail('${escapeHtml(a.no_asset || a.kode_unit)}')" class="px-2 py-1 rounded bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 text-[10px] font-bold transition shadow-2xs cursor-pointer">
                               Dossier
                             </button>
                           </td>
