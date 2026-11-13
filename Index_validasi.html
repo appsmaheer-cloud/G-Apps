@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="id" class="light" data-app="am">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#FFFFFF">
+  <title>Laporan Hasil Validasi Aset &amp; Movement — PT Pratama Nusantara Sakti</title>
+  <link id="app-favicon" rel="icon" type="image/png" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230284C7'/%3E%3Ctext x='16' y='21' font-family='sans-serif' font-size='13' font-weight='bold' fill='white' text-anchor='middle'%3EPNS%3C/text%3E%3C/svg%3E">
+
+  <!-- Fonts: Inter & JetBrains Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS & Icons -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://unpkg.com/@phosphor-icons/web" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+
+  <!-- Modular CSS -->
+  <link rel="stylesheet" href="style.css?v=2.5.3">
+
+  <style>
+    /* Executive Report Styles */
+    .report-tab-btn {
+      transition: all 0.15s ease-in-out;
+    }
+    .report-tab-btn.active {
+      background-color: #059669;
+      color: #ffffff;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+    }
+    .report-tab-btn:not(.active):hover {
+      background-color: #f1f5f9;
+      color: #0f172a;
+    }
+  </style>
+</head>
+<body class="text-slate-800 bg-slate-50 h-screen overflow-hidden flex flex-col font-sans antialiased">
+
+  <!-- ======================================================== -->
+  <!-- EXECUTIVE HEADER (STANDALONE REPORT PORTAL)              -->
+  <!-- ======================================================== -->
+  <header id="report-header" class="bg-white border-b border-slate-200 px-4 py-2.5 flex flex-wrap items-center justify-between shrink-0 shadow-2xs z-40 gap-3">
+    <!-- Left: Branding & Portal Title -->
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shadow-xs shrink-0 cursor-pointer" onclick="window.navTo('view-validasi')" title="Klik untuk refresh tampilan utama validasi">
+        <img data-pns-logo alt="Logo PT Pratama Nusantara Sakti" width="30" height="30" class="w-full h-full object-contain">
+      </div>
+      <div>
+        <div class="flex items-center gap-2 flex-wrap">
+          <span class="font-black text-sm sm:text-base tracking-tight text-slate-900">LAPORAN VALIDASI &amp; REKONSILIASI ASET</span>
+          <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 border border-emerald-200 flex items-center gap-1">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span> Executive Report
+          </span>
+          <span class="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full bg-sky-100 text-sky-800 border border-sky-200">
+            35.160 All Assets
+          </span>
+        </div>
+        <p class="text-[11px] text-slate-500 font-medium">PT Pratama Nusantara Sakti &bull; Portal Khusus Laporan Validasi Fisik, Rekonsiliasi &amp; Movement</p>
+      </div>
+    </div>
+
+    <!-- Center: Dedicated 4-Tab Navigation Switcher -->
+    <nav class="flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/90 text-xs font-bold shadow-2xs" aria-label="Tab Navigasi Laporan">
+      <button type="button" id="tab-nav-validasi" onclick="window.navTo('view-validasi')" class="report-tab-btn active px-3 py-1.5 rounded-lg flex items-center gap-1.5 cursor-pointer">
+        <i class="ph-bold ph-seal-check text-sm"></i>
+        <span>Laporan &amp; Matrix</span>
+      </button>
+      <button type="button" id="tab-nav-drill" onclick="window.navTo('view-asset-detail-drill')" class="report-tab-btn px-3 py-1.5 rounded-lg text-slate-600 flex items-center gap-1.5 cursor-pointer">
+        <i class="ph-bold ph-faders text-sm"></i>
+        <span>Drill Rekonsiliasi</span>
+      </button>
+      <button type="button" id="tab-nav-movement" onclick="window.navTo('view-asset-movement')" class="report-tab-btn px-3 py-1.5 rounded-lg text-slate-600 flex items-center gap-1.5 cursor-pointer">
+        <i class="ph-bold ph-pulse text-sm"></i>
+        <span>Detail Movement</span>
+      </button>
+      <button type="button" id="tab-nav-detail" onclick="window.navTo('view-asset-detail')" class="report-tab-btn px-3 py-1.5 rounded-lg text-slate-600 flex items-center gap-1.5 cursor-pointer">
+        <i class="ph-bold ph-identification-badge text-sm"></i>
+        <span>Dossier Unit</span>
+      </button>
+    </nav>
+
+    <!-- Right Controls: Action Buttons & Auditor Badge -->
+    <div class="flex items-center gap-2 flex-wrap">
+      <button type="button" onclick="window.pullLiveAssetsFromApi()" class="px-2.5 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer" title="Tarik snapshot live aset terbaru dari server">
+        <i class="ph-bold ph-lightning"></i>
+        <span class="hidden sm:inline">Tarik Live API</span>
+      </button>
+
+      <button type="button" onclick="window.exportValidasiReportXlsx()" class="px-2.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer" title="Download Laporan Validasi Lengkap (Excel .xlsx)">
+        <i class="ph-bold ph-file-xls"></i>
+        <span class="hidden sm:inline">Export Excel</span>
+      </button>
+
+      <button type="button" onclick="window.printValidasiReport()" class="px-2.5 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer" title="Cetak Laporan Resmi Format PDF/Print">
+        <i class="ph-bold ph-printer"></i>
+        <span class="hidden sm:inline">Cetak</span>
+      </button>
+
+      <button type="button" onclick="window.copyValidasiReportLink()" class="px-2.5 py-1.5 rounded-xl border border-slate-300 hover:bg-slate-100 text-slate-700 text-xs font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer" title="Salin link laporan ini untuk dibagikan">
+        <i class="ph-bold ph-share-network"></i>
+      </button>
+
+      <!-- Auditor Badge -->
+      <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
+        <div class="w-7 h-7 rounded-full bg-slate-900 text-white flex items-center justify-center text-xs font-bold">
+          MK
+        </div>
+        <div class="hidden lg:block text-left">
+          <div class="text-xs font-bold text-slate-900 leading-tight">Miftahul Khoiry</div>
+          <div class="text-[10px] text-emerald-700 font-bold">Auditor / Executive Report</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ======================================================== -->
+  <!-- MAIN REPORT CONTAINER (NO SIDEBAR - FULL WIDTH)          -->
+  <!-- ======================================================== -->
+  <main id="app-main-content" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
+
+    <!-- VIEW 1: LAPORAN VALIDASI & REKONSILIASI ASET -->
+          <div id="view-validasi" class="page-view hidden space-y-4 pb-8">
+
+        <!-- 1. TOP EXECUTIVE TITLE & ACTION BAR -->
+        <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
+              <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Hasil Validasi Fisik Terintegrasi
+              </span>
+              <span class="text-xs text-slate-400">•</span>
+              <span class="text-xs font-semibold text-slate-600">Executive Asset Intelligence</span>
+            </div>
+            <h1 class="text-lg md:text-xl font-black text-slate-900 tracking-tight flex items-center gap-2">
+              <i class="ph-bold ph-shield-check text-emerald-600"></i>
+              Laporan Hasil Validasi &amp; Rekonsiliasi Fisik Aset
+            </h1>
+          </div>
+
+          <!-- Dual Tab Switcher & Action Buttons -->
+          <div class="flex items-center gap-2 w-full md:w-auto flex-wrap justify-between md:justify-end">
+            <!-- DUAL TAB SWITCHER -->
+            <div class="inline-flex p-1 bg-slate-100 rounded-xl border border-slate-200/80 shadow-2xs text-xs">
+              <button id="tab-btn-validasi-rekon" type="button" onclick="switchValidasiTab('rekon')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 bg-white text-slate-900 shadow-2xs cursor-pointer">
+                <i class="ph-bold ph-table text-emerald-600"></i>
+                <span>Laporan Hasil Validasi</span>
+              </button>
+              <button id="tab-btn-validasi-perf" type="button" onclick="switchValidasiTab('perf')" class="px-3 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 text-slate-600 hover:text-slate-900 hover:bg-white/60 cursor-pointer">
+                <i class="ph-bold ph-chart-pie-slice text-blue-600"></i>
+                <span>Performance Kondisi &amp; Departemen</span>
+              </button>
+            </div>
+
+            <!-- Action buttons -->
+            <div class="flex items-center gap-1.5">
+              <button type="button" onclick="showApiLiveCompareModal()" class="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold rounded-lg border border-emerald-300 shadow-2xs transition flex items-center gap-1.5 cursor-pointer" title="Komparasi Langsung API Live vs Master">
+                <i class="ph-bold ph-arrows-left-right text-emerald-600"></i>
+                <span>Compare API Live</span>
+              </button>
+              <button type="button" onclick="window.printValidasiReport()" class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg border border-slate-200 shadow-2xs transition flex items-center gap-1.5 cursor-pointer" title="Cetak Format Resmi">
+                <i class="ph-bold ph-printer text-slate-500"></i>
+                <span class="hidden sm:inline">Cetak</span>
+              </button>
+              <button type="button" onclick="window.copyValidasiReportLink()" class="px-2.5 py-1.5 bg-white hover:bg-slate-50 text-slate-700 text-xs font-bold rounded-lg border border-slate-200 shadow-2xs transition flex items-center gap-1.5 cursor-pointer" title="Salin Tautan">
+                <i class="ph-bold ph-share-network text-slate-500"></i>
+                <span class="hidden sm:inline">Bagikan</span>
+              </button>
+              <button type="button" onclick="exportValidasiReportXlsx()" class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-lg shadow-2xs transition flex items-center gap-1.5 cursor-pointer" title="Export Excel Rekonsiliasi Lengkap">
+                <i class="ph-bold ph-file-xls"></i>
+                <span>Export Excel</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- TAB 1: REKONSILIASI & MATRIX (Fit-To-Layout, Zero Scroll)-->
+        <!-- ======================================================== -->
+        <div id="validasi-tab-rekon" class="space-y-4">
+
+          <!-- FILTER TOOLBAR -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-3.5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3">
+            <div class="flex items-center gap-2 flex-1 flex-wrap">
+              <!-- Search Box -->
+              <div class="relative flex-1 min-w-[200px]">
+                <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+                <input type="text" id="val-global-search" oninput="onFilterValidasiReport()" placeholder="Cari nama aset, departemen, atau lokasi..." class="w-full pl-9 pr-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 focus:border-emerald-500 transition">
+              </div>
+
+              <!-- Filter Lokasi -->
+              <div class="w-full sm:w-auto min-w-[140px]">
+                <select id="val-filter-location" onchange="onFilterValidasiReport()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-medium">
+                  <option value="">Semua Lokasi</option>
+                  <option value="CO">Central Office (CO)</option>
+                  <option value="FR">Factory / Pabrik (FR)</option>
+                  <option value="E1">Estate 1 (E1)</option>
+                  <option value="E2">Estate 2 (E2)</option>
+                  <option value="E3">Estate 3 (E3)</option>
+                  <option value="MR">Gudang Marunda (MR)</option>
+                  <option value="HO">Head Office (HO)</option>
+                  <option value="RO">Regional Office (RO)</option>
+                </select>
+              </div>
+
+              <!-- Filter Departemen -->
+              <div class="w-full sm:w-auto min-w-[150px]">
+                <select id="val-filter-dept" onchange="onFilterValidasiReport()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-medium">
+                  <option value="">Semua Departemen</option>
+                  <option value="HRGA">HRGA</option>
+                  <option value="BUSINESS SUPPORT">Business Support</option>
+                  <option value="PLANTATION">Plantation</option>
+                  <option value="WORKSHOP & ENGINERING">Workshop &amp; Engineering</option>
+                  <option value="PRODUCTION">Production</option>
+                  <option value="QUALITY HEALTH & SAFETY ENVIRONMENT">QHSE</option>
+                  <option value="FINANCIAL & INFORMATION SYSTEM">Financial &amp; IT</option>
+                  <option value="HARVESTING">Harvesting</option>
+                  <option value="RESEARCH & DEVELOPMENT">Research &amp; Development</option>
+                  <option value="PROCUREMENT & PURCHASING">Procurement &amp; Purchasing</option>
+                  <option value="SALES & MARKETING">Sales &amp; Marketing</option>
+                </select>
+              </div>
+
+              <!-- Filter Status Validasi & Siklus -->
+              <div class="w-full sm:w-auto min-w-[170px]">
+                <select id="val-filter-status" onchange="onFilterValidasiReport()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-medium">
+                  <option value="">Semua Aset (35.160)</option>
+                  <option value="sudah_2025">Sudah Validasi 2025 (34.806)</option>
+                  <option value="new_asset">New Asset / Belum Sensus (354)</option>
+                  <option value="sudah_2026">Sudah Validasi 2026 (Live Inspeksi)</option>
+                  <option value="belum_2026">Belum Validasi 2026</option>
+                </select>
+              </div>
+            </div>
+
+            <button type="button" onclick="resetValidasiFilters()" class="px-3 py-2 rounded-xl text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 transition flex items-center justify-center gap-1.5 cursor-pointer">
+              <i class="ph-bold ph-arrow-counter-clockwise"></i>
+              <span>Reset</span>
+            </button>
+          </div>
+
+          <!-- 6 REACTIVE ENTERPRISE KPI CARDS -->
+          <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
+            <!-- 1. Total Unit -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-xs transition">
+              <div class="flex items-center justify-between text-slate-500 mb-1.5">
+                <span class="text-[11px] font-bold uppercase tracking-wider">Total Aset (API)</span>
+                <i class="ph-bold ph-package text-emerald-600 text-base"></i>
+              </div>
+              <div class="text-xl md:text-2xl font-black text-slate-900 num-tabular tracking-tight" id="val-kpi-total">35.160</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-1 truncate" id="val-kpi-sub-total">34.806 Validasi • 354 Belum Verif</div>
+            </div>
+
+            <!-- 2. Akurasi Validasi -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-xs transition">
+              <div class="flex items-center justify-between text-slate-500 mb-1.5">
+                <span class="text-[11px] font-bold uppercase tracking-wider">Akurasi Validasi</span>
+                <i class="ph-bold ph-seal-check text-emerald-600 text-base"></i>
+              </div>
+              <div class="text-xl md:text-2xl font-black text-emerald-700 num-tabular tracking-tight" id="val-kpi-akurasi">98.99%</div>
+              <div class="text-[10px] text-emerald-700 font-semibold mt-1 truncate" id="val-kpi-sub-akurasi">34.806 Unit Sesuai Fisik</div>
+            </div>
+
+            <!-- 3. Belum Verifikasi -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-xs transition">
+              <div class="flex items-center justify-between text-slate-500 mb-1.5">
+                <span class="text-[11px] font-bold uppercase tracking-wider">Belum Verifikasi</span>
+                <i class="ph-bold ph-warning-circle text-amber-500 text-base"></i>
+              </div>
+              <div class="text-xl md:text-2xl font-black text-amber-600 num-tabular tracking-tight" id="val-kpi-selisih">354 Unit</div>
+              <div class="text-[10px] text-amber-600 font-semibold mt-1 truncate" id="val-kpi-sub-selisih">1.01% Antrean Opname Fisik</div>
+            </div>
+
+            <!-- 4. Kondisi Baik (Operasional) -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-xs transition">
+              <div class="flex items-center justify-between text-slate-500 mb-1.5">
+                <span class="text-[11px] font-bold uppercase tracking-wider">Siap Pakai</span>
+                <i class="ph-bold ph-thumbs-up text-sky-600 text-base"></i>
+              </div>
+              <div class="text-xl md:text-2xl font-black text-sky-700 num-tabular tracking-tight" id="val-kpi-good">27.872</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-1 truncate" id="val-kpi-sub-good">80.0% Good Condition</div>
+            </div>
+
+            <!-- 5. Rusak & Perbaikan -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-xs transition">
+              <div class="flex items-center justify-between text-slate-500 mb-1.5">
+                <span class="text-[11px] font-bold uppercase tracking-wider">Perlu Perhatian</span>
+                <i class="ph-bold ph-wrench text-amber-500 text-base"></i>
+              </div>
+              <div class="text-xl md:text-2xl font-black text-amber-600 num-tabular tracking-tight" id="val-kpi-broken">3.745</div>
+              <div class="text-[10px] text-amber-700 font-semibold mt-1 truncate" id="val-kpi-sub-broken">3.663 Rusak • 82 Repair</div>
+            </div>
+
+            <!-- 6. Net Book Value (NBV) -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-3.5 shadow-2xs hover:shadow-xs transition">
+              <div class="flex items-center justify-between text-slate-500 mb-1.5">
+                <span class="text-[11px] font-bold uppercase tracking-wider">Net Book Value</span>
+                <i class="ph-bold ph-coins text-emerald-600 text-base"></i>
+              </div>
+              <div class="text-xl md:text-2xl font-black text-slate-900 num-tabular tracking-tight" id="val-kpi-nbv">Rp 681,78 M</div>
+              <div class="text-[10px] text-slate-500 font-medium mt-1 truncate" id="val-kpi-sub-acq">HPP: Rp 1.120,27 M</div>
+            </div>
+          </div>
+
+          <!-- 2 VISUAL PERFORMANCE BARS (REACTIVE & CRISP) -->
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+            <!-- Visual Bar 1: Status Akurasi Validasi -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <i class="ph-bold ph-chart-bar text-emerald-600"></i>
+                  Akurasi Validasi Lapangan
+                </span>
+                <span class="text-xs font-black text-emerald-700 num-tabular" id="val-visual-akurasi-pct">98.05%</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden flex shadow-inner">
+                <div id="val-bar-sesuai" class="bg-emerald-500 h-full transition-all duration-500" style="width: 98.05%;" title="Sesuai"></div>
+                <div id="val-bar-selisih" class="bg-rose-500 h-full transition-all duration-500" style="width: 1.95%;" title="Selisih / Perlu Cek"></div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-600 pt-0.5">
+                <span class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                  <span id="val-bar-sesuai-lbl" class="font-medium">Sesuai: 34.159 unit (98.05%)</span>
+                </span>
+                <span class="flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+                  <span id="val-bar-selisih-lbl" class="font-bold text-rose-600">Selisih: 95 unit (0.27%)</span>
+                </span>
+              </div>
+            </div>
+
+            <!-- Visual Bar 2: Distribusi Kondisi Fisik Portofolio -->
+            <div class="bg-white rounded-2xl border border-slate-200/90 p-4 shadow-2xs space-y-2">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-1.5">
+                  <i class="ph-bold ph-heartbeat text-sky-600"></i>
+                  Distribusi Kondisi Fisik Aset
+                </span>
+                <span class="text-xs font-semibold text-slate-500" id="val-visual-kondisi-summary">80.0% Kondisi Baik</span>
+              </div>
+              <div class="w-full bg-slate-100 rounded-full h-3 overflow-hidden flex shadow-inner">
+                <div id="val-bar-good" class="bg-emerald-500 h-full transition-all duration-500" style="width: 80.0%;" title="Baik"></div>
+                <div id="val-bar-repair" class="bg-blue-500 h-full transition-all duration-500" style="width: 0.2%;" title="Perbaikan"></div>
+                <div id="val-bar-broken" class="bg-amber-500 h-full transition-all duration-500" style="width: 10.5%;" title="Rusak"></div>
+                <div id="val-bar-lost" class="bg-slate-400 h-full transition-all duration-500" style="width: 7.2%;" title="Hilang"></div>
+                <div id="val-bar-disp" class="bg-rose-500 h-full transition-all duration-500" style="width: 0.5%;" title="Disposal"></div>
+              </div>
+              <div class="flex items-center justify-between text-[11px] text-slate-600 pt-0.5 flex-wrap gap-1">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Baik 80.0%</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-blue-500"></span> Repair 0.2%</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-amber-500"></span> Rusak 10.5%</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-400"></span> Hilang 7.2%</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Disp 0.5%</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- MATRIX TABLE CONTAINER (FIT TO LAYOUT - ZERO HORIZONTAL SCROLL) -->
+          <div class="bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-4 space-y-3">
+            <!-- Table Header Toolbar: Level & Group Switcher -->
+            <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2 border-b border-slate-100">
+              <div class="flex items-center gap-2">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Matriks Validasi &amp; Rekonsiliasi</span>
+                <span class="text-[10px] text-slate-400">• Fit-to-Layout (Klik baris atau tombol untuk Drill Down)</span>
+              </div>
+
+              <!-- Group Switcher (Departemen vs Lokasi Site) -->
+              <div class="flex items-center gap-1.5 p-1 bg-slate-100 rounded-xl border border-slate-200/80 text-xs">
+                <span class="text-[10px] font-bold text-slate-500 uppercase px-2">Kelompok:</span>
+                <button id="btn-val-matrix-dept" type="button" onclick="switchMatrixGroup('dept')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer bg-white text-slate-900 shadow-2xs">
+                  Departemen
+                </button>
+                <button id="btn-val-matrix-loc" type="button" onclick="switchMatrixGroup('loc')" class="px-2.5 py-1 rounded-lg text-xs font-bold transition cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-white/60">
+                  Lokasi Site
+                </button>
+              </div>
+            </div>
+
+            <!-- IN-TABLE DRILL NAVIGATION BREADCRUMB (LEVEL 2) -->
+            <div id="val-table-drill-nav" class="hidden p-3 bg-emerald-50/90 border border-emerald-200/90 rounded-xl flex items-center justify-between text-xs transition-all">
+              <div class="flex items-center gap-2 flex-wrap">
+                <i class="ph-bold ph-git-commit text-emerald-600 text-sm"></i>
+                <span class="text-slate-500 font-medium">Tingkat Hirarki:</span>
+                <span class="text-slate-700 font-semibold cursor-pointer hover:underline" onclick="window.validasiDrillUp()" id="val-drill-parent-label">Semua Departemen</span>
+                <span class="text-slate-400">/</span>
+                <span class="font-bold text-emerald-800 bg-white px-2.5 py-0.5 rounded-lg border border-emerald-300 shadow-2xs" id="val-drill-current-name">HRGA</span>
+                <span class="text-[10px] text-emerald-700 font-medium">(Rincian Kelompok Aset)</span>
+              </div>
+              <button type="button" onclick="window.validasiDrillUp()" class="px-3 py-1 bg-white hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg border border-emerald-300 shadow-2xs transition flex items-center gap-1.5 cursor-pointer">
+                <i class="ph-bold ph-arrow-up"></i>
+                <span>Kembali ke Ringkasan (Drill Up)</span>
+              </button>
+            </div>
+
+            <!-- TABLE WITH FIXED 100% LAYOUT (ZERO HORIZONTAL SCROLL) -->
+            <div class="w-full overflow-hidden rounded-xl border border-slate-200 shadow-2xs">
+              <table id="table-validasi-matrix" class="w-full text-xs text-left border-collapse table-fixed" style="width: 100%;">
+                <colgroup>
+                  <col style="width: 26%;">
+                  <col style="width: 16%;">
+                  <col style="width: 18%;">
+                  <col style="width: 10%;">
+                  <col style="width: 8%;">
+                  <col style="width: 10%;">
+                  <col style="width: 12%;">
+                </colgroup>
+                <thead class="bg-slate-100/90 text-slate-700 text-[11px] uppercase tracking-wider font-bold border-b border-slate-200 select-none">
+                  <tr>
+                    <th id="matrix-th-name" class="py-2.5 px-3.5">Departemen</th>
+                    <th class="py-2.5 px-2.5">Akurasi Validasi</th>
+                    <th class="py-2.5 px-2.5">Kondisi Fisik</th>
+                    <th class="py-2.5 px-2 text-right">Sesuai Fisik</th>
+                    <th class="py-2.5 px-2 text-right">Selisih Alokasi</th>
+                    <th class="py-2.5 px-2.5 text-right">Total Validasi</th>
+                    <th class="py-2.5 px-2 text-center">Navigasi</th>
+                  </tr>
+                </thead>
+                <tbody id="table-validasi-matrix-body" class="divide-y divide-slate-100 font-medium">
+                  <!-- Rendered dynamically via JS -->
+                </tbody>
+                <tfoot id="table-validasi-matrix-foot" class="bg-slate-100/95 font-bold border-t-2 border-slate-300 text-slate-800 text-xs">
+                  <!-- Rendered dynamically via JS -->
+                </tfoot>
+              </table>
+            </div>
+
+            <!-- Quick Legend Footer -->
+            <div class="flex items-center justify-between text-[11px] text-slate-500 pt-1 flex-wrap gap-2">
+              <div class="flex items-center gap-3">
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Hijau: 100% Sesuai Fisik</span>
+                <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-rose-500"></span> Merah: Terdapat Selisih Alokasi</span>
+                <span class="flex items-center gap-1"><span class="px-1.5 py-0.2 rounded bg-slate-200 font-bold text-[9px] text-slate-700">+</span> : Buka Kelompok Langsung</span>
+              </div>
+              <div class="text-[10px] text-slate-400">
+                Gunakan tombol <b>[Drill Down ↓]</b> untuk meninjau kelompok aset di tabel, atau <b>[➔ Sheet]</b> untuk membuka sheet master aset.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ======================================================== -->
+        <!-- TAB 2: PERFORMANCE KONDISI & DEPARTEMEN (EXECUTIVE 5 KPIs)-->
+        <!-- ======================================================== -->
+        <div id="validasi-tab-perf" class="hidden space-y-4">
+          <!-- 5 TOP CONDITION CARDS (EXECUTIVE OVERVIEW MATCHING SCREENSHOT) -->
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
+            <!-- 1. GOOD CONDITION -->
+            <div onclick="window.openAssetDrillThrough({ kondisi: 'Good Condition', sourceView: 'view-validasi' })" class="bg-white rounded-2xl border border-slate-200/90 border-t-4 border-t-emerald-500 p-3.5 shadow-2xs space-y-2 cursor-pointer hover:shadow-xs transition group" title="Klik untuk Drill-Through detail aset Good Condition">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-black text-emerald-700 tracking-wider uppercase">GOOD CONDITION</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800">81.34%</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 num-tabular tracking-tight">27.872</div>
+              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">16.998</span></div>
+                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">10.874</span></div>
+                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 935,10 M</span></div>
+                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-emerald-600 num-tabular">Rp 663,74 M</span></div>
+              </div>
+            </div>
+
+            <!-- 2. REPAIR -->
+            <div onclick="window.openAssetDrillThrough({ kondisi: 'Repair', sourceView: 'view-validasi' })" class="bg-white rounded-2xl border border-slate-200/90 border-t-4 border-t-blue-500 p-3.5 shadow-2xs space-y-2 cursor-pointer hover:shadow-xs transition group" title="Klik untuk Drill-Through detail aset Repair">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-black text-blue-700 tracking-wider uppercase">REPAIR</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-blue-100 text-blue-800">0.24%</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 num-tabular tracking-tight">82</div>
+              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">80</span></div>
+                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">2</span></div>
+                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 4,27 M</span></div>
+                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-blue-600 num-tabular">Rp 1,18 M</span></div>
+              </div>
+            </div>
+
+            <!-- 3. DISPOSAL -->
+            <div onclick="window.openAssetDrillThrough({ kondisi: 'Disposal', sourceView: 'view-validasi' })" class="bg-white rounded-2xl border border-slate-200/90 border-t-4 border-t-rose-500 p-3.5 shadow-2xs space-y-2 cursor-pointer hover:shadow-xs transition group" title="Klik untuk Drill-Through detail aset Disposal">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-black text-rose-700 tracking-wider uppercase">DISPOSAL</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-rose-100 text-rose-800">0.46%</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 num-tabular tracking-tight">157</div>
+              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">151</span></div>
+                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">6</span></div>
+                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 4,61 M</span></div>
+                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-rose-600 num-tabular">Rp 119,55 Jt</span></div>
+              </div>
+            </div>
+
+            <!-- 4. BROKEN -->
+            <div onclick="window.openAssetDrillThrough({ kondisi: 'Broken', sourceView: 'view-validasi' })" class="bg-white rounded-2xl border border-slate-200/90 border-t-4 border-t-amber-500 p-3.5 shadow-2xs space-y-2 cursor-pointer hover:shadow-xs transition group" title="Klik untuk Drill-Through detail aset Broken">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-black text-amber-700 tracking-wider uppercase">BROKEN</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800">10.69%</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 num-tabular tracking-tight">3.663</div>
+              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">2.958</span></div>
+                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">705</span></div>
+                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 166,31 M</span></div>
+                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-amber-600 num-tabular">Rp 16,32 M</span></div>
+              </div>
+            </div>
+
+            <!-- 5. LOST -->
+            <div onclick="window.openAssetDrillThrough({ kondisi: 'Lost', sourceView: 'view-validasi' })" class="bg-white rounded-2xl border border-slate-200/90 border-t-4 border-t-slate-500 p-3.5 shadow-2xs space-y-2 cursor-pointer hover:shadow-xs transition group" title="Klik untuk Drill-Through detail aset Lost">
+              <div class="flex justify-between items-start">
+                <span class="text-xs font-black text-slate-700 tracking-wider uppercase">LOST</span>
+                <span class="text-[10px] font-bold px-1.5 py-0.5 rounded-full bg-slate-200 text-slate-800">7.27%</span>
+              </div>
+              <div class="text-2xl font-black text-slate-900 num-tabular tracking-tight">2.492</div>
+              <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
+                <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">1.461</span></div>
+                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">1.031</span></div>
+                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 9,99 M</span></div>
+                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-slate-700 num-tabular">Rp 422,20 Jt</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- THREE COLUMN ANALYTICAL GRID -->
+          <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+            <!-- COL 1: DEPARTEMENT CONDITION MATRIX (5 COLS) -->
+            <div class="lg:col-span-5 bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
+              <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Kondisi per Departemen</span>
+                <span class="text-[10px] text-slate-400">11 Departemen</span>
+              </div>
+              <div class="overflow-x-auto max-h-[480px] scrollbar-thin">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead class="sticky top-0 bg-white shadow-2xs text-[11px] font-bold text-slate-600 uppercase border-b border-slate-200">
+                    <tr>
+                      <th class="py-2 px-3">Departemen</th>
+                      <th class="py-2 px-2 text-right">Total</th>
+                      <th class="py-2 px-1.5 text-right text-emerald-700">Good</th>
+                      <th class="py-2 px-1.5 text-right text-blue-700">Rep</th>
+                      <th class="py-2 px-1.5 text-right text-rose-700">Disp</th>
+                      <th class="py-2 px-1.5 text-right text-amber-700">Brk</th>
+                      <th class="py-2 px-1.5 text-right text-slate-500">Lost</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-perf-dept-body" class="divide-y divide-slate-100">
+                    <!-- Rendered dynamically via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- COL 2: TOTAL ASSET BY KELOMPOK (4 COLS) -->
+            <div class="lg:col-span-4 bg-white rounded-2xl border border-slate-200/90 shadow-2xs p-3.5 space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Total Asset by Kelompok</span>
+                <span class="text-[10px] text-slate-400">11 Kelompok</span>
+              </div>
+              <div id="perf-kelompok-bars" class="space-y-2.5 max-h-[480px] overflow-y-auto pr-1 scrollbar-thin">
+                <!-- Rendered dynamically via JS -->
+              </div>
+            </div>
+
+            <!-- COL 3: TOP KATEGORI ASET (3 COLS) -->
+            <div class="lg:col-span-3 bg-white rounded-2xl border border-slate-200/90 shadow-2xs overflow-hidden">
+              <div class="p-3 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
+                <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Top Kategori Aset</span>
+                <span class="text-[10px] text-slate-400">10 Besar</span>
+              </div>
+              <div class="overflow-x-auto max-h-[480px] scrollbar-thin">
+                <table class="w-full text-left text-xs border-collapse">
+                  <thead class="sticky top-0 bg-white shadow-2xs text-[11px] font-bold text-slate-600 uppercase border-b border-slate-200">
+                    <tr>
+                      <th class="py-2 px-3">Kategori</th>
+                      <th class="py-2 px-1.5 text-right">Total</th>
+                      <th class="py-2 px-1.5 text-right text-emerald-700">Good%</th>
+                      <th class="py-2 px-1.5 text-right text-amber-700">Brk%</th>
+                    </tr>
+                  </thead>
+                  <tbody id="table-perf-kat-body" class="divide-y divide-slate-100">
+                    <!-- Rendered dynamically via JS -->
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    <!-- VIEW 2: DRILL THROUGH REKONSILIASI DETAIL -->
+                    <div id="view-asset-detail-drill" class="page-view hidden space-y-3.5 pb-6">
+
+                    <!-- TOP HEADER BAR & SLICERS (POWER BI DT.Details.Assets PARITY) -->
+                    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-3.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+                        <!-- Left: Icon + Title + Subtitle + Back Button -->
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-xl bg-emerald-600 text-white flex items-center justify-center text-2xl shadow-xs shrink-0">
+                                <i id="dt-drill-icon" class="ph-bold ph-house-line"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2.5 flex-wrap">
+                                    <h2 id="dt-drill-title" class="text-base sm:text-lg font-black text-slate-900 tracking-tight uppercase">CENTRAL OFFICE</h2>
+                                    <button type="button" id="btn-dt-drill-back" onclick="window.closeAssetDrillThrough()" class="px-2.5 py-1 rounded-lg border border-slate-300 hover:border-emerald-600 bg-white text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 flex items-center gap-1.5 transition cursor-pointer shadow-2xs text-xs font-bold" title="Kembali ke Halaman Sebelumnya">
+                                        <i class="ph-bold ph-arrow-left text-xs"></i>
+                                        <span id="txt-dt-drill-back">Kembali</span>
+                                    </button>
+                                    <button type="button" onclick="window.drillFromDtToMovement()" class="px-2.5 py-1 rounded-xl text-xs font-black bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white flex items-center gap-1.5 shadow-2xs transition cursor-pointer" title="Gerbang Akhir Drill: Buka Detail Asset Movement dengan filter aktif saat ini">
+                                        <i class="ph-bold ph-pulse text-xs"></i>
+                                        <span>Drill Akhir (Detail Asset Movement) &rarr;</span>
+                                    </button>
+                                    <span id="dt-drill-active-badge" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800 border border-amber-300 flex items-center gap-1 cursor-pointer" onclick="window.clearAssetDrillCrossFilter()" title="Klik untuk reset filter silang">
+                                        <span id="dt-drill-active-badge-text">Filter</span>
+                                        <i class="ph-bold ph-x text-[10px]"></i>
+                                    </span>
+                                </div>
+                                <p id="dt-drill-subtitle" class="text-xs font-medium text-slate-500">Detail Asset Central Office</p>
+                            </div>
+                        </div>
+
+                        <!-- Right: 3 Power BI Slicers (Type Assets, Group Assets, Category Assets) -->
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 w-full lg:w-auto lg:min-w-[600px]">
+                            <div class="bg-slate-50/80 border border-slate-200/90 rounded-xl px-3 py-1.5">
+                                <label class="block text-[9.5px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Type Assets [Multi Select]</label>
+                                <select id="dt-slicer-type" onchange="window.onChangeDtSlicer('type')" class="w-full bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer">
+                                    <option value="ALL">All</option>
+                                    <option value="VALUABLE">Valuable Assets</option>
+                                    <option value="NON_VALUABLE">Non-Valuable Assets</option>
+                                </select>
+                            </div>
+                            <div class="bg-slate-50/80 border border-slate-200/90 rounded-xl px-3 py-1.5">
+                                <label class="block text-[9.5px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Group Assets [Multi Select]</label>
+                                <select id="dt-slicer-group" onchange="window.onChangeDtSlicer('group')" class="w-full bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer">
+                                    <option value="ALL">All</option>
+                                </select>
+                            </div>
+                            <div class="bg-slate-50/80 border border-slate-200/90 rounded-xl px-3 py-1.5">
+                                <label class="block text-[9.5px] font-bold text-slate-500 uppercase tracking-wider mb-0.5">Category Assets [Multi Select]</label>
+                                <select id="dt-slicer-category" onchange="window.onChangeDtSlicer('category')" class="w-full bg-transparent text-xs font-bold text-slate-800 focus:outline-none cursor-pointer">
+                                    <option value="ALL">All</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 5 TOP KPI CARDS (POWER BI DT.Details.Assets PARITY) -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+
+                        <!-- KPI 1: Total Assets -->
+                        <div class="bg-white rounded-2xl border border-amber-200/90 shadow-xs p-3.5 relative overflow-hidden flex flex-col justify-between min-h-[122px]">
+                            <div class="flex items-start gap-2.5 z-10">
+                                <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-700 flex items-center justify-center text-lg shrink-0">
+                                    <i class="ph-bold ph-Selection-all ph-stack"></i>
+                                </div>
+                                <div>
+                                    <span class="text-[11px] font-bold text-amber-800 block leading-tight">Total Assets</span>
+                                    <span id="dt-kpi-total" class="text-xl font-black text-slate-900 font-mono tracking-tight">13,432</span>
+                                </div>
+                            </div>
+                            <div class="flex items-end justify-between mt-2 z-10">
+                                <div class="space-y-1">
+                                    <div>
+                                        <span id="dt-kpi-active" class="text-xs font-black text-emerald-600 font-mono block leading-none">5,187</span>
+                                        <span class="text-[9px] text-slate-400 font-semibold">Active</span>
+                                    </div>
+                                    <div>
+                                        <span id="dt-kpi-nonactive" class="text-xs font-black text-rose-600 font-mono block leading-none">1,875</span>
+                                        <span class="text-[9px] text-slate-400 font-semibold">Non Active</span>
+                                    </div>
+                                </div>
+                                <!-- Area Sparkline SVG -->
+                                <div class="w-28 h-12 opacity-85">
+                                    <svg viewBox="0 0 120 45" class="w-full h-full overflow-visible">
+                                        <defs>
+                                            <linearGradient id="dtSparkGrad" x1="0" y1="0" x2="0" y2="1">
+                                                <stop offset="0%" stop-color="#94a3b8" stop-opacity="0.35"/>
+                                                <stop offset="100%" stop-color="#94a3b8" stop-opacity="0.0"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <path d="M0,42 L12,39 L24,38 L36,8 L48,30 L60,28 L72,33 L84,14 L96,35 L108,22 L120,40 L120,45 L0,45 Z" fill="url(#dtSparkGrad)"/>
+                                        <path d="M0,42 L12,39 L24,38 L36,8 L48,30 L60,28 L72,33 L84,14 L96,35 L108,22 L120,40" fill="none" stroke="#64748b" stroke-width="1.5"/>
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KPI 2: GOOD ASSETS -->
+                        <div class="bg-white rounded-2xl border border-emerald-200/90 shadow-xs p-3.5 flex flex-col justify-between min-h-[122px]">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-emerald-100/80 border border-emerald-200 text-emerald-600 flex items-center justify-center text-lg shrink-0">
+                                        <i class="ph-bold ph-heartbeat"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-black text-emerald-500 uppercase tracking-wider block">GOOD ASSETS</span>
+                                        <span id="dt-kpi-good" class="text-xl font-black text-slate-900 font-mono tracking-tight block">11,229</span>
+                                        <span class="text-[9.5px] text-slate-500 font-semibold">Asset Good</span>
+                                    </div>
+                                </div>
+                                <!-- Circular Gauge Ring -->
+                                <div class="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                                    <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                        <path class="text-slate-200" stroke-width="3.8" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                        <path id="dt-kpi-good-ring" class="text-emerald-500 transition-all duration-500" stroke-dasharray="83.6, 100" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                        <span id="dt-kpi-good-pct" class="text-[9.5px] font-black text-emerald-600 leading-none">83.60%</span>
+                                        <span class="text-[7.5px] font-bold text-emerald-600 leading-tight">Good</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-1.5 border-t border-slate-100 text-[10px]">
+                                <span class="text-slate-500 font-semibold">Lifetime</span>
+                                <div class="flex items-center gap-3 font-mono font-black">
+                                    <span class="text-emerald-600 flex items-center gap-0.5" title="Dibawah Standar Umur"><span id="dt-kpi-good-lt-down">5,187</span> <i class="ph-bold ph-arrow-down text-xs"></i></span>
+                                    <span class="text-rose-600 flex items-center gap-0.5" title="Diatas Standar Umur"><span id="dt-kpi-good-lt-up">6,042</span> <i class="ph-bold ph-arrow-up text-xs"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KPI 3: CRITICAL ASSETS -->
+                        <div class="bg-white rounded-2xl border border-amber-200/90 shadow-xs p-3.5 flex flex-col justify-between min-h-[122px]">
+                            <div class="flex items-start justify-between gap-2">
+                                <div class="flex items-start gap-2.5">
+                                    <div class="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200/80 text-amber-500 flex items-center justify-center text-lg shrink-0">
+                                        <i class="ph-bold ph-warning"></i>
+                                    </div>
+                                    <div>
+                                        <span class="text-[10px] font-black text-amber-400 uppercase tracking-wider block">CRITICAL ASSETS</span>
+                                        <span id="dt-kpi-crit" class="text-xl font-black text-slate-900 font-mono tracking-tight block">2,050</span>
+                                        <span class="text-[9.5px] text-slate-500 font-semibold">Asset Critical</span>
+                                    </div>
+                                </div>
+                                <!-- Circular Gauge Ring -->
+                                <div class="relative w-14 h-14 shrink-0 flex items-center justify-center">
+                                    <svg class="w-full h-full -rotate-90" viewBox="0 0 36 36">
+                                        <path class="text-slate-500" stroke-width="3.8" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                        <path id="dt-kpi-crit-ring" class="text-amber-400 transition-all duration-500" stroke-dasharray="15.3, 100" stroke-width="3.8" stroke-linecap="round" stroke="currentColor" fill="none" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    </svg>
+                                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center">
+                                        <span id="dt-kpi-crit-pct" class="text-[9.5px] font-black text-amber-500 leading-none">15.26%</span>
+                                        <span class="text-[6.5px] font-bold text-amber-500 uppercase leading-tight">CRITICAL</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center justify-between pt-1.5 border-t border-slate-100 text-[10px]">
+                                <span class="text-slate-500 font-semibold">Lifetime</span>
+                                <div class="flex items-center gap-3 font-mono font-black">
+                                    <span class="text-emerald-600 flex items-center gap-0.5" title="Dibawah Standar Umur"><span id="dt-kpi-crit-lt-down">262</span> <i class="ph-bold ph-arrow-down text-xs"></i></span>
+                                    <span class="text-rose-600 flex items-center gap-0.5" title="Diatas Standar Umur"><span id="dt-kpi-crit-lt-up">1,788</span> <i class="ph-bold ph-arrow-up text-xs"></i></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- KPI 4: Acquisition -->
+                        <div class="bg-white rounded-2xl border border-emerald-200/90 shadow-xs p-3.5 flex flex-col justify-between min-h-[122px]">
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-emerald-100/80 border border-emerald-200 text-emerald-600 flex items-center justify-center text-lg shrink-0">
+                                    <i class="ph-bold ph-shopping-cart"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[11px] font-bold text-emerald-600 block">Acquisition</span>
+                                    <span id="dt-kpi-acq" class="text-base xl:text-lg font-black text-slate-900 font-mono tracking-tight block truncate mt-0.5" title="Total Acquisition">731,654,205,508</span>
+                                </div>
+                            </div>
+                            <div class="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px]">
+                                <span class="text-slate-400 font-medium">Net Book Value:</span>
+                                <span id="dt-kpi-nbv" class="font-mono font-bold text-emerald-700">446,309,065,360</span>
+                            </div>
+                        </div>
+
+                        <!-- KPI 5: Maintenance Cost -->
+                        <div class="bg-white rounded-2xl border border-rose-200/90 shadow-xs p-3.5 flex flex-col justify-between min-h-[122px]">
+                            <div class="flex items-start gap-2.5">
+                                <div class="w-9 h-9 rounded-xl bg-rose-100/80 border border-rose-200 text-rose-500 flex items-center justify-center text-lg shrink-0">
+                                    <i class="ph-bold ph-wrench"></i>
+                                </div>
+                                <div class="min-w-0 flex-1">
+                                    <span class="text-[11px] font-bold text-rose-500 block">Maintenance Cost</span>
+                                    <span id="dt-kpi-maint" class="text-base xl:text-lg font-black text-slate-900 font-mono tracking-tight block truncate mt-0.5" title="Total Maintenance Cost">12,624,269,104</span>
+                                </div>
+                            </div>
+                            <div class="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[11px]">
+                                <span id="dt-kpi-maint-ratio" class="font-mono font-bold text-slate-700">14.86</span>
+                                <span class="text-[9.5px] text-slate-400">Cost Ratio / Unit (Juta)</span>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- MAIN CONTENT GRID: LEFT (KELOMPOK & KATEGORI DRILL-DOWN) + RIGHT (PERFORMANCE ASSET BY) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+
+                        <!-- LEFT COLUMN (5 COLS): KELOMPOK ASSET + KATEGORI ASSET (WITH [+] DRILL-DOWN) -->
+                        <div class="lg:col-span-5 flex flex-col gap-3.5">
+
+                            <!-- TOP LEFT TABLE: KELOMPOK ASSET -->
+                            <div class="bg-white rounded-2xl border border-amber-200/90 shadow-xs p-3.5 flex flex-col">
+                                <div class="flex items-center justify-between mb-2">
+                                    <span class="text-[11px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                                        <i class="ph-bold ph-Exclude text-emerald-600"></i> Kelompok Asset
+                                    </span>
+                                    <span class="text-[10px] text-slate-400">Klik baris untuk filter silang</span>
+                                </div>
+                                <div class="overflow-x-auto max-h-[250px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10.5px] font-black text-slate-700">
+                                            <tr>
+                                                <th class="py-2 px-3 uppercase">KELOMPOK ASSET</th>
+                                                <th class="py-2 px-2.5 text-right">Total<br>Asset</th>
+                                                <th class="py-2 px-2.5 text-right">Avg Standar Umur</th>
+                                                <th class="py-2 px-2.5 text-right">Avg Umur Asset</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dt-tbody-kelompok" class="divide-y divide-slate-100 text-[11px]">
+                                            <!-- Populated dynamically -->
+                                        </tbody>
+                                        <tfoot class="bg-slate-100/90 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11px] font-black text-slate-900">
+                                            <tr>
+                                                <td class="py-2 px-3">Total</td>
+                                                <td id="dt-tot-kel-asset" class="py-2 px-2.5 text-right font-mono">13,432</td>
+                                                <td id="dt-tot-kel-std" class="py-2 px-2.5 text-right font-mono">13</td>
+                                                <td id="dt-tot-kel-umur" class="py-2 px-2.5 text-right font-mono">7</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <!-- BOTTOM LEFT TABLE: KATEGORI ASSET (WITH [+] / [-] DRILL-DOWN) -->
+                            <div class="bg-white rounded-2xl border border-amber-200/90 shadow-xs p-3.5 flex flex-col flex-1">
+                                <div class="flex items-center justify-between mb-2">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[11px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                                            <i class="ph-bold ph-tree-structure text-emerald-600"></i> Kategori Asset (Drill-Down)
+                                        </span>
+                                    </div>
+                                    <div class="flex items-center gap-1">
+                                        <button type="button" onclick="window.expandAllDtCategories(true)" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 border border-slate-200 transition cursor-pointer" title="Expand Semua Kategori">[+] Expand</button>
+                                        <button type="button" onclick="window.expandAllDtCategories(false)" class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-200 transition cursor-pointer" title="Collapse Semua Kategori">[-] Collapse</button>
+                                    </div>
+                                </div>
+                                <div class="overflow-x-auto max-h-[340px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl flex-1">
+                                    <table class="w-full text-left border-collapse">
+                                        <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10.5px] font-black text-slate-700">
+                                            <tr>
+                                                <th class="py-2 px-3 uppercase">KATEGORI ASSET</th>
+                                                <th class="py-2 px-2 text-right">Total<br>Asset</th>
+                                                <th class="py-2 px-2 text-right text-emerald-600">Good</th>
+                                                <th class="py-2 px-2.5 text-right">Acquisition</th>
+                                                <th class="py-2 px-2.5 text-right">Maintenance Cost</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="dt-tbody-kategori" class="divide-y divide-slate-100 text-[11px]">
+                                            <!-- Populated dynamically with [+] / [-] drill-down -->
+                                        </tbody>
+                                        <tfoot class="bg-slate-100/90 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11px] font-black text-slate-900">
+                                            <tr>
+                                                <td class="py-2 px-3">Total</td>
+                                                <td id="dt-tot-kat-asset" class="py-2 px-2 text-right font-mono">13,432</td>
+                                                <td id="dt-tot-kat-good" class="py-2 px-2 text-right font-mono text-emerald-600">83.60%</td>
+                                                <td id="dt-tot-kat-acq" class="py-2 px-2.5 text-right font-mono">731,654,205,508</td>
+                                                <td id="dt-tot-kat-maint" class="py-2 px-2.5 text-right font-mono">12,624,269,104</td>
+                                            </tr>
+                                        </tfoot>
+                                    </table>
+                                </div>
+                            </div>
+
+                        </div>
+
+                        <!-- RIGHT COLUMN (7 COLS): PERFORMANCE ASSET BY (SECTION | CATEGORY | NAME) -->
+                        <div class="lg:col-span-7 bg-white rounded-2xl border border-amber-200/90 shadow-xs p-3.5 flex flex-col">
+                            <!-- Header & Dimension Tabs -->
+                            <div class="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                                <div class="flex items-center gap-3">
+                                    <h3 class="text-sm font-black text-slate-800">Performance Asset By</h3>
+                                    <div class="inline-flex items-center bg-slate-100 p-1 rounded-xl border border-slate-200/80">
+                                        <button type="button" id="btn-dt-perf-section" onclick="window.setDtPerfDim('section')" class="px-3.5 py-1 text-xs font-bold rounded-lg bg-amber-400/90 text-slate-900 shadow-2xs transition cursor-pointer">Section</button>
+                                        <button type="button" id="btn-dt-perf-category" onclick="window.setDtPerfDim('category')" class="px-3.5 py-1 text-xs font-bold rounded-lg text-slate-600 hover:bg-white transition cursor-pointer">Category</button>
+                                        <button type="button" id="btn-dt-perf-name" onclick="window.setDtPerfDim('name')" class="px-3.5 py-1 text-xs font-bold rounded-lg text-slate-600 hover:bg-white transition cursor-pointer">Name</button>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" onclick="window.drillFromDtToMovement()" class="px-2.5 py-1 rounded-lg text-[10.5px] font-black bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white flex items-center gap-1 transition cursor-pointer shadow-2xs" title="Gerbang Akhir Drill: Buka Detail Asset Movement">
+                                        <i class="ph-bold ph-pulse"></i> Drill Akhir: Movement &rarr;
+                                    </button>
+                                    <button type="button" onclick="window.openDrilledAssetsInFullTable()" class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer" title="Lihat di Tabel Master">
+                                        <i class="ph-bold ph-table"></i> Master Unit
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Performance Matrix Table with Horizontal Data Bars -->
+                            <div class="overflow-x-auto max-h-[625px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl flex-1">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[11px] font-black">
+                                        <tr>
+                                            <th id="dt-perf-col-header" class="py-2 px-3 text-slate-800 min-w-[180px]">Section</th>
+                                            <th class="py-2 px-2 text-right text-slate-800">Asset</th>
+                                            <th class="py-2 px-2 text-center text-emerald-600 min-w-[82px]">Good</th>
+                                            <th class="py-2 px-2 text-center text-rose-500 min-w-[76px]">Repair</th>
+                                            <th class="py-2 px-2 text-center text-amber-500 min-w-[76px]">Broken</th>
+                                            <th class="py-2 px-2 text-center text-slate-700 min-w-[72px]">Lost</th>
+                                            <th class="py-2 px-2 text-center text-slate-500 min-w-[72px]">Disposal</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dt-tbody-perf" class="divide-y divide-slate-100 text-[11px]">
+                                        <!-- Populated dynamically with Power BI data bars -->
+                                    </tbody>
+                                    <tfoot class="bg-slate-100/90 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11px] font-black">
+                                        <tr>
+                                            <td class="py-2 px-3 text-slate-900">Total</td>
+                                            <td id="dt-tot-perf-asset" class="py-2 px-2 text-right font-mono text-slate-900">13,432</td>
+                                            <td id="dt-tot-perf-good" class="py-2 px-2 text-right font-mono text-emerald-600">83.60%</td>
+                                            <td id="dt-tot-perf-repair" class="py-2 px-2 text-right font-mono text-rose-600">0.23%</td>
+                                            <td id="dt-tot-perf-broken" class="py-2 px-2 text-right font-mono text-amber-500">8.08%</td>
+                                            <td id="dt-tot-perf-lost" class="py-2 px-2 text-right font-mono text-slate-800">7.18%</td>
+                                            <td id="dt-tot-perf-disposal" class="py-2 px-2 text-right font-mono text-slate-600">0.91%</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+    <!-- VIEW 3: DETAIL ASSET MOVEMENT & CONDITION VALUATION -->
+                    <div id="view-asset-movement" class="page-view hidden space-y-4 pb-6">
+
+                    <!-- TOP HEADER BAR (PT PRATAMA NUSANTARA SAKTI - Detail Asset Movement) -->
+                    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-3.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+                        <div class="flex items-center gap-3">
+                            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center text-2xl shadow-xs shrink-0">
+                                <i class="ph-bold ph-pulse"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2 flex-wrap">
+                                    <span class="text-[10px] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">PT PRATAMA NUSANTARA SAKTI</span>
+                                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold bg-sky-50 text-sky-700 border border-sky-200">
+                                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                                        <span id="mov-live-source-badge">Real-Time Sheet &amp; API (35.160 Aset)</span>
+                                    </span>
+                                    <span id="mov-active-filter-pill" class="hidden px-2.5 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-900 border border-amber-300 flex items-center gap-1 cursor-pointer" onclick="window.resetAssetMovementFilters()" title="Klik untuk hapus filter aktif">
+                                        <span id="mov-active-filter-text">Filter</span>
+                                        <i class="ph-bold ph-x text-[10px]"></i>
+                                    </span>
+                                </div>
+                                <h2 id="mov-view-title" class="text-lg sm:text-xl font-black text-slate-900 tracking-tight mt-0.5">Detail Asset Movement &amp; Condition Valuation</h2>
+                                <p id="mov-view-subtitle" class="text-xs text-slate-500 mt-0.5">Ringkasan transaksi, mutasi lokasi, dan riwayat kondisi fisik aset.</p>
+                            </div>
+                        </div>
+
+                        <!-- Right Controls: Slicers + Live Sync + Back Button -->
+                        <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
+                            <select id="mov-slicer-location" onchange="window.onAssetMovementFilterChange()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+                                <option value="ALL">Semua Lokasi (8 Site)</option>
+                                <option value="CO">CO — Central Office</option>
+                                <option value="FR">FR — Factory Office</option>
+                                <option value="E1">E1 — Estate 1</option>
+                                <option value="E2">E2 — Estate 2</option>
+                                <option value="E3">E3 — Estate 3</option>
+                                <option value="HO">HO — Head Office</option>
+                                <option value="RO">RO — Regional Office</option>
+                                <option value="MR">MR — Gudang Marunda</option>
+                            </select>
+
+                            <select id="mov-slicer-jenis" onchange="window.onAssetMovementFilterChange()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+                                <option value="ALL">Semua Jenis (Asset &amp; Non-Valuable)</option>
+                                <option value="Asset">ASSET (Valuable)</option>
+                                <option value="Non-Valueable Asset">Non-Valueable Asset</option>
+                            </select>
+
+                            <button type="button" onclick="window.triggerLiveApiAndSheetSync()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer" title="Sinkronkan langsung dari API & Google Sheets">
+                                <i class="ph-bold ph-arrows-clockwise"></i> Sync Live Sheet/API
+                            </button>
+
+                            <button type="button" id="mov-back-btn" onclick="window.closeAssetMovementView()" class="px-3 py-1.5 rounded-xl border border-slate-300 hover:border-emerald-600 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs text-xs font-bold" title="Kembali ke Halaman Sebelumnya">
+                                <i class="ph-bold ph-arrow-left text-sm"></i>
+                                <span id="mov-back-btn-text">Kembali</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 5 IMPROVISED EXECUTIVE KPI CARDS BY CONDITION (CLICKABLE FOR CROSS-FILTERING) -->
+                    <div id="mov-kpi-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                        <!-- Dynamically rendered by renderAssetMovementView() from 100% real data -->
+                    </div>
+
+                    <!-- BOTTOM 2-COLUMN WORKSPACE: AVG UMUR ASSET BY KATEGORI (LEFT) + DETAILS ASSET BY CONDITION (RIGHT) -->
+                    <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
+
+                        <!-- LEFT TABLE (5 COLS): Avg Umur Asset By Kategori -->
+                        <div class="lg:col-span-5 bg-white rounded-2xl border border-amber-300/90 shadow-xs p-3.5 flex flex-col">
+                            <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+                                        <i class="ph-bold ph-hourglass-medium text-emerald-600"></i>
+                                        <span>Avg Umur Asset By Kategori</span>
+                                    </h3>
+                                    <p class="text-[10px] text-slate-400">Klik baris untuk memfilter rincian unit di tabel kanan</p>
+                                </div>
+                                <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200/80">
+                                    <button type="button" id="btn-mov-left-nama" onclick="window.setMovLeftMode('nama_asset')" class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-600 text-white shadow-2xs transition cursor-pointer">nama_asset</button>
+                                    <button type="button" id="btn-mov-left-kat" onclick="window.setMovLeftMode('kategori')" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-white transition cursor-pointer">Kategori [+]</button>
+                                </div>
+                            </div>
+
+                            <!-- Search & Sort bar for Left Table -->
+                            <div class="flex items-center gap-2 my-2">
+                                <div class="relative flex-1">
+                                    <i class="ph-bold ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="text" id="mov-left-search" oninput="window.renderAssetMovementLeftTable()" placeholder="Cari nama_asset / kategori..." class="w-full pl-7 pr-2.5 py-1 rounded-lg border border-slate-200 text-xs bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                </div>
+                                <select id="mov-left-sort" onchange="window.renderAssetMovementLeftTable()" class="px-2 py-1 rounded-lg border border-slate-200 text-[11px] font-bold text-slate-700 bg-slate-50 cursor-pointer">
+                                    <option value="name_desc">Sort: Z ➔ A (PBI)</option>
+                                    <option value="name_asc">Sort: A ➔ Z</option>
+                                    <option value="count_desc">Total Asset Tertinggi</option>
+                                    <option value="umur_desc">Avg Umur Tertinggi</option>
+                                </select>
+                            </div>
+
+                            <!-- Table Container -->
+                            <div class="overflow-x-auto max-h-[470px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl flex-1">
+                                <table class="w-full text-left border-collapse">
+                                    <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[11px] font-bold text-slate-700">
+                                        <tr>
+                                            <th id="mov-left-col-hdr" class="py-2 px-3">nama_asset</th>
+                                            <th class="py-2 px-2.5 text-right">Total Asset</th>
+                                            <th class="py-2 px-2.5 text-right">Avg Standar<br>Umur</th>
+                                            <th class="py-2 px-2.5 text-right">Avg Umur<br>Asset</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="mov-tbody-avg-umur" class="divide-y divide-slate-100 text-[11px]">
+                                        <!-- Populated dynamically from real data -->
+                                    </tbody>
+                                    <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11.5px] font-black text-slate-900">
+                                        <tr>
+                                            <td class="py-2 px-3">Total</td>
+                                            <td id="mov-tot-left-asset" class="py-2 px-2.5 text-right font-mono">35,160</td>
+                                            <td id="mov-tot-left-std" class="py-2 px-2.5 text-right font-mono">9</td>
+                                            <td id="mov-tot-left-umur" class="py-2 px-2.5 text-right font-mono">7</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- RIGHT VISUAL (7 COLS): ANALITIK VARIANS UMUR PAKAI, RISIKO OVER-LIFETIME & KOMPOSISI KONDISI KELOMPOK ASET -->
+                        <div class="lg:col-span-7 bg-white rounded-2xl border border-emerald-400/90 shadow-xs p-4 flex flex-col justify-between">
+                            <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                                <div>
+                                    <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+                                        <i class="ph-bold ph-chart-bar-horizontal text-emerald-600"></i>
+                                        <span>Analitik Varians Umur Pakai &amp; Valuasi Kondisi Kelompok Aset</span>
+                                    </h3>
+                                    <p class="text-[10px] text-slate-400">Distribusi umur aktual vs standar pakai, risiko over-lifetime (&gt;100%), dan biaya pemeliharaan per kelompok aset (Klik bar untuk filter silang)</p>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <button type="button" onclick="window.switchAppDomain && window.switchWoViewMode ? (navTo('view-wo'), switchWoViewMode('history')) : navTo('view-wo')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 flex items-center gap-1 transition cursor-pointer shadow-2xs" title="Buka Drill Maintenance & Detail Part">
+                                        <i class="ph-bold ph-wrench"></i> Drill Maintenance
+                                    </button>
+                                    <button type="button" onclick="window.resetAssetMovementFilters()" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer">
+                                        <i class="ph-bold ph-arrows-counter-clockwise"></i> Reset
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Dynamic Related Visual Container -->
+                            <div id="mov-related-visual-container" class="flex-1 flex flex-col justify-between gap-3 pt-3">
+                                <!-- Populated dynamically by renderAssetMovementRelatedVisual() from 100% live assets -->
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- FULL-WIDTH BOTTOM TABLE: Details Asset by Condition -->
+                    <div class="bg-white rounded-2xl border border-emerald-400/90 shadow-xs p-4 flex flex-col">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
+                            <div>
+                                <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
+                                    <i class="ph-bold ph-list-magnifying-glass text-emerald-600"></i>
+                                    <span>Details Asset by Condition</span>
+                                    <span id="mov-right-count-badge" class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-black bg-emerald-50 text-emerald-700 border border-emerald-200">35.160 Unit</span>
+                                </h3>
+                                <p class="text-[10px] text-slate-400">Tabel rincian unit aset di posisi bawah layar penuh &bull; Klik baris untuk membuka Dossier Lengkap atau klik tombol 🔧 Maint untuk drill ke Detail Part Maintenance</p>
+                            </div>
+                            <div class="flex flex-wrap items-center gap-2">
+                                <div class="relative min-w-[240px] sm:min-w-[300px]">
+                                    <i class="ph-bold ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
+                                    <input type="text" id="mov-right-search" oninput="window.onMovRightSearch()" placeholder="Cari kode_unit (misal A-500-511), nama_asset_detail, atau lokasi..." class="w-full pl-7 pr-2.5 py-1.5 rounded-lg border border-slate-200 text-xs bg-slate-50 focus:bg-white focus:outline-none focus:ring-1 focus:ring-emerald-500">
+                                </div>
+                                <div class="flex items-center gap-1 text-[11px]">
+                                    <button type="button" onclick="window.changeMovRightPage(-1)" id="btn-mov-prev" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 font-bold text-slate-700 disabled:opacity-40 cursor-pointer">&laquo; Prev</button>
+                                    <span id="mov-page-info" class="font-mono font-bold text-slate-600 px-2">Hal 1 / 352</span>
+                                    <button type="button" onclick="window.changeMovRightPage(1)" id="btn-mov-next" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 font-bold text-slate-700 disabled:opacity-40 cursor-pointer">Next &raquo;</button>
+                                </div>
+                                <button type="button" onclick="window.exportMovementDetailsCsv('xlsx')" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 transition cursor-pointer shadow-2xs">
+                                    <i class="ph-bold ph-file-xls"></i> Export Excel (.xlsx)
+                                </button>
+                                <button type="button" onclick="window.exportMovementDetailsCsv('csv')" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer">
+                                    <i class="ph-bold ph-download-simple"></i> CSV
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Full-Width Details Asset Table -->
+                        <div class="overflow-x-auto max-h-[520px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl mt-2.5">
+                            <table class="w-full text-left border-collapse">
+                                <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10.5px] font-black text-slate-800 uppercase">
+                                    <tr>
+                                        <th class="py-2 px-2.5">Location</th>
+                                        <th class="py-2 px-2.5">Kode_Unit <i class="ph-fill ph-caret-up text-[9px] text-slate-500"></i></th>
+                                        <th class="py-2 px-2.5">Nama_Asset_Detail</th>
+                                        <th class="py-2 px-2.5">Kelompok_Asset</th>
+                                        <th class="py-2 px-2 text-center">Kondisi</th>
+                                        <th class="py-2 px-2 text-right">Varian_Umur</th>
+                                        <th class="py-2 px-2 text-right">Sum of<br>Standar_Umur</th>
+                                        <th class="py-2 px-2 text-right">Sum of<br>Umur_Asset</th>
+                                        <th class="py-2 px-2.5 text-right">Nilai_Pembukuan</th>
+                                        <th class="py-2 px-2.5 text-right">Maintenance Cost</th>
+                                        <th class="py-2 px-2.5 text-center">Drill Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="mov-tbody-details" class="divide-y divide-slate-100 text-[11px]">
+                                    <!-- Populated dynamically from real data with conditional varian_umur -->
+                                </tbody>
+                                <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11px] font-black text-slate-900">
+                                    <tr>
+                                        <td class="py-2 px-2.5" colspan="4">Total (<span id="mov-tot-right-count">35,160</span> Unit)</td>
+                                        <td class="py-2 px-2 text-center text-slate-400 font-normal text-[9px]">-</td>
+                                        <td class="py-2 px-2 text-right font-mono text-slate-500 text-[10px]" id="mov-tot-right-varian">-</td>
+                                        <td id="mov-tot-right-std" class="py-2 px-2 text-right font-mono">307,784</td>
+                                        <td id="mov-tot-right-umur" class="py-2 px-2 text-right font-mono">232,566</td>
+                                        <td id="mov-tot-right-nbv" class="py-2 px-2.5 text-right font-mono text-emerald-800">681,781,314,986</td>
+                                        <td id="mov-tot-right-maint" class="py-2 px-2.5 text-right font-mono text-slate-900">27,652,413,593</td>
+                                        <td class="py-2 px-2.5 text-center text-slate-400">-</td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                    </div>
+
+                </div>
+
+    <!-- VIEW 4: DETAIL DOSSIER & SPESIFIKASI UNIT ASET -->
+    <div id="view-asset-detail" class="page-view hidden space-y-3.5 pb-6">
+                    
+                    <!-- Top Action & Slicer Bar -->
+                    <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white  rounded-2xl border border-slate-200/90  shadow-xs shrink-0 gap-3">
+                        <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
+                            <button type="button" onclick="window.pns.switchView('view-validasi')" class="px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-emerald-600 hover:text-white text-slate-700 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0"><i class="ph-bold ph-arrow-left text-xs"></i><span>Kembali ke Matrix Validasi</span>
+                            </button>
+                            <span class="text-[10.5px] font-black uppercase tracking-wider text-emerald-600  flex items-center gap-1.5 shrink-0 pl-1 border-l border-slate-200 ">
+                                <i class="ph-bold ph-identification-badge"></i> Dossier Aset:
+                            </span>
+
+                            <!-- Slicer: Kelompok -->
+                            <div class="flex items-center bg-slate-50  rounded-xl px-3 py-1.5 border border-slate-200/90  shrink-0 shadow-2xs">
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase mr-1.5">Kelompok:</span>
+                                <select id="slicer-assetd-group" onchange="window.pns.onAssetDetailFilterChange()" class="bg-transparent text-xs font-bold text-slate-800  focus:outline-none cursor-pointer max-w-[150px] truncate">
+                                    <option value="ALL">Semua Kelompok</option>
+                                </select>
+                            </div>
+
+                            <!-- Slicer: Kondisi -->
+                            <div class="flex items-center bg-slate-50  rounded-xl px-3 py-1.5 border border-slate-200/90  shrink-0 shadow-2xs">
+                                <span class="text-[10px] font-extrabold text-slate-400 uppercase mr-1.5">Kondisi:</span>
+                                <select id="slicer-assetd-cond" onchange="window.pns.onAssetDetailFilterChange()" class="bg-transparent text-xs font-bold text-slate-800  focus:outline-none cursor-pointer">
+                                    <option value="ALL">Semua Kondisi</option>
+                                    <option value="Good Condition">Good Condition</option>
+                                    <option value="Broken">Broken</option>
+                                    <option value="Lost">Lost</option>
+                                    <option value="Repair">Repair</option>
+                                    <option value="Disposal">Disposal</option>
+                                </select>
+                            </div>
+
+                            <!-- Search Box -->
+                            <div class="flex items-center bg-slate-50  rounded-xl px-3 py-1.5 border border-slate-200/90  flex-1 max-w-[220px] shadow-2xs">
+                                <i class="ph-bold ph-magnifying-glass text-slate-400 mr-2 text-xs"></i>
+                                <input type="text" id="slicer-assetd-search" oninput="window.pns.onAssetDetailSearch(this.value)" placeholder="Cari nama atau kode aset..." class="bg-transparent text-xs font-semibold text-slate-800  focus:outline-none w-full placeholder:text-slate-400">
+                            </div>
+
+                            <!-- Export CSV Button -->
+                            <button type="button" onclick="window.pns.exportAssetDetailCsv()" class="px-2.5 py-1.5 rounded-xl bg-slate-100  hover:bg-emerald-600 hover:text-white text-slate-700  text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Download Data Dossier Aset (CSV)">
+                                <i class="ph-bold ph-download-simple"></i>
+                                <span>Export</span>
+                            </button>
+                        </div>
+
+                        <!-- Record Counter Badge -->
+                        <div class="text-[11px] font-mono font-bold text-slate-600  bg-slate-50  px-3 py-1.5 rounded-xl border border-slate-200/90  shrink-0 shadow-2xs">
+                            <span id="pbi-assetd-filtered-count">0</span> Aset Terfilter
+                        </div>
+                    </div>
+
+                    <!-- Executive Unit Spotlight Dossier Card -->
+                    <!-- REALTIME LIVE API VERIFICATION & CHECKOUT STRIP -->
+                    <div id="pbi-assetd-realtime-api-strip" class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+                        <div class="flex items-center gap-2 flex-wrap">
+                            <span class="px-2 py-0.5 rounded font-black text-[10px] bg-emerald-700 text-white uppercase tracking-wider flex items-center gap-1">
+                                <i class="ph-bold ph-seal-check"></i> Realtime Live API Data
+                            </span>
+                            <span class="text-slate-600 font-medium">Tipe Asset: <strong class="text-slate-900" id="pbi-assetd-api-tipe">-</strong></span>
+                            <span class="text-slate-400">&bull;</span>
+                            <span class="text-slate-600 font-medium">Status Verif 3: <strong class="text-emerald-700" id="pbi-assetd-api-status3">-</strong></span>
+                            <span class="text-slate-400">&bull;</span>
+                            <span class="text-slate-600 font-medium">User: <strong class="text-slate-800" id="pbi-assetd-api-user">-</strong></span>
+                            <span class="text-slate-400">&bull;</span>
+                            <span class="text-slate-600 font-medium">Tgl Verif: <strong class="text-slate-700 font-mono text-[10.5px]" id="pbi-assetd-api-tgl-verif">-</strong></span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="text-slate-600 font-medium">Checkout:</span>
+                            <span class="px-2 py-0.5 rounded font-mono font-bold text-[10px] bg-sky-100 text-sky-800 border border-sky-200" id="pbi-assetd-api-checkout">-</span>
+                            <span class="font-mono text-[10px] text-slate-500" id="pbi-assetd-api-tgl-checkout">-</span>
+                        </div>
+                    </div>
+
+                    <div id="pbi-assetd-spotlight-card" class="pns-card p-4 bg-slate-50/80  border border-slate-200/90  rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
+                        <div class="flex items-center gap-3.5">
+                            <div class="w-11 h-11 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
+                                <i class="ph-bold ph-identification-card"></i>
+                            </div>
+                            <div>
+                                <div class="flex items-center gap-2">
+                                    <span class="text-xs font-black uppercase tracking-wider text-slate-900 " id="pbi-assetd-spotlight-code">SEMUA ASET</span>
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-700  " id="pbi-assetd-spotlight-cond">PORTFOLIO</span>
+                                </div>
+                                <h4 class="text-sm font-black text-slate-800  mt-0.5 truncate max-w-[320px]" id="pbi-assetd-spotlight-name">Ringkasan Portofolio Master Aset</h4>
+                                <span class="text-[11px] text-slate-500  font-medium" id="pbi-assetd-spotlight-meta">Lokasi: Semua Kantor | Departemen: All Departments</span>
+                            </div>
+                        </div>
+                        <div class="flex flex-wrap items-center gap-4 bg-white/70  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                            <div class="text-right">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block">Rasio MTC / CAPEX</span>
+                                <span class="text-sm font-black text-slate-800  font-mono" id="pbi-assetd-spotlight-ratio">0.0%</span>
+                            </div>
+                            <div class="text-right border-l border-slate-200  pl-3">
+                                <span class="text-[9px] font-bold text-slate-400 uppercase block">Rekomendasi Keputusan Lifecycle</span>
+                                <span class="px-2.5 py-1 rounded-lg text-[10.5px] font-bold inline-block mt-0.5 bg-emerald-100 text-emerald-700  " id="pbi-assetd-spotlight-rec">
+                                    Aset Produktif & Optimal
+                                </span>
+                            </div>
+                            <div class="border-l border-slate-200 pl-3 flex items-center gap-2">
+                                <button type="button" onclick="window.drillCurrentSpotlightToMaintenance()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Drill ke Riwayat Maintenance & Detail Part untuk Aset Ini">
+                                    <i class="ph-bold ph-wrench"></i>
+                                    <span>Drill Maintenance &amp; Part</span>
+                                </button>
+                                <div id="pbi-assetd-spotlight-bldg-action" class="hidden">
+                                    <button type="button" id="pbi-assetd-spotlight-bldg-btn" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                                        <i class="ph-bold ph-compass"></i>
+                                        <span>Eksplorasi Gedung</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 4 Hero Decision Cards -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 shrink-0">
+                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                            <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Total Aset Terdata</span>
+                            <span class="text-2xl font-black text-slate-800  mt-1 block tracking-tight" id="pbi-assetd-total-count">0 Unit</span>
+                        </div>
+                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                            <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Nilai Perolehan Bruto</span>
+                            <span class="text-2xl font-black text-cyan-600  mt-1 block tracking-tight truncate" id="pbi-assetd-total-acq">Rp 0</span>
+                        </div>
+                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                            <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Estimasi Nilai Buku</span>
+                            <span class="text-2xl font-black text-amber-600  mt-1 block tracking-tight truncate" id="pbi-assetd-total-book">Rp 0</span>
+                        </div>
+                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                            <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Akumulasi Biaya MTC</span>
+                            <span class="text-2xl font-black text-rose-600  mt-1 block tracking-tight truncate" id="pbi-assetd-total-mtc">Rp 0</span>
+                        </div>
+                    </div>
+
+                    <!-- Dedicated Building Breakdown Card (Dynamic, shown when viewing a Building Asset) -->
+                    <div id="pbi-assetd-bldg-breakdown-card" class="hidden pns-card p-4 sm:p-5 border border-slate-200/90  bg-slate-50/80  rounded-xl shadow-xs flex-col gap-4 transition-all">
+                        <!-- Top Bar: Title & Badges & Action Buttons -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-blue-100 ">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
+                                    <i class="ph-bold ph-buildings"></i>
+                                </div>
+                                <div>
+                                    <div class="flex items-center gap-2 flex-wrap">
+                                        <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-blue-100 text-blue-700   font-mono">
+                                            🏢 BREAKDOWN FASILITAS GEDUNG
+                                        </span>
+                                        <span id="pbi-assetd-bldg-loc-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100  text-slate-600  font-mono">
+                                            CO
+                                        </span>
+                                        <span id="pbi-assetd-bldg-scope-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700   font-mono">
+                                            🏢 Dalam Gedung
+                                        </span>
+                                    </div>
+                                    <h3 id="pbi-assetd-bldg-name" class="text-sm sm:text-base font-black text-slate-800  mt-0.5">
+                                        MESS MANAGER 01 (PNS-MGR-01-01)
+                                    </h3>
+                                    <p class="text-[11px] text-slate-500 ">
+                                        Rincian seluruh inventaris, perabot, dan perlengkapan fisik di dalam bangunan ini.
+                                    </p>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button type="button" id="pbi-assetd-btn-open-explorer" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                    <i class="ph-bold ph-compass text-sm"></i>
+                                    <span>Buka di Modul Gedung & Kamar</span>
+                                </button>
+                                <button type="button" onclick="window.print()" class="px-3 py-1.5 rounded-xl bg-white  hover:bg-slate-100  text-slate-700  text-xs font-bold transition border border-slate-200  flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                                    <i class="ph-bold ph-printer"></i>
+                                    <span class="hidden sm:inline">Cetak</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Quick Stats Counters -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                                <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Total Ruangan / Kamar</span>
+                                <span id="pbi-assetd-bldg-stat-rooms" class="text-base sm:text-lg font-black text-slate-800  font-mono mt-0.5 block">0 Ruang</span>
+                            </div>
+                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                                <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Total Fasilitas Fisik</span>
+                                <span id="pbi-assetd-bldg-stat-units" class="text-base sm:text-lg font-black text-blue-600  font-mono mt-0.5 block">0 Unit</span>
+                            </div>
+                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                                <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Kondisi Fisik Baik</span>
+                                <span id="pbi-assetd-bldg-stat-good" class="text-base sm:text-lg font-black text-emerald-600  font-mono mt-0.5 block">100%</span>
+                            </div>
+                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                                <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Nilai Gedung Induk</span>
+                                <span id="pbi-assetd-bldg-stat-acq" class="text-base sm:text-lg font-black text-slate-800  font-mono mt-0.5 block truncate">Rp 0</span>
+                            </div>
+                        </div>
+
+                        <!-- Ringkasan Kategori Fasilitas (Item Summary Pills) -->
+                        <div class="space-y-1.5">
+                            <div class="flex items-center justify-between">
+                                <span class="text-[10px] font-extrabold uppercase tracking-wider text-slate-400 ">
+                                    Ringkasan Kuantitas per Jenis Fasilitas:
+                                </span>
+                                <span class="text-[10px] text-slate-400 font-medium">Klik jenis barang untuk memfilter daftar rincian</span>
+                            </div>
+                            <div id="pbi-assetd-bldg-item-pills" class="flex flex-wrap items-center gap-1.5">
+                                <!-- Dynamic pills: AC (1), Kompor Gas (1), etc. -->
+                            </div>
+                        </div>
+
+                        <!-- Ruangan Filters (if multiple rooms) -->
+                        <div id="pbi-assetd-bldg-room-selector" class="flex flex-wrap items-center gap-1.5 pt-2 border-t border-blue-100/60 ">
+                            <!-- Room tabs -->
+                        </div>
+
+                        <!-- Child Inventory Table -->
+                        <div class="overflow-x-auto scrollbar-thin border border-slate-200  rounded-xl bg-white  shadow-2xs max-h-[380px]">
+                            <table class="w-full text-left border-collapse whitespace-nowrap text-xs">
+                                <thead class="sticky top-0 bg-slate-50  text-[10px] font-black uppercase tracking-wider text-slate-500  border-b border-slate-200 ">
+                                    <tr>
+                                        <th class="px-3.5 py-2.5 min-w-[130px]">Kode Aset Fisik</th>
+                                        <th class="px-3.5 py-2.5 min-w-[200px]">Nama Barang / Fasilitas</th>
+                                        <th class="px-3 py-2.5 min-w-[120px]">Klasifikasi</th>
+                                        <th class="px-3 py-2.5 min-w-[160px]">Ruangan / Kamar</th>
+                                        <th class="px-3 py-2.5 text-center min-w-[100px]">Kondisi</th>
+                                        <th class="px-3 py-2.5 min-w-[120px]">Penanggung Jawab</th>
+                                        <th class="px-3 py-2.5 text-center min-w-[80px]">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="pbi-assetd-bldg-units-tbody">
+                                    <!-- Rows of child assets -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+
+                    <!-- Visuals & Dossier Matrix -->
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-3.5 min-h-[500px]">
+                        
+                        <!-- Left Charts (Departemen Bar & Kondisi Donut) -->
+                        <div class="xl:col-span-5 flex flex-col gap-3.5">
+                            <div class="pns-card p-4 flex flex-col min-h-[260px] shadow-xs">
+                                <span class="text-xs sm:text-sm font-bold text-slate-800  pb-3 border-b border-slate-100  shrink-0">Distribusi Nilai Aset per Departemen</span>
+                                <div class="flex-1 w-full min-h-[200px]" id="chart-pbi-assetd-dept-bar"></div>
+                            </div>
+                            <div class="pns-card p-4 flex flex-col min-h-[240px] shadow-xs">
+                                <span class="text-xs sm:text-sm font-bold text-slate-800  pb-3 border-b border-slate-100  shrink-0">Proporsi Kondisi Fisik Aset</span>
+                                <div class="flex-1 w-full min-h-[180px]" id="chart-pbi-assetd-cond-donut"></div>
+                            </div>
+                        </div>
+
+                        <!-- Right Asset Dossier Table -->
+                        <div class="xl:col-span-7 pns-card p-4 flex flex-col min-h-[520px] shadow-xs">
+                            <div class="flex items-center justify-between pb-3 border-b border-slate-100  shrink-0">
+                                <div>
+                                    <span class="text-xs sm:text-sm font-bold text-slate-800  block" id="pbi-assetd-table-title">Dossier & Spesifikasi Master Aset</span>
+                                    <span class="text-[10.5px] text-slate-400 font-medium" id="pbi-assetd-table-subtitle">Lengkap dengan Rekomendasi Lifecycle & Biaya Servis</span>
+                                </div>
+                                <div class="flex items-center gap-2">
+                                    <div id="pbi-assetd-table-mode-tabs" class="hidden items-center gap-1 bg-slate-100  p-0.5 rounded-lg border border-slate-200 ">
+                                        <button type="button" id="pbi-assetd-tab-parent" onclick="window.pns.setAssetDetailTableMode('PARENT')" class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-white  text-slate-800  shadow-2xs cursor-pointer">
+                                            🏢 Data Induk
+                                        </button>
+                                        <button type="button" id="pbi-assetd-tab-breakdown" onclick="window.pns.setAssetDetailTableMode('BREAKDOWN')" class="px-2.5 py-1 rounded-md text-[10px] font-bold text-slate-500 hover:text-slate-800  cursor-pointer flex items-center gap-1">
+                                            <span>📦 Fasilitas Gedung</span>
+                                            <span id="pbi-assetd-tab-breakdown-count" class="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-700   font-mono text-[9px]">0</span>
+                                        </button>
+                                    </div>
+                                    <span id="pbi-assetd-table-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700  ">100 Aset Teratas</span>
+                                </div>
+                            </div>
+                            <div class="flex-1 overflow-auto scrollbar-thin mt-2 max-h-[460px]">
+                                <table class="w-full text-left border-collapse whitespace-nowrap text-xs">
+                                    <thead class="sticky top-0 bg-slate-50/95  backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500  border-b border-slate-200 ">
+                                        <tr>
+                                            <th class="px-3.5 py-2.5 min-w-[130px]">Kode Aset</th>
+                                            <th class="px-3 py-2.5 min-w-[180px]">Nama Aset</th>
+                                            <th class="px-3 py-2.5 min-w-[120px]">Kelompok</th>
+                                            <th class="px-3 py-2.5 min-w-[110px]">Lokasi</th>
+                                            <th class="px-3 py-2.5 min-w-[130px] text-cyan-600 ">Section PIC</th>
+                                            <th class="px-3 py-2.5 min-w-[120px] text-emerald-600">User / Pemegang</th>
+                                            <th class="px-3 py-2.5 text-center min-w-[100px]">Kondisi</th>
+                                            <th class="px-3 py-2.5 text-right min-w-[120px]">Harga Perolehan</th>
+                                            <th class="px-3 py-2.5 text-right min-w-[110px] text-rose-600 font-bold">Biaya MTC</th>
+                                            <th class="px-3 py-2.5 text-center min-w-[130px]">Rekomendasi</th>
+                                            <th class="px-3 py-2.5 text-center min-w-[70px]">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="table-pbi-assetd-matrix"></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+  </main>
+
+  <!-- ======================================================== -->
+  <!-- FLOATING CONTEXT MENUS & MODALS                          -->
+  <!-- ======================================================== -->
+                  <div id="pbi-drill-context-menu" class="hidden fixed z-50 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 w-60 text-xs text-slate-700 select-none">
+                    <div class="px-3 py-1.5 border-b border-slate-100 flex items-center justify-between">
+                        <span id="pbi-ctx-title" class="font-black text-[11px] text-slate-900 truncate max-w-[190px]">CENTRAL OFFICE</span>
+                        <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700">PBI</span>
+                    </div>
+                    <button type="button" id="pbi-ctx-btn-drill" class="w-full px-3 py-2 text-left hover:bg-slate-100 flex items-center justify-between font-bold text-slate-800 cursor-pointer group">
+                        <span class="flex items-center gap-2">
+                            <i class="ph-bold ph-arrow-circle-right text-base text-emerald-600"></i>
+                            <span>Drill through</span>
+                        </span>
+                        <span class="px-2 py-0.5 rounded bg-emerald-600 text-white text-[10px] font-black shadow-2xs">DT.Details.Assets</span>
+                    </button>
+                    <button type="button" id="pbi-ctx-btn-expand" class="w-full px-3 py-1.5 text-left hover:bg-slate-100 flex items-center gap-2 text-slate-600 cursor-pointer">
+                        <i class="ph-bold ph-plus-square text-sm text-slate-500"></i>
+                        <span>Drill down / Expand inline</span>
+                    </button>
+                    <button type="button" id="pbi-ctx-btn-movement" class="w-full px-3 py-1.5 text-left hover:bg-slate-100 flex items-center justify-between text-slate-700 font-semibold cursor-pointer">
+                        <span class="flex items-center gap-2">
+                            <i class="ph-bold ph-pulse text-sm text-amber-600"></i>
+                            <span>Detail Asset Movement</span>
+                        </span>
+                        <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 text-[9px] font-black">5 Kondisi</span>
+                    </button>
+                    <button type="button" id="pbi-ctx-btn-table" class="w-full px-3 py-1.5 text-left hover:bg-slate-100 flex items-center gap-2 text-slate-600 cursor-pointer">
+                        <i class="ph-bold ph-table text-sm text-slate-500"></i>
+                        <span>Show as a table (Master Unit)</span>
+                    </button>
+                </div>
+
+    <div id="modal-api-compare" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="clean-card w-full max-w-5xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in">
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50/90 flex justify-between items-center">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-xl shrink-0 shadow-2xs">
+            <i class="ph-bold ph-arrows-left-right"></i>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h3 class="font-extrabold text-slate-900 text-sm sm:text-base">Komparasi Langsung Data API Live vs Master &amp; Validasi</h3>
+              <span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800 border border-emerald-300 flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                API 200 OK
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-500">
+              Endpoint: <code class="font-mono text-[10.5px] text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">https://api.pns.co.id/main/asset_ver_report</code> &bull; Total Aktual: <strong>35.160 Unit</strong>
+            </p>
+          </div>
+        </div>
+        <button type="button" onclick="closeApiLiveCompareModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/80 transition flex items-center justify-center cursor-pointer">
+          <i class="ph-bold ph-x text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body (Scrollable) -->
+      <div class="p-5 overflow-y-auto space-y-4 text-xs" id="api-compare-modal-content">
+        <!-- 4 KPI Cards -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
+          <div class="bg-slate-50 border border-slate-200/90 rounded-xl p-3.5">
+            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Aset di API</span>
+            <div class="text-2xl font-black text-slate-900 mt-1 num-tabular">35.160</div>
+            <span class="text-[10.5px] font-medium text-emerald-700 mt-0.5 block">100% Records Terdata</span>
+          </div>
+          <div class="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3.5">
+            <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Aset Validasi (Fisik)</span>
+            <div class="text-2xl font-black text-emerald-800 mt-1 num-tabular">34.806</div>
+            <span class="text-[10.5px] font-semibold text-emerald-700 mt-0.5 block">98,99% Terverifikasi</span>
+          </div>
+          <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-3.5">
+            <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider block">Belum Verifikasi</span>
+            <div class="text-2xl font-black text-amber-800 mt-1 num-tabular">354</div>
+            <span class="text-[10.5px] font-semibold text-amber-700 mt-0.5 block">1,01% Antrean Opname</span>
+          </div>
+          <div class="bg-indigo-50/60 border border-indigo-200 rounded-xl p-3.5">
+            <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block">Valuasi Perolehan (HPP)</span>
+            <div class="text-2xl font-black text-indigo-900 mt-1 num-tabular">Rp 1,16 T</div>
+            <span class="text-[10.5px] font-medium text-indigo-700 mt-0.5 block truncate">Rp 1.157.444.129.562</span>
+          </div>
+        </div>
+
+        <!-- Tabel Komparasi 9 Lokasi Kerja PT PNS -->
+        <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
+          <div class="px-4 py-2.5 bg-slate-100/80 border-b border-slate-200 flex justify-between items-center">
+            <h4 class="font-extrabold text-slate-800 text-xs flex items-center gap-2">
+              <i class="ph-bold ph-map-trifold text-emerald-600"></i>
+              Matriks Paritas Data API vs Rekonsiliasi Per Lokasi Kerja (9 Lokasi Aktual)
+            </h4>
+            <span class="text-[10.5px] text-slate-500 font-mono">Status: 100% Cocok</span>
+          </div>
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
+                <tr>
+                  <th class="py-2.5 px-3">Kode</th>
+                  <th class="py-2.5 px-3">Lokasi Operasional</th>
+                  <th class="py-2.5 px-3 text-right">Data API Live</th>
+                  <th class="py-2.5 px-3 text-right">Asset Validasi</th>
+                  <th class="py-2.5 px-3 text-right">Belum Verif</th>
+                  <th class="py-2.5 px-3 text-right">Total HPP</th>
+                  <th class="py-2.5 px-3 text-center">Status Paritas</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100 text-[11.5px]">
+                <tr class="hover:bg-slate-50">
+                  <td class="py-2 px-3 font-mono font-bold text-slate-700">CO</td>
+                  <td class="py-2 px-3 font-semibold text-slate-800">Central Office</td>
+                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">13.681</td>
+                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">13.677</td>
+                  <td class="py-2 px-3 text-right font-mono text-amber-600 font-semibold">4</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 747,13 M</td>
+                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-2 px-3 font-mono font-bold text-slate-700">FR</td>
+                  <td class="py-2 px-3 font-semibold text-slate-800">Factory / Pabrik Gula</td>
+                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">10.757</td>
+                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">10.757</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 135,12 M</td>
+                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-2 px-3 font-mono font-bold text-slate-700">E1</td>
+                  <td class="py-2 px-3 font-semibold text-slate-800">Estate 1</td>
+                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">2.759</td>
+                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">2.636</td>
+                  <td class="py-2 px-3 text-right font-mono text-amber-600 font-semibold">123</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 116,91 M</td>
+                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-2 px-3 font-mono font-bold text-slate-700">E2</td>
+                  <td class="py-2 px-3 font-semibold text-slate-800">Estate 2</td>
+                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">2.680</td>
+                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">2.680</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 68,85 M</td>
+                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-2 px-3 font-mono font-bold text-slate-700">E3</td>
+                  <td class="py-2 px-3 font-semibold text-slate-800">Estate 3</td>
+                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">2.414</td>
+                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">2.414</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 77,02 M</td>
+                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-2 px-3 font-mono font-bold text-slate-700">MR</td>
+                  <td class="py-2 px-3 font-semibold text-slate-800">Gudang Marunda (MR)</td>
+                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">1.636</td>
+                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">1.636</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 4,92 M</td>
+                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-2 px-3 font-mono font-bold text-slate-700">HO</td>
+                  <td class="py-2 px-3 font-semibold text-slate-800">Head Office Jakarta</td>
+                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">866</td>
+                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">866</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 4,54 M</td>
+                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-2 px-3 font-mono font-bold text-amber-700">BC</td>
+                  <td class="py-2 px-3 font-semibold text-amber-800">Antrean Belum Checkout</td>
+                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">227</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
+                  <td class="py-2 px-3 text-right font-mono text-amber-600 font-semibold">227</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 2,04 M</td>
+                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-amber-100 text-amber-800">In Queue</span></td>
+                </tr>
+                <tr class="hover:bg-slate-50">
+                  <td class="py-2 px-3 font-mono font-bold text-slate-700">RO</td>
+                  <td class="py-2 px-3 font-semibold text-slate-800">Regional Office Lampung</td>
+                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">140</td>
+                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">140</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
+                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 0,92 M</td>
+                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
+                </tr>
+              </tbody>
+              <tfoot class="bg-slate-100/90 font-bold border-t-2 border-slate-300 text-slate-900">
+                <tr>
+                  <td colspan="2" class="py-2.5 px-3 uppercase text-[10.5px]">Total Portofolio PT PNS</td>
+                  <td class="py-2.5 px-3 text-right font-mono text-sm text-slate-900">35.160</td>
+                  <td class="py-2.5 px-3 text-right font-mono text-sm text-emerald-700">34.806</td>
+                  <td class="py-2.5 px-3 text-right font-mono text-sm text-amber-700">354</td>
+                  <td class="py-2.5 px-3 text-right font-mono text-sm text-indigo-900">Rp 1.157,44 M</td>
+                  <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-black bg-emerald-600 text-white">100% PARITAS</span></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3 border-t border-slate-200 bg-slate-50/80 flex flex-wrap items-center justify-between gap-2.5">
+        <div class="text-[11px] text-slate-500 flex items-center gap-1.5">
+          <i class="ph-bold ph-clock-counter-clockwise text-emerald-600"></i>
+          <span>Sinkronisasi Terakhir: Real-Time Live API (35.160 Aset)</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="syncAssetVerReportLive()" class="px-3.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
+            <i class="ph-bold ph-arrows-clockwise text-emerald-600"></i>
+            <span>Tarik API Live Sekarang</span>
+          </button>
+          <button type="button" onclick="exportApiCompareExcel()" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+            <i class="ph-bold ph-file-xls text-sm"></i>
+            <span>Export Komparasi (.xlsx)</span>
+          </button>
+          <button type="button" onclick="closeApiLiveCompareModal()" class="px-4 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer">
+            Tutup
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modular Scripts -->
+  <script src="config.js"></script>
+  <script src="pns_data_master.js"></script>
+  <script src="pns_all_assets_catalog.js"></script>
+  <script src="app.js?v=2.5.3"></script>
+
+  <!-- Dedicated Standalone Report Controller Script -->
+  <script>
+    (function() {
+      window.IS_STANDALONE_VALIDASI_REPORT = true;
+      const ALLOWED_REPORT_VIEWS = [
+        'view-validasi',
+        'view-asset-detail-drill',
+        'view-asset-movement',
+        'view-asset-detail'
+      ];
+
+      // Sync top tab pill active states
+      function updateReportTabs(viewId) {
+        const tabMap = {
+          'view-validasi': 'tab-nav-validasi',
+          'view-asset-detail-drill': 'tab-nav-drill',
+          'view-asset-movement': 'tab-nav-movement',
+          'view-asset-detail': 'tab-nav-detail'
+        };
+        document.querySelectorAll('.report-tab-btn').forEach(b => {
+          b.classList.remove('active');
+          b.classList.add('text-slate-600');
+        });
+        const activeBtn = document.getElementById(tabMap[viewId]);
+        if (activeBtn) {
+          activeBtn.classList.add('active');
+          activeBtn.classList.remove('text-slate-600');
+        }
+      }
+
+      // Intercept and wrap navTo & switchView to lock to the 4 allowed views
+      const origNavTo = window.navTo;
+      window.navTo = function(viewId, btnEl) {
+        if (!ALLOWED_REPORT_VIEWS.includes(viewId)) {
+          viewId = 'view-validasi';
+        }
+        updateReportTabs(viewId);
+        if (typeof origNavTo === 'function') {
+          return origNavTo(viewId, btnEl);
+        }
+      };
+
+      if (window.pns) {
+        window.pns.switchView = window.navTo;
+      }
+      window.switchView = window.navTo;
+
+      // Override closeAssetMovementView so it returns to validasi
+      window.closeAssetMovementView = function() {
+        window.navTo('view-validasi');
+      };
+
+      // Set default view on load
+      document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(function() {
+          window.navTo('view-validasi');
+          updateReportTabs('view-validasi');
+        }, 120);
+      });
+    })();
+  </script>
+</body>
+</html>
