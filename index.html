@@ -3821,11 +3821,23 @@
               <!-- Filter Status Validasi & Siklus -->
               <div class="w-full sm:w-auto min-w-[170px]">
                 <select id="val-filter-status" onchange="onFilterValidasiReport()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-medium">
-                  <option value="">Semua Aset (35.160)</option>
+                  <option value="">Semua Status Siklus</option>
                   <option value="sudah_2025">Sudah Validasi 2025 (34.806)</option>
                   <option value="new_asset">New Asset / Belum Sensus (354)</option>
                   <option value="sudah_2026">Sudah Validasi 2026 (Live Inspeksi)</option>
                   <option value="belum_2026">Belum Validasi 2026</option>
+                </select>
+              </div>
+
+              <!-- Filter Kondisi Fisik -->
+              <div class="w-full sm:w-auto min-w-[170px]">
+                <select id="val-filter-kondisi" onchange="onFilterValidasiReport()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-medium font-semibold">
+                  <option value="">Semua Kondisi Fisik (5 Kondisi)</option>
+                  <option value="GOOD">Good Condition / Siap Pakai (28.594)</option>
+                  <option value="BROKEN">Broken / Rusak (3.435)</option>
+                  <option value="LOST">Lost / Hilang (2.320)</option>
+                  <option value="DISPOSAL">Disposal / Afkir (366)</option>
+                  <option value="REPAIR">Repair / Perbaikan (79)</option>
                 </select>
               </div>
             </div>

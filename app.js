@@ -1,3 +1,16 @@
+
+  function normalizeAssetKondisi(raw) {
+    const s = String(raw || '').trim().toUpperCase();
+    if (s.includes('REPAIR') || s.includes('PERBAIKAN')) return 'Repair';
+    if (s.includes('BROKEN') || s.includes('RUSAK')) return 'Broken';
+    if (s.includes('LOST') || s.includes('HILANG')) return 'Lost';
+    if (s.includes('DISP') || s.includes('AFKIR')) return 'Disposal';
+    if (s.includes('GOOD') || s.includes('BAIK')) return 'Good Condition';
+    if (s.includes('BELUM')) return 'Belum Verifikasi';
+    return 'Good Condition';
+  }
+  window.normalizeAssetKondisi = normalizeAssetKondisi;
+
   const OUTDOOR_FACILITY_PATTERNS = [
     /speed\s*boat/i, /ponton/i, /perahu/i, /kapal/i, /jukung/i, /ketinting/i,
     /traktor/i, /excavator/i, /bulldozer/i, /loader/i, /grader/i, /compactor/i,
@@ -3969,7 +3982,8 @@ const PNS_SECTION_TO_DEPT = {
         const kat = String(r[3] || 'UMUM').trim();
         const locRaw = String(r[4] || 'CO').trim();
         const loc = LOKASI_CODE_FULL_MAP[locRaw] || locRaw || 'CENTRAL OFFICE';
-        const kond = String(r[5] || 'Good Condition').trim();
+        const rawKondVal = String(r[5] || '').trim();
+        const kond = normalizeAssetKondisi(rawKondVal);
         const std = Number(r[6]) || 0;
         const umur = Number(r[7]) || 0;
         const hpp = Number(r[8]) || 0;
@@ -6198,7 +6212,7 @@ const PNS_SECTION_TO_DEPT = {
     });
 
     baseAssets.forEach(a => {
-      const k = a.kondisi || 'Good Condition';
+      const k = normalizeAssetKondisi(a.kondisi || a.kond);
       const b = buckets[k] || buckets['Good Condition'];
       b.total++;
       if (String(a.jenis_asset || '') === 'Asset') b.asset++;
@@ -13879,9 +13893,21 @@ const PNS_SECTION_TO_DEPT = {
         ? '<span class="px-1.5 py-0.5 rounded font-mono font-bold text-[10px] bg-sky-100 text-sky-800 border border-sky-200">' + checkout + '</span>'
         : '<span class="px-1.5 py-0.5 rounded font-bold text-[10px] bg-rose-100 text-rose-800 border border-rose-200">Belum Checkout</span>';
 
-      const kondBadge = status3.toLowerCase().includes('good')
-        ? '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">' + status3 + '</span>'
-        : '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-200">' + status3 + '</span>';
+      const s3Low = status3.toLowerCase();
+      let kondBadge = '';
+      if (s3Low.includes('good') || s3Low.includes('baik')) {
+        kondBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200"><i class="ph-bold ph-seal-check mr-1 text-[9px]"></i>' + status3 + '</span>';
+      } else if (s3Low.includes('broken') || s3Low.includes('rusak')) {
+        kondBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-amber-100 text-amber-900 border border-amber-300"><i class="ph-bold ph-warning-octagon mr-1 text-[9px]"></i>' + status3 + '</span>';
+      } else if (s3Low.includes('lost') || s3Low.includes('hilang')) {
+        kondBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-200 text-slate-800 border border-slate-300"><i class="ph-bold ph-magnifying-glass mr-1 text-[9px]"></i>' + status3 + '</span>';
+      } else if (s3Low.includes('disp') || s3Low.includes('afkir')) {
+        kondBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200"><i class="ph-bold ph-trash mr-1 text-[9px]"></i>' + status3 + '</span>';
+      } else if (s3Low.includes('repair') || s3Low.includes('perbaikan')) {
+        kondBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-100 text-rose-800 border border-rose-200"><i class="ph-bold ph-wrench mr-1 text-[9px]"></i>' + status3 + '</span>';
+      } else {
+        kondBadge = '<span class="px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">' + status3 + '</span>';
+      }
 
       return '<tr class="hover:bg-slate-50 transition text-xs border-b border-slate-100">' +
         '<td class="py-2.5 px-3 font-mono font-bold text-sky-700 whitespace-nowrap">' +

@@ -240,11 +240,23 @@
               <!-- Filter Status Validasi & Siklus -->
               <div class="w-full sm:w-auto min-w-[170px]">
                 <select id="val-filter-status" onchange="onFilterValidasiReport()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-medium">
-                  <option value="">Semua Aset (35.160)</option>
+                  <option value="">Semua Status Siklus</option>
                   <option value="sudah_2025">Sudah Validasi 2025 (34.806)</option>
                   <option value="new_asset">New Asset / Belum Sensus (354)</option>
                   <option value="sudah_2026">Sudah Validasi 2026 (Live Inspeksi)</option>
                   <option value="belum_2026">Belum Validasi 2026</option>
+                </select>
+              </div>
+
+              <!-- Filter Kondisi Fisik -->
+              <div class="w-full sm:w-auto min-w-[170px]">
+                <select id="val-filter-kondisi" onchange="onFilterValidasiReport()" class="w-full px-3 py-2 text-xs rounded-xl border border-slate-200 bg-slate-50/50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-emerald-500/20 text-slate-700 font-medium font-semibold">
+                  <option value="">Semua Kondisi Fisik (5 Kondisi)</option>
+                  <option value="GOOD">Good Condition / Siap Pakai (28.594)</option>
+                  <option value="BROKEN">Broken / Rusak (3.435)</option>
+                  <option value="LOST">Lost / Hilang (2.320)</option>
+                  <option value="DISPOSAL">Disposal / Afkir (366)</option>
+                  <option value="REPAIR">Repair / Perbaikan (79)</option>
                 </select>
               </div>
             </div>
@@ -589,18 +601,6 @@
                       <th class="py-2 px-1.5 text-right">Total</th>
                       <th class="py-2 px-1.5 text-right text-emerald-700">Good%</th>
                       <th class="py-2 px-1.5 text-right text-amber-700">Brk%</th>
-                    </tr>
-                  </thead>
-                  <tbody id="table-perf-kat-body" class="divide-y divide-slate-100">
-                    <!-- Rendered dynamically via JS -->
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        </div>
-
-      </div>
 
     <!-- VIEW 2: DRILL THROUGH REKONSILIASI DETAIL -->
                     <div id="view-asset-detail-drill" class="page-view hidden space-y-3.5 pb-6">
@@ -1487,7 +1487,19 @@
                     </button>
                 </div>
 
-    <div id="modal-api-compare" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
+          </button>
+        <button type="button" onclick="closeDetailModal()" class="px-4 py-1.5 font-bold rounded bg-slate-900 text-white">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  
+
+
+  <!-- MODAL: KOMPARASI LANGSUNG DATA API LIVE (35.160) VS MASTER & VALIDASI -->
+  <div id="modal-api-compare" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
     <div class="clean-card w-full max-w-5xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in">
       <!-- Modal Header -->
       <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50/90 flex justify-between items-center">
@@ -1669,13 +1681,90 @@
           <button type="button" onclick="syncAssetVerReportLive()" class="px-3.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">
             <i class="ph-bold ph-arrows-clockwise text-emerald-600"></i>
             <span>Tarik API Live Sekarang</span>
+    <div id="modal-drilldown-validasi" onclick="if(event.target === this) closeValidasiDrillModal()" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
+    <div class="clean-card w-full max-w-5xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in">
+      <!-- Modal Header -->
+      <div class="px-5 py-3.5 border-b border-slate-200 bg-slate-50/80 flex justify-between items-center">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-sky-100 text-sky-700 flex items-center justify-center text-base">
+            <i class="ph-bold ph-list-magnifying-glass"></i>
+          </div>
+          <div>
+            <h3 id="val-drill-title" class="text-sm font-bold text-slate-900">Rincian Drill-Down Validasi Fisik</h3>
+            <p class="text-[11px] text-slate-500">Audit item-level master aset, kondisi fisik, dan status verifikasi lapangan</p>
+          </div>
+        </div>
+        <button type="button" onclick="closeValidasiDrillModal()" class="w-8 h-8 rounded-lg flex items-center justify-center text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition cursor-pointer">
+          <i class="ph-bold ph-x text-base"></i>
+        </button>
+      </div>
+
+      <!-- Filter Bar & Slicers -->
+      <div class="p-4 border-b border-slate-200 bg-white flex flex-wrap items-center justify-between gap-3 text-xs">
+        <!-- Search -->
+        <div class="relative min-w-[240px] flex-1 max-w-md">
+          <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-400"></i>
+          <input type="text" id="val-drill-search" oninput="renderValidasiDrillTable()" placeholder="Cari Kode Unit, Nama Aset, Kelompok..." class="w-full pl-9 pr-3 py-1.5 text-xs rounded-lg border border-slate-300 bg-white text-slate-800 focus:outline-none focus:border-sky-500">
+        </div>
+
+        <!-- Filter Chips / Tabs -->
+        <div class="flex items-center gap-1.5 bg-slate-100 p-1 rounded-lg">
+          <button type="button" id="val-drill-tab-all" onclick="setValidasiDrillStatusFilter('ALL')" class="px-2.5 py-1 text-xs font-semibold rounded bg-slate-800 text-white transition cursor-pointer shadow-xs">
+            Semua (<span id="val-drill-count-total">0</span>)
           </button>
-          <button type="button" onclick="exportApiCompareExcel()" class="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
-            <i class="ph-bold ph-file-xls text-sm"></i>
-            <span>Export Komparasi (.xlsx)</span>
+          <button type="button" id="val-drill-tab-selisih" onclick="setValidasiDrillStatusFilter('SELISIH')" class="px-2.5 py-1 text-xs font-medium text-rose-700 hover:bg-rose-50 transition cursor-pointer rounded">
+            Selisih Fisik (<span id="val-drill-count-selisih">0</span>)
           </button>
-          <button type="button" onclick="closeApiLiveCompareModal()" class="px-4 py-1.5 rounded-xl border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs font-bold transition cursor-pointer">
-            Tutup
+          <button type="button" id="val-drill-tab-sesuai" onclick="setValidasiDrillStatusFilter('SESUAI')" class="px-2.5 py-1 text-xs font-medium text-emerald-700 hover:bg-emerald-50 transition cursor-pointer rounded">
+            Sesuai (<span id="val-drill-count-sesuai">0</span>)
+          </button>
+        </div>
+
+        <!-- Export Excel -->
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="closeValidasiDrillModal(); window.openAssetMovementView({ section: currentValidasiDrill.targetName, location: currentValidasiDrill.targetName, sourceView: 'view-validasi' })" class="px-3 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-xs font-semibold transition cursor-pointer flex items-center gap-1.5 shadow-xs" title="Buka data ini di Halaman Detail Asset Movement">
+            <i class="ph-bold ph-arrow-square-out"></i> Buka Detail Movement &rarr;
+          </button>
+          <button type="button" onclick="exportValidasiDrillXlsx()" class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-medium transition cursor-pointer flex items-center gap-1.5 shadow-xs">
+            <i class="ph-bold ph-file-xls"></i> Export Excel (.xlsx)
+          </button>
+        </div>
+      </div>
+
+      <!-- Drilldown Table Container -->
+      <div class="flex-1 overflow-auto p-0 scrollbar-thin">
+        <table class="w-full text-left border-collapse text-xs">
+          <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200 z-10 select-none">
+            <tr>
+              <th class="py-2.5 px-3">Kode Unit</th>
+              <th class="py-2.5 px-3">Nama Asset</th>
+              <th class="py-2.5 px-2">Tipe Asset</th>
+              <th class="py-2.5 px-2">Checkout</th>
+              <th class="py-2.5 px-2">Tgl Checkout</th>
+              <th class="py-2.5 px-2">Status Verifikasi 3</th>
+              <th class="py-2.5 px-2">User Verifikasi</th>
+              <th class="py-2.5 px-2">Catatan Verifikasi</th>
+              <th class="py-2.5 px-2">Tgl Verifikasi</th>
+              <th class="py-2.5 px-3 text-right">Nilai Perolehan (HPP)</th>
+              <th class="py-2.5 px-3 text-right">Nilai Buku (NBV)</th>
+              <th class="py-2.5 px-2.5 text-center">Aksi</th>
+            </tr>
+          </thead>
+          <tbody id="val-drill-tbody" class="divide-y divide-slate-100 font-medium">
+            <!-- Dynamically populated -->
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Modal Footer with Pagination -->
+      <div class="px-5 py-3 border-t border-slate-200 bg-slate-50 flex justify-between items-center text-xs">
+        <span id="val-drill-paging-info" class="text-slate-500 text-[11px]">Memuat data...</span>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="valDrillPrevPage()" class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs transition cursor-pointer">
+            <i class="ph-bold ph-caret-left"></i> Prev
+          </button>
+          <button type="button" onclick="valDrillNextPage()" class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 text-xs transition cursor-pointer">
+            Next <i class="ph-bold ph-caret-right"></i>
           </button>
         </div>
       </div>
