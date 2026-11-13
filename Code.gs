@@ -390,25 +390,49 @@ function apiGetRuanganList(kodeGedung) {
   var sheet = ss.getSheetByName('M_RUANGAN') || ss.getSheetByName('DIM_RUANGAN');
   if (!sheet || sheet.getLastRow() <= 1) return [];
 
-  var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, Math.min(10, sheet.getLastColumn())).getValues();
+  var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, Math.min(12, sheet.getLastColumn())).getValues();
   var res = [];
   var filterKode = (kodeGedung || '').trim();
 
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
-    var bCode = String(r[1] || '').trim();
-    if (filterKode && bCode !== filterKode) continue;
+    // Fleksibel & Tangguh: Deteksi otomatis pergeseran kolom (bila Col A berisi nomor ID atau RNG-)
+    var rId, bCode, rName, rType, rPj, rCap, rTotalAsset, rStatus;
+
+    if (String(r[1] || '').indexOf('RNG-') === 0 || (String(r[2] || '').indexOf('PNS-') === 0 && !isNaN(Number(r[0])))) {
+      // Struktur Bergeser: Col A=Numeric(1437), Col B=ruangan_id(RNG-1437), Col C=kode_gedung(PNS-MGR-01-06), Col D=nama_ruangan, Col E=tipe_ruangan, Col F=lokasi/PJ, Col G=kapasitas, Col H=total_asset, Col I=status
+      rId = String(r[1] || r[0] || '').trim();
+      bCode = String(r[2] || '').trim();
+      rName = String(r[3] || '').trim();
+      rType = String(r[4] || 'Kamar').trim();
+      rPj = String(r[5] || '').trim();
+      rCap = Number(r[6]) || 2;
+      rTotalAsset = Number(r[7]) || 0;
+      rStatus = String(r[8] || 'Tersedia').trim();
+    } else {
+      // Struktur Standar: Col A=ruangan_id(RNG-1437), Col B=kode_gedung(PNS-MGR-01-06), Col C=nama_ruangan, Col D=tipe_ruangan, Col E=lokasi/PJ, Col F=kapasitas, Col G=total_asset, Col H=status
+      rId = String(r[0] || '').trim();
+      bCode = String(r[1] || '').trim();
+      rName = String(r[2] || '').trim();
+      rType = String(r[3] || 'Kamar').trim();
+      rPj = String(r[4] || '').trim();
+      rCap = Number(r[5]) || 2;
+      rTotalAsset = Number(r[6]) || 0;
+      rStatus = String(r[7] || 'Tersedia').trim();
+    }
+
+    if (filterKode && bCode !== filterKode && (!filterKode.includes(bCode) && !bCode.includes(filterKode))) continue;
 
     res.push({
-      ruangan_id: r[0],
+      ruangan_id: rId,
       kode_gedung: bCode,
-      nama_ruangan: String(r[2] || r[1] || ''),
-      tipe_ruangan: String(r[3] || 'Ruangan Kerja / Kamar'),
-      kapasitas: Number(r[4]) || 2,
-      penanggungjawab: String(r[5] || 'Staff Penanggungjawab'),
-      total_asset: Number(r[6]) || 0,
-      kondisi_terakhir: String(r[7] || 'Baik'),
-      status_hunian: String(r[8] || 'Tersedia'),
+      nama_ruangan: rName || ('Kamar ' + (i + 1)),
+      tipe_ruangan: rType || 'Kamar',
+      kapasitas: rCap,
+      penanggungjawab: rPj || 'HRGA PNS',
+      total_asset: rTotalAsset,
+      kondisi_terakhir: 'Baik',
+      status_hunian: rStatus,
       created_at: r[9] ? String(r[9]) : ''
     });
   }
