@@ -131,11 +131,13 @@ function apiGetLiveAssets(params) {
   params = params || {};
   var limit = parseInt(params.limit || 0, 10);
   var ss = getDb();
-  var sheet = getMasterAssetSheet(ss);
+  var sheetLive = ss.getSheetByName('API_ASSET_LIVE');
+  var useLiveApiSheet = sheetLive && sheetLive.getLastRow() > 1;
+  var sheet = useLiveApiSheet ? sheetLive : getMasterAssetSheet(ss);
   if (!sheet || sheet.getLastRow() <= 1) return { success: true, live_timestamp: new Date().toISOString(), total_in_sheet: 0, returned_count: 0, items: [] };
 
   var numRows = sheet.getLastRow() - 1;
-  var numCols = Math.min(42, sheet.getLastColumn());
+  var numCols = Math.min(useLiveApiSheet ? 36 : 42, sheet.getLastColumn());
   var rows = sheet.getRange(2, 1, numRows, numCols).getValues();
 
   var items = [];
@@ -145,14 +147,48 @@ function apiGetLiveAssets(params) {
 
   for (var i = 0; i < rows.length; i++) {
     var r = rows[i];
-    var noAsset = String(r[7] || r[0] || '').trim();
-    var kodeUnit = String(r[9] || '').trim();
-    var namaAsset = String(r[11] || '').trim();
-    var namaDetail = String(r[12] || '').trim();
-    var kondisi = String(r[13] || 'GOOD CONDITION').trim();
-    var loc = String(r[1] || 'CO').trim();
-    var kelompok = String(r[36] || r[4] || '').trim();
-    var hpp = Number(r[18]) || 0;
+    var noAsset, kodeUnit, namaAsset, namaDetail, kondisi, loc, kelompok, kategori, hpp, umur, kodeSec, statusVerif, statusVerif3, userVerif, catVerif, tglVerif, tipeAsset, checkout, tglCheckout;
+    if (useLiveApiSheet) {
+      noAsset = String(r[3] || r[4] || r[0] || '').trim();
+      kodeUnit = String(r[4] || r[3] || r[0] || '').trim();
+      namaAsset = String(r[5] || '-').trim();
+      namaDetail = namaAsset;
+      kondisi = String(r[25] || r[26] || 'GOOD CONDITION').trim();
+      loc = String(r[6] || 'CO').trim();
+      kelompok = String(r[22] || 'INVENTARIS DAN PERALATAN').trim();
+      kategori = String(r[21] || 'UMUM').trim();
+      hpp = Number(r[18]) || 0;
+      umur = Number(r[19]) || 0;
+      kodeSec = String(r[8] || 'HRGA').trim();
+      statusVerif = String(r[23] || 'BELUM VERIFIKASI').trim();
+      statusVerif3 = kondisi;
+      userVerif = String(r[27] || '-').trim();
+      catVerif = String(r[28] || '-').trim();
+      tglVerif = r[29] ? String(r[29]).slice(0, 19) : '-';
+      tipeAsset = String(r[30] || 'UMUM').trim();
+      checkout = String(r[12] || 'BELUM CHECKOUT').trim();
+      tglCheckout = r[13] ? String(r[13]).slice(0, 19) : '-';
+    } else {
+      noAsset = String(r[7] || r[0] || '').trim();
+      kodeUnit = String(r[9] || '').trim();
+      namaAsset = String(r[11] || '').trim();
+      namaDetail = String(r[12] || '').trim();
+      kondisi = String(r[13] || 'GOOD CONDITION').trim();
+      loc = String(r[1] || 'CO').trim();
+      kelompok = String(r[36] || r[4] || '').trim();
+      kategori = String(r[30] || r[5] || 'UMUM').trim();
+      hpp = Number(r[18]) || 0;
+      umur = Number(r[22]) || 0;
+      kodeSec = String(r[2] || 'HRGA').trim();
+      statusVerif = String(r[35] || 'BELUM VERIFIKASI').trim();
+      statusVerif3 = kondisi;
+      userVerif = '-';
+      catVerif = '-';
+      tglVerif = '-';
+      tipeAsset = String(r[3] || 'UMUM').trim();
+      checkout = String(r[15] || 'BELUM CHECKOUT').trim();
+      tglCheckout = '-';
+    }
 
     if (locFilter && loc.toUpperCase() !== locFilter) continue;
     if (condFilter && kondisi.toUpperCase().indexOf(condFilter) === -1) continue;
@@ -164,16 +200,27 @@ function apiGetLiveAssets(params) {
     items.push({
       asset_id: r[0],
       location: loc,
+      lokasi_code: loc,
       no_asset: noAsset,
       kode_unit: kodeUnit,
       nama_asset: namaAsset,
       nama_asset_detail: namaDetail,
       kondisi: kondisi,
       kelompok_asset: kelompok,
+      kategori_asset: kategori,
       total_harga_perolehan: hpp,
-      standar_umur: r[16],
-      varian_umur: r[23],
-      checkout: r[15]
+      harga_perolehan: hpp,
+      umur_asset: umur,
+      standar_umur: useLiveApiSheet ? 5 : (r[16] || 5),
+      kode_section: kodeSec,
+      status_verifikasi: statusVerif,
+      status_verifikasi_3: statusVerif3,
+      user_verifikasi: userVerif,
+      catatan_verifikasi: catVerif,
+      tanggal_verifikasi: tglVerif,
+      tipe_asset: tipeAsset,
+      checkout: checkout,
+      tanggal_checkout: tglCheckout
     });
 
     if (limit > 0 && items.length >= limit) break;
@@ -181,6 +228,7 @@ function apiGetLiveAssets(params) {
 
   return {
     success: true,
+    source_sheet: useLiveApiSheet ? 'API_ASSET_LIVE' : 'asset',
     live_timestamp: new Date().toISOString(),
     total_in_sheet: numRows,
     returned_count: items.length,
@@ -357,28 +405,36 @@ function apiGetLiveApiAssetDelta(limit) {
   var res = [];
   for (var i = rows.length - 1; i >= 0; i--) {
     var r = rows[i];
-    var kodeUnit = String(r[9] || r[7] || r[0] || '').trim();
+    var kodeUnit = String(r[4] || r[3] || r[2] || r[0] || '').trim();
     if (!kodeUnit) continue;
+    var hpp = parseFloat(r[18] || 0);
+    var umur = Number(r[19]) || 0;
     res.push({
       asset_id: r[0],
-      lokasi_code: String(r[1] || 'CO').trim(),
-      kode_section: String(r[2] || 'HRGA').trim(),
-      jenis_asset: String(r[3] || 'UMUM').trim(),
-      kelompok_asset: String(r[34] || r[4] || 'INVENTARIS DAN PERALATAN').trim(),
-      kategori_asset: String(r[29] || r[5] || 'INVENTARIS PERUMAHAN').trim(),
-      no_asset: kodeUnit,
+      lokasi_code: String(r[6] || 'CO').trim(),
+      kode_section: String(r[8] || 'HRGA').trim(),
+      jenis_asset: hpp > 0 ? 'Asset' : 'Non-Valueable Asset',
+      kelompok_asset: String(r[22] || 'INVENTARIS DAN PERALATAN').trim(),
+      kategori_asset: String(r[21] || 'INVENTARIS PERUMAHAN').trim(),
+      no_asset: String(r[3] || kodeUnit).trim(),
       kode_unit: kodeUnit,
-      nama_asset: String(r[11] || r[12] || '-').trim(),
-      nama_asset_detail: String(r[12] || r[11] || '-').trim(),
-      kondisi: String(r[13] || 'Good Condition').trim(),
-      umur_ekonomis: Number(r[16]) || 5,
-      umur_asset: Number(r[21]) || 0,
+      nama_asset: String(r[5] || '-').trim(),
+      nama_asset_detail: String(r[5] || '-').trim(),
+      kondisi: String(r[25] || r[26] || 'Good Condition').trim(),
+      umur_ekonomis: 5,
+      umur_asset: umur,
       tanggal_perolehan: r[17] ? String(r[17]).slice(0, 10) : '',
-      harga_perolehan: parseFloat(r[18] || 0),
-      nilai_buku: parseFloat(r[35] !== undefined && r[35] !== '' ? r[35] : (r[28] || 0)),
-      akumulasi_penyusutan: parseFloat(r[27] || 0),
-      status_verifikasi: String(r[33] || 'BELUM VERIFIKASI').trim(),
-      lifetime: String(r[26] || '').trim()
+      harga_perolehan: hpp,
+      nilai_buku: hpp,
+      akumulasi_penyusutan: 0,
+      status_verifikasi: String(r[23] || 'BELUM VERIFIKASI').trim(),
+      status_verifikasi_3: String(r[25] || r[26] || 'Good Condition').trim(),
+      user_verifikasi: String(r[27] || '-').trim(),
+      catatan_verifikasi: String(r[28] || '-').trim(),
+      tanggal_verifikasi: r[29] ? String(r[29]).slice(0, 19) : '-',
+      tipe_asset: String(r[30] || 'UMUM').trim(),
+      checkout: String(r[12] || 'BELUM CHECKOUT').trim(),
+      tanggal_checkout: r[13] ? String(r[13]).slice(0, 19) : '-'
     });
   }
   return res;

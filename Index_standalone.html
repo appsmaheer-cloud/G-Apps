@@ -8031,7 +8031,8 @@ const PNS_SECTION_TO_DEPT = {
       Number(appState.liveSheetTotal) || 0,
       Number(appState.stats && (appState.stats.total_assets || appState.stats.live_api_count)) || 0
     );
-    const liveDelta = Math.max(0, Number(appState.liveSheetDelta) || 0, liveSheetTotal - 35160);
+    const baselineCount = (window.PNS_API_METRICS && Number(window.PNS_API_METRICS.total_assets)) || totalAssets;
+    const liveDelta = Math.max(0, Number(appState.liveSheetDelta) || 0, liveSheetTotal - baselineCount);
 
     setEl('stat-bldg-count', bldgCount.toLocaleString('id-ID'));
     setEl('nav-badge-bldg', bldgCount.toLocaleString('id-ID'));
@@ -24346,6 +24347,81 @@ window.switchMobileView = function(view) {
   // ==========================================================================
   // 1-QUERY LIVE ASSET API PULL
   // ==========================================================================
+  function applyLiveAssetPullItems(items, sourceSheetName, showToast) {
+    if (!Array.isArray(items) || items.length === 0) return;
+    const beforeCount = Array.isArray(window.PNS_ALL_ASSETS_ROWS) ? window.PNS_ALL_ASSETS_ROWS.length : 0;
+    const existingMap = new Map();
+    if (Array.isArray(window.PNS_ALL_ASSETS_ROWS)) {
+      window.PNS_ALL_ASSETS_ROWS.forEach(r => {
+        if (r && r[0]) existingMap.set(String(r[0]).trim(), r);
+      });
+    }
+
+    const newRows = items.map(it => {
+      const code = String(it.kode_unit || it.no_asset || it.asset_id || '').trim();
+      const prev = existingMap.get(code);
+      const hpp = Number(it.total_harga_perolehan ?? it.harga_perolehan ?? (prev ? prev[8] : 0)) || 0;
+      const umur = Number(it.umur_asset ?? (prev ? prev[7] : 0)) || 0;
+      const std = Number(it.standar_umur ?? (prev ? prev[6] : 5)) || 5;
+      const susut = prev ? Number(prev[9] || 0) : 0;
+      const nbv = prev ? Number(prev[10] || hpp) : hpp;
+      return [
+        code,
+        String(it.nama_asset || (prev ? prev[1] : '-')).trim(),
+        String(it.kelompok_asset || (prev ? prev[2] : 'INVENTARIS DAN PERALATAN')).trim(),
+        String(it.kategori_asset || (prev ? prev[3] : 'UMUM')).trim(),
+        String(it.lokasi_code || it.location || (prev ? prev[4] : 'CO')).trim(),
+        String(it.kondisi || (prev ? prev[5] : 'Good Condition')).trim(),
+        std,
+        umur,
+        hpp,
+        susut,
+        nbv,
+        prev ? prev[11] : 'Aktif / Digunakan',
+        String(it.kode_section || (prev ? prev[12] : 'HRGA')).trim(),
+        String(it.status_verifikasi || (prev ? prev[13] : 'BELUM VERIFIKASI')).trim(),
+        prev ? prev[14] : (hpp > 0 ? 'Asset' : 'Non-Valueable Asset'),
+        String(it.nama_asset_detail || it.nama_asset || (prev ? prev[15] : '-')).trim(),
+        it.asset_id || (prev ? prev[16] : 1),
+        prev ? prev[17] : (umur >= std ? '↑ DIATAS' : '↓ DIBAWAH'),
+        String(it.status_verifikasi_3 || it.kondisi || (prev ? prev[18] : 'GOOD CONDITION')).trim(),
+        String(it.user_verifikasi || (prev ? prev[19] : '-')).trim(),
+        String(it.catatan_verifikasi || (prev ? prev[20] : '-')).trim(),
+        String(it.tanggal_verifikasi || (prev ? prev[21] : '-')).trim(),
+        String(it.tipe_asset || (prev ? prev[22] : 'UMUM')).trim(),
+        String(it.checkout || (prev ? prev[23] : 'BELUM CHECKOUT')).trim(),
+        String(it.tanggal_checkout || (prev ? prev[24] : '-')).trim()
+      ];
+    });
+
+    window.PNS_ALL_ASSETS_ROWS = newRows;
+    _pnsCachedNormalizedAssets = null;
+    cachedFilteredAssets = null;
+    if (typeof _cachedUnifiedMaintAssets !== 'undefined') _cachedUnifiedMaintAssets = null;
+
+    appState.assets = items;
+    appState.enterpriseAssets = items;
+    appState.liveSheetTotal = newRows.length;
+    const apiBaseCount = (window.PNS_API_METRICS && Number(window.PNS_API_METRICS.total_assets)) || beforeCount;
+    appState.liveSheetDelta = Math.max(0, newRows.length - apiBaseCount, newRows.length - beforeCount);
+
+    if (typeof updateDashboardRealMetrics === 'function') updateDashboardRealMetrics();
+    if (typeof renderDashboardCharts === 'function') renderDashboardCharts();
+    if (typeof renderAssetsTable === 'function') renderAssetsTable();
+    if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
+    if (typeof updateFacilitiesKpi === 'function') updateFacilitiesKpi();
+
+    if (showToast && typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: 'success',
+        title: 'Live Sync Berhasil!',
+        html: '<p class="text-xs text-slate-600">Sebanyak <b>' + newRows.length.toLocaleString('id-ID') + ' unit aset</b> aktif ditarik langsung dari sheet <b>' + escapeHtml(sourceSheetName || 'API_ASSET_LIVE') + '</b>.</p>',
+        timer: 2200,
+        showConfirmButton: false
+      });
+    }
+  }
+
   window.pullLiveAssetsFromApi = function(showToast) {
     setSyncIndicator('Pulling Live Asset Sheet...', true);
 
@@ -24354,20 +24430,7 @@ window.switchMobileView = function(view) {
         .withSuccessHandler(res => {
           setSyncIndicator('Sheets Synchronized', false);
           if (res && res.items && Array.isArray(res.items)) {
-            appState.assets = res.items;
-            appState.enterpriseAssets = res.items;
-            if (typeof renderAssetsTable === 'function') renderAssetsTable();
-            if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
-            if (typeof updateFacilitiesKpi === 'function') updateFacilitiesKpi();
-            if (showToast && typeof Swal !== 'undefined') {
-              Swal.fire({
-                icon: 'success',
-                title: 'Data Live Berhasil Ditarik!',
-                html: '<p class="text-xs text-slate-600">Sebanyak <b>' + res.items.length.toLocaleString('id-ID') + ' unit aset</b> ditarik langsung dari sheet <b>asset</b> (0 menit delay). Seluruh perubahan/penghapusan langsung aktif.</p>',
-                timer: 2000,
-                showConfirmButton: false
-              });
-            }
+            applyLiveAssetPullItems(res.items, res.source_sheet || 'API_ASSET_LIVE', showToast);
           }
         })
         .withFailureHandler(err => {
@@ -24388,20 +24451,7 @@ window.switchMobileView = function(view) {
           setSyncIndicator('Sheets Synchronized', false);
           const data = (res && res.data) ? res.data : res;
           if (data && data.items && Array.isArray(data.items)) {
-            appState.assets = data.items;
-            appState.enterpriseAssets = data.items;
-            if (typeof renderAssetsTable === 'function') renderAssetsTable();
-            if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
-            if (typeof updateFacilitiesKpi === 'function') updateFacilitiesKpi();
-            if (showToast && typeof Swal !== 'undefined') {
-              Swal.fire({
-                icon: 'success',
-                title: '1-Query Live Sync Berhasil!',
-                html: '<p class="text-xs text-slate-600">Sebanyak <b>' + data.items.length.toLocaleString('id-ID') + ' unit aset</b> ditarik seketika dari sheet <b>asset</b>.</p>',
-                timer: 2000,
-                showConfirmButton: false
-              });
-            }
+            applyLiveAssetPullItems(data.items, data.source_sheet || 'API_ASSET_LIVE', showToast);
           }
         })
         .catch(() => {
