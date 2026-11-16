@@ -10081,6 +10081,7 @@ const PNS_SECTION_TO_DEPT = {
     searchQuery: '',
     selectedPartSub: 'ALL',
     partSearchQuery: '',
+    selectedPrintCodes: [],
     sourceView: null,
     customPartsMap: (function() {
       try {
@@ -10311,6 +10312,306 @@ const PNS_SECTION_TO_DEPT = {
     }
   }
   window.onMaintPartSearchInput = onMaintPartSearchInput;
+
+  function getMaintAssetFinancialMeta(asset) {
+    if (!asset) return { tglPerolehan: '-', tglNote: '', umurThn: 0, stdUmur: 5, hpp: 0, nbv: 0, mtc: 0, mtcRatio: 0 };
+    const umur = Number(asset.umur_asset ?? asset.umur ?? 0);
+    const std = Number(asset.standar_umur ?? asset.std ?? 5);
+    const hpp = Number(asset.total_harga_perolehan ?? asset.Harga_Perolehan ?? asset.hpp ?? 0);
+    const nbv = Number(asset.Nilai_buku ?? asset.nbv ?? 0);
+    const mtc = Number(asset.maintenance_cost ?? 0);
+    const rawTgl = String(asset.tanggal_perolehan || asset.tgl_perolehan || '').trim();
+    const curYear = new Date().getFullYear();
+    let tglLabel = '-';
+    let tglNote = 'Data belum tercatat';
+    if (rawTgl && rawTgl !== '-' && rawTgl !== 'undefined') {
+      tglLabel = rawTgl.slice(0, 10);
+      tglNote = 'Tanggal perolehan tercatat';
+    } else if (umur > 0) {
+      const estYear = Math.max(1990, curYear - Math.round(umur));
+      tglLabel = `Est. ${estYear}`;
+      tglNote = `Estimasi dari umur ${umur} thn`;
+    } else {
+      tglLabel = `Tahun ${curYear}`;
+      tglNote = 'Aset perolehan baru (< 1 thn)';
+    }
+    const mtcRatio = hpp > 0 ? (mtc / hpp) * 100 : 0;
+    return { tglPerolehan: tglLabel, tglNote, umurThn: umur, stdUmur: std, hpp, nbv, mtc, mtcRatio };
+  }
+
+  window.toggleMaintPrintUnit = function(kodeUnit) {
+    if (!kodeUnit) return;
+    const code = String(kodeUnit).trim();
+    const arr = maintDrillState.selectedPrintCodes || [];
+    const idx = arr.indexOf(code);
+    if (idx === -1) arr.push(code);
+    else arr.splice(idx, 1);
+    maintDrillState.selectedPrintCodes = arr;
+    const listEl = document.getElementById('maint-level2-list');
+    const prevScroll = listEl ? listEl.scrollTop : 0;
+    renderMaintenanceDrillView();
+    const newListEl = document.getElementById('maint-level2-list');
+    if (newListEl) newListEl.scrollTop = prevScroll;
+  };
+
+  window.clearMaintPrintSelection = function() {
+    maintDrillState.selectedPrintCodes = [];
+    const listEl = document.getElementById('maint-level2-list');
+    const prevScroll = listEl ? listEl.scrollTop : 0;
+    renderMaintenanceDrillView();
+    const newListEl = document.getElementById('maint-level2-list');
+    if (newListEl) newListEl.scrollTop = prevScroll;
+  };
+
+  window.closeMaintPrintModal = function() {
+    const m = document.getElementById('maint-print-summary-modal');
+    if (m) m.remove();
+  };
+
+  window.executeMaintPrint = function() {
+    if (!document.getElementById('maint-print-style-tag')) {
+      const st = document.createElement('style');
+      st.id = 'maint-print-style-tag';
+      st.textContent = `
+        @media print {
+          body > *:not(#maint-print-summary-modal) { display: none !important; }
+          #maint-print-summary-modal {
+            position: static !important;
+            background: #fff !important;
+            padding: 0 !important;
+            overflow: visible !important;
+            display: block !important;
+          }
+          #maint-print-summary-card {
+            box-shadow: none !important;
+            border: none !important;
+            max-width: 100% !important;
+            max-height: none !important;
+            overflow: visible !important;
+          }
+          .no-print-btn { display: none !important; }
+        }
+      `;
+      document.head.appendChild(st);
+    }
+    window.print();
+  };
+
+  window.openMaintPrintSummary = function(forceSingleCode) {
+    const unifiedAssets = buildUnifiedRealMaintenanceAssets();
+    const selectedCodes = (!forceSingleCode && maintDrillState.selectedPrintCodes && maintDrillState.selectedPrintCodes.length > 0)
+      ? maintDrillState.selectedPrintCodes
+      : (forceSingleCode ? [forceSingleCode] : (maintDrillState.selectedAssetCode ? [maintDrillState.selectedAssetCode] : []));
+
+    const units = selectedCodes.map(c => {
+      const t = String(c).toLowerCase();
+      return unifiedAssets.find(a =>
+        String(a.kode_unit || '').toLowerCase() === t ||
+        String(a.kode_unit_bkb || '').toLowerCase() === t ||
+        String(a.no_asset || '').toLowerCase() === t
+      );
+    }).filter(Boolean);
+
+    if (units.length === 0) {
+      alert('Pilih minimal 1 unit aset untuk dicetak rangkumannya.');
+      return;
+    }
+
+    const todayStr = new Date().toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' });
+    const isMulti = units.length > 1;
+
+    let bodyHtml = '';
+    if (!isMulti) {
+      const u = units[0];
+      const meta = getMaintAssetFinancialMeta(u);
+      const parts = getAssetPartsBreakdown(u);
+      const realRec = getRealUnitMtcRecord(u);
+      const totalMtc = realRec ? realRec.total_nominal : parts.reduce((s, p) => s + (Number(p.biaya_part) || 0), 0);
+      const txCount = realRec ? realRec.tx_count : parts.length;
+      const mtcRatio = meta.hpp > 0 ? (totalMtc / meta.hpp) * 100 : 0;
+
+      bodyHtml = `
+        <div class="p-4 rounded-lg border border-slate-200 bg-slate-50/70 space-y-3">
+          <div>
+            <div class="flex flex-wrap items-center gap-2 text-xs">
+              <span class="font-mono font-bold text-sky-700 bg-sky-50 px-2 py-0.5 rounded border border-sky-200">${escapeHtml(u.kode_unit)}</span>
+              ${u.kode_unit_bkb && u.kode_unit_bkb !== u.kode_unit ? `<span class="font-mono text-slate-600">(${escapeHtml(u.kode_unit_bkb)})</span>` : ''}
+              <span class="text-slate-500">${escapeHtml(u.kelompok_asset || '-')}</span>
+            </div>
+            <h4 class="text-base font-bold text-slate-900 mt-1">${escapeHtml(u.nama_asset_detail || u.nama_asset || '-')}</h4>
+            <p class="text-xs text-slate-600 mt-0.5">Lokasi: ${escapeHtml(u.lokasi_raw || 'CO')} (${escapeHtml(u.lokasi || u.location || 'Central Office')}) &bull; Section: ${escapeHtml(u.kode_section || 'HGS')} &bull; Kondisi: ${escapeHtml(u.kondisi || 'Good Condition')}</p>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2.5 pt-2 border-t border-slate-200">
+            <div class="bg-white p-2.5 rounded border border-slate-200">
+              <div class="text-[10px] text-slate-500 uppercase">Tgl Perolehan</div>
+              <div class="text-xs font-semibold font-mono text-slate-900 mt-0.5">${escapeHtml(meta.tglPerolehan)}</div>
+            </div>
+            <div class="bg-white p-2.5 rounded border border-slate-200">
+              <div class="text-[10px] text-slate-500 uppercase">Umur s/d Hari Ini</div>
+              <div class="text-xs font-semibold font-mono text-slate-900 mt-0.5">${meta.umurThn} Tahun <span class="text-[10px] font-normal text-slate-400">(Std ${meta.stdUmur})</span></div>
+            </div>
+            <div class="bg-white p-2.5 rounded border border-slate-200">
+              <div class="text-[10px] text-slate-500 uppercase">Nilai Perolehan</div>
+              <div class="text-xs font-semibold font-mono text-slate-900 mt-0.5">Rp ${formatNum(Math.round(meta.hpp))}</div>
+            </div>
+            <div class="bg-white p-2.5 rounded border border-slate-200">
+              <div class="text-[10px] text-slate-500 uppercase">Nilai Buku (NBV)</div>
+              <div class="text-xs font-semibold font-mono text-slate-900 mt-0.5">Rp ${formatNum(Math.round(meta.nbv))}</div>
+            </div>
+            <div class="bg-emerald-50/70 p-2.5 rounded border border-emerald-200">
+              <div class="text-[10px] text-emerald-800 uppercase">Total Maintenance</div>
+              <div class="text-xs font-bold font-mono text-emerald-900 mt-0.5">Rp ${formatNum(Math.round(totalMtc))}</div>
+              <div class="text-[9.5px] text-emerald-700">${txCount} BKB (${mtcRatio.toFixed(1)}% HPP)</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-4">
+          <h5 class="text-xs font-bold uppercase text-slate-700 mb-2">Rincian Suku Cadang &amp; Pemeliharaan (${parts.length} Item)</h5>
+          <table class="w-full text-[11px] text-left border-collapse border border-slate-200">
+            <thead class="bg-slate-100 text-[10px] uppercase text-slate-600">
+              <tr>
+                <th class="py-2 px-2.5 border-b border-slate-200">Tgl &amp; Bukti BKB</th>
+                <th class="py-2 px-2.5 border-b border-slate-200">Sparepart &amp; Kategori</th>
+                <th class="py-2 px-2.5 border-b border-slate-200 text-center">Qty</th>
+                <th class="py-2 px-2.5 border-b border-slate-200 text-right">Biaya (Rp)</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+              ${parts.map(pt => `
+                <tr>
+                  <td class="py-1.5 px-2.5">
+                    <div class="font-mono text-[10.5px] text-slate-800">${escapeHtml(pt.tanggal_servis || '-')}</div>
+                    <div class="font-mono text-[9.5px] text-slate-500">${escapeHtml(pt.no_bukti || pt.part_no || '-')}</div>
+                  </td>
+                  <td class="py-1.5 px-2.5">
+                    <div class="font-medium text-slate-800">${escapeHtml(pt.part_name)}</div>
+                    <div class="text-[9.5px] text-slate-500">${escapeHtml(pt.subsystem || '-')} &bull; ${escapeHtml(pt.teknisi || '-')}</div>
+                  </td>
+                  <td class="py-1.5 px-2.5 text-center font-mono">${escapeHtml(pt.qty)}</td>
+                  <td class="py-1.5 px-2.5 text-right font-mono font-medium">Rp ${formatNum(Math.round(pt.biaya_part))}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+            <tfoot class="bg-slate-50 font-semibold border-t border-slate-300">
+              <tr>
+                <td colspan="3" class="py-2 px-2.5 text-slate-700">Total Realisasi Maintenance (${txCount} BKB)</td>
+                <td class="py-2 px-2.5 text-right font-mono text-emerald-800">Rp ${formatNum(Math.round(totalMtc))}</td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+      `;
+    } else {
+      let sumHpp = 0, sumNbv = 0, sumMtc = 0;
+      const rows = units.map((u, i) => {
+        const meta = getMaintAssetFinancialMeta(u);
+        const realRec = getRealUnitMtcRecord(u);
+        const parts = getAssetPartsBreakdown(u);
+        const totalMtc = realRec ? realRec.total_nominal : parts.reduce((s, p) => s + (Number(p.biaya_part) || 0), 0);
+        const ratio = meta.hpp > 0 ? (totalMtc / meta.hpp) * 100 : 0;
+        sumHpp += meta.hpp;
+        sumNbv += meta.nbv;
+        sumMtc += totalMtc;
+        return { u, meta, totalMtc, ratio, idx: i + 1, txCount: realRec ? realRec.tx_count : parts.length };
+      });
+      const totalRatio = sumHpp > 0 ? (sumMtc / sumHpp) * 100 : 0;
+
+      bodyHtml = `
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
+            <div class="text-[10px] text-slate-500 uppercase">Jumlah Unit Dirangkum</div>
+            <div class="text-sm font-bold font-mono text-slate-900 mt-0.5">${units.length} Unit Aset</div>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
+            <div class="text-[10px] text-slate-500 uppercase">Total Nilai Perolehan</div>
+            <div class="text-sm font-bold font-mono text-slate-900 mt-0.5">Rp ${formatNum(Math.round(sumHpp))}</div>
+          </div>
+          <div class="p-3 rounded-lg bg-slate-50 border border-slate-200">
+            <div class="text-[10px] text-slate-500 uppercase">Total Nilai Buku (NBV)</div>
+            <div class="text-sm font-bold font-mono text-slate-900 mt-0.5">Rp ${formatNum(Math.round(sumNbv))}</div>
+          </div>
+          <div class="p-3 rounded-lg bg-emerald-50 border border-emerald-200">
+            <div class="text-[10px] text-emerald-800 uppercase">Total Biaya Maintenance</div>
+            <div class="text-sm font-bold font-mono text-emerald-900 mt-0.5">Rp ${formatNum(Math.round(sumMtc))}</div>
+            <div class="text-[10px] text-emerald-700">${totalRatio.toFixed(1)}% dari Nilai Perolehan</div>
+          </div>
+        </div>
+
+        <table class="w-full text-[11px] text-left border-collapse border border-slate-200">
+          <thead class="bg-slate-100 text-[10px] uppercase text-slate-600">
+            <tr>
+              <th class="py-2 px-2 border-b border-slate-200 text-center">No</th>
+              <th class="py-2 px-2.5 border-b border-slate-200">Unit &amp; Lokasi</th>
+              <th class="py-2 px-2 border-b border-slate-200">Tgl Perolehan</th>
+              <th class="py-2 px-2 border-b border-slate-200 text-center">Umur</th>
+              <th class="py-2 px-2.5 border-b border-slate-200 text-right">Nilai Perolehan</th>
+              <th class="py-2 px-2.5 border-b border-slate-200 text-right">Nilai Buku</th>
+              <th class="py-2 px-2.5 border-b border-slate-200 text-right">Total Maintenance</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-100">
+            ${rows.map(r => `
+              <tr>
+                <td class="py-2 px-2 text-center font-mono text-slate-500">${r.idx}</td>
+                <td class="py-2 px-2.5">
+                  <div class="font-mono text-[10px] font-semibold text-sky-700">${escapeHtml(r.u.kode_unit)}</div>
+                  <div class="font-medium text-slate-900">${escapeHtml(r.u.nama_asset_detail || r.u.nama_asset || '-')}</div>
+                  <div class="text-[9.5px] text-slate-500">${escapeHtml(r.u.lokasi_raw || 'CO')} &bull; ${escapeHtml(r.u.kode_section || 'HGS')}</div>
+                </td>
+                <td class="py-2 px-2 font-mono text-slate-700">${escapeHtml(r.meta.tglPerolehan)}</td>
+                <td class="py-2 px-2 text-center font-mono text-slate-700">${r.meta.umurThn} Thn</td>
+                <td class="py-2 px-2.5 text-right font-mono text-slate-700">Rp ${formatNum(Math.round(r.meta.hpp))}</td>
+                <td class="py-2 px-2.5 text-right font-mono text-slate-700">Rp ${formatNum(Math.round(r.meta.nbv))}</td>
+                <td class="py-2 px-2.5 text-right font-mono font-semibold text-emerald-800">
+                  <div>Rp ${formatNum(Math.round(r.totalMtc))}</div>
+                  <div class="text-[9.5px] font-normal text-slate-500">${r.txCount} BKB (${r.ratio.toFixed(1)}%)</div>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+          <tfoot class="bg-slate-50 font-bold border-t border-slate-300">
+            <tr>
+              <td colspan="4" class="py-2 px-2.5 text-slate-800">TOTAL GABUNGAN (${units.length} UNIT)</td>
+              <td class="py-2 px-2.5 text-right font-mono text-slate-900">Rp ${formatNum(Math.round(sumHpp))}</td>
+              <td class="py-2 px-2.5 text-right font-mono text-slate-900">Rp ${formatNum(Math.round(sumNbv))}</td>
+              <td class="py-2 px-2.5 text-right font-mono text-emerald-800">Rp ${formatNum(Math.round(sumMtc))}</td>
+            </tr>
+          </tfoot>
+        </table>
+      `;
+    }
+
+    const oldModal = document.getElementById('maint-print-summary-modal');
+    if (oldModal) oldModal.remove();
+
+    const modal = document.createElement('div');
+    modal.id = 'maint-print-summary-modal';
+    modal.className = 'fixed inset-0 z-[9999] bg-slate-900/60 backdrop-blur-xs flex items-center justify-center p-3 sm:p-6 overflow-y-auto';
+    modal.innerHTML = `
+      <div id="maint-print-summary-card" class="bg-white rounded-xl border border-slate-200 shadow-2xl w-full max-w-4xl max-h-[92vh] overflow-y-auto p-5 sm:p-7 space-y-4">
+        <div class="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-slate-200">
+          <div>
+            <div class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">PT PRATAMA NUSANTARA SAKTI &bull; ASSET &amp; MAINTENANCE SUMMARY</div>
+            <h3 class="text-base sm:text-lg font-bold text-slate-900 mt-0.5">
+              ${isMulti ? `Rangkuman Aset &amp; Maintenance (${units.length} Unit Terpilih)` : 'Rangkuman Detail Aset &amp; Maintenance Unit'}
+            </h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">Dicetak pada: ${todayStr}</p>
+          </div>
+          <div class="flex items-center gap-2 no-print-btn">
+            <button type="button" onclick="window.executeMaintPrint()" class="px-3.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold flex items-center gap-1.5 cursor-pointer transition">
+              <i class="ph-bold ph-printer"></i> Print / Save PDF
+            </button>
+            <button type="button" onclick="window.closeMaintPrintModal()" class="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold cursor-pointer transition">
+              Tutup
+            </button>
+          </div>
+        </div>
+        ${bodyHtml}
+      </div>
+    `;
+    document.body.appendChild(modal);
+  };
 
   function drillAssetToMaintenance(kodeUnit, sourceView) {
     if (!kodeUnit) return;
@@ -10752,10 +11053,24 @@ const PNS_SECTION_TO_DEPT = {
                 <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 text-[9.5px] font-medium">LEVEL 2</span>
                 <span>Unit Aset (${maintDrillState.selectedCategory === 'ALL' ? 'Semua Kategori' : escapeHtml(maintDrillState.selectedCategory)})</span>
               </h3>
-              <p class="text-[10px] text-slate-400 mt-0.5">Klik baris unit untuk memuat rincian sparepart BKB di kanan</p>
+              <p class="text-[10px] text-slate-400 mt-0.5">Klik unit untuk detail &bull; Centang kotak untuk cetak banyak unit</p>
             </div>
             <span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-mono text-[10px] font-normal shrink-0">${formatNum(level2Assets.length)} Unit</span>
           </div>
+
+          ${(maintDrillState.selectedPrintCodes && maintDrillState.selectedPrintCodes.length > 0) ? `
+            <div class="flex items-center justify-between gap-2 px-2.5 py-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-[11px]">
+              <span class="font-medium text-emerald-900">${maintDrillState.selectedPrintCodes.length} unit dipilih untuk cetak</span>
+              <div class="flex items-center gap-1.5">
+                <button type="button" onclick="window.openMaintPrintSummary()" class="px-2 py-0.5 rounded bg-emerald-600 hover:bg-emerald-700 text-white text-[10px] font-medium cursor-pointer">
+                  <i class="ph ph-printer"></i> Cetak (${maintDrillState.selectedPrintCodes.length})
+                </button>
+                <button type="button" onclick="window.clearMaintPrintSelection()" class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 text-[10px] cursor-pointer">
+                  Reset
+                </button>
+              </div>
+            </div>
+          ` : ''}
 
           <div class="relative">
             <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-xs"></i>
@@ -10771,19 +11086,26 @@ const PNS_SECTION_TO_DEPT = {
                 String(selectedAsset.kode_unit_bkb || '') === String(a.kode_unit_bkb || '')
               );
               const safeUnit = String(a.kode_unit || a.kode_unit_bkb || '').replace(/'/g, "\\'");
+              const isChecked = (maintDrillState.selectedPrintCodes || []).includes(String(a.kode_unit || a.kode_unit_bkb || '').trim());
               const mc = Number(a.maintenance_cost) || 0;
               const showBkbAlias = a.kode_unit_bkb && String(a.kode_unit_bkb) !== String(a.kode_unit);
               return `
                 <div onclick="window.drillMaintByAsset('${safeUnit}')"
                      class="px-2.5 py-2 transition cursor-pointer flex items-center justify-between gap-2 ${isSel ? 'bg-emerald-50/70 border-l-2 border-l-emerald-600' : 'bg-white hover:bg-slate-50/80'}">
-                  <div class="min-w-0">
-                    <div class="flex items-center gap-1.5 flex-wrap">
-                      <span class="font-mono text-[10.5px] font-medium ${isSel ? 'text-emerald-800' : 'text-sky-700'}">${escapeHtml(a.kode_unit)}</span>
-                      ${showBkbAlias ? `<span class="font-mono text-[10px] font-normal text-slate-500">(${escapeHtml(a.kode_unit_bkb)})</span>` : ''}
-                      <span class="px-1.5 py-0.2 rounded text-[9px] font-normal bg-slate-100 text-slate-500">${escapeHtml(a.lokasi_raw || 'CO')}</span>
+                  <div class="flex items-start gap-2 min-w-0">
+                    <input type="checkbox" ${isChecked ? 'checked' : ''}
+                           onclick="event.stopPropagation(); window.toggleMaintPrintUnit('${safeUnit}')"
+                           title="Pilih unit ini untuk rangkuman cetak"
+                           class="mt-1 w-3.5 h-3.5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer shrink-0">
+                    <div class="min-w-0">
+                      <div class="flex items-center gap-1.5 flex-wrap">
+                        <span class="font-mono text-[10.5px] font-medium ${isSel ? 'text-emerald-800' : 'text-sky-700'}">${escapeHtml(a.kode_unit)}</span>
+                        ${showBkbAlias ? `<span class="font-mono text-[10px] font-normal text-slate-500">(${escapeHtml(a.kode_unit_bkb)})</span>` : ''}
+                        <span class="px-1.5 py-0.2 rounded text-[9px] font-normal bg-slate-100 text-slate-500">${escapeHtml(a.lokasi_raw || 'CO')}</span>
+                      </div>
+                      <div class="text-[11.5px] font-normal text-slate-700 truncate mt-0.5">${escapeHtml(a.nama_asset_detail || a.nama_asset || '-')}</div>
+                      <div class="text-[9.5px] font-normal text-slate-400 truncate">${escapeHtml(a.kelompok_asset)} &bull; ${formatNum(a.mtc_tx_count || 0)} BKB</div>
                     </div>
-                    <div class="text-[11.5px] font-normal text-slate-700 truncate mt-0.5">${escapeHtml(a.nama_asset_detail || a.nama_asset || '-')}</div>
-                    <div class="text-[9.5px] font-normal text-slate-400 truncate">${escapeHtml(a.kelompok_asset)} &bull; ${formatNum(a.mtc_tx_count || 0)} BKB &bull; ${formatNum(a.mtc_part_count || 0)} jenis part</div>
                   </div>
                   <div class="text-right shrink-0">
                     <div class="font-mono text-[11px] font-medium ${isSel ? 'text-emerald-700' : 'text-slate-700'}">${mc > 0 ? formatRpShort(mc) : '-'}</div>
@@ -10795,75 +11117,81 @@ const PNS_SECTION_TO_DEPT = {
           </div>
         </div>
 
-        <!-- LEVEL 3: DETAIL PART / SUKU CADANG & TRANSAKSI BKB ASLI -->
-        <div id="maint-level3-part-panel" class="lg:col-span-8 bg-white p-3.5 rounded-xl border border-slate-200 space-y-3">
-          ${selectedAsset ? `
-            <div class="flex flex-wrap items-start justify-between gap-3 pb-2.5 border-b border-slate-100">
-              <div>
+        <!-- LEVEL 3: DETAIL ASET, KEUANGAN & RINCIAN SPAREPART (CLEAN, TANPA PENGULANGAN, FIT TO SCREEN) -->
+        <div id="maint-level3-part-panel" class="lg:col-span-8 bg-white p-4 rounded-xl border border-slate-200 space-y-3.5">
+          ${selectedAsset ? (() => {
+            const fin = getMaintAssetFinancialMeta(selectedAsset);
+            const selectedCount = (maintDrillState.selectedPrintCodes || []).length;
+            const mtcRatio = fin.hpp > 0 ? (unitTotalCost / fin.hpp) * 100 : 0;
+            return `
+            <div class="flex flex-wrap items-start justify-between gap-3 pb-3 border-b border-slate-100">
+              <div class="min-w-0">
                 <div class="flex flex-wrap items-center gap-1.5">
-                  <span class="px-2 py-0.5 rounded bg-sky-600 text-white text-[9.5px] font-semibold">LEVEL 3: DETAIL PART</span>
                   <span class="font-mono text-xs font-semibold text-sky-700">${escapeHtml(selectedAsset.kode_unit)}</span>
                   ${selectedAsset.kode_unit_bkb && selectedAsset.kode_unit_bkb !== selectedAsset.kode_unit ? `
-                    <span class="px-2 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-mono text-[10px] font-medium">Unit BKB: ${escapeHtml(selectedAsset.kode_unit_bkb)}</span>
+                    <span class="px-1.5 py-0.5 rounded bg-amber-50 text-amber-800 border border-amber-200 font-mono text-[10px]">BKB: ${escapeHtml(selectedAsset.kode_unit_bkb)}</span>
                   ` : ''}
-                  <span class="px-2 py-0.5 rounded text-[10px] font-normal bg-slate-100 text-slate-700">${escapeHtml(selectedAsset.kelompok_asset)}</span>
+                  <span class="text-[11px] text-slate-400">&bull;</span>
+                  <span class="text-[11px] text-slate-600">${escapeHtml(selectedAsset.kelompok_asset)}</span>
                 </div>
                 <h3 class="text-sm sm:text-base font-semibold text-slate-900 mt-1">${escapeHtml(selectedAsset.nama_asset_detail || selectedAsset.nama_asset || '-')}</h3>
                 <p class="text-[11px] text-slate-500 mt-0.5">
-                  Lokasi: <span class="text-slate-700 font-medium">${escapeHtml(selectedAsset.lokasi_raw || 'CO')} (${escapeHtml(selectedAsset.lokasi || selectedAsset.location || 'Central Office')})</span> &bull;
-                  Section: <span class="text-slate-700 font-medium">${escapeHtml(selectedAsset.kode_section || 'HGS')}</span> &bull;
-                  Kondisi: <span class="text-slate-700 font-medium">${escapeHtml(selectedAsset.kondisi || 'Good Condition')}</span>
+                  Lokasi: <span class="text-slate-700">${escapeHtml(selectedAsset.lokasi_raw || 'CO')} (${escapeHtml(selectedAsset.lokasi || selectedAsset.location || 'Central Office')})</span> &bull;
+                  Section: <span class="text-slate-700">${escapeHtml(selectedAsset.kode_section || 'HGS')}</span> &bull;
+                  Kondisi: <span class="text-slate-700">${escapeHtml(selectedAsset.kondisi || 'Good Condition')}</span> &bull;
+                  Servis Terakhir: <span class="font-mono text-slate-700">${escapeHtml(latestDate)}</span>
                 </p>
               </div>
-              <div class="flex flex-wrap items-center gap-1.5">
+              <div class="flex flex-wrap items-center gap-1.5 shrink-0">
+                <button type="button" onclick="window.openMaintPrintSummary(${selectedCount > 0 ? '' : `'${escapeHtml(String(selectedAsset.kode_unit).replace(/'/g, "\\'"))}'`})"
+                        class="px-2.5 py-1.5 rounded-lg bg-sky-600 hover:bg-sky-700 text-white text-[11px] font-medium transition cursor-pointer flex items-center gap-1"
+                        title="Rangkuman siap capture atau cetak PDF">
+                  <i class="ph ph-printer"></i> ${selectedCount > 0 ? `Cetak Rangkuman (${selectedCount} Unit)` : 'Print / Capture Unit'}
+                </button>
                 <button type="button" onclick="window.promptAddOrUpdateMaintPart('${escapeHtml(String(selectedAsset.kode_unit).replace(/'/g, "\\'"))}')" class="px-2.5 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-[11px] font-medium transition cursor-pointer flex items-center gap-1">
                   <i class="ph ph-plus-circle"></i> + Catat Part
                 </button>
-                <button type="button" onclick="openAssetDetailPage('${escapeHtml(String(selectedAsset.kode_unit).replace(/'/g, "\\'"))}', 'view-wo')" class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-white text-[11px] font-medium transition cursor-pointer flex items-center gap-1">
-                  <i class="ph ph-identification-card"></i> Dossier Unit
+                <button type="button" onclick="openAssetDetailPage('${escapeHtml(String(selectedAsset.kode_unit).replace(/'/g, "\\'"))}', 'view-wo')" class="px-2.5 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-[11px] font-medium transition cursor-pointer flex items-center gap-1">
+                  <i class="ph ph-identification-card"></i> Dossier
                 </button>
               </div>
             </div>
 
-            <!-- 4 Real Unit Maintenance Metrics -->
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
-              <div class="p-2.5 rounded-lg bg-emerald-50/50 border border-emerald-200/70">
-                <div class="text-[9.5px] font-medium uppercase text-emerald-800">Total Realisasi BKB Unit</div>
+            <!-- 5 Ringkasan Detail Finansial & Umur Unit (Tanpa Pengulangan) -->
+            <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-5 gap-2.5">
+              <div class="p-2.5 rounded-lg bg-slate-50/70 border border-slate-200/80">
+                <div class="text-[10px] text-slate-500">Tanggal Perolehan</div>
+                <div class="text-xs sm:text-sm font-semibold font-mono text-slate-900 mt-0.5">${escapeHtml(fin.tglPerolehan)}</div>
+                <div class="text-[9.5px] text-slate-400 mt-0.5 truncate">${escapeHtml(fin.tglNote)}</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50/70 border border-slate-200/80">
+                <div class="text-[10px] text-slate-500">Umur s/d Hari Ini</div>
+                <div class="text-xs sm:text-sm font-semibold font-mono text-slate-900 mt-0.5">${fin.umurThn} Tahun</div>
+                <div class="text-[9.5px] mt-0.5 ${fin.umurThn >= fin.stdUmur ? 'text-amber-700' : 'text-slate-400'}">Standar: ${fin.stdUmur} Thn</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50/70 border border-slate-200/80">
+                <div class="text-[10px] text-slate-500">Nilai Perolehan (HPP)</div>
+                <div class="text-xs sm:text-sm font-semibold font-mono text-slate-900 mt-0.5">Rp ${formatNum(Math.round(fin.hpp))}</div>
+                <div class="text-[9.5px] text-slate-400 mt-0.5">${formatRpShort(fin.hpp)}</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-slate-50/70 border border-slate-200/80">
+                <div class="text-[10px] text-slate-500">Nilai Buku (NBV)</div>
+                <div class="text-xs sm:text-sm font-semibold font-mono text-slate-900 mt-0.5">Rp ${formatNum(Math.round(fin.nbv))}</div>
+                <div class="text-[9.5px] text-slate-400 mt-0.5">${fin.hpp > 0 ? Math.round((fin.nbv / fin.hpp) * 100) : 0}% sisa nilai</div>
+              </div>
+              <div class="p-2.5 rounded-lg bg-emerald-50/60 border border-emerald-200/80 col-span-2 sm:col-span-1">
+                <div class="text-[10px] text-emerald-800">Total Maintenance</div>
                 <div class="text-xs sm:text-sm font-semibold font-mono text-emerald-900 mt-0.5">Rp ${formatNum(Math.round(unitTotalCost))}</div>
-                <div class="text-[9.5px] text-emerald-700 mt-0.5">${formatNum(unitTxCount)} Transaksi BKB / PV</div>
-              </div>
-              <div class="p-2.5 rounded-lg bg-sky-50/50 border border-sky-200/70">
-                <div class="text-[9.5px] font-medium uppercase text-sky-800">Ragam Suku Cadang (Part)</div>
-                <div class="text-xs sm:text-sm font-semibold font-mono text-sky-900 mt-0.5">${formatNum(unitUniquePartCount)} Jenis Part</div>
-                <div class="text-[9.5px] text-sky-700 mt-0.5">${unitSubKatList.length} Sub-Kategori Material</div>
-              </div>
-              <div class="p-2.5 rounded-lg bg-amber-50/50 border border-amber-200/70">
-                <div class="text-[9.5px] font-medium uppercase text-amber-800">Komponen Biaya Terbesar</div>
-                <div class="text-[11px] font-medium text-slate-800 truncate mt-0.5" title="${topPart ? escapeHtml(topPart.part_name) : '-'}">${topPart ? escapeHtml(topPart.part_name) : '-'}</div>
-                <div class="text-[9.5px] font-mono text-amber-800 mt-0.5">${topPart ? 'Rp ' + formatNum(Math.round(topPart.biaya_part)) : 'Rp 0'}</div>
-              </div>
-              <div class="p-2.5 rounded-lg bg-slate-50 border border-slate-200/80">
-                <div class="text-[9.5px] font-medium uppercase text-slate-600">Servis Terakhir &amp; Nilai Buku</div>
-                <div class="text-xs font-semibold font-mono text-slate-800 mt-0.5">${escapeHtml(latestDate)}</div>
-                <div class="text-[9.5px] font-mono text-slate-500 mt-0.5">NBV: ${formatRpShort(Number(selectedAsset.Nilai_buku) || 0)}</div>
+                <div class="text-[9.5px] text-emerald-700 mt-0.5">${formatNum(unitTxCount)} BKB (${mtcRatio.toFixed(1)}% HPP)</div>
               </div>
             </div>
 
-            <!-- Interactive Sub-Kategori Material Filter Pills & Part Search -->
-            <div class="p-2.5 rounded-lg bg-slate-50/70 border border-slate-200/80 space-y-2">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <span class="text-[10.5px] font-medium text-slate-700">Filter Sub-Kategori Suku Cadang Unit Ini (Klik untuk memfilter tabel part):</span>
-                <div class="relative w-full sm:w-64">
-                  <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[11px]"></i>
-                  <input id="maint-level3-search-input" type="text" value="${escapeHtml(maintDrillState.partSearchQuery)}" oninput="window.onMaintPartSearchInput(this.value)"
-                         placeholder="Cari nama sparepart, No. BKB, kode..."
-                         class="w-full pl-7 pr-2.5 py-1 text-[10.5px] rounded-md border border-slate-200 bg-white outline-none">
-                </div>
-              </div>
+            <!-- Filter Sub-Kategori & Cari Part (1 Bar Ringkas) -->
+            <div class="flex flex-wrap items-center justify-between gap-2 pt-1">
               <div class="flex flex-wrap items-center gap-1.5">
                 <button type="button" onclick="window.filterMaintLevel3BySub('ALL')"
-                        class="px-2 py-1 rounded-md text-[10px] font-medium transition cursor-pointer ${maintDrillState.selectedPartSub === 'ALL' ? 'bg-slate-800 text-white' : 'bg-white text-slate-600 border border-slate-200 hover:bg-slate-100'}">
-                  Semua Komponen (${allUnitParts.length})
+                        class="px-2.5 py-1 rounded-md text-[10.5px] font-medium transition cursor-pointer ${maintDrillState.selectedPartSub === 'ALL' ? 'bg-slate-800 text-white' : 'bg-slate-100 text-slate-600 hover:bg-slate-200'}">
+                  Semua (${allUnitParts.length})
                 </button>
                 ${unitSubKatList.map(sg => {
                   const isSubSel = maintDrillState.selectedPartSub === sg.name;
@@ -10871,56 +11199,55 @@ const PNS_SECTION_TO_DEPT = {
                   const pct = unitTotalCost > 0 ? Math.round((sg.cost / unitTotalCost) * 100) : 0;
                   return `
                     <button type="button" onclick="window.filterMaintLevel3BySub('${safeSub}')"
-                            class="px-2 py-1 rounded-md text-[10px] font-normal transition cursor-pointer flex items-center gap-1 ${isSubSel ? 'bg-emerald-600 text-white font-medium' : 'bg-white text-slate-700 border border-slate-200 hover:border-emerald-400'}">
+                            class="px-2.5 py-1 rounded-md text-[10.5px] font-normal transition cursor-pointer flex items-center gap-1 ${isSubSel ? 'bg-emerald-600 text-white font-medium' : 'bg-white text-slate-700 border border-slate-200 hover:border-emerald-400'}">
                       <span>${escapeHtml(sg.name)}</span>
-                      <span class="font-mono text-[9px] ${isSubSel ? 'text-emerald-100' : 'text-slate-400'}">(${sg.count} &bull; ${pct}%)</span>
+                      <span class="font-mono text-[9.5px] ${isSubSel ? 'text-emerald-100' : 'text-slate-400'}">(${sg.count} &bull; ${pct}%)</span>
                     </button>
                   `;
                 }).join('')}
               </div>
+              <div class="relative w-full sm:w-56">
+                <i class="ph ph-magnifying-glass absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 text-[11px]"></i>
+                <input id="maint-level3-search-input" type="text" value="${escapeHtml(maintDrillState.partSearchQuery)}" oninput="window.onMaintPartSearchInput(this.value)"
+                       placeholder="Cari part, kode, No. BKB..."
+                       class="w-full pl-7 pr-2.5 py-1 text-[10.5px] rounded-md border border-slate-200 bg-slate-50/70 focus:bg-white outline-none">
+              </div>
             </div>
 
-            <!-- Detailed Real Component & Sparepart BKB Table -->
+            <!-- Tabel Fit-to-Screen (4 Kolom Padat - Tanpa Geser Kanan) -->
             ${filteredUnitParts.length > 0 ? `
-              <div class="overflow-x-auto border border-slate-200 rounded-lg">
+              <div class="border border-slate-200 rounded-lg overflow-hidden">
                 <table class="w-full text-[11px] text-left border-collapse">
-                  <thead class="bg-slate-50 text-[9.5px] font-semibold uppercase text-slate-600 border-b border-slate-200">
+                  <thead class="bg-slate-50 text-[10px] font-semibold uppercase text-slate-500 border-b border-slate-200">
                     <tr>
-                      <th class="py-2 px-2.5">Tgl &amp; No. Bukti BKB/PV</th>
-                      <th class="py-2 px-2">Kode Part</th>
-                      <th class="py-2 px-2.5">Kategori &amp; Sub-Kategori Material</th>
-                      <th class="py-2 px-2.5">Nama Spare Part &amp; Jasa (Asli BKB)</th>
-                      <th class="py-2 px-2 text-center">Qty &amp; Frek</th>
-                      <th class="py-2 px-2">Pelaksana</th>
-                      <th class="py-2 px-2.5 text-right">Biaya (Rp)</th>
+                      <th class="py-2 px-3">Tgl &amp; Bukti BKB</th>
+                      <th class="py-2 px-3">Nama Sparepart &amp; Kategori</th>
+                      <th class="py-2 px-2.5 text-center">Qty</th>
+                      <th class="py-2 px-3 text-right">Biaya (Rp)</th>
                     </tr>
                   </thead>
                   <tbody class="divide-y divide-slate-100">
                     ${filteredUnitParts.map(pt => {
                       const sharePct = unitTotalCost > 0 ? Math.min(100, Math.round(((Number(pt.biaya_part) || 0) / unitTotalCost) * 100)) : 0;
                       return `
-                        <tr class="hover:bg-slate-50/90 transition">
-                          <td class="py-2 px-2.5 whitespace-nowrap">
-                            <div class="font-mono text-[10px] font-medium text-slate-700">${escapeHtml(pt.tanggal_servis || '-')}</div>
-                            <div class="font-mono text-[9.5px] text-slate-400 truncate max-w-[140px]" title="${escapeHtml(pt.no_bukti || pt.spesifikasi || '-')}">${escapeHtml(pt.no_bukti || pt.spesifikasi || '-')}</div>
+                        <tr class="hover:bg-slate-50/80 transition">
+                          <td class="py-2.5 px-3 align-top">
+                            <div class="font-mono text-[10.5px] font-medium text-slate-800">${escapeHtml(pt.tanggal_servis || '-')}</div>
+                            <div class="font-mono text-[9.5px] text-slate-400 break-all">${escapeHtml(pt.no_bukti || pt.spesifikasi || '-')}</div>
+                            <div class="text-[9.5px] text-slate-400 mt-0.5">${escapeHtml(pt.part_no)} &bull; ${escapeHtml(pt.teknisi)}</div>
                           </td>
-                          <td class="py-2 px-2 font-mono text-[10px] text-slate-600 whitespace-nowrap">${escapeHtml(pt.part_no)}</td>
-                          <td class="py-2 px-2.5">
-                            <div class="text-[10.5px] font-medium text-indigo-700">${escapeHtml(pt.subsystem)}</div>
-                            <div class="text-[9.5px] text-slate-400">${escapeHtml(pt.kategori_material || 'Suku Cadang')}</div>
+                          <td class="py-2.5 px-3 align-top">
+                            <div class="text-[11.5px] font-medium text-slate-800 leading-snug">${escapeHtml(pt.part_name)}</div>
+                            <div class="text-[10px] text-indigo-700 mt-0.5">${escapeHtml(pt.subsystem)} <span class="text-slate-400">&bull; ${escapeHtml(pt.kategori_material || 'Suku Cadang')}</span></div>
                           </td>
-                          <td class="py-2 px-2.5">
-                            <div class="text-[11px] font-medium text-slate-800">${escapeHtml(pt.part_name)}</div>
+                          <td class="py-2.5 px-2.5 text-center align-top whitespace-nowrap">
+                            <div class="font-mono text-[11px] font-medium text-slate-700">${escapeHtml(pt.qty)}</div>
+                            <div class="text-[9.5px] text-emerald-700">${escapeHtml(pt.kondisi_part)}</div>
                           </td>
-                          <td class="py-2 px-2 text-center whitespace-nowrap">
-                            <div class="font-mono text-[10.5px] font-medium text-slate-700">${escapeHtml(pt.qty)}</div>
-                            <span class="inline-block px-1.5 py-0.2 rounded text-[9px] bg-emerald-50 text-emerald-700 border border-emerald-200/60">${escapeHtml(pt.kondisi_part)}</span>
-                          </td>
-                          <td class="py-2 px-2 text-[10px] text-slate-600 whitespace-nowrap">${escapeHtml(pt.teknisi)}</td>
-                          <td class="py-2 px-2.5 text-right whitespace-nowrap">
-                            <div class="font-mono text-[11px] font-medium text-slate-800">${formatNum(Math.round(pt.biaya_part))}</div>
-                            <div class="flex items-center justify-end gap-1 mt-0.5">
-                              <div class="w-12 h-1 bg-slate-100 rounded-full overflow-hidden">
+                          <td class="py-2.5 px-3 text-right align-top whitespace-nowrap">
+                            <div class="font-mono text-[11.5px] font-semibold text-slate-800">${formatNum(Math.round(pt.biaya_part))}</div>
+                            <div class="flex items-center justify-end gap-1 mt-1">
+                              <div class="w-10 h-1 bg-slate-100 rounded-full overflow-hidden">
                                 <div class="h-full bg-emerald-500 rounded-full" style="width:${sharePct}%"></div>
                               </div>
                               <span class="font-mono text-[9px] text-slate-400">${sharePct}%</span>
@@ -10930,12 +11257,14 @@ const PNS_SECTION_TO_DEPT = {
                       `;
                     }).join('')}
                   </tbody>
-                  <tfoot class="bg-slate-50 font-semibold text-[11px] border-t border-slate-200">
-                    <tr>
-                      <td colspan="6" class="py-2 px-2.5 text-slate-700">Total Rincian Suku Cadang Ditampilkan (${filteredUnitParts.length} dari ${unitUniquePartCount} Jenis Part &bull; ${formatNum(unitTxCount)} BKB)</td>
-                      <td class="py-2 px-2.5 text-right font-mono text-emerald-800">Rp ${formatNum(Math.round(filteredPartCost))}</td>
-                    </tr>
-                  </tfoot>
+                  ${maintDrillState.selectedPartSub !== 'ALL' || maintDrillState.partSearchQuery ? `
+                    <tfoot class="bg-slate-50 font-semibold text-[11px] border-t border-slate-200">
+                      <tr>
+                        <td colspan="3" class="py-2 px-3 text-slate-600">Subtotal Terfilter (${filteredUnitParts.length} dari ${allUnitParts.length} Item)</td>
+                        <td class="py-2 px-3 text-right font-mono text-emerald-800">Rp ${formatNum(Math.round(filteredPartCost))}</td>
+                      </tr>
+                    </tfoot>
+                  ` : ''}
                 </table>
               </div>
             ` : `
@@ -10943,7 +11272,8 @@ const PNS_SECTION_TO_DEPT = {
                 Tidak ada transaksi part BKB yang cocok dengan filter saat ini pada unit <b>${escapeHtml(selectedAsset.kode_unit)}</b>.
               </div>
             `}
-          ` : `
+            `;
+          })() : `
             <div class="py-12 text-center text-slate-500 text-xs">Pilih salah satu unit aset di sebelah kiri untuk melihat rincian komponen &amp; suku cadang.</div>
           `}
         </div>
