@@ -318,16 +318,23 @@ function apiGetDashboardStats() {
   var sheetRuangan = ss.getSheetByName('M_RUANGAN') || ss.getSheetByName('DIM_RUANGAN');
   var sheetInsp = ss.getSheetByName('ROOM_INSPECTIONS') || ss.getSheetByName('LOG_TRANSAKSI_LAPANGAN');
   var sheetMtc = ss.getSheetByName('data_mtc') || ss.getSheetByName('Data MTC') || ss.getSheetByName('WORK_ORDERS');
+  var sheetLiveApi = ss.getSheetByName('API_ASSET_LIVE');
+  var sheetAsset = ss.getSheetByName('asset') || ss.getSheetByName('ASSETS') || ss.getSheetByName('FACT_ASET');
 
   var totalGedung = sheetGedung && sheetGedung.getLastRow() > 1 ? (sheetGedung.getLastRow() - 1) : 416;
   var totalRuangan = sheetRuangan && sheetRuangan.getLastRow() > 1 ? (sheetRuangan.getLastRow() - 1) : 1559;
   var totalInsp = sheetInsp && sheetInsp.getLastRow() > 1 ? (sheetInsp.getLastRow() - 1) : 12;
   var totalMtc = sheetMtc && sheetMtc.getLastRow() > 1 ? (sheetMtc.getLastRow() - 1) : 34232;
+  var liveApiCount = sheetLiveApi && sheetLiveApi.getLastRow() > 1 ? (sheetLiveApi.getLastRow() - 1) : 0;
+  var masterAssetCount = sheetAsset && sheetAsset.getLastRow() > 1 ? (sheetAsset.getLastRow() - 1) : 0;
+  var totalAssetsLive = Math.max(liveApiCount, masterAssetCount, 35160);
 
   return {
     total_gedung: totalGedung,
     total_ruangan: totalRuangan,
-    total_assets: 34266,
+    total_assets: totalAssetsLive,
+    live_api_count: liveApiCount,
+    master_asset_count: masterAssetCount,
     total_inspeksi: totalInsp,
     total_wo: totalMtc,
     total_belum_checkout: 279,
@@ -338,13 +345,53 @@ function apiGetDashboardStats() {
   };
 }
 
+function apiGetLiveApiAssetDelta(limit) {
+  var ss = getDb();
+  var sheet = ss.getSheetByName('API_ASSET_LIVE');
+  if (!sheet || sheet.getLastRow() <= 1) return [];
+  var lastRow = sheet.getLastRow();
+  var lastCol = Math.min(36, sheet.getLastColumn());
+  var count = Math.min(lastRow - 1, limit || 300);
+  var startRow = Math.max(2, lastRow - count + 1);
+  var rows = sheet.getRange(startRow, 1, count, lastCol).getValues();
+  var res = [];
+  for (var i = rows.length - 1; i >= 0; i--) {
+    var r = rows[i];
+    var kodeUnit = String(r[9] || r[7] || r[0] || '').trim();
+    if (!kodeUnit) continue;
+    res.push({
+      asset_id: r[0],
+      lokasi_code: String(r[1] || 'CO').trim(),
+      kode_section: String(r[2] || 'HRGA').trim(),
+      jenis_asset: String(r[3] || 'UMUM').trim(),
+      kelompok_asset: String(r[34] || r[4] || 'INVENTARIS DAN PERALATAN').trim(),
+      kategori_asset: String(r[29] || r[5] || 'INVENTARIS PERUMAHAN').trim(),
+      no_asset: kodeUnit,
+      kode_unit: kodeUnit,
+      nama_asset: String(r[11] || r[12] || '-').trim(),
+      nama_asset_detail: String(r[12] || r[11] || '-').trim(),
+      kondisi: String(r[13] || 'Good Condition').trim(),
+      umur_ekonomis: Number(r[16]) || 5,
+      umur_asset: Number(r[21]) || 0,
+      tanggal_perolehan: r[17] ? String(r[17]).slice(0, 10) : '',
+      harga_perolehan: parseFloat(r[18] || 0),
+      nilai_buku: parseFloat(r[35] !== undefined && r[35] !== '' ? r[35] : (r[28] || 0)),
+      akumulasi_penyusutan: parseFloat(r[27] || 0),
+      status_verifikasi: String(r[33] || 'BELUM VERIFIKASI').trim(),
+      lifetime: String(r[26] || '').trim()
+    });
+  }
+  return res;
+}
+
 function apiGetBootstrapData() {
   return {
     stats: apiGetDashboardStats(),
     inspections: apiGetInspectionHistory(50),
     workOrders: apiGetWorkOrders(),
     penghuni: apiGetPenghuniList(''),
-    registeredAssets: apiGetRegisteredAssets(100),
+    registeredAssets: apiGetRegisteredAssets(300),
+    liveApiAssets: apiGetLiveApiAssetDelta(300),
     mutations: apiGetAssetMutations(200)
   };
 }

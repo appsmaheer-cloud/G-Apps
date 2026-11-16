@@ -1301,42 +1301,51 @@ const PNS_SECTION_TO_DEPT = {
         }
       });
     }
-    // REAL-TIME SYNC: Merge live registeredAssets & mutations from Google Sheets into PNS_ALL_ASSETS_ROWS
+    // REAL-TIME SYNC: Merge live registeredAssets, liveApiAssets & mutations from Google Sheets into PNS_ALL_ASSETS_ROWS
     if (Array.isArray(window.PNS_ALL_ASSETS_ROWS)) {
+      const beforeCount = window.PNS_ALL_ASSETS_ROWS.length;
       const existingCodes = new Map();
       window.PNS_ALL_ASSETS_ROWS.forEach((r, idx) => {
         if (r && r[0]) existingCodes.set(String(r[0]).trim(), idx);
       });
 
-      if (Array.isArray(data.registeredAssets) && data.registeredAssets.length > 0) {
-        data.registeredAssets.forEach(ra => {
-          const code = String(ra.kode_unit || ra.no_asset || '').trim();
-          if (!code) return;
-          if (!existingCodes.has(code)) {
-            window.PNS_ALL_ASSETS_ROWS.unshift([
-              code,
-              ra.nama_asset || '-',
-              ra.kelompok_asset || 'INVENTARIS DAN PERALATAN',
-              ra.kategori_asset || 'INVENTARIS PERUMAHAN',
-              ra.lokasi_code || 'CO',
-              ra.kondisi || 'Good Condition',
-              Number(ra.umur_ekonomis) || 5,
-              Number(ra.umur_asset) || 0,
-              parseFloat(ra.harga_perolehan || 0),
-              parseFloat(ra.akumulasi_penyusutan || 0),
-              parseFloat(ra.nilai_buku !== undefined ? ra.nilai_buku : (ra.harga_perolehan || 0)),
-              ra.status_disposal || 'Aktif / Digunakan',
-              ra.kode_section || 'HRGA',
-              ra.status_verifikasi || 'ALOKASI SESUAI',
-              ra.jenis_asset || (parseFloat(ra.harga_perolehan || 0) > 0 ? 'Asset' : 'Non-Valueable Asset'),
-              ra.nama_asset_detail || ra.nama_asset || '-',
-              ra.asset_id || (window.PNS_ALL_ASSETS_ROWS.length + 1),
-              ra.lifetime || '↓ DIBAWAH'
-            ]);
-            existingCodes.set(code, 0);
-          }
-        });
-      }
+      const incomingAssets = []
+        .concat(Array.isArray(data.liveApiAssets) ? data.liveApiAssets : [])
+        .concat(Array.isArray(data.registeredAssets) ? data.registeredAssets : []);
+
+      let addedFromSheet = 0;
+      incomingAssets.forEach(ra => {
+        const code = String(ra.kode_unit || ra.no_asset || '').trim();
+        if (!code) return;
+        if (!existingCodes.has(code)) {
+          window.PNS_ALL_ASSETS_ROWS.unshift([
+            code,
+            ra.nama_asset || '-',
+            ra.kelompok_asset || 'INVENTARIS DAN PERALATAN',
+            ra.kategori_asset || 'INVENTARIS PERUMAHAN',
+            ra.lokasi_code || 'CO',
+            ra.kondisi || 'Good Condition',
+            Number(ra.umur_ekonomis) || 5,
+            Number(ra.umur_asset) || 0,
+            parseFloat(ra.harga_perolehan || 0),
+            parseFloat(ra.akumulasi_penyusutan || 0),
+            parseFloat(ra.nilai_buku !== undefined ? ra.nilai_buku : (ra.harga_perolehan || 0)),
+            ra.status_disposal || 'Aktif / Digunakan',
+            ra.kode_section || 'HRGA',
+            ra.status_verifikasi || 'ALOKASI SESUAI',
+            ra.jenis_asset || (parseFloat(ra.harga_perolehan || 0) > 0 ? 'Asset' : 'Non-Valueable Asset'),
+            ra.nama_asset_detail || ra.nama_asset || '-',
+            ra.asset_id || (window.PNS_ALL_ASSETS_ROWS.length + 1),
+            ra.lifetime || '↓ DIBAWAH'
+          ]);
+          existingCodes.set(code, 0);
+          addedFromSheet++;
+        }
+      });
+
+      const sheetTotal = Number(data.stats && (data.stats.total_assets || data.stats.live_api_count || data.stats.master_asset_count)) || window.PNS_ALL_ASSETS_ROWS.length;
+      appState.liveSheetTotal = Math.max(window.PNS_ALL_ASSETS_ROWS.length, sheetTotal);
+      appState.liveSheetDelta = Math.max(addedFromSheet, appState.liveSheetTotal - beforeCount);
 
       if (Array.isArray(data.mutations) && data.mutations.length > 0) {
         data.mutations.slice().reverse().forEach(m => {
@@ -1351,10 +1360,13 @@ const PNS_SECTION_TO_DEPT = {
         });
       }
 
-      // Invalidate normalized cache so all views recompute from fresh Google Sheets data
+      // Invalidate normalized & maintenance caches so all views recompute from fresh Google Sheets data
       _pnsCachedNormalizedAssets = null;
       cachedFilteredAssets = null;
+      if (typeof _cachedUnifiedMaintAssets !== 'undefined') _cachedUnifiedMaintAssets = null;
     }
+
+    if (typeof updateDashboardRealMetrics === 'function') updateDashboardRealMetrics();
 
     initInspectionFormDropdowns();
     renderDashboardCharts();
@@ -1966,14 +1978,37 @@ const PNS_SECTION_TO_DEPT = {
     const roomCount = (appState.rooms || []).length || 1559;
     const belumCheckoutList = getBelumCheckoutAssetsList();
 
+    const liveSheetTotal = Math.max(
+      totalAssets,
+      Number(appState.liveSheetTotal) || 0,
+      Number(appState.stats && (appState.stats.total_assets || appState.stats.live_api_count)) || 0
+    );
+    const liveDelta = Math.max(0, Number(appState.liveSheetDelta) || 0, liveSheetTotal - 35160);
+
     setEl('stat-bldg-count', bldgCount.toLocaleString('id-ID'));
     setEl('nav-badge-bldg', bldgCount.toLocaleString('id-ID'));
     setEl('stat-room-count', roomCount.toLocaleString('id-ID'));
     setEl('nav-badge-room', roomCount.toLocaleString('id-ID'));
-    setEl('stat-asset-count', totalAssets.toLocaleString('id-ID'));
-    setEl('nav-badge-asset', totalAssets.toLocaleString('id-ID'));
+    setEl('stat-asset-count', liveSheetTotal.toLocaleString('id-ID'));
+    setEl('nav-badge-asset', liveSheetTotal.toLocaleString('id-ID'));
     setEl('stat-belum-checkout-count', belumCheckoutList.length.toLocaleString('id-ID'));
     setEl('badge-dashboard-cond-good', `${goodPct}% Good (${goodCount.toLocaleString('id-ID')})`);
+
+    const deltaBadge = document.getElementById('stat-asset-delta-badge');
+    const subAssetEl = document.getElementById('stat-asset-sub');
+    if (deltaBadge) {
+      if (liveDelta > 0) {
+        deltaBadge.innerText = `+${liveDelta.toLocaleString('id-ID')} Baru`;
+        deltaBadge.classList.remove('hidden');
+      } else {
+        deltaBadge.classList.add('hidden');
+      }
+    }
+    if (subAssetEl) {
+      subAssetEl.innerText = liveDelta > 0
+        ? `Item Aset Fisik (+${liveDelta.toLocaleString('id-ID')} dari Sheet)`
+        : 'Item Aset Fisik (Live Sheet)';
+    }
 
     const btnBarAsset = document.getElementById('btn-dash-bar-asset');
     const btnBarBldg = document.getElementById('btn-dash-bar-bldg');
@@ -10513,7 +10548,7 @@ const PNS_SECTION_TO_DEPT = {
         sumHpp += meta.hpp;
         sumNbv += meta.nbv;
         sumMtc += totalMtc;
-        return { u, meta, totalMtc, ratio, idx: i + 1, txCount: realRec ? realRec.tx_count : parts.length };
+        return { u, meta, parts, totalMtc, ratio, idx: i + 1, txCount: realRec ? realRec.tx_count : parts.length };
       });
       const totalRatio = sumHpp > 0 ? (sumMtc / sumHpp) * 100 : 0;
 
@@ -10579,6 +10614,50 @@ const PNS_SECTION_TO_DEPT = {
             </tr>
           </tfoot>
         </table>
+
+        <!-- Rincian Detail Suku Cadang Per Unit (Agar Saat Print Tetap Detail) -->
+        <div class="mt-5 pt-4 border-t border-slate-200 space-y-4">
+          <h5 class="text-xs font-bold uppercase tracking-wider text-slate-700">Rincian Detail Suku Cadang &amp; Transaksi BKB Per Unit</h5>
+          ${rows.map(r => `
+            <div class="border border-slate-200 rounded-lg overflow-hidden break-inside-avoid">
+              <div class="bg-slate-50 px-3 py-2 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2">
+                <div>
+                  <span class="font-mono text-[10.5px] font-bold text-sky-700">${escapeHtml(r.u.kode_unit)}</span>
+                  <span class="text-xs font-semibold text-slate-900 ml-1.5">${escapeHtml(r.u.nama_asset_detail || r.u.nama_asset || '-')}</span>
+                </div>
+                <span class="font-mono text-[11px] font-semibold text-emerald-800">Total: Rp ${formatNum(Math.round(r.totalMtc))} (${r.txCount} BKB)</span>
+              </div>
+              ${r.parts.length > 0 ? `
+                <table class="w-full text-[10.5px] text-left border-collapse">
+                  <thead class="bg-white text-[9.5px] uppercase text-slate-500 border-b border-slate-200">
+                    <tr>
+                      <th class="py-1.5 px-2.5">Tgl &amp; Bukti BKB</th>
+                      <th class="py-1.5 px-2.5">Sparepart &amp; Kategori</th>
+                      <th class="py-1.5 px-2 text-center">Qty</th>
+                      <th class="py-1.5 px-2.5 text-right">Biaya (Rp)</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100">
+                    ${r.parts.map(pt => `
+                      <tr>
+                        <td class="py-1.5 px-2.5 font-mono">
+                          <div class="text-slate-800">${escapeHtml(pt.tanggal_servis || '-')}</div>
+                          <div class="text-[9px] text-slate-400">${escapeHtml(pt.no_bukti || pt.part_no || '-')}</div>
+                        </td>
+                        <td class="py-1.5 px-2.5">
+                          <div class="font-medium text-slate-800">${escapeHtml(pt.part_name)}</div>
+                          <div class="text-[9px] text-slate-500">${escapeHtml(pt.subsystem || '-')} &bull; ${escapeHtml(pt.teknisi || '-')}</div>
+                        </td>
+                        <td class="py-1.5 px-2 text-center font-mono">${escapeHtml(pt.qty)}</td>
+                        <td class="py-1.5 px-2.5 text-right font-mono font-medium">Rp ${formatNum(Math.round(pt.biaya_part))}</td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              ` : `<div class="p-2.5 text-[10.5px] text-slate-400">Tidak ada rincian part tercatat.</div>`}
+            </div>
+          `).join('')}
+        </div>
       `;
     }
 
@@ -10738,6 +10817,7 @@ const PNS_SECTION_TO_DEPT = {
         try {
           localStorage.setItem('PNS_CUSTOM_MAINT_PARTS', JSON.stringify(maintDrillState.customPartsMap));
         } catch (e) {}
+        _cachedUnifiedMaintAssets = null;
         renderMaintenanceDrillView();
         Swal.fire({ icon: 'success', title: 'Part Tercatat', text: 'Rincian suku cadang berhasil ditambahkan ke unit aset.', timer: 1400, showConfirmButton: false });
       }
@@ -10745,7 +10825,11 @@ const PNS_SECTION_TO_DEPT = {
   }
   window.promptAddOrUpdateMaintPart = promptAddOrUpdateMaintPart;
 
+  let _cachedUnifiedMaintAssets = null;
   function buildUnifiedRealMaintenanceAssets() {
+    if (_cachedUnifiedMaintAssets && _cachedUnifiedMaintAssets.length > 0) {
+      return _cachedUnifiedMaintAssets;
+    }
     const allAssets = getAllNormalizedAssets();
     const db = window.PNS_REAL_MTC_DETAILS;
     const matchedMtcKeys = new Set();
@@ -10764,13 +10848,15 @@ const PNS_SECTION_TO_DEPT = {
         }));
       } else {
         const mc = Number(a.maintenance_cost) || 0;
-        unified.push(Object.assign({}, a, {
-          kode_unit_bkb: a.kode_unit,
-          maintenance_cost: mc,
-          mtc_tx_count: mc > 0 ? 1 : 0,
-          mtc_part_count: mc > 0 ? 1 : 0,
-          has_real_mtc: mc > 0
-        }));
+        if (mc > 0) {
+          unified.push(Object.assign({}, a, {
+            kode_unit_bkb: a.kode_unit,
+            maintenance_cost: mc,
+            mtc_tx_count: 1,
+            mtc_part_count: 1,
+            has_real_mtc: true
+          }));
+        }
       }
     });
 
@@ -10810,6 +10896,7 @@ const PNS_SECTION_TO_DEPT = {
         });
       }
     }
+    _cachedUnifiedMaintAssets = unified;
     return unified;
   }
 
@@ -11080,7 +11167,7 @@ const PNS_SECTION_TO_DEPT = {
           </div>
 
           <div id="maint-level2-list" class="max-h-[540px] overflow-y-auto divide-y divide-slate-100 border border-slate-100 rounded-lg scrollbar-thin">
-            ${level2Assets.slice(0, 150).map(a => {
+            ${level2Assets.slice(0, 80).map(a => {
               const isSel = selectedAsset && (
                 String(selectedAsset.kode_unit) === String(a.kode_unit) &&
                 String(selectedAsset.kode_unit_bkb || '') === String(a.kode_unit_bkb || '')
