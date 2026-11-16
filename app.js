@@ -6708,25 +6708,32 @@ const PNS_SECTION_TO_DEPT = {
       return `
         <tr onclick="openAssetDetailPage('${safeUnit}', 'view-asset-movement')"
             class="hover:bg-emerald-50/70 transition cursor-pointer border-b border-slate-100">
-          <td class="py-1.5 px-2.5 font-mono font-bold text-slate-700 whitespace-nowrap">${safeLoc}</td>
-          <td class="py-1.5 px-2.5 font-mono font-semibold text-slate-900 whitespace-nowrap">${escapeHtml(a.kode_unit)}</td>
-          <td class="py-1.5 px-2.5 text-slate-800 font-medium">${safeDetail}</td>
-          <td class="py-1.5 px-2.5 font-bold text-slate-700 whitespace-nowrap">${safeKelompok}</td>
-          <td class="py-1.5 px-2 text-center whitespace-nowrap">
-            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold border ${condBadgeMap[a.kondisi] || 'bg-slate-50 text-slate-700'}">${escapeHtml(a.kondisi)}</span>
+          <td class="py-2 px-2.5 align-top">
+            <div class="font-mono text-[10.5px] font-semibold text-sky-700 truncate" title="${escapeHtml(a.kode_unit)}">${escapeHtml(a.kode_unit)}</div>
+            <div class="text-[9.5px] font-mono text-slate-500 mt-0.5">${safeLoc} &bull; ${escapeHtml(a.kode_section || '-')}</div>
           </td>
-          <td class="py-1.5 px-2.5 text-right font-mono ${varianBgClass}">${varianText}</td>
-          <td class="py-1.5 px-2.5 text-right font-mono text-slate-700">${std}</td>
-          <td class="py-1.5 px-2.5 text-right font-mono text-slate-900 font-bold">${umur}</td>
-          <td class="py-1.5 px-2.5 text-right font-mono ${nbv > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'}">${nbv > 0 ? formatNum(Math.round(nbv)) : '0'}</td>
-          <td class="py-1.5 px-2.5 text-right font-mono text-slate-700">${maint > 0 ? formatNum(Math.round(maint)) : '-'}</td>
-          <td class="py-1.5 px-2.5 text-center whitespace-nowrap">
+          <td class="py-2 px-2.5 align-top">
+            <div class="text-[11px] font-medium text-slate-800 truncate" title="${safeDetail}">${safeDetail}</div>
+            <div class="text-[9.5px] text-slate-500 truncate mt-0.5">${safeKelompok}</div>
+          </td>
+          <td class="py-2 px-2 text-center align-top">
+            <span class="inline-block px-1.5 py-0.5 rounded text-[9px] font-bold border ${condBadgeMap[a.kondisi] || 'bg-slate-50 text-slate-700'}">${escapeHtml(a.kondisi)}</span>
+          </td>
+          <td class="py-2 px-2 text-right align-top font-mono">
+            <div class="text-[10.5px] font-semibold text-slate-800">${umur} <span class="text-slate-400 font-normal">/ ${std} thn</span></div>
+            <span class="inline-block px-1 py-0.2 rounded text-[9px] mt-0.5 ${varianBgClass}">${varianText}</span>
+          </td>
+          <td class="py-2 px-2.5 text-right align-top font-mono">
+            <div class="text-[10.5px] ${nbv > 0 ? 'text-slate-900 font-semibold' : 'text-slate-400'}">${nbv > 0 ? formatNum(Math.round(nbv)) : '0'}</div>
+            <div class="text-[9.5px] text-slate-500 mt-0.5">${maint > 0 ? 'MTC: ' + formatNum(Math.round(maint)) : '-'}</div>
+          </td>
+          <td class="py-2 px-2 text-center align-top">
             <div class="inline-flex items-center gap-1">
-              <button type="button" onclick="event.stopPropagation(); openAssetDetailPage('${safeUnit}', 'view-asset-movement')" class="px-2 py-0.5 rounded bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white font-bold text-[9.5px] border border-emerald-200 transition cursor-pointer" title="Buka Dossier Unit">
-                📋 Dossier
+              <button type="button" onclick="event.stopPropagation(); openAssetDetailPage('${safeUnit}', 'view-asset-movement')" class="px-1.5 py-0.5 rounded bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white font-bold text-[9.5px] border border-emerald-200 transition cursor-pointer" title="Buka Dossier Unit">
+                📋
               </button>
-              <button type="button" onclick="event.stopPropagation(); window.drillAssetToMaintenance('${safeUnit}', 'view-asset-movement')" class="px-2 py-0.5 rounded bg-amber-50 hover:bg-amber-600 text-amber-800 hover:text-white font-bold text-[9.5px] border border-amber-200 transition cursor-pointer" title="Drill ke Maintenance & Detail Part">
-                🔧 Maint
+              <button type="button" onclick="event.stopPropagation(); window.drillAssetToMaintenance('${safeUnit}', 'view-asset-movement')" class="px-1.5 py-0.5 rounded bg-amber-50 hover:bg-amber-600 text-amber-800 hover:text-white font-bold text-[9.5px] border border-amber-200 transition cursor-pointer" title="Drill ke Maintenance & Detail Part">
+                🔧
               </button>
             </div>
           </td>
@@ -14284,7 +14291,7 @@ const PNS_SECTION_TO_DEPT = {
     if (!tbody) return;
 
     if (data.items.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="12" class="text-center py-8 text-slate-400">Tidak ada aset yang sesuai filter pencarian.</td></tr>';
+      tbody.innerHTML = '<tr><td colspan="6" class="text-center py-8 text-slate-400">Tidak ada aset yang sesuai filter pencarian.</td></tr>';
       if (pInfo) pInfo.innerText = '0 data ditemukan';
       return;
     }
@@ -14335,22 +14342,30 @@ const PNS_SECTION_TO_DEPT = {
       }
 
       return '<tr class="hover:bg-slate-50 transition text-xs border-b border-slate-100">' +
-        '<td class="py-2.5 px-3 font-mono font-bold text-sky-700 whitespace-nowrap">' +
-          '<button type="button" onclick="closeValidasiDrillModal(); window.drillToAssetDetail(\'' + code + '\')" class="hover:underline text-left">' + code + '</button>' +
+        '<td class="py-2.5 px-3 align-top">' +
+          '<button type="button" onclick="closeValidasiDrillModal(); window.drillToAssetDetail(\'' + code + '\')" class="font-mono text-[11px] font-bold text-sky-700 hover:underline text-left block truncate">' + code + '</button>' +
+          '<div class="font-semibold text-slate-800 truncate mt-0.5" title="' + nama + '">' + nama + '</div>' +
+          '<div class="text-[10px] text-slate-500 mt-0.5">' + tipe + '</div>' +
         '</td>' +
-        '<td class="py-2.5 px-3 font-semibold text-slate-800 min-w-[170px] max-w-[220px] truncate" title="' + nama + '">' + nama + '</td>' +
-        '<td class="py-2.5 px-2 text-slate-600 whitespace-nowrap">' + tipe + '</td>' +
-        '<td class="py-2.5 px-2 whitespace-nowrap">' + checkoutBadge + '</td>' +
-        '<td class="py-2.5 px-2 font-mono text-[10px] text-slate-500 whitespace-nowrap">' + tglCheckout + '</td>' +
-        '<td class="py-2.5 px-2 whitespace-nowrap">' + kondBadge + '</td>' +
-        '<td class="py-2.5 px-2 text-slate-700 font-medium max-w-[130px] truncate" title="' + userVerif + '">' + userVerif + '</td>' +
-        '<td class="py-2.5 px-2 text-slate-500 text-[11px] max-w-[160px] truncate" title="' + catatanVerif + '">' + catatanVerif + '</td>' +
-        '<td class="py-2.5 px-2 font-mono text-[10px] text-slate-500 whitespace-nowrap">' + tglVerif + '</td>' +
-        '<td class="py-2.5 px-3 text-right font-mono text-slate-700 whitespace-nowrap">' + fmtRp(hppVal) + '</td>' +
-        '<td class="py-2.5 px-3 text-right font-mono font-bold text-emerald-700 whitespace-nowrap">' + fmtRp(nbvVal) + '</td>' +
-        '<td class="py-2.5 px-2.5 text-center whitespace-nowrap">' +
+        '<td class="py-2.5 px-2.5 align-top">' +
+          '<div>' + checkoutBadge + '</div>' +
+          '<div class="font-mono text-[9.5px] text-slate-500 mt-1">' + tglCheckout + '</div>' +
+        '</td>' +
+        '<td class="py-2.5 px-2.5 align-top">' +
+          '<div>' + kondBadge + '</div>' +
+          '<div class="text-[10px] text-slate-700 font-medium truncate mt-1" title="' + userVerif + '">' + userVerif + '</div>' +
+          '<div class="font-mono text-[9.5px] text-slate-400">' + tglVerif + '</div>' +
+        '</td>' +
+        '<td class="py-2.5 px-2.5 align-top text-slate-500 text-[11px]">' +
+          '<div class="line-clamp-2" title="' + catatanVerif + '">' + catatanVerif + '</div>' +
+        '</td>' +
+        '<td class="py-2.5 px-3 align-top text-right font-mono">' +
+          '<div class="text-[10.5px] text-slate-700">' + fmtRp(hppVal) + '</div>' +
+          '<div class="text-[10.5px] font-bold text-emerald-700 mt-0.5">' + fmtRp(nbvVal) + '</div>' +
+        '</td>' +
+        '<td class="py-2.5 px-2 align-top text-center">' +
           '<button type="button" onclick="closeValidasiDrillModal(); window.drillToAssetDetail(\'' + code + '\')" class="px-2 py-1 rounded bg-sky-50 text-sky-700 hover:bg-sky-100 text-[10px] font-bold border border-sky-200 transition cursor-pointer">' +
-            'Dossier &rarr;' +
+            'Dossier' +
           '</button>' +
         '</td>' +
       '</tr>';

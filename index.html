@@ -2100,37 +2100,41 @@
                             </div>
                         </div>
 
-                        <!-- Full-Width Details Asset Table -->
-                        <div class="overflow-x-auto max-h-[520px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl mt-2.5">
-                            <table class="w-full text-left border-collapse">
-                                <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10.5px] font-black text-slate-800 uppercase">
+                        <!-- Full-Width Details Asset Table (Fit-to-Screen, Frozen Header & Footer, Zero Horizontal Scroll) -->
+                        <div class="overflow-y-auto overflow-x-hidden max-h-[520px] scrollbar-thin border border-slate-200/90 rounded-xl mt-2.5">
+                            <table class="w-full text-left border-collapse table-fixed">
+                                <colgroup>
+                                    <col style="width: 17%;">
+                                    <col style="width: 28%;">
+                                    <col style="width: 13%;">
+                                    <col style="width: 14%;">
+                                    <col style="width: 18%;">
+                                    <col style="width: 10%;">
+                                </colgroup>
+                                <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10px] font-bold text-slate-700 uppercase shadow-2xs">
                                     <tr>
-                                        <th class="py-2 px-2.5">Location</th>
-                                        <th class="py-2 px-2.5">Kode_Unit <i class="ph-fill ph-caret-up text-[9px] text-slate-500"></i></th>
-                                        <th class="py-2 px-2.5">Nama_Asset_Detail</th>
-                                        <th class="py-2 px-2.5">Kelompok_Asset</th>
-                                        <th class="py-2 px-2 text-center">Kondisi</th>
-                                        <th class="py-2 px-2 text-right">Varian_Umur</th>
-                                        <th class="py-2 px-2 text-right">Sum of<br>Standar_Umur</th>
-                                        <th class="py-2 px-2 text-right">Sum of<br>Umur_Asset</th>
-                                        <th class="py-2 px-2.5 text-right">Nilai_Pembukuan</th>
-                                        <th class="py-2 px-2.5 text-right">Maintenance Cost</th>
-                                        <th class="py-2 px-2.5 text-center">Drill Aksi</th>
+                                        <th class="py-2.5 px-2.5">Unit &amp; Lokasi</th>
+                                        <th class="py-2.5 px-2.5">Nama Aset &amp; Kelompok</th>
+                                        <th class="py-2.5 px-2 text-center">Kondisi</th>
+                                        <th class="py-2.5 px-2 text-right">Umur / Std</th>
+                                        <th class="py-2.5 px-2.5 text-right">NBV &amp; MTC</th>
+                                        <th class="py-2.5 px-2 text-center">Aksi</th>
                                     </tr>
                                 </thead>
                                 <tbody id="mov-tbody-details" class="divide-y divide-slate-100 text-[11px]">
-                                    <!-- Populated dynamically from real data with conditional varian_umur -->
+                                    <!-- Populated dynamically from real data -->
                                 </tbody>
-                                <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11px] font-black text-slate-900">
+                                <tfoot class="bg-slate-100/95 sticky bottom-0 z-10 border-t-2 border-slate-300 text-[11px] font-bold text-slate-900">
                                     <tr>
-                                        <td class="py-2 px-2.5" colspan="4">Total (<span id="mov-tot-right-count">35,160</span> Unit)</td>
-                                        <td class="py-2 px-2 text-center text-slate-400 font-normal text-[9px]">-</td>
-                                        <td class="py-2 px-2 text-right font-mono text-slate-500 text-[10px]" id="mov-tot-right-varian">-</td>
-                                        <td id="mov-tot-right-std" class="py-2 px-2 text-right font-mono">307,784</td>
-                                        <td id="mov-tot-right-umur" class="py-2 px-2 text-right font-mono">232,566</td>
-                                        <td id="mov-tot-right-nbv" class="py-2 px-2.5 text-right font-mono text-emerald-800">681,781,314,986</td>
-                                        <td id="mov-tot-right-maint" class="py-2 px-2.5 text-right font-mono text-slate-900">27,652,413,593</td>
-                                        <td class="py-2 px-2.5 text-center text-slate-400">-</td>
+                                        <td class="py-2 px-2.5" colspan="3">Total (<span id="mov-tot-right-count">35,242</span> Unit)</td>
+                                        <td class="py-2 px-2 text-right font-mono text-[10px]">
+                                            <span id="mov-tot-right-umur">232,566</span> / <span id="mov-tot-right-std" class="text-slate-500 font-normal">307,784</span>
+                                        </td>
+                                        <td class="py-2 px-2.5 text-right font-mono">
+                                            <div id="mov-tot-right-nbv" class="text-emerald-800">681,781,314,986</div>
+                                            <div id="mov-tot-right-maint" class="text-[9.5px] font-normal text-slate-600">27,652,413,593</div>
+                                        </td>
+                                        <td class="py-2 px-2 text-center text-slate-400">-</td>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -4027,8 +4031,8 @@
               </button>
             </div>
 
-            <!-- TABLE WITH FIXED 100% LAYOUT (ZERO HORIZONTAL SCROLL) -->
-            <div class="w-full overflow-hidden rounded-xl border border-slate-200 shadow-2xs">
+            <!-- TABLE WITH FIXED 100% LAYOUT, FROZEN HEADER & FOOTER (ZERO HORIZONTAL SCROLL) -->
+            <div class="w-full max-h-[540px] overflow-y-auto overflow-x-hidden scrollbar-thin rounded-xl border border-slate-200 shadow-2xs">
               <table id="table-validasi-matrix" class="w-full text-xs text-left border-collapse table-fixed" style="width: 100%;">
                 <colgroup>
                   <col style="width: 26%;">
@@ -4039,7 +4043,7 @@
                   <col style="width: 10%;">
                   <col style="width: 12%;">
                 </colgroup>
-                <thead class="bg-slate-100/90 text-slate-700 text-[11px] uppercase tracking-wider font-bold border-b border-slate-200 select-none">
+                <thead class="sticky top-0 z-10 bg-slate-100 text-slate-700 text-[11px] uppercase tracking-wider font-bold border-b border-slate-200 select-none shadow-2xs">
                   <tr>
                     <th id="matrix-th-name" class="py-2.5 px-3.5">Departemen</th>
                     <th class="py-2.5 px-2.5">Akurasi Validasi</th>
@@ -4053,7 +4057,7 @@
                 <tbody id="table-validasi-matrix-body" class="divide-y divide-slate-100 font-medium">
                   <!-- Rendered dynamically via JS -->
                 </tbody>
-                <tfoot id="table-validasi-matrix-foot" class="bg-slate-100/95 font-bold border-t-2 border-slate-300 text-slate-800 text-xs">
+                <tfoot id="table-validasi-matrix-foot" class="sticky bottom-0 z-10 bg-slate-100/95 font-bold border-t-2 border-slate-300 text-slate-800 text-xs">
                   <!-- Rendered dynamically via JS -->
                 </tfoot>
               </table>
@@ -5192,23 +5196,25 @@
         </div>
       </div>
 
-      <!-- Drilldown Table Container -->
-      <div class="flex-1 overflow-auto p-0 scrollbar-thin">
-        <table class="w-full text-left border-collapse text-xs">
-          <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200 z-10 select-none">
+      <!-- Drilldown Table Container (Fit-to-Screen, Frozen Header, Zero Horizontal Scroll) -->
+      <div class="flex-1 overflow-y-auto overflow-x-hidden p-0 scrollbar-thin">
+        <table class="w-full text-left border-collapse text-xs table-fixed">
+          <colgroup>
+            <col style="width: 28%;">
+            <col style="width: 15%;">
+            <col style="width: 21%;">
+            <col style="width: 14%;">
+            <col style="width: 14%;">
+            <col style="width: 8%;">
+          </colgroup>
+          <thead class="sticky top-0 bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-200 z-10 select-none shadow-2xs">
             <tr>
-              <th class="py-2.5 px-3">Kode Unit</th>
-              <th class="py-2.5 px-3">Nama Asset</th>
-              <th class="py-2.5 px-2">Tipe Asset</th>
-              <th class="py-2.5 px-2">Checkout</th>
-              <th class="py-2.5 px-2">Tgl Checkout</th>
-              <th class="py-2.5 px-2">Status Verifikasi 3</th>
-              <th class="py-2.5 px-2">User Verifikasi</th>
-              <th class="py-2.5 px-2">Catatan Verifikasi</th>
-              <th class="py-2.5 px-2">Tgl Verifikasi</th>
-              <th class="py-2.5 px-3 text-right">Nilai Perolehan (HPP)</th>
-              <th class="py-2.5 px-3 text-right">Nilai Buku (NBV)</th>
-              <th class="py-2.5 px-2.5 text-center">Aksi</th>
+              <th class="py-2.5 px-3">Unit &amp; Nama Aset</th>
+              <th class="py-2.5 px-2.5">Checkout</th>
+              <th class="py-2.5 px-2.5">Status Verifikasi</th>
+              <th class="py-2.5 px-2.5">Catatan</th>
+              <th class="py-2.5 px-3 text-right">HPP &amp; NBV</th>
+              <th class="py-2.5 px-2 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody id="val-drill-tbody" class="divide-y divide-slate-100 font-medium">
