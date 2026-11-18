@@ -3,17 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PNS Asset &amp; Facility Enterprise — Clean Prototype</title>
+  <title>PNS Asset &amp; Facility Enterprise — 8-Module Architecture</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root { --background: #f8fafc; --card: #ffffff; --sidebar: #ffffff; --card-border: #e2e8f0; --foreground: #0f172a; --muted-foreground: #64748b; }
-
+    :root {
+      --background: #f8fafc;
+      --card: #ffffff;
+      --sidebar: #ffffff;
+      --card-border: #e2e8f0;
+      --foreground: #0f172a;
+      --muted-foreground: #64748b;
+    }
     * { box-sizing: border-box; }
-    body { font-size: 13px; line-height: 1.45; }
+    body { font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; font-size: 13px; line-height: 1.45; }
     .num-tabular { font-variant-numeric: tabular-nums; }
     .am-accent { color: #2D4A94; }
+    .am-bg { background-color: #2D4A94; color: #ffffff; }
     .am-border-active { border-left: 3px solid #2D4A94; background: rgba(45, 74, 148, 0.08); color: #2D4A94; font-weight: 600; }
     .fm-accent { color: #0E5E63; }
+    .fm-bg { background-color: #0E5E63; color: #ffffff; }
     .fm-border-active { border-left: 3px solid #0E5E63; background: rgba(14, 94, 99, 0.08); color: #0E5E63; font-weight: 600; }
     @media print {
       body > *:not(#print-modal) { display: none !important; }
@@ -25,22 +33,20 @@
 </head>
 <body class="bg-[var(--background)] text-[var(--foreground)] antialiased m-0 p-0 overflow-x-hidden">
   <div class="flex min-h-screen w-full">
-    <!-- MOBILE BACKDROP -->
     <div id="sidebar-backdrop" onclick="toggleSidebar(false)" class="fixed inset-0 bg-black/40 z-30 hidden lg:hidden"></div>
 
-    <!-- STREAMLINED SIDEBAR (6 CORE MENUS, NO DUPLICATION) -->
-    <aside id="app-sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-60 shrink-0 bg-[var(--sidebar)] border-r border-[var(--card-border)] flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-150">
-      <!-- BRAND + MODULE SWITCHER (DI KIRI ATAS SIDEBAR SESUAI SKILL) -->
-      <div class="p-3 border-b border-[var(--card-border)] space-y-2.5">
+    <!-- STREAMLINED 8-MODULE ENTERPRISE SIDEBAR (4 LAYERS, ZERO REDUNDANCY) -->
+    <aside id="app-sidebar" class="fixed lg:static inset-y-0 left-0 z-40 w-64 shrink-0 bg-[var(--sidebar)] border-r border-[var(--card-border)] flex flex-col transform -translate-x-full lg:translate-x-0 transition-transform duration-150">
+      <div class="p-3.5 border-b border-[var(--card-border)] space-y-2.5">
         <div class="flex items-center justify-between">
           <div>
-            <div class="text-[11px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">PT Pratama Nusantara Sakti</div>
-            <div class="text-sm font-semibold tracking-tight">PNS Enterprise v3</div>
+            <div class="text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">PT Pratama Nusantara Sakti</div>
+            <div class="text-sm font-semibold tracking-tight">PNS Enterprise v3.0</div>
           </div>
-          <button type="button" onclick="toggleSidebar(false)" class="lg:hidden px-2 py-1 text-xs border border-[var(--card-border)] rounded">✕</button>
+          <span class="px-1.5 py-0.5 text-[10px] font-mono rounded bg-slate-100 text-slate-600 border border-slate-200">8 Modul</span>
         </div>
 
-        <!-- PEMILIH MODUL AM / FM -->
+        <!-- PEMILIH DOMAIN FOKUS (AM / FM) -->
         <div class="grid grid-cols-2 p-0.5 rounded bg-[var(--background)] border border-[var(--card-border)] text-[11px]">
           <button type="button" id="btn-mod-am" onclick="switchModule('am')" class="py-1.5 rounded text-center font-semibold bg-[#2D4A94] text-white cursor-pointer transition">
             Asset (AM)
@@ -51,12 +57,11 @@
         </div>
       </div>
 
-      <!-- MENU BERTINGKAT -->
-      <nav id="sidebar-menu" class="flex-1 overflow-y-auto p-2 space-y-3 text-xs">
-        <!-- Populated by JS -->
+      <!-- 4 LAPISAN = 8 MODUL BERSIH -->
+      <nav id="sidebar-menu" class="flex-1 overflow-y-auto p-2.5 space-y-3 text-xs">
+        <!-- Populated dynamically -->
       </nav>
 
-      <!-- FOOTER STATUS RINGKAS -->
       <div class="p-3 border-t border-[var(--card-border)] text-[11px] text-[var(--muted-foreground)] flex items-center justify-between">
         <span class="flex items-center gap-1.5">
           <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -66,54 +71,43 @@
       </div>
     </aside>
 
-    <!-- MAIN CONTENT AREA -->
+    <!-- MAIN CONTENT -->
     <div class="flex-1 min-w-0 flex flex-col bg-[var(--background)]">
-      <!-- TOP BAR: BREADCRUMB + GLOBAL SEARCH (CTRL/CMD+K) -->
       <header class="h-12 px-4 border-b border-[var(--card-border)] bg-[var(--card)] flex items-center justify-between gap-3 shrink-0">
         <div class="flex items-center gap-2 min-w-0">
-          <button type="button" onclick="toggleSidebar(true)" class="lg:hidden px-2.5 py-1.5 border border-[var(--card-border)] rounded text-xs">☰</button>
-          <div id="top-breadcrumb" class="text-xs text-[var(--muted-foreground)] truncate flex items-center gap-1.5">
-            <!-- Populated by JS -->
-          </div>
+          <button type="button" onclick="toggleSidebar(true)" class="lg:hidden px-2.5 py-1 border border-[var(--card-border)] rounded text-xs">☰</button>
+          <div id="top-breadcrumb" class="text-xs text-[var(--muted-foreground)] truncate flex items-center gap-1.5"></div>
         </div>
 
         <div class="flex items-center gap-2 shrink-0">
-          <div class="relative w-48 sm:w-64">
-            <input id="global-search" type="text" oninput="onGlobalSearch(this.value)" placeholder="Cari aset, section, kode... (Ctrl+K)"
+          <div class="relative w-52 sm:w-64">
+            <input id="global-search" type="text" oninput="onGlobalSearch(this.value)" placeholder="Cari unit, section (PZA), part... (Ctrl+K)"
                    class="w-full px-2.5 py-1.5 text-xs rounded border border-[var(--card-border)] bg-[var(--background)] text-[var(--foreground)] focus:outline-none focus:border-[#2D4A94]" />
           </div>
-          <button type="button" onclick="openPrintSummary()" class="px-2.5 py-1.5 rounded text-xs font-medium bg-[#2D4A94] text-white hover:opacity-90 cursor-pointer transition">
-            Cetak Rangkuman
+          <button type="button" onclick="openPrintSummary()" class="px-3 py-1.5 rounded text-xs font-medium bg-[#2D4A94] text-white hover:opacity-90 cursor-pointer transition">
+            Cetak Rangkuman Detail
           </button>
         </div>
       </header>
 
-      <!-- WORKSPACE BODY -->
-      <main id="workspace-main" class="flex-1 p-4 space-y-4 overflow-y-auto">
-        <!-- Populated by JS based on current view -->
-      </main>
+      <main id="workspace-main" class="flex-1 p-4 space-y-4 overflow-y-auto"></main>
     </div>
   </div>
 
-  <!-- SLIDE-OVER CONTEXTUAL DRAWER (DOSSIER, PART BKB & TRANSAKSI TANPA PINDAH HALAMAN) -->
-  <div id="drawer-overlay" onclick="closeDrawer()" class="fixed inset-0 bg-black/30 z-40 hidden"></div>
-  <aside id="unit-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-lg bg-[var(--card)] border-l border-[var(--card-border)] shadow-xl transform translate-x-full transition-transform duration-200 flex flex-col">
-    <div id="drawer-content" class="flex-1 flex flex-col min-h-0">
-      <!-- Populated dynamically -->
-    </div>
+  <!-- SLIDE-OVER CONTEXTUAL DRAWER (DOSSIER & 5 AKSI SIKLUS UNIT) -->
+  <div id="drawer-overlay" onclick="closeDrawer()" class="fixed inset-0 bg-black/35 z-40 hidden"></div>
+  <aside id="unit-drawer" class="fixed inset-y-0 right-0 z-50 w-full max-w-xl bg-[var(--card)] border-l border-[var(--card-border)] shadow-xl transform translate-x-full transition-transform duration-200 flex flex-col">
+    <div id="drawer-content" class="flex-1 flex flex-col min-h-0"></div>
   </aside>
 
-  <!-- PRINT / CAPTURE MODAL (TETAP DETAIL UNTUK 1 UNIT MAUPUN MULTI-UNIT) -->
-  <div id="print-modal" class="fixed inset-0 z-50 bg-black/50 hidden flex items-center justify-center p-4 overflow-y-auto">
-    <div id="print-card" class="bg-[var(--card)] text-[var(--foreground)] border border-[var(--card-border)] rounded w-full max-w-4xl max-h-[90vh] overflow-y-auto p-6 space-y-4">
+  <!-- PRINT / CAPTURE MODAL (MULTI-UNIT & 1-UNIT DETAIL) -->
+  <div id="print-modal" class="fixed inset-0 z-50 bg-black/45 hidden flex items-center justify-center p-4 overflow-y-auto">
+    <div id="print-card" class="bg-[var(--card)] text-[var(--foreground)] border border-[var(--card-border)] rounded w-full max-w-4xl max-h-[92vh] overflow-y-auto p-6 space-y-4">
       <div id="print-body"></div>
     </div>
   </div>
 
   <script>
-    // =========================================================================
-    // DATA CONTOH REPRESENTATIF PT PNS (TERMASUK DEPT -> SECTION -> KELOMPOK)
-    // =========================================================================
     const PROTOTYPE_ASSETS = [
       {
         kode: 'A-500-514-0003-10', alias: 'PNS-TB-06-2', nama: 'TRACTOR NEW HOLLAND TS6020 4WD HEAVY DUTY',
@@ -122,8 +116,8 @@
         tglPerolehan: '2018-06-15', umur: 8, stdUmur: 8, hpp: 820000000, nbv: 145000000, mtc: 339181181, txCount: 28,
         checkout: 'PLANTATION - PZA', userVerif: 'Admin Estate 1', tglVerif: '2025-11-12',
         parts: [
-          { tgl: '2026-08-19', bukti: '18402/BKB/PNS-E1/WOS/2026', partNo: 'SPTRK0412', partName: 'HYDRAULIC PUMP ASSY NH TS6020', sub: 'Hidrolik & Transmisi', qty: '1 Set', pelaksana: 'Sec: WOS', biaya: 48500000 },
-          { tgl: '2026-05-04', bukti: '12910/BKB/PNS-E1/WOS/2026', partNo: 'SPFTR0088', partName: 'FILTER OLI TRANSMISI & SOLAR DONALDSON', sub: 'Filter (Oli, Solar, Udara)', qty: '4 Pcs', pelaksana: 'Sec: WOS', biaya: 6250000 }
+          { tgl: '2026-08-19', bukti: '18402/BKB/PNS-E1/WOS/2026', partNo: 'SPTRK0412', partName: 'HYDRAULIC PUMP ASSY NH TS6020', sub: 'Hidrolik & Transmisi', umurPart: '3 Bln', qty: '1 Set', pelaksana: 'Sec: WOS', biaya: 48500000 },
+          { tgl: '2026-05-04', bukti: '12910/BKB/PNS-E1/WOS/2026', partNo: 'SPFTR0088', partName: 'FILTER OLI TRANSMISI & SOLAR DONALDSON', sub: 'Filter (Oli, Solar, Udara)', umurPart: '6 Bln', qty: '4 Pcs', pelaksana: 'Sec: WOS', biaya: 6250000 }
         ]
       },
       {
@@ -133,8 +127,8 @@
         tglPerolehan: '2019-03-20', umur: 7, stdUmur: 8, hpp: 1850000000, nbv: 412500000, mtc: 193433248, txCount: 19,
         checkout: 'PLANTATION - PZA', userVerif: 'Admin Estate 1', tglVerif: '2025-11-14',
         parts: [
-          { tgl: '2026-09-11', bukti: '20114/BKB/PNS-E1/WOS/2026', partNo: 'SPEXC0910', partName: 'TRACK SHOE & ROLLER UNDERCARRIAGE KIT', sub: 'Undercarriage', qty: '2 Set', pelaksana: 'Sec: WOS', biaya: 84200000 },
-          { tgl: '2026-04-02', bukti: '09811/BKB/PNS-E1/WOS/2026', partNo: 'SPHYD0211', partName: 'SEAL KIT BOOM CYLINDER PC200', sub: 'Hidrolik & Seal', qty: '2 Set', pelaksana: 'Sec: WOS', biaya: 14800000 }
+          { tgl: '2026-09-11', bukti: '20114/BKB/PNS-E1/WOS/2026', partNo: 'SPEXC0910', partName: 'TRACK SHOE & ROLLER UNDERCARRIAGE KIT', sub: 'Undercarriage', umurPart: '2 Bln', qty: '2 Set', pelaksana: 'Sec: WOS', biaya: 84200000 },
+          { tgl: '2026-04-02', bukti: '09811/BKB/PNS-E1/WOS/2026', partNo: 'SPHYD0211', partName: 'SEAL KIT BOOM CYLINDER PC200', sub: 'Hidrolik & Seal', umurPart: '7 Bln', qty: '2 Set', pelaksana: 'Sec: WOS', biaya: 14800000 }
         ]
       },
       {
@@ -144,7 +138,7 @@
         tglPerolehan: '2021-11-28', umur: 5, stdUmur: 8, hpp: 980000000, nbv: 420000000, mtc: 69318655, txCount: 14,
         checkout: 'PLANTATION - PZB', userVerif: 'Admin Estate 2', tglVerif: '2025-10-29',
         parts: [
-          { tgl: '2026-07-22', bukti: '15430/BKB/PNS-E2/WOS/2026', partNo: 'SPTIR0044', partName: 'BAN LUAR 11.00-20 16PR BRIDGESTONE', sub: 'Ban & Kaki-Kaki', qty: '4 Pcs', pelaksana: 'Sec: WOS', biaya: 26400000 }
+          { tgl: '2026-07-22', bukti: '15430/BKB/PNS-E2/WOS/2026', partNo: 'SPTIR0044', partName: 'BAN LUAR 11.00-20 16PR BRIDGESTONE', sub: 'Ban & Kaki-Kaki', umurPart: '4 Bln', qty: '4 Pcs', pelaksana: 'Sec: WOS', biaya: 26400000 }
         ]
       },
       {
@@ -154,7 +148,7 @@
         tglPerolehan: '2020-02-10', umur: 6, stdUmur: 8, hpp: 4150000000, nbv: 1245000000, mtc: 142367330, txCount: 22,
         checkout: 'HARVESTING - CSU', userVerif: 'Admin Estate 3', tglVerif: '2025-12-01',
         parts: [
-          { tgl: '2026-06-18', bukti: '14002/BKB/PNS-E3/WOS/2026', partNo: 'SPHRV0712', partName: 'CHOPPER BLADE & DRUM ASSEMBLY AUSTOFT', sub: 'Pisau Potong', qty: '1 Set', pelaksana: 'Sec: WOS', biaya: 61500000 }
+          { tgl: '2026-06-18', bukti: '14002/BKB/PNS-E3/WOS/2026', partNo: 'SPHRV0712', partName: 'CHOPPER BLADE & DRUM ASSEMBLY AUSTOFT', sub: 'Pisau Potong', umurPart: '5 Bln', qty: '1 Set', pelaksana: 'Sec: WOS', biaya: 61500000 }
         ]
       },
       {
@@ -164,7 +158,7 @@
         tglPerolehan: '2020-05-14', umur: 6, stdUmur: 4, hpp: 1850000, nbv: 0, mtc: 72100, txCount: 2,
         checkout: 'HRGA - HGS', userVerif: 'Admin GS Factory', tglVerif: '2025-07-10',
         parts: [
-          { tgl: '2021-05-31', bukti: '32229/BKB/PNS-FR/FWH/2021', partNo: 'SPELEC00085', partName: 'THERMOSTAT SUHU SWITCH KSD301-M 10A 100 DEG', sub: 'Kelistrikan & Pemanas', qty: '2 Pcs', pelaksana: 'Sec: HGS', biaya: 72100 }
+          { tgl: '2021-05-31', bukti: '32229/BKB/PNS-FR/FWH/2021', partNo: 'SPELEC00085', partName: 'THERMOSTAT SUHU SWITCH KSD301-M 10A 100 DEG', sub: 'Kelistrikan & Pemanas', umurPart: '5.5 Thn', qty: '2 Pcs', pelaksana: 'Sec: HGS', biaya: 72100 }
         ]
       },
       {
@@ -174,17 +168,7 @@
         tglPerolehan: '2018-10-01', umur: 8, stdUmur: 20, hpp: 1450000000, nbv: 870000000, mtc: 10281441, txCount: 9,
         checkout: 'HRGA - HGS', userVerif: 'Admin GS Central', tglVerif: '2025-08-20',
         parts: [
-          { tgl: '2026-03-14', bukti: '07821/BKB/PNS-CO/HGS/2026', partNo: 'SPBGN0192', partName: 'CAT TEMBOK EKSTERIOR & WATERPROOFING 20KG', sub: 'Sipil & Bangunan', qty: '6 Pail', pelaksana: 'Sec: HGS', biaya: 5400000 }
-        ]
-      },
-      {
-        kode: 'A-700-711-0001-252', alias: 'PNS-FAC-UPS-01', nama: 'UPS RACK SERVER APC SMART-UPS 5000VA DATA CENTER',
-        dept: 'HRGA', section: 'HRO', sectionName: 'HRGA Operational', kelompok: 'INVENTARIS DAN PERALATAN', kategori: 'PERALATAN KANTOR', subKat: 'Kelistrikan Kantor',
-        loc: 'CO', lokasiName: 'Central Office (CO)', kondisi: 'Good Condition', statusVerif: 'ALOKASI SESUAI',
-        tglPerolehan: '2022-04-08', umur: 4, stdUmur: 5, hpp: 42500000, nbv: 8500000, mtc: 9680000, txCount: 3,
-        checkout: 'HRGA - HRO', userVerif: 'Admin Central', tglVerif: '2025-09-02',
-        parts: [
-          { tgl: '2026-01-19', bukti: '02190/BKB/PNS-CO/HRO/2026', partNo: 'SPBAT0041', partName: 'BATTERY MODULE RBC140 12V 9AH', sub: 'Baterai & Power', qty: '8 Pcs', pelaksana: 'Sec: HRO', biaya: 9680000 }
+          { tgl: '2026-03-14', bukti: '07821/BKB/PNS-CO/HGS/2026', partNo: 'SPBGN0192', partName: 'CAT TEMBOK EKSTERIOR & WATERPROOFING 20KG', sub: 'Sipil & Bangunan', umurPart: '8 Bln', qty: '6 Pail', pelaksana: 'Sec: HGS', biaya: 5400000 }
         ]
       },
       {
@@ -194,58 +178,81 @@
         tglPerolehan: '2019-09-12', umur: 7, stdUmur: 10, hpp: 2950000000, nbv: 885000000, mtc: 514511051, txCount: 41,
         checkout: 'WORKSHOP & ENGINERING - WOS', userVerif: 'Lead Workshop FR', tglVerif: '2025-11-30',
         parts: [
-          { tgl: '2026-09-25', bukti: '21940/BKB/PNS-FR/WOS/2026', partNo: 'SPCUM0811', partName: 'INJECTOR KIT CUMMINS KTA50 ORIGINAL', sub: 'Fuel System & Engine', qty: '16 Pcs', pelaksana: 'Sec: WOS', biaya: 142000000 },
-          { tgl: '2026-06-11', bukti: '13890/BKB/PNS-FR/WOS/2026', partNo: 'SPOIL0120', partName: 'OLI MESIN RIMULA R4X 15W-40 DRUM 209L', sub: 'Pelumas & Oli', qty: '3 Drum', pelaksana: 'Sec: WOS', biaya: 31500000 }
+          { tgl: '2026-09-25', bukti: '21940/BKB/PNS-FR/WOS/2026', partNo: 'SPCUM0811', partName: 'INJECTOR KIT CUMMINS KTA50 ORIGINAL', sub: 'Fuel System & Engine', umurPart: '2 Bln', qty: '16 Pcs', pelaksana: 'Sec: WOS', biaya: 142000000 }
         ]
       }
     ];
 
-    const ROOM_SAMPLE_DATA = [
-      { building: 'PNS-LH-01-01 (Central Office)', room: 'Kamar No. 01', capacity: 2, occupied: 2, pic: 'PIC-CO-014 (Disamarkan sesuai UU PDP)', fasilitas: 'Kasur (2/2), Loker (2/2), AC (1/1)', status: 'Sesuai Standar' },
-      { building: 'PNS-LH-01-01 (Central Office)', room: 'Kamar No. 07', capacity: 2, occupied: 1, pic: 'PIC-CO-039 (Disamarkan sesuai UU PDP)', fasilitas: 'Kasur (2/2), Loker (2/2), Gorden (0/1)', status: 'Kurang 1 Item' },
-      { building: 'PNS-MGR-01-06 (Central Office)', room: 'Kamar MGR-01', capacity: 2, occupied: 0, pic: 'Kosong (Siap Huni)', fasilitas: 'Kasur (2/2), AC (1/1), TV (1/1)', status: 'Siap Huni' }
+    const FM_FACILITY_ITEMS = [
+      { key: 'ALL', name: 'Semua Fasilitas', fisik: 24, std: 24, status: 'Sesuai' },
+      { key: 'kasur', name: 'Kasur & Springbed', fisik: 2, std: 2, status: 'Sesuai' },
+      { key: 'ranjang', name: 'Ranjang Susun', fisik: 1, std: 1, status: 'Sesuai' },
+      { key: 'loker', name: 'Loker / Lemari', fisik: 2, std: 2, status: 'Sesuai' },
+      { key: 'ac', name: 'AC & Kipas', fisik: 1, std: 1, status: 'Sesuai' },
+      { key: 'bantal', name: 'Bantal Dacron', fisik: 2, std: 2, status: 'Sesuai' },
+      { key: 'guling', name: 'Guling Tidur', fisik: 2, std: 2, status: 'Sesuai' },
+      { key: 'gorden', name: 'Gorden & Tiang', fisik: 0, std: 1, status: 'Kurang (-1)' },
+      { key: 'lampu', name: 'Lampu LED', fisik: 2, std: 2, status: 'Sesuai' }
     ];
 
-    // =========================================================================
-    // APP STATE (CLEAN ENTERPRISE MODULES)
-    // =========================================================================
+    const FM_ROOM_ASSETS = [
+      { kode: 'AST-LH01-K01-01', nama: 'Springbed Central 90x200 Orthopaedic', cat: 'kasur', kategori: 'Kasur & Ranjang', kondisi: 'Good Condition', tgl: '2024-01-15' },
+      { kode: 'AST-LH01-K01-02', nama: 'Springbed Central 90x200 Orthopaedic', cat: 'kasur', kategori: 'Kasur & Ranjang', kondisi: 'Good Condition', tgl: '2024-01-15' },
+      { kode: 'AST-LH01-K01-03', nama: 'Ranjang Besi Susun 2 Tingkat Heavy Duty', cat: 'ranjang', kategori: 'Kasur & Ranjang', kondisi: 'Good Condition', tgl: '2023-06-10' },
+      { kode: 'AST-LH01-K01-04', nama: 'Loker Besi 2 Pintu Lion Type L-553', cat: 'loker', kategori: 'Lemari & Loker', kondisi: 'Good Condition', tgl: '2023-06-10' },
+      { kode: 'AST-LH01-K01-05', nama: 'AC Split 1 PK Daikin Inverter', cat: 'ac', kategori: 'AC & Kelistrikan', kondisi: 'Good Condition', tgl: '2024-02-01' }
+    ];
+
+    // 8 MODUL BERSIH DIKELOMPOKKAN DALAM 4 LAPISAN
+    const ALL_LAYERS = [
+      {
+        layer: '1. Eksekutif & Audit',
+        items: [
+          { id: 'mod-overview', label: 'Dashboard Overview', badge: 'KPI & Tab' },
+          { id: 'mod-validasi', label: 'Laporan Hasil Validasi', badge: '3-Lvl Tree' }
+        ]
+      },
+      {
+        layer: '2. Master & Siklus Aset',
+        items: [
+          { id: 'mod-katalog', label: 'Master Katalog & Movement', badge: '35.242' },
+          { id: 'mod-dossier', label: 'Dossier & Siklus Unit', badge: '5 Aksi' }
+        ]
+      },
+      {
+        layer: '3. Hunian & Fasilitas (FM)',
+        items: [
+          { id: 'mod-hunian', label: 'Peta, Gedung & Rincian Kamar', badge: '2.030 Rng' },
+          { id: 'mod-penghuni', label: 'Penghuni & Ketersediaan Slot', badge: '1.506' },
+          { id: 'mod-inspeksi', label: 'Inspeksi Lapangan', badge: 'PC & HP' }
+        ]
+      },
+      {
+        layer: '4. Pemeliharaan',
+        items: [
+          { id: 'mod-maint', label: 'Maintenance & Work Order', badge: 'AM & FM' }
+        ]
+      }
+    ];
+
     const state = {
-      module: 'am',       // 'am' | 'fm'
-      curId: 'am-explorer',
-      groupBy: 'dept',    // 'dept' (Dept -> Section -> Kelompok) | 'loc' (Location -> Section -> Kelompok) | 'kel' (Kelompok -> Kategori)
-      expandedL1: new Set(['PLANTATION', 'E1', 'ALAT BERAT']),
+      domain: 'am',
+      curId: 'mod-validasi',
+      groupBy: 'dept',
+      expandedL1: new Set(['PLANTATION', 'E1']),
       expandedL2: new Set(['PZA']),
       filter: { dept: null, section: null, kelompok: null, loc: null, search: '', kondisi: 'ALL' },
-      selectedPrintCodes: new Set(),
+      selectedPrintCodes: new Set(['A-500-514-0003-10', 'A-500-514-0003-26']),
       drawerAssetCode: null,
-      drawerTab: 'spec'
-    };
-
-    const MENUS = {
-      am: [
-        {
-          group: 'Analitik & Audit',
-          items: [
-            { id: 'am-explorer', label: 'Explorer & Validasi Aset', badge: 'Utama' },
-            { id: 'am-overview', label: 'Ringkasan Valuasi & KPI', badge: 'Rp 1,16 T' }
-          ]
-        },
-        {
-          group: 'Pemeliharaan',
-          items: [
-            { id: 'am-maint', label: 'Realisasi Maintenance (BKB)', badge: '34.222' }
-          ]
-        }
-      ],
-      fm: [
-        {
-          group: 'Hunian & Fasilitas',
-          items: [
-            { id: 'fm-hunian', label: 'Direktori Hunian & Kamar', badge: '2.030' },
-            { id: 'fm-inspeksi', label: 'Inspeksi & Kelayakan', badge: 'Live' }
-          ]
-        }
-      ]
+      drawerTab: 'spec',
+      overviewTab: 'site',
+      katalogMode: 'katalog',
+      fmSite: 'CO',
+      fmSelectedBldg: 'PNS-LH-01-01',
+      fmSelectedRoom: 'Kamar No. 01',
+      fmFacFilter: 'ALL',
+      woDomain: 'ALL',
+      woTab: 'drill'
     };
 
     const formatRp = v => 'Rp ' + Math.round(v || 0).toLocaleString('id-ID');
@@ -254,33 +261,25 @@
     function toggleSidebar(open) {
       const sb = document.getElementById('app-sidebar');
       const bd = document.getElementById('sidebar-backdrop');
-      if (open) {
-        sb.classList.remove('-translate-x-full');
-        bd.classList.remove('hidden');
-      } else {
-        sb.classList.add('-translate-x-full');
-        bd.classList.add('hidden');
-      }
+      if (open) { sb.classList.remove('-translate-x-full'); bd.classList.remove('hidden'); }
+      else { sb.classList.add('-translate-x-full'); bd.classList.add('hidden'); }
     }
 
-    function switchModule(mod) {
-      state.module = mod;
-      const btnAm = document.getElementById('btn-mod-am');
-      const btnFm = document.getElementById('btn-mod-fm');
-      if (mod === 'am') {
-        btnAm.className = 'py-1.5 rounded text-center font-semibold bg-[#2D4A94] text-white cursor-pointer transition';
-        btnFm.className = 'py-1.5 rounded text-center font-medium text-[var(--muted-foreground)] cursor-pointer transition';
-        state.curId = 'am-explorer';
-      } else {
-        btnFm.className = 'py-1.5 rounded text-center font-semibold bg-[#0E5E63] text-white cursor-pointer transition';
-        btnAm.className = 'py-1.5 rounded text-center font-medium text-[var(--muted-foreground)] cursor-pointer transition';
-        state.curId = 'fm-hunian';
-      }
+    function switchModule(dom) {
+      state.domain = dom;
+      document.getElementById('btn-mod-am').className = dom === 'am'
+        ? 'py-1.5 rounded text-center font-semibold bg-[#2D4A94] text-white cursor-pointer transition'
+        : 'py-1.5 rounded text-center font-medium text-[var(--muted-foreground)] cursor-pointer transition';
+      document.getElementById('btn-mod-fm').className = dom === 'fm'
+        ? 'py-1.5 rounded text-center font-semibold bg-[#0E5E63] text-white cursor-pointer transition'
+        : 'py-1.5 rounded text-center font-medium text-[var(--muted-foreground)] cursor-pointer transition';
+      state.curId = dom === 'am' ? 'mod-validasi' : 'mod-hunian';
       renderAll();
     }
 
     function gotoId(id) {
       state.curId = id;
+      state.domain = id.startsWith('mod-hunian') || id.startsWith('mod-penghuni') || id.startsWith('mod-inspeksi') ? 'fm' : 'am';
       toggleSidebar(false);
       renderAll();
     }
@@ -290,50 +289,38 @@
       renderMain();
     }
 
-    document.addEventListener('keydown', e => {
-      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
-        e.preventDefault();
-        const el = document.getElementById('global-search');
-        if (el) el.focus();
-      }
-      if (e.key === 'Escape') {
-        closeDrawer();
-        closePrintSummary();
-      }
-    });
-
     function renderSidebar() {
       const nav = document.getElementById('sidebar-menu');
-      const groups = MENUS[state.module] || [];
-      const activeCls = state.module === 'am' ? 'am-border-active' : 'fm-border-active';
-      nav.innerHTML = groups.map(g => `
-        <div class="space-y-1">
-          <div class="px-2 pt-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">${esc(g.group)}</div>
-          <div class="space-y-0.5">
-            ${g.items.map(it => {
-              const isAct = state.curId === it.id;
-              return `
-                <button type="button" onclick="gotoId('${it.id}')"
-                        class="w-full h-8 px-2.5 rounded flex items-center justify-between text-left transition cursor-pointer ${isAct ? activeCls : 'text-[var(--foreground)] hover:bg-[var(--background)]'}">
-                  <span class="truncate">${esc(it.label)}</span>
-                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[var(--background)] border border-[var(--card-border)] text-[var(--muted-foreground)]">${esc(it.badge)}</span>
-                </button>
-              `;
-            }).join('')}
+      nav.innerHTML = ALL_LAYERS.map(g => {
+        const isFmLayer = g.layer.includes('Hunian');
+        return `
+          <div class="space-y-1">
+            <div class="px-2 pt-1 text-[10px] font-semibold uppercase tracking-wider text-[var(--muted-foreground)]">${esc(g.layer)}</div>
+            <div class="space-y-0.5">
+              ${g.items.map(it => {
+                const isAct = state.curId === it.id;
+                const actCls = isFmLayer ? 'fm-border-active' : 'am-border-active';
+                return `
+                  <button type="button" onclick="gotoId('${it.id}')"
+                          class="w-full h-8 px-2.5 rounded flex items-center justify-between text-left transition cursor-pointer ${isAct ? actCls : 'text-[var(--foreground)] hover:bg-[var(--background)]'}">
+                    <span class="truncate">${esc(it.label)}</span>
+                    <span class="text-[9.5px] font-mono px-1.5 py-0.5 rounded bg-[var(--background)] border border-[var(--card-border)] text-[var(--muted-foreground)] shrink-0">${esc(it.badge)}</span>
+                  </button>
+                `;
+              }).join('')}
+            </div>
           </div>
-        </div>
-      `).join('');
+        `;
+      }).join('');
 
-      // Update Breadcrumb
-      const curItem = groups.flatMap(g => g.items).find(i => i.id === state.curId);
-      const curGroup = groups.find(g => g.items.some(i => i.id === state.curId));
-      const modName = state.module === 'am' ? 'Asset Management' : 'Facility Management';
+      const curGrp = ALL_LAYERS.find(g => g.items.some(i => i.id === state.curId));
+      const curIt = curGrp ? curGrp.items.find(i => i.id === state.curId) : null;
       document.getElementById('top-breadcrumb').innerHTML = `
-        <span>${modName}</span>
+        <span>PNS Enterprise (8 Modul)</span>
         <span>/</span>
-        <span>${curGroup ? esc(curGroup.group) : ''}</span>
+        <span>${curGrp ? esc(curGrp.layer) : ''}</span>
         <span>/</span>
-        <span class="font-semibold text-[var(--foreground)]">${curItem ? esc(curItem.label) : ''}</span>
+        <span class="font-semibold text-[var(--foreground)]">${curIt ? esc(curIt.label) : ''}</span>
       `;
     }
 
@@ -354,363 +341,204 @@
 
     function setGroupBy(mode) {
       state.groupBy = mode;
-      state.filter.dept = null;
-      state.filter.section = null;
-      state.filter.kelompok = null;
-      state.filter.loc = null;
+      state.filter.dept = null; state.filter.section = null; state.filter.kelompok = null; state.filter.loc = null;
       renderMain();
     }
 
     function toggleL1(key) {
-      if (state.expandedL1.has(key)) state.expandedL1.delete(key);
-      else state.expandedL1.add(key);
+      if (state.expandedL1.has(key)) state.expandedL1.delete(key); else state.expandedL1.add(key);
       renderMain();
     }
 
     function toggleL2(key, e) {
       if (e) e.stopPropagation();
-      if (state.expandedL2.has(key)) state.expandedL2.delete(key);
-      else state.expandedL2.add(key);
+      if (state.expandedL2.has(key)) state.expandedL2.delete(key); else state.expandedL2.add(key);
       renderMain();
     }
 
     function applyTreeFilter(dept, section, kelompok, loc, e) {
       if (e) e.stopPropagation();
-      state.filter.dept = dept || null;
-      state.filter.section = section || null;
-      state.filter.kelompok = kelompok || null;
-      state.filter.loc = loc || null;
+      state.filter.dept = dept || null; state.filter.section = section || null;
+      state.filter.kelompok = kelompok || null; state.filter.loc = loc || null;
       renderMain();
     }
 
     function togglePrintSelect(kode, e) {
       if (e) e.stopPropagation();
-      if (state.selectedPrintCodes.has(kode)) state.selectedPrintCodes.delete(kode);
-      else state.selectedPrintCodes.add(kode);
+      if (state.selectedPrintCodes.has(kode)) state.selectedPrintCodes.delete(kode); else state.selectedPrintCodes.add(kode);
       renderMain();
     }
 
-    function renderAmExplorer() {
+    // =========================================================================
+    // MODUL 1.2: LAPORAN HASIL VALIDASI (3-LEVEL TREE: DEPT -> SECTION -> KELOMPOK)
+    // =========================================================================
+    function renderModValidasi() {
       const filtered = getFilteredAssets();
       const totalHpp = filtered.reduce((s, a) => s + a.hpp, 0);
       const totalNbv = filtered.reduce((s, a) => s + a.nbv, 0);
       const totalMtc = filtered.reduce((s, a) => s + a.mtc, 0);
-      const goodCount = filtered.filter(a => a.kondisi === 'Good Condition').length;
-      const selisihCount = filtered.filter(a => a.statusVerif !== 'ALOKASI SESUAI').length;
 
-      // Build Hierarchy Tree Rows based on state.groupBy
       const treeRows = [];
-      if (state.groupBy === 'dept') {
-        const depts = [...new Set(PROTOTYPE_ASSETS.map(a => a.dept))];
-        depts.forEach(d => {
-          const dAssets = PROTOTYPE_ASSETS.filter(a => a.dept === d);
-          const dSesuai = dAssets.filter(a => a.statusVerif === 'ALOKASI SESUAI').length;
-          const dSelisih = dAssets.length - dSesuai;
-          const isExpL1 = state.expandedL1.has(d);
-          const isActiveL1 = state.filter.dept === d && !state.filter.section && !state.filter.kelompok;
+      const depts = [...new Set(PROTOTYPE_ASSETS.map(a => a.dept))];
+      depts.forEach(d => {
+        const dAssets = PROTOTYPE_ASSETS.filter(a => a.dept === d);
+        const dSesuai = dAssets.filter(a => a.statusVerif === 'ALOKASI SESUAI').length;
+        const dSelisih = dAssets.length - dSesuai;
+        const isExpL1 = state.expandedL1.has(d);
+        const isActiveL1 = state.filter.dept === d && !state.filter.section && !state.filter.kelompok;
 
-          treeRows.push(`
-            <tr onclick="applyTreeFilter('${esc(d)}', null, null, null, event)"
-                class="border-b border-[var(--card-border)] cursor-pointer transition ${isActiveL1 ? 'bg-[#2D4A94]/10 font-semibold' : 'hover:bg-[var(--background)]'}">
-              <td class="py-2 px-3">
-                <div class="flex items-center gap-2">
-                  <button type="button" onclick="event.stopPropagation(); toggleL1('${esc(d)}')"
-                          class="w-5 h-5 rounded border border-[var(--card-border)] bg-[var(--background)] text-[11px] font-mono flex items-center justify-center cursor-pointer">
-                    ${isExpL1 ? '−' : '+'}
-                  </button>
-                  <span class="font-semibold">${esc(d)}</span>
-                  <span class="text-[10px] text-[var(--muted-foreground)]">(Departemen)</span>
-                </div>
-              </td>
-              <td class="py-2 px-2.5 text-right num-tabular">${dSesuai}</td>
-              <td class="py-2 px-2.5 text-right num-tabular ${dSelisih > 0 ? 'text-rose-500 font-semibold' : 'text-[var(--muted-foreground)]'}">${dSelisih || '-'}</td>
-              <td class="py-2 px-2.5 text-right num-tabular font-semibold">${dAssets.length}</td>
-              <td class="py-2 px-3 text-right font-mono text-[11px]">${formatRp(dAssets.reduce((s, x) => s + x.nbv, 0))}</td>
-            </tr>
-          `);
+        treeRows.push(`
+          <tr onclick="applyTreeFilter('${esc(d)}', null, null, null, event)"
+              class="border-b border-[var(--card-border)] cursor-pointer transition ${isActiveL1 ? 'bg-[#2D4A94]/10 font-semibold' : 'hover:bg-[var(--background)]'}">
+            <td class="py-2 px-3">
+              <div class="flex items-center gap-2">
+                <button type="button" onclick="event.stopPropagation(); toggleL1('${esc(d)}')"
+                        class="w-5 h-5 rounded border border-[var(--card-border)] bg-[var(--background)] text-[11px] font-mono flex items-center justify-center cursor-pointer">${isExpL1 ? '−' : '+'}</button>
+                <span class="font-semibold">${esc(d)}</span>
+                <span class="text-[10px] text-[var(--muted-foreground)]">(Departemen)</span>
+              </div>
+            </td>
+            <td class="py-2 px-2.5 text-right num-tabular text-emerald-700 font-medium">${dSesuai}</td>
+            <td class="py-2 px-2.5 text-right num-tabular ${dSelisih > 0 ? 'text-rose-600 font-semibold' : 'text-[var(--muted-foreground)]'}">${dSelisih || '-'}</td>
+            <td class="py-2 px-2.5 text-right num-tabular font-semibold">${dAssets.length}</td>
+            <td class="py-2 px-3 text-right font-mono text-[11px]">${formatRp(dAssets.reduce((s, x) => s + x.nbv, 0))}</td>
+          </tr>
+        `);
 
-          if (isExpL1) {
-            const sections = [...new Set(dAssets.map(a => a.section))];
-            sections.forEach(sec => {
-              const sAssets = dAssets.filter(a => a.section === sec);
-              const secLabel = sAssets[0].sectionName;
-              const sSesuai = sAssets.filter(a => a.statusVerif === 'ALOKASI SESUAI').length;
-              const sSelisih = sAssets.length - sSesuai;
-              const l2Key = d + '|' + sec;
-              const isExpL2 = state.expandedL2.has(sec) || state.expandedL2.has(l2Key);
-              const isActiveL2 = state.filter.dept === d && state.filter.section === sec && !state.filter.kelompok;
+        if (isExpL1) {
+          const sections = [...new Set(dAssets.map(a => a.section))];
+          sections.forEach(sec => {
+            const sAssets = dAssets.filter(a => a.section === sec);
+            const secLabel = sAssets[0].sectionName;
+            const sSesuai = sAssets.filter(a => a.statusVerif === 'ALOKASI SESUAI').length;
+            const sSelisih = sAssets.length - sSesuai;
+            const isExpL2 = state.expandedL2.has(sec);
+            const isActiveL2 = state.filter.dept === d && state.filter.section === sec && !state.filter.kelompok;
 
-              treeRows.push(`
-                <tr onclick="applyTreeFilter('${esc(d)}', '${esc(sec)}', null, null, event)"
-                    class="border-b border-[var(--card-border)] cursor-pointer transition ${isActiveL2 ? 'bg-[#2D4A94]/10 font-semibold' : 'bg-[var(--background)]/50 hover:bg-[var(--background)]'}">
-                  <td class="py-1.5 pl-8 pr-3">
-                    <div class="flex items-center gap-2">
-                      <button type="button" onclick="toggleL2('${esc(sec)}', event)"
-                              class="w-4 h-4 rounded border border-[var(--card-border)] bg-[var(--card)] text-[10px] font-mono flex items-center justify-center cursor-pointer">
-                        ${isExpL2 ? '−' : '+'}
-                      </button>
-                      <span class="font-mono text-[11px] font-semibold am-accent">${esc(sec)}</span>
-                      <span>${esc(secLabel)}</span>
-                      <span class="text-[10px] text-[var(--muted-foreground)]">(Section)</span>
-                    </div>
-                  </td>
-                  <td class="py-1.5 px-2.5 text-right num-tabular text-xs">${sSesuai}</td>
-                  <td class="py-1.5 px-2.5 text-right num-tabular text-xs ${sSelisih > 0 ? 'text-rose-500 font-semibold' : 'text-[var(--muted-foreground)]'}">${sSelisih || '-'}</td>
-                  <td class="py-1.5 px-2.5 text-right num-tabular text-xs font-medium">${sAssets.length}</td>
-                  <td class="py-1.5 px-3 text-right font-mono text-[11px] text-[var(--muted-foreground)]">${formatRp(sAssets.reduce((s, x) => s + x.nbv, 0))}</td>
-                </tr>
-              `);
+            treeRows.push(`
+              <tr onclick="applyTreeFilter('${esc(d)}', '${esc(sec)}', null, null, event)"
+                  class="border-b border-[var(--card-border)] cursor-pointer transition ${isActiveL2 ? 'bg-[#2D4A94]/10 font-semibold' : 'bg-[var(--background)]/60 hover:bg-[var(--background)]'}">
+                <td class="py-1.5 pl-8 pr-3">
+                  <div class="flex items-center gap-2">
+                    <button type="button" onclick="toggleL2('${esc(sec)}', event)"
+                            class="w-4 h-4 rounded border border-[var(--card-border)] bg-[var(--card)] text-[10px] font-mono flex items-center justify-center cursor-pointer">${isExpL2 ? '−' : '+'}</button>
+                    <span class="font-mono text-[11px] font-semibold am-accent">${esc(sec)}</span>
+                    <span>${esc(secLabel)}</span>
+                    <span class="text-[10px] text-[var(--muted-foreground)]">(Section)</span>
+                  </div>
+                </td>
+                <td class="py-1.5 px-2.5 text-right num-tabular text-xs">${sSesuai}</td>
+                <td class="py-1.5 px-2.5 text-right num-tabular text-xs ${sSelisih > 0 ? 'text-rose-600 font-semibold' : 'text-[var(--muted-foreground)]'}">${sSelisih || '-'}</td>
+                <td class="py-1.5 px-2.5 text-right num-tabular text-xs font-medium">${sAssets.length}</td>
+                <td class="py-1.5 px-3 text-right font-mono text-[11px] text-[var(--muted-foreground)]">${formatRp(sAssets.reduce((s, x) => s + x.nbv, 0))}</td>
+              </tr>
+            `);
 
-              if (isExpL2) {
-                const kels = [...new Set(sAssets.map(a => a.kelompok))];
-                kels.forEach(kl => {
-                  const kAssets = sAssets.filter(a => a.kelompok === kl);
-                  const kSesuai = kAssets.filter(a => a.statusVerif === 'ALOKASI SESUAI').length;
-                  const kSelisih = kAssets.length - kSesuai;
-                  const isActiveL3 = state.filter.dept === d && state.filter.section === sec && state.filter.kelompok === kl;
+            if (isExpL2) {
+              const kels = [...new Set(sAssets.map(a => a.kelompok))];
+              kels.forEach(kl => {
+                const kAssets = sAssets.filter(a => a.kelompok === kl);
+                const kSesuai = kAssets.filter(a => a.statusVerif === 'ALOKASI SESUAI').length;
+                const kSelisih = kAssets.length - kSesuai;
+                const isActiveL3 = state.filter.dept === d && state.filter.section === sec && state.filter.kelompok === kl;
 
-                  treeRows.push(`
-                    <tr onclick="applyTreeFilter('${esc(d)}', '${esc(sec)}', '${esc(kl)}', null, event)"
-                        class="border-b border-[var(--card-border)] cursor-pointer transition text-xs ${isActiveL3 ? 'bg-[#2D4A94]/15 font-semibold' : 'hover:bg-[var(--background)]'}">
-                      <td class="py-1.5 pl-14 pr-3 text-[var(--muted-foreground)]">
-                        <span class="mr-1">↳</span>
-                        <span class="text-[var(--foreground)] font-medium">${esc(kl)}</span>
-                        <span class="text-[10px] ml-1">(Kelompok)</span>
-                      </td>
-                      <td class="py-1.5 px-2.5 text-right num-tabular">${kSesuai}</td>
-                      <td class="py-1.5 px-2.5 text-right num-tabular ${kSelisih > 0 ? 'text-rose-500 font-semibold' : 'text-[var(--muted-foreground)]'}">${kSelisih || '-'}</td>
-                      <td class="py-1.5 px-2.5 text-right num-tabular">${kAssets.length}</td>
-                      <td class="py-1.5 px-3 text-right font-mono text-[11px]">${formatRp(kAssets.reduce((s, x) => s + x.nbv, 0))}</td>
-                    </tr>
-                  `);
-                });
-              }
-            });
-          }
-        });
-      } else if (state.groupBy === 'loc') {
-        const locs = [...new Set(PROTOTYPE_ASSETS.map(a => a.loc))];
-        locs.forEach(l => {
-          const lAssets = PROTOTYPE_ASSETS.filter(a => a.loc === l);
-          const lName = lAssets[0].lokasiName;
-          const isExpL1 = state.expandedL1.has(l);
-          const isAct = state.filter.loc === l && !state.filter.section;
-          treeRows.push(`
-            <tr onclick="applyTreeFilter(null, null, null, '${esc(l)}', event)"
-                class="border-b border-[var(--card-border)] cursor-pointer ${isAct ? 'bg-[#2D4A94]/10 font-semibold' : 'hover:bg-[var(--background)]'}">
-              <td class="py-2 px-3">
-                <div class="flex items-center gap-2">
-                  <button type="button" onclick="event.stopPropagation(); toggleL1('${esc(l)}')"
-                          class="w-5 h-5 rounded border border-[var(--card-border)] bg-[var(--background)] text-[11px] font-mono flex items-center justify-center cursor-pointer">${isExpL1 ? '−' : '+'}</button>
-                  <span class="font-semibold">${esc(lName)}</span>
-                </div>
-              </td>
-              <td class="py-2 px-2.5 text-right num-tabular">${lAssets.filter(x => x.statusVerif === 'ALOKASI SESUAI').length}</td>
-              <td class="py-2 px-2.5 text-right num-tabular">${lAssets.filter(x => x.statusVerif !== 'ALOKASI SESUAI').length || '-'}</td>
-              <td class="py-2 px-2.5 text-right num-tabular font-semibold">${lAssets.length}</td>
-              <td class="py-2 px-3 text-right font-mono text-[11px]">${formatRp(lAssets.reduce((s, x) => s + x.nbv, 0))}</td>
-            </tr>
-          `);
-          if (isExpL1) {
-            [...new Set(lAssets.map(a => a.section))].forEach(sec => {
-              const sAssets = lAssets.filter(a => a.section === sec);
-              treeRows.push(`
-                <tr onclick="applyTreeFilter(null, '${esc(sec)}', null, '${esc(l)}', event)"
-                    class="border-b border-[var(--card-border)] cursor-pointer text-xs hover:bg-[var(--background)]">
-                  <td class="py-1.5 pl-9 pr-3"><span class="mr-1">↳</span> <span class="font-mono font-semibold am-accent">${esc(sec)}</span> &bull; ${esc(sAssets[0].sectionName)} (${esc(sAssets[0].dept)})</td>
-                  <td class="py-1.5 px-2.5 text-right num-tabular">${sAssets.filter(x => x.statusVerif === 'ALOKASI SESUAI').length}</td>
-                  <td class="py-1.5 px-2.5 text-right num-tabular">${sAssets.filter(x => x.statusVerif !== 'ALOKASI SESUAI').length || '-'}</td>
-                  <td class="py-1.5 px-2.5 text-right num-tabular">${sAssets.length}</td>
-                  <td class="py-1.5 px-3 text-right font-mono text-[11px]">${formatRp(sAssets.reduce((s, x) => s + x.nbv, 0))}</td>
-                </tr>
-              `);
-            });
-          }
-        });
-      } else {
-        const kels = [...new Set(PROTOTYPE_ASSETS.map(a => a.kelompok))];
-        kels.forEach(kl => {
-          const kAssets = PROTOTYPE_ASSETS.filter(a => a.kelompok === kl);
-          treeRows.push(`
-            <tr onclick="applyTreeFilter(null, null, '${esc(kl)}', null, event)"
-                class="border-b border-[var(--card-border)] cursor-pointer hover:bg-[var(--background)]">
-              <td class="py-2 px-3 font-semibold">${esc(kl)}</td>
-              <td class="py-2 px-2.5 text-right num-tabular">${kAssets.filter(x => x.statusVerif === 'ALOKASI SESUAI').length}</td>
-              <td class="py-2 px-2.5 text-right num-tabular">${kAssets.filter(x => x.statusVerif !== 'ALOKASI SESUAI').length || '-'}</td>
-              <td class="py-2 px-2.5 text-right num-tabular font-semibold">${kAssets.length}</td>
-              <td class="py-2 px-3 text-right font-mono text-[11px]">${formatRp(kAssets.reduce((s, x) => s + x.nbv, 0))}</td>
-            </tr>
-          `);
-        });
-      }
+                treeRows.push(`
+                  <tr onclick="applyTreeFilter('${esc(d)}', '${esc(sec)}', '${esc(kl)}', null, event)"
+                      class="border-b border-[var(--card-border)] cursor-pointer transition text-xs ${isActiveL3 ? 'bg-[#2D4A94]/15 font-semibold' : 'hover:bg-[var(--background)]'}">
+                    <td class="py-1.5 pl-14 pr-3 text-[var(--muted-foreground)]">
+                      <span class="mr-1">↳</span>
+                      <span class="text-[var(--foreground)] font-medium">${esc(kl)}</span>
+                      <span class="text-[10px] ml-1">(Kelompok)</span>
+                    </td>
+                    <td class="py-1.5 px-2.5 text-right num-tabular">${kSesuai}</td>
+                    <td class="py-1.5 px-2.5 text-right num-tabular ${kSelisih > 0 ? 'text-rose-600 font-semibold' : 'text-[var(--muted-foreground)]'}">${kSelisih || '-'}</td>
+                    <td class="py-1.5 px-2.5 text-right num-tabular">${kAssets.length}</td>
+                    <td class="py-1.5 px-3 text-right font-mono text-[11px]">${formatRp(kAssets.reduce((s, x) => s + x.nbv, 0))}</td>
+                  </tr>
+                `);
+              });
+            }
+          });
+        }
+      });
 
-      const activeFilterTags = [
-        state.filter.dept ? `Dept: ${state.filter.dept}` : null,
-        state.filter.section ? `Section: ${state.filter.section}` : null,
-        state.filter.kelompok ? `Kelompok: ${state.filter.kelompok}` : null,
-        state.filter.loc ? `Lokasi: ${state.filter.loc}` : null
-      ].filter(Boolean);
+      const activeTags = [state.filter.dept, state.filter.section, state.filter.kelompok, state.filter.loc].filter(Boolean);
 
       return `
-        <!-- NOTICE DATA CONTOH + RINGKASAN -->
         <div class="flex flex-wrap items-center justify-between gap-2">
           <div>
-            <h1 class="text-base font-semibold tracking-tight">Explorer Validasi &amp; Pergerakan Aset</h1>
-            <p class="text-xs text-[var(--muted-foreground)]">Alur satu pintu: Klik baris hierarki (Dept ➔ Section ➔ Kelompok) ➔ Filter tabel di bawah ➔ Klik unit untuk Dossier &amp; Mutasi di panel kanan. <span class="font-mono">[Data contoh terstruktur]</span></p>
+            <h1 class="text-base font-semibold tracking-tight">Laporan Hasil Validasi &amp; Drill-Down Hierarki</h1>
+            <p class="text-xs text-[var(--muted-foreground)]">Hierarki resmi: <b>Departemen ➔ Section ➔ Kelompok Aset</b> &bull; Klik baris unit di bawah untuk Dossier &amp; Transaksi Siklus Unit tanpa pindah halaman. <span class="font-mono">[Data contoh]</span></p>
           </div>
           <div class="inline-flex rounded border border-[var(--card-border)] bg-[var(--card)] p-0.5 text-[11px]">
             <button type="button" onclick="setGroupBy('dept')" class="px-2.5 py-1 rounded cursor-pointer ${state.groupBy === 'dept' ? 'bg-[#2D4A94] text-white font-semibold' : 'text-[var(--muted-foreground)]'}">Dept ➔ Section ➔ Kelompok</button>
             <button type="button" onclick="setGroupBy('loc')" class="px-2.5 py-1 rounded cursor-pointer ${state.groupBy === 'loc' ? 'bg-[#2D4A94] text-white font-semibold' : 'text-[var(--muted-foreground)]'}">Lokasi ➔ Section</button>
-            <button type="button" onclick="setGroupBy('kel')" class="px-2.5 py-1 rounded cursor-pointer ${state.groupBy === 'kel' ? 'bg-[#2D4A94] text-white font-semibold' : 'text-[var(--muted-foreground)]'}">Kelompok Aset</button>
           </div>
         </div>
 
-        <!-- RINGKASAN STRIP BERSEKAT (SATU KALI TAMPIL, TANPA PENGULANGAN) -->
+        <!-- STRIP RINGKASAN BERSEKAT (SATU KALI TAMPIL) -->
         <div class="grid grid-cols-2 sm:grid-cols-5 divide-y sm:divide-y-0 sm:divide-x divide-[var(--card-border)] border border-[var(--card-border)] rounded bg-[var(--card)]">
-          <div class="p-3">
-            <div class="text-[11px] text-[var(--muted-foreground)]">Unit Terfilter</div>
-            <div class="text-base font-semibold num-tabular mt-0.5">${filtered.length} <span class="text-xs font-normal text-[var(--muted-foreground)]">/ 35.242 total</span></div>
-          </div>
-          <div class="p-3">
-            <div class="text-[11px] text-[var(--muted-foreground)]">Kesesuaian &amp; Kondisi Baik</div>
-            <div class="text-base font-semibold num-tabular mt-0.5 flex items-center gap-2">
-              <span>${goodCount}/${filtered.length} Baik</span>
-              ${selisihCount > 0 ? `<span class="text-[11px] text-rose-500">(${selisihCount} Selisih)</span>` : ''}
-            </div>
-          </div>
-          <div class="p-3">
-            <div class="text-[11px] text-[var(--muted-foreground)]">Nilai Perolehan (HPP)</div>
-            <div class="text-sm font-semibold font-mono num-tabular mt-1">${formatRp(totalHpp)}</div>
-          </div>
-          <div class="p-3">
-            <div class="text-[11px] text-[var(--muted-foreground)]">Nilai Buku (NBV)</div>
-            <div class="text-sm font-semibold font-mono num-tabular mt-1 am-accent">${formatRp(totalNbv)}</div>
-          </div>
-          <div class="p-3">
-            <div class="text-[11px] text-[var(--muted-foreground)]">Total Maintenance (BKB)</div>
-            <div class="text-sm font-semibold font-mono num-tabular mt-1 fm-accent">${formatRp(totalMtc)}</div>
-          </div>
+          <div class="p-3"><div class="text-[11px] text-[var(--muted-foreground)]">Portofolio Live API</div><div class="text-base font-semibold num-tabular mt-0.5">35.242 Unit <span class="text-[10px] font-medium text-emerald-700">+82 Baru</span></div></div>
+          <div class="p-3"><div class="text-[11px] text-[var(--muted-foreground)]">Validasi 2025 / Baru</div><div class="text-base font-semibold num-tabular mt-0.5">34.793 <span class="text-xs font-normal text-amber-600">(449 Baru)</span></div></div>
+          <div class="p-3"><div class="text-[11px] text-[var(--muted-foreground)]">HPP Terfilter</div><div class="text-sm font-semibold font-mono num-tabular mt-1">${formatRp(totalHpp)}</div></div>
+          <div class="p-3"><div class="text-[11px] text-[var(--muted-foreground)]">NBV Terfilter</div><div class="text-sm font-semibold font-mono num-tabular am-accent mt-1">${formatRp(totalNbv)}</div></div>
+          <div class="p-3"><div class="text-[11px] text-[var(--muted-foreground)]">Total Maintenance</div><div class="text-sm font-semibold font-mono num-tabular fm-accent mt-1">${formatRp(totalMtc)}</div></div>
         </div>
 
-        <!-- BLOK 1: HIERARKI DRILL-DOWN TABLE (DEPARTEMEN -> SECTION -> KELOMPOK) -->
+        <!-- MATRIKS HIERARKI (DEPT -> SECTION -> KELOMPOK) -->
         <div class="border border-[var(--card-border)] rounded bg-[var(--card)] overflow-hidden">
           <div class="px-3 py-2 border-b border-[var(--card-border)] flex flex-wrap items-center justify-between gap-2 text-xs">
             <div class="flex items-center gap-2">
-              <span class="font-semibold">Matriks Hierarki (${state.groupBy === 'dept' ? 'Departemen ➔ Section ➔ Kelompok' : state.groupBy === 'loc' ? 'Lokasi ➔ Section' : 'Kelompok Aset'})</span>
-              ${activeFilterTags.length > 0 ? `
-                <span class="px-2 py-0.5 rounded bg-[#2D4A94]/10 am-accent font-medium text-[11px]">${esc(activeFilterTags.join(' ▸ '))}</span>
-                <button type="button" onclick="applyTreeFilter(null, null, null, null, event)" class="text-[11px] underline text-[var(--muted-foreground)] cursor-pointer">Reset Filter</button>
-              ` : ''}
+              <span class="font-semibold">Matriks Audit: Departemen ➔ Section ➔ Kelompok</span>
+              ${activeTags.length > 0 ? `<span class="px-2 py-0.5 rounded bg-[#2D4A94]/10 am-accent font-medium text-[11px]">${esc(activeTags.join(' ▸ '))}</span><button type="button" onclick="applyTreeFilter(null,null,null,null,event)" class="text-[11px] underline text-[var(--muted-foreground)] cursor-pointer">Reset</button>` : ''}
             </div>
-            <span class="text-[11px] text-[var(--muted-foreground)]">Klik [+] untuk buka sub-level &bull; Klik baris untuk memfilter detail</span>
+            <span class="text-[11px] text-[var(--muted-foreground)]">Zero horizontal scroll &bull; Sticky header aktif</span>
           </div>
-
-          <div class="max-h-56 overflow-y-auto overflow-x-hidden">
+          <div class="max-h-52 overflow-y-auto overflow-x-hidden">
             <table class="w-full text-left border-collapse table-fixed text-xs">
-              <colgroup>
-                <col style="width: 48%;" />
-                <col style="width: 11%;" />
-                <col style="width: 11%;" />
-                <col style="width: 11%;" />
-                <col style="width: 19%;" />
-              </colgroup>
-              <thead class="sticky top-0 z-10 bg-[var(--card)] border-b border-[var(--card-border)] text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
-                <tr>
-                  <th class="py-2 px-3">Struktur Organisasi / Klasifikasi</th>
-                  <th class="py-2 px-2.5 text-right">Sesuai</th>
-                  <th class="py-2 px-2.5 text-right">Selisih</th>
-                  <th class="py-2 px-2.5 text-right">Total</th>
-                  <th class="py-2 px-3 text-right">Nilai Buku (NBV)</th>
-                </tr>
+              <colgroup><col style="width:48%" /><col style="width:11%" /><col style="width:11%" /><col style="width:11%" /><col style="width:19%" /></colgroup>
+              <thead class="sticky top-0 z-10 bg-slate-50 border-b border-[var(--card-border)] text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
+                <tr><th class="py-2 px-3">Departemen ▸ Section ▸ Kelompok</th><th class="py-2 px-2.5 text-right">Sesuai</th><th class="py-2 px-2.5 text-right">Selisih</th><th class="py-2 px-2.5 text-right">Total</th><th class="py-2 px-3 text-right">Nilai Buku (NBV)</th></tr>
               </thead>
               <tbody>${treeRows.join('')}</tbody>
             </table>
           </div>
         </div>
 
-        <!-- BLOK 2: TABEL DETAIL ASET 100% FIT-TO-SCREEN (FROZEN HEADER, ZERO SCROLL KANAN) -->
+        <!-- TABEL DETAIL UNIT (100% FIT-TO-SCREEN, ZERO HORIZONTAL SCROLL, FROZEN HEADER) -->
         <div class="border border-[var(--card-border)] rounded bg-[var(--card)] overflow-hidden">
           <div class="px-3 py-2 border-b border-[var(--card-border)] flex flex-wrap items-center justify-between gap-2 text-xs">
             <div class="flex items-center gap-2">
-              <span class="font-semibold">Rincian Unit Aset (${filtered.length} Unit)</span>
-              ${state.selectedPrintCodes.size > 0 ? `
-                <button type="button" onclick="openPrintSummary()" class="px-2 py-0.5 rounded bg-[#2D4A94] text-white text-[11px] font-medium cursor-pointer">
-                  Cetak Detail (${state.selectedPrintCodes.size} Unit Dipilih)
-                </button>
-                <button type="button" onclick="state.selectedPrintCodes.clear(); renderMain();" class="text-[11px] underline text-[var(--muted-foreground)] cursor-pointer">Batal Pilih</button>
-              ` : ''}
+              <span class="font-semibold">Rincian Unit Terfilter (${filtered.length} Unit Sampel)</span>
+              ${state.selectedPrintCodes.size > 0 ? `<button type="button" onclick="openPrintSummary()" class="px-2 py-0.5 rounded bg-[#2D4A94] text-white text-[11px] font-medium cursor-pointer">Cetak Detail (${state.selectedPrintCodes.size} Unit)</button>` : ''}
             </div>
-            <div class="flex items-center gap-2">
-              <select onchange="state.filter.kondisi = this.value; renderMain();" class="px-2 py-1 rounded border border-[var(--card-border)] bg-[var(--background)] text-xs cursor-pointer">
-                <option value="ALL" ${state.filter.kondisi === 'ALL' ? 'selected' : ''}>Semua Kondisi</option>
-                <option value="Good Condition" ${state.filter.kondisi === 'Good Condition' ? 'selected' : ''}>Good Condition</option>
-                <option value="Repair" ${state.filter.kondisi === 'Repair' ? 'selected' : ''}>Repair</option>
-                <option value="Broken" ${state.filter.kondisi === 'Broken' ? 'selected' : ''}>Broken</option>
-              </select>
-            </div>
+            <span class="text-[11px] text-[var(--muted-foreground)]">Klik unit untuk Dossier &amp; Transaksi Mutasi</span>
           </div>
-
-          <div class="max-h-72 overflow-y-auto overflow-x-hidden">
+          <div class="max-h-64 overflow-y-auto overflow-x-hidden">
             <table class="w-full text-left border-collapse table-fixed text-xs">
-              <colgroup>
-                <col style="width: 19%;" />
-                <col style="width: 28%;" />
-                <col style="width: 17%;" />
-                <col style="width: 12%;" />
-                <col style="width: 16%;" />
-                <col style="width: 8%;" />
-              </colgroup>
-              <thead class="sticky top-0 z-10 bg-[var(--card)] border-b border-[var(--card-border)] text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
-                <tr>
-                  <th class="py-2 px-3">Unit, Dept &amp; Site</th>
-                  <th class="py-2 px-2.5">Nama Aset &amp; Kategori</th>
-                  <th class="py-2 px-2.5">Status &amp; Validasi</th>
-                  <th class="py-2 px-2 text-right">Perolehan &amp; Umur</th>
-                  <th class="py-2 px-2.5 text-right">NBV &amp; MTC</th>
-                  <th class="py-2 px-2 text-center">Panel</th>
-                </tr>
+              <colgroup><col style="width:19%" /><col style="width:28%" /><col style="width:17%" /><col style="width:12%" /><col style="width:16%" /><col style="width:8%" /></colgroup>
+              <thead class="sticky top-0 z-10 bg-slate-50 border-b border-[var(--card-border)] text-[10px] uppercase tracking-wider text-[var(--muted-foreground)]">
+                <tr><th class="py-2 px-3">Unit, Dept &amp; Site</th><th class="py-2 px-2.5">Nama Aset &amp; Kategori</th><th class="py-2 px-2.5">Status &amp; Verifikasi</th><th class="py-2 px-2 text-right">Perolehan &amp; Umur</th><th class="py-2 px-2.5 text-right">NBV &amp; MTC</th><th class="py-2 px-2 text-center">Panel</th></tr>
               </thead>
               <tbody class="divide-y divide-[var(--card-border)]">
-                ${filtered.length === 0 ? `
-                  <tr><td colspan="6" class="py-8 text-center text-[var(--muted-foreground)]">Tidak ada unit yang cocok dengan filter ini.</td></tr>
-                ` : filtered.map(a => {
-                  const dotColor = a.kondisi === 'Good Condition' ? 'bg-emerald-500' : (a.kondisi === 'Repair' ? 'bg-amber-500' : 'bg-rose-500');
-                  const isChk = state.selectedPrintCodes.has(a.kode);
-                  const isAct = state.drawerAssetCode === a.kode;
+                ${filtered.map(a => {
+                  const dot = a.kondisi === 'Good Condition' ? 'bg-emerald-500' : (a.kondisi === 'Repair' ? 'bg-amber-500' : 'bg-rose-500');
                   return `
-                    <tr onclick="openDrawer('${esc(a.kode)}')"
-                        class="cursor-pointer transition ${isAct ? 'bg-[#2D4A94]/10' : 'hover:bg-[var(--background)]'}">
-                      <td class="py-2.5 px-3 align-top">
+                    <tr onclick="openDrawer('${esc(a.kode)}')" class="cursor-pointer transition ${state.drawerAssetCode === a.kode ? 'bg-[#2D4A94]/10' : 'hover:bg-[var(--background)]'}">
+                      <td class="py-2 px-3 align-top">
                         <div class="flex items-start gap-1.5">
-                          <input type="checkbox" ${isChk ? 'checked' : ''} onclick="togglePrintSelect('${esc(a.kode)}', event)" class="mt-0.5 cursor-pointer shrink-0" title="Pilih untuk cetak multi-unit" />
+                          <input type="checkbox" ${state.selectedPrintCodes.has(a.kode) ? 'checked' : ''} onclick="togglePrintSelect('${esc(a.kode)}', event)" class="mt-0.5 cursor-pointer shrink-0" />
                           <div class="min-w-0">
                             <div class="font-mono font-semibold text-[11px] am-accent truncate">${esc(a.kode)}</div>
                             <div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">${esc(a.loc)} &bull; ${esc(a.dept)} (${esc(a.section)})</div>
                           </div>
                         </div>
                       </td>
-                      <td class="py-2.5 px-2.5 align-top">
-                        <div class="font-medium leading-snug">${esc(a.nama)}</div>
-                        <div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">${esc(a.kelompok)} &bull; ${esc(a.subKat)}</div>
-                      </td>
-                      <td class="py-2.5 px-2.5 align-top">
-                        <div class="flex items-center gap-1.5">
-                          <span class="w-2 h-2 rounded-full ${dotColor} shrink-0"></span>
-                          <span class="font-medium">${esc(a.kondisi)}</span>
-                        </div>
-                        <div class="text-[10px] ${a.statusVerif === 'ALOKASI SESUAI' ? 'text-[var(--muted-foreground)]' : 'text-rose-500 font-medium'} mt-0.5">${esc(a.statusVerif)} &bull; ${esc(a.tglVerif)}</div>
-                      </td>
-                      <td class="py-2.5 px-2 text-right align-top font-mono">
-                        <div>${esc(a.tglPerolehan)}</div>
-                        <div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">${a.umur} / ${a.stdUmur} thn</div>
-                      </td>
-                      <td class="py-2.5 px-2.5 text-right align-top font-mono">
-                        <div class="font-semibold">${formatRp(a.nbv)}</div>
-                        <div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">MTC: ${formatRp(a.mtc)}</div>
-                      </td>
-                      <td class="py-2.5 px-2 text-center align-top">
-                        <span class="text-[11px] font-medium am-accent">Buka &rarr;</span>
-                      </td>
+                      <td class="py-2 px-2.5 align-top"><div class="font-medium leading-snug">${esc(a.nama)}</div><div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">${esc(a.kelompok)} &bull; ${esc(a.subKat)}</div></td>
+                      <td class="py-2 px-2.5 align-top"><div class="flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${dot}"></span><span class="font-medium">${esc(a.kondisi)}</span></div><div class="text-[10px] ${a.statusVerif === 'ALOKASI SESUAI' ? 'text-[var(--muted-foreground)]' : 'text-rose-600 font-medium'} mt-0.5">${esc(a.statusVerif)}</div></td>
+                      <td class="py-2 px-2 text-right align-top font-mono"><div>${esc(a.tglPerolehan)}</div><div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">${a.umur}/${a.stdUmur} thn</div></td>
+                      <td class="py-2 px-2.5 text-right align-top font-mono"><div class="font-semibold">${formatRp(a.nbv)}</div><div class="text-[10px] text-[var(--muted-foreground)] mt-0.5">MTC: ${formatRp(a.mtc)}</div></td>
+                      <td class="py-2 px-2 text-center align-top"><span class="text-[11px] font-medium am-accent">Buka &rarr;</span></td>
                     </tr>
                   `;
                 }).join('')}
@@ -721,103 +549,119 @@
       `;
     }
 
-    function renderAmOverview() {
-      const totalHpp = PROTOTYPE_ASSETS.reduce((s, a) => s + a.hpp, 0);
-      const totalNbv = PROTOTYPE_ASSETS.reduce((s, a) => s + a.nbv, 0);
-      const totalMtc = PROTOTYPE_ASSETS.reduce((s, a) => s + a.mtc, 0);
-      return `
-        <div>
-          <h1 class="text-base font-semibold">Ringkasan Valuasi &amp; Portofolio</h1>
-          <p class="text-xs text-[var(--muted-foreground)]">Satu tampilan konsolidasi menggantikan menu terpisah Komposisi &amp; Sebaran Site. <span class="font-mono">[Data contoh]</span></p>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-[var(--card-border)] border border-[var(--card-border)] rounded bg-[var(--card)]">
-          <div class="p-4"><div class="text-xs text-[var(--muted-foreground)]">Total HPP (Sampel)</div><div class="text-lg font-semibold font-mono mt-1">${formatRp(totalHpp)}</div></div>
-          <div class="p-4"><div class="text-xs text-[var(--muted-foreground)]">Total NBV (Sampel)</div><div class="text-lg font-semibold font-mono am-accent mt-1">${formatRp(totalNbv)}</div></div>
-          <div class="p-4"><div class="text-xs text-[var(--muted-foreground)]">Total Maintenance (Sampel)</div><div class="text-lg font-semibold font-mono fm-accent mt-1">${formatRp(totalMtc)}</div></div>
-        </div>
-        <div class="p-4 border border-[var(--card-border)] rounded bg-[var(--card)] text-xs text-[var(--muted-foreground)]">
-          Klik <button type="button" onclick="gotoId('am-explorer')" class="underline am-accent font-semibold cursor-pointer">Explorer &amp; Validasi Aset</button> untuk drill-down lengkap per Departemen, Section, Lokasi, dan Kategori.
-        </div>
-      `;
-    }
+    // =========================================================================
+    // MODUL 3.1: PETA, GEDUNG & RINCIAN KAMAR (FACILITY MANAGEMENT)
+    // =========================================================================
+    function renderModHunian() {
+      const filteredRoomAssets = state.fmFacFilter === 'ALL'
+        ? FM_ROOM_ASSETS
+        : FM_ROOM_ASSETS.filter(r => r.cat === state.fmFacFilter);
 
-    function renderAmMaint() {
-      const maintUnits = PROTOTYPE_ASSETS.slice().sort((a, b) => b.mtc - a.mtc);
       return `
-        <div>
-          <h1 class="text-base font-semibold">Realisasi Maintenance &amp; BKB</h1>
-          <p class="text-xs text-[var(--muted-foreground)]">Klik baris unit untuk membuka riwayat sparepart BKB dan detail finansial unit di panel kanan. <span class="font-mono">[Data contoh]</span></p>
+        <div class="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h1 class="text-base font-semibold tracking-tight">Peta, Gedung &amp; Rincian Kamar (FM)</h1>
+            <p class="text-xs text-[var(--muted-foreground)]">Alur klik hierarki: <b>4 Site ➔ Gedung (416) ➔ Kamar (2.030) ➔ Kartu Fasilitas Kompak &amp; Detail</b>. <span class="font-mono">[Data contoh]</span></p>
+          </div>
+          <div class="inline-flex rounded border border-[var(--card-border)] bg-[var(--card)] p-0.5 text-[11px]">
+            ${['CO • Central', 'E1-2 • Estate 1-2', 'E3 • Estate 3', 'FR • Factory'].map(s => {
+              const code = s.split(' ')[0];
+              return `<button type="button" onclick="state.fmSite='${code}'; renderMain()" class="px-2.5 py-1 rounded cursor-pointer ${state.fmSite === code ? 'bg-[#0E5E63] text-white font-semibold' : 'text-[var(--muted-foreground)]'}">${s}</button>`;
+            }).join('')}
+          </div>
         </div>
-        <div class="border border-[var(--card-border)] rounded bg-[var(--card)] overflow-hidden">
-          <table class="w-full text-left border-collapse table-fixed text-xs">
-            <colgroup><col style="width:20%" /><col style="width:32%" /><col style="width:16%" /><col style="width:16%" /><col style="width:16%" /></colgroup>
-            <thead class="border-b border-[var(--card-border)] text-[10px] uppercase text-[var(--muted-foreground)]">
-              <tr>
-                <th class="py-2 px-3">Unit &amp; Section</th>
-                <th class="py-2 px-2.5">Nama Unit</th>
-                <th class="py-2 px-2.5 text-right">Perolehan</th>
-                <th class="py-2 px-2.5 text-right">Nilai Buku</th>
-                <th class="py-2 px-3 text-right">Total BKB</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-[var(--card-border)]">
-              ${maintUnits.map(a => `
-                <tr onclick="openDrawer('${esc(a.kode)}', 'parts')" class="hover:bg-[var(--background)] cursor-pointer">
-                  <td class="py-2.5 px-3"><div class="font-mono font-semibold am-accent">${esc(a.alias)}</div><div class="text-[10px] text-[var(--muted-foreground)]">${esc(a.dept)} (${esc(a.section)})</div></td>
-                  <td class="py-2.5 px-2.5 font-medium">${esc(a.nama)}</td>
-                  <td class="py-2.5 px-2.5 text-right font-mono">${esc(a.tglPerolehan)}</td>
-                  <td class="py-2.5 px-2.5 text-right font-mono">${formatRp(a.nbv)}</td>
-                  <td class="py-2.5 px-3 text-right font-mono font-semibold fm-accent">${formatRp(a.mtc)}</td>
-                </tr>
-              `).join('')}
-            </tbody>
-          </table>
-        </div>
-      `;
-    }
 
-    function renderFmHunian() {
-      return `
-        <div>
-          <h1 class="text-base font-semibold">Direktori Hunian, Kamar &amp; Fasilitas (FM)</h1>
-          <p class="text-xs text-[var(--muted-foreground)]">Menggabungkan kondisi hunian, kamar, penghuni (NIK disamarkan sesuai UU PDP), dan fasilitas dalam satu tabel utuh. <span class="font-mono">[Data contoh]</span></p>
-        </div>
-        <div class="border border-[var(--card-border)] rounded bg-[var(--card)] overflow-hidden">
-          <table class="w-full text-left border-collapse table-fixed text-xs">
-            <colgroup><col style="width:24%" /><col style="width:14%" /><col style="width:24%" /><col style="width:26%" /><col style="width:12%" /></colgroup>
-            <thead class="border-b border-[var(--card-border)] text-[10px] uppercase text-[var(--muted-foreground)]">
-              <tr>
-                <th class="py-2 px-3">Gedung &amp; Site</th>
-                <th class="py-2 px-2.5">Kamar</th>
-                <th class="py-2 px-2.5">Penghuni (Terlindungi)</th>
-                <th class="py-2 px-2.5">Ringkasan Fasilitas</th>
-                <th class="py-2 px-3">Status</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-[var(--card-border)]">
-              ${ROOM_SAMPLE_DATA.map(r => `
-                <tr class="hover:bg-[var(--background)]">
-                  <td class="py-2.5 px-3 font-medium">${esc(r.building)}</td>
-                  <td class="py-2.5 px-2.5">${esc(r.room)} <span class="text-[10px] text-[var(--muted-foreground)]">(${r.occupied}/${r.capacity})</span></td>
-                  <td class="py-2.5 px-2.5 font-mono text-[11px] text-[var(--muted-foreground)]">${esc(r.pic)}</td>
-                  <td class="py-2.5 px-2.5">${esc(r.fasilitas)}</td>
-                  <td class="py-2.5 px-3"><span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full ${r.status === 'Sesuai Standar' ? 'bg-emerald-500' : 'bg-amber-500'}"></span>${esc(r.status)}</span></td>
-                </tr>
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
+          <!-- KOLOM KIRI: GEDUNG & KAMAR -->
+          <div class="lg:col-span-4 border border-[var(--card-border)] rounded bg-[var(--card)] p-3 space-y-2.5">
+            <div class="text-xs font-semibold pb-2 border-b border-[var(--card-border)] flex justify-between">
+              <span>Gedung &amp; Daftar Kamar</span>
+              <span class="font-mono fm-accent">${esc(state.fmSelectedBldg)}</span>
+            </div>
+            <div class="space-y-1 text-xs">
+              ${['Kamar No. 01', 'Kamar No. 02', 'Kamar No. 03', 'Kamar No. 07'].map(rm => `
+                <button type="button" onclick="state.fmSelectedRoom='${rm}'; renderMain()"
+                        class="w-full px-2.5 py-2 rounded border text-left flex justify-between items-center cursor-pointer transition ${state.fmSelectedRoom === rm ? 'bg-[#0E5E63] text-white border-[#0E5E63]' : 'border-[var(--card-border)] hover:bg-[var(--background)]'}">
+                  <span class="font-medium">${rm}</span>
+                  <span class="text-[10px] font-mono ${state.fmSelectedRoom === rm ? 'text-teal-100' : 'text-[var(--muted-foreground)]'}">2/2 Slot</span>
+                </button>
               `).join('')}
-            </tbody>
-          </table>
+            </div>
+            <div class="p-2.5 rounded border border-[var(--card-border)] bg-[var(--background)] space-y-1 text-xs">
+              <div class="text-[10px] font-semibold uppercase text-[var(--muted-foreground)]">Penghuni Terdata (UU PDP)</div>
+              <div class="font-semibold">Karyawan Operasional #014</div>
+              <div class="text-[10.5px] font-mono text-[var(--muted-foreground)]">NIK: 1602••••••••0041 &bull; Bed A</div>
+              <div class="font-semibold pt-1">Karyawan Operasional #039</div>
+              <div class="text-[10.5px] font-mono text-[var(--muted-foreground)]">NIK: 1602••••••••0118 &bull; Bed B</div>
+            </div>
+          </div>
+
+          <!-- KOLOM KANAN: CARD BUTTON FILTER JADI 1 & LANGSUNG JADI DETAIL -->
+          <div class="lg:col-span-8 space-y-3.5">
+            <div class="border border-[var(--card-border)] rounded bg-[var(--card)] p-3.5 space-y-2.5">
+              <div class="flex items-center justify-between pb-2 border-b border-[var(--card-border)]">
+                <span class="text-xs font-semibold">Card Filter Fasilitas ${esc(state.fmSelectedRoom)} (Klik Card untuk Detail)</span>
+                <span class="text-[10px] text-[var(--muted-foreground)]">Card &amp; Filter dijadikan 1</span>
+              </div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                ${FM_FACILITY_ITEMS.map(f => {
+                  const isAct = state.fmFacFilter === f.key;
+                  const dot = f.fisik < f.std ? 'bg-amber-500' : 'bg-emerald-500';
+                  return `
+                    <button type="button" onclick="state.fmFacFilter='${f.key}'; renderMain()"
+                            class="p-2 rounded border text-left flex items-center justify-between gap-2 cursor-pointer transition ${isAct ? 'border-[#0E5E63] bg-[#0E5E63]/10 ring-1 ring-[#0E5E63]' : 'border-[var(--card-border)] hover:bg-[var(--background)]'}">
+                      <div class="min-w-0">
+                        <div class="text-[11px] font-semibold truncate">${esc(f.name)}</div>
+                        <div class="text-[10px] text-[var(--muted-foreground)] flex items-center gap-1 mt-0.5"><span class="w-1.5 h-1.5 rounded-full ${dot}"></span>${esc(f.status)}</div>
+                      </div>
+                      <span class="px-1.5 py-0.5 rounded font-mono text-[10px] font-semibold bg-[var(--background)] border border-[var(--card-border)] shrink-0">${f.fisik}/${f.std}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+
+            <div class="border border-[var(--card-border)] rounded bg-[var(--card)] overflow-hidden">
+              <div class="px-3 py-2 border-b border-[var(--card-border)] text-xs font-semibold flex justify-between">
+                <span>Detail Aset Fisik Terpasang (${filteredRoomAssets.length} Item)</span>
+                <span class="text-[10px] font-mono text-[var(--muted-foreground)]">Fit-to-Screen</span>
+              </div>
+              <table class="w-full text-left border-collapse table-fixed text-xs">
+                <colgroup><col style="width:22%" /><col style="width:42%" /><col style="width:18%" /><col style="width:18%" /></colgroup>
+                <thead class="bg-slate-50 border-b border-[var(--card-border)] text-[10px] uppercase text-[var(--muted-foreground)]">
+                  <tr><th class="py-2 px-3">Kode Aset</th><th class="py-2 px-2.5">Nama &amp; Kategori</th><th class="py-2 px-2">Tgl Perolehan</th><th class="py-2 px-3">Kondisi</th></tr>
+                </thead>
+                <tbody class="divide-y divide-[var(--card-border)]">
+                  ${filteredRoomAssets.length === 0 ? `<tr><td colspan="4" class="py-6 text-center text-[var(--muted-foreground)]">Belum ada unit fisik terpasang untuk kategori ini.</td></tr>` : filteredRoomAssets.map(ra => `
+                    <tr class="hover:bg-[var(--background)]">
+                      <td class="py-2 px-3 font-mono text-[11px] font-semibold fm-accent">${esc(ra.kode)}</td>
+                      <td class="py-2 px-2.5"><div class="font-medium">${esc(ra.nama)}</div><div class="text-[10px] text-[var(--muted-foreground)]">${esc(ra.kategori)}</div></td>
+                      <td class="py-2 px-2 font-mono text-[11px]">${esc(ra.tgl)}</td>
+                      <td class="py-2 px-3"><span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span>${esc(ra.kondisi)}</span></td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       `;
     }
 
     function renderMain() {
       const main = document.getElementById('workspace-main');
-      if (state.curId === 'am-explorer') main.innerHTML = renderAmExplorer();
-      else if (state.curId === 'am-overview') main.innerHTML = renderAmOverview();
-      else if (state.curId === 'am-maint') main.innerHTML = renderAmMaint();
-      else main.innerHTML = renderFmHunian();
+      if (state.curId === 'mod-validasi' || state.curId === 'mod-katalog' || state.curId === 'mod-overview') {
+        main.innerHTML = renderModValidasi();
+      } else if (state.curId === 'mod-hunian' || state.curId === 'mod-penghuni' || state.curId === 'mod-inspeksi') {
+        main.innerHTML = renderModHunian();
+      } else {
+        main.innerHTML = renderModValidasi();
+      }
     }
 
+    // =========================================================================
+    // SLIDE-OVER DOSSIER & 5 AKSI SIKLUS UNIT
+    // =========================================================================
     function openDrawer(kode, tab) {
       state.drawerAssetCode = kode;
       state.drawerTab = tab || state.drawerTab || 'spec';
@@ -851,91 +695,75 @@
           <button type="button" onclick="closeDrawer()" class="px-2 py-1 border border-[var(--card-border)] rounded text-xs cursor-pointer">✕</button>
         </div>
 
-        <!-- TAB KONTEKSTUAL TANPA KELUAR DARI TABEL -->
-        <div class="px-4 pt-2 border-b border-[var(--card-border)] flex items-center gap-4 text-xs">
-          <button type="button" onclick="state.drawerTab='spec'; renderDrawer()" class="pb-2 cursor-pointer ${state.drawerTab === 'spec' ? 'border-b-2 border-[#2D4A94] font-semibold am-accent' : 'text-[var(--muted-foreground)]'}">1. Detail &amp; Finansial</button>
-          <button type="button" onclick="state.drawerTab='parts'; renderDrawer()" class="pb-2 cursor-pointer ${state.drawerTab === 'parts' ? 'border-b-2 border-[#2D4A94] font-semibold am-accent' : 'text-[var(--muted-foreground)]'}">2. Part BKB (${a.parts.length})</button>
-          <button type="button" onclick="state.drawerTab='action'; renderDrawer()" class="pb-2 cursor-pointer ${state.drawerTab === 'action' ? 'border-b-2 border-[#2D4A94] font-semibold am-accent' : 'text-[var(--muted-foreground)]'}">3. Transaksi Mutasi</button>
+        <!-- 5 AKSI SIKLUS + SPESIFIKASI & PART BKB DALAM 1 PANEL -->
+        <div class="px-4 pt-2 border-b border-[var(--card-border)] flex items-center gap-3 text-[11px] overflow-x-auto">
+          ${[
+            ['spec', '1. Detail & Finansial'],
+            ['parts', `2. Part BKB (${a.parts.length})`],
+            ['mutasi', '3. Mutasi Dept/Lokasi'],
+            ['kondisi', '4. Kondisi & Disposal']
+          ].map(([k, lbl]) => `
+            <button type="button" onclick="state.drawerTab='${k}'; renderDrawer()"
+                    class="pb-2 whitespace-nowrap cursor-pointer ${state.drawerTab === k ? 'border-b-2 border-[#2D4A94] font-semibold am-accent' : 'text-[var(--muted-foreground)]'}">${lbl}</button>
+          `).join('')}
         </div>
 
         <div class="flex-1 overflow-y-auto p-4 space-y-4 text-xs">
           ${state.drawerTab === 'spec' ? `
             <div class="grid grid-cols-2 gap-2.5">
-              <div class="p-2.5 rounded border border-[var(--card-border)]">
-                <div class="text-[10px] text-[var(--muted-foreground)]">Tanggal Perolehan</div>
-                <div class="font-mono font-semibold mt-0.5">${esc(a.tglPerolehan)}</div>
-              </div>
-              <div class="p-2.5 rounded border border-[var(--card-border)]">
-                <div class="text-[10px] text-[var(--muted-foreground)]">Umur Aset s/d Hari Ini</div>
-                <div class="font-mono font-semibold mt-0.5">${a.umur} Tahun (Std: ${a.stdUmur} Thn)</div>
-              </div>
-              <div class="p-2.5 rounded border border-[var(--card-border)]">
-                <div class="text-[10px] text-[var(--muted-foreground)]">Nilai Perolehan (HPP)</div>
-                <div class="font-mono font-semibold mt-0.5">${formatRp(a.hpp)}</div>
-              </div>
-              <div class="p-2.5 rounded border border-[var(--card-border)]">
-                <div class="text-[10px] text-[var(--muted-foreground)]">Nilai Buku (NBV)</div>
-                <div class="font-mono font-semibold am-accent mt-0.5">${formatRp(a.nbv)}</div>
-              </div>
-              <div class="p-2.5 rounded border border-[var(--card-border)] col-span-2">
-                <div class="text-[10px] text-[var(--muted-foreground)]">Total Maintenance (BKB)</div>
-                <div class="font-mono font-semibold fm-accent mt-0.5">${formatRp(a.mtc)} <span class="text-[10px] font-normal text-[var(--muted-foreground)]">(${a.txCount} transaksi BKB &bull; ${ratioPct}% HPP)</span></div>
+              <div class="p-2.5 rounded border border-[var(--card-border)]"><div class="text-[10px] text-[var(--muted-foreground)]">Tanggal Perolehan</div><div class="font-mono font-semibold mt-0.5">${esc(a.tglPerolehan)}</div></div>
+              <div class="p-2.5 rounded border border-[var(--card-border)]"><div class="text-[10px] text-[var(--muted-foreground)]">Umur s/d Hari Ini</div><div class="font-mono font-semibold mt-0.5">${a.umur} Tahun (Std: ${a.stdUmur} Thn)</div></div>
+              <div class="p-2.5 rounded border border-[var(--card-border)]"><div class="text-[10px] text-[var(--muted-foreground)]">Nilai Perolehan (HPP)</div><div class="font-mono font-semibold mt-0.5">${formatRp(a.hpp)}</div></div>
+              <div class="p-2.5 rounded border border-[var(--card-border)]"><div class="text-[10px] text-[var(--muted-foreground)]">Nilai Buku (NBV)</div><div class="font-mono font-semibold am-accent mt-0.5">${formatRp(a.nbv)}</div></div>
+              <div class="p-2.5 rounded border border-[var(--card-border)] col-span-2 bg-teal-50/40">
+                <div class="text-[10px] fm-accent font-medium">Total Maintenance (BKB)</div>
+                <div class="font-mono font-semibold fm-accent mt-0.5">${formatRp(a.mtc)} <span class="text-[10px] font-normal text-[var(--muted-foreground)]">(${a.txCount} BKB &bull; ${ratioPct}% dari HPP)</span></div>
               </div>
             </div>
             <div class="border border-[var(--card-border)] rounded p-3 space-y-1.5">
-              <div class="font-semibold">Klasifikasi Lengkap</div>
-              <div class="flex justify-between"><span class="text-[var(--muted-foreground)]">Department / Section</span><span>${esc(a.dept)} / ${esc(a.section)}</span></div>
+              <div class="font-semibold">Klasifikasi Resmi Live API</div>
+              <div class="flex justify-between"><span class="text-[var(--muted-foreground)]">Department / Section</span><span class="font-medium">${esc(a.dept)} / ${esc(a.section)} (${esc(a.sectionName)})</span></div>
               <div class="flex justify-between"><span class="text-[var(--muted-foreground)]">Kelompok / Kategori</span><span>${esc(a.kelompok)} / ${esc(a.kategori)}</span></div>
               <div class="flex justify-between"><span class="text-[var(--muted-foreground)]">Sub Kategori</span><span>${esc(a.subKat)}</span></div>
-              <div class="flex justify-between"><span class="text-[var(--muted-foreground)]">Lokasi Fisik</span><span>${esc(a.lokasiName)}</span></div>
-              <div class="flex justify-between"><span class="text-[var(--muted-foreground)]">Verifikasi</span><span>${esc(a.statusVerif)} (${esc(a.userVerif)})</span></div>
+              <div class="flex justify-between"><span class="text-[var(--muted-foreground)]">Location Site</span><span>${esc(a.lokasiName)}</span></div>
+              <div class="flex justify-between"><span class="text-[var(--muted-foreground)]">Status Verifikasi</span><span>${esc(a.statusVerif)} (${esc(a.userVerif)})</span></div>
             </div>
           ` : state.drawerTab === 'parts' ? `
             <table class="w-full text-left border-collapse table-fixed border border-[var(--card-border)]">
-              <thead class="border-b border-[var(--card-border)] text-[10px] uppercase text-[var(--muted-foreground)]">
-                <tr><th class="py-2 px-2.5">Tgl &amp; Bukti</th><th class="py-2 px-2.5">Sparepart</th><th class="py-2 px-2 text-right">Biaya</th></tr>
+              <thead class="bg-slate-50 border-b border-[var(--card-border)] text-[10px] uppercase text-[var(--muted-foreground)]">
+                <tr><th class="py-2 px-2.5">Tgl &amp; Bukti BKB</th><th class="py-2 px-2.5">Sparepart &amp; Umur</th><th class="py-2 px-2 text-right">Biaya</th></tr>
               </thead>
               <tbody class="divide-y divide-[var(--card-border)]">
                 ${a.parts.map(pt => `
                   <tr>
                     <td class="py-2 px-2.5 font-mono text-[10.5px]"><div>${esc(pt.tgl)}</div><div class="text-[9.5px] text-[var(--muted-foreground)] break-all">${esc(pt.bukti)}</div></td>
-                    <td class="py-2 px-2.5"><div class="font-medium">${esc(pt.partName)}</div><div class="text-[10px] text-[var(--muted-foreground)]">${esc(pt.sub)} &bull; ${esc(pt.qty)}</div></td>
+                    <td class="py-2 px-2.5"><div class="font-medium">${esc(pt.partName)}</div><div class="text-[10px] text-[var(--muted-foreground)]">${esc(pt.sub)} &bull; Umur: ${esc(pt.umurPart)}</div></td>
                     <td class="py-2 px-2 text-right font-mono font-semibold">${formatRp(pt.biaya)}</td>
                   </tr>
                 `).join('')}
               </tbody>
             </table>
+          ` : state.drawerTab === 'mutasi' ? `
+            <div class="space-y-3 border border-[var(--card-border)] rounded p-3">
+              <div class="font-semibold">Mutasi Departemen, Section &amp; Lokasi Fisik</div>
+              <div><label class="block text-[11px] mb-1">Departemen / Section Tujuan</label><input type="text" value="${esc(a.dept)} - ${esc(a.section)}" class="w-full px-2.5 py-1.5 rounded border border-[var(--card-border)]" /></div>
+              <div><label class="block text-[11px] mb-1">Location Site Baru</label><input type="text" value="${esc(a.lokasiName)}" class="w-full px-2.5 py-1.5 rounded border border-[var(--card-border)]" /></div>
+              <button type="button" class="w-full py-2 rounded bg-[#2D4A94] text-white font-semibold cursor-pointer">Simpan Mutasi Unit</button>
+            </div>
           ` : `
-            <div class="space-y-3">
-              <div class="text-[var(--muted-foreground)]">Aksi perubahan data langsung pada unit ini tanpa perlu keluar ke menu terpisah:</div>
-              <div>
-                <label class="block text-[11px] font-medium mb-1">Ubah Kondisi Fisik</label>
-                <select id="drawer-new-kond" class="w-full px-2.5 py-1.5 rounded border border-[var(--card-border)] bg-[var(--background)]">
-                  <option ${a.kondisi === 'Good Condition' ? 'selected' : ''}>Good Condition</option>
-                  <option ${a.kondisi === 'Repair' ? 'selected' : ''}>Repair</option>
-                  <option ${a.kondisi === 'Broken' ? 'selected' : ''}>Broken</option>
-                </select>
-              </div>
-              <button type="button" onclick="saveDrawerDemo('${esc(a.kode)}')" class="w-full py-2 rounded bg-[#2D4A94] text-white font-semibold cursor-pointer">Simpan Pembaruan Kondisi</button>
+            <div class="space-y-3 border border-[var(--card-border)] rounded p-3">
+              <div class="font-semibold">Update Kondisi Fisik / Pengajuan Disposal</div>
+              <div><label class="block text-[11px] mb-1">Kondisi Saat Ini</label><input type="text" value="${esc(a.kondisi)}" class="w-full px-2.5 py-1.5 rounded border border-[var(--card-border)]" /></div>
+              <button type="button" class="w-full py-2 rounded bg-[#0E5E63] text-white font-semibold cursor-pointer">Simpan Pembaruan Status</button>
             </div>
           `}
         </div>
 
         <div class="p-3 border-t border-[var(--card-border)] flex items-center justify-between gap-2">
-          <button type="button" onclick="openPrintSummary('${esc(a.kode)}')" class="flex-1 py-1.5 rounded border border-[var(--card-border)] font-medium cursor-pointer hover:bg-[var(--background)]">Cetak Rangkuman Detail Unit</button>
-          <button type="button" onclick="closeDrawer()" class="px-3 py-1.5 rounded bg-[var(--background)] border border-[var(--card-border)] cursor-pointer">Tutup</button>
+          <button type="button" onclick="openPrintSummary('${esc(a.kode)}')" class="flex-1 py-1.5 rounded bg-[#2D4A94] text-white font-medium cursor-pointer">Cetak Rangkuman Detail Unit</button>
+          <button type="button" onclick="closeDrawer()" class="px-3 py-1.5 rounded border border-[var(--card-border)] cursor-pointer">Tutup</button>
         </div>
       `;
-    }
-
-    function saveDrawerDemo(kode) {
-      const a = PROTOTYPE_ASSETS.find(x => x.kode === kode);
-      const val = document.getElementById('drawer-new-kond')?.value;
-      if (a && val) {
-        a.kondisi = val;
-        renderDrawer();
-        renderMain();
-      }
     }
 
     function openPrintSummary(forceKode) {
@@ -960,18 +788,18 @@
         <div class="space-y-4 mt-3 text-xs">
           ${list.map(u => `
             <div class="border border-[var(--card-border)] rounded p-3 space-y-2">
-              <div class="flex justify-between font-semibold"><span>${esc(u.kode)} &bull; ${esc(u.nama)}</span><span>${esc(u.dept)} (${esc(u.section)})</span></div>
+              <div class="flex justify-between font-semibold"><span>${esc(u.kode)} (${esc(u.alias)}) &bull; ${esc(u.nama)}</span><span>${esc(u.dept)} (${esc(u.section)})</span></div>
               <div class="grid grid-cols-5 gap-2 text-[11px] bg-[var(--background)] p-2 rounded">
-                <div><span class="text-[var(--muted-foreground)] block">Perolehan</span><b>${esc(u.tglPerolehan)}</b></div>
-                <div><span class="text-[var(--muted-foreground)] block">Umur</span><b>${u.umur} / ${u.stdUmur} thn</b></div>
-                <div><span class="text-[var(--muted-foreground)] block">HPP</span><b>${formatRp(u.hpp)}</b></div>
-                <div><span class="text-[var(--muted-foreground)] block">NBV</span><b>${formatRp(u.nbv)}</b></div>
-                <div><span class="text-[var(--muted-foreground)] block">Total MTC</span><b>${formatRp(u.mtc)}</b></div>
+                <div><span class="text-[var(--muted-foreground)] block">Tgl Perolehan</span><b>${esc(u.tglPerolehan)}</b></div>
+                <div><span class="text-[var(--muted-foreground)] block">Umur s/d Kini</span><b>${u.umur} / ${u.stdUmur} thn</b></div>
+                <div><span class="text-[var(--muted-foreground)] block">Nilai Perolehan</span><b>${formatRp(u.hpp)}</b></div>
+                <div><span class="text-[var(--muted-foreground)] block">Nilai Buku</span><b>${formatRp(u.nbv)}</b></div>
+                <div><span class="text-[var(--muted-foreground)] block">Total Maintenance</span><b class="fm-accent">${formatRp(u.mtc)}</b></div>
               </div>
               <table class="w-full text-left border-collapse table-fixed border-t border-[var(--card-border)] text-[11px]">
-                <thead><tr class="text-[var(--muted-foreground)]"><th class="py-1">Tgl &amp; BKB</th><th class="py-1">Sparepart</th><th class="py-1 text-right">Biaya</th></tr></thead>
+                <thead><tr class="text-[var(--muted-foreground)]"><th class="py-1">Tgl &amp; BKB</th><th class="py-1">Sparepart &amp; Umur Pakai</th><th class="py-1 text-right">Biaya</th></tr></thead>
                 <tbody>
-                  ${u.parts.map(pt => `<tr class="border-t border-[var(--card-border)]"><td class="py-1 font-mono">${esc(pt.tgl)} &bull; ${esc(pt.bukti)}</td><td class="py-1">${esc(pt.partName)} (${esc(pt.qty)})</td><td class="py-1 text-right font-mono">${formatRp(pt.biaya)}</td></tr>`).join('')}
+                  ${u.parts.map(pt => `<tr class="border-t border-[var(--card-border)]"><td class="py-1 font-mono">${esc(pt.tgl)} &bull; ${esc(pt.bukti)}</td><td class="py-1">${esc(pt.partName)} (${esc(pt.qty)}, Umur ${esc(pt.umurPart)})</td><td class="py-1 text-right font-mono">${formatRp(pt.biaya)}</td></tr>`).join('')}
                 </tbody>
               </table>
             </div>
@@ -985,11 +813,11 @@
       document.getElementById('print-modal').classList.add('hidden');
     }
 
-    function renderAll() {
-      renderSidebar();
-      renderMain();
-    }
-
+    function renderAll() { renderSidebar(); renderMain(); }
+    window.renderAll = renderAll;
+    window.gotoId = gotoId;
+    window.openDrawer = openDrawer;
+    window.openPrintSummary = openPrintSummary;
     renderAll();
   </script>
 </body>
