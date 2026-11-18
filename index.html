@@ -276,60 +276,126 @@
         <!-- ======================================================== -->
         <!-- DOMAIN FM: FACILITY MANAGEMENT (PRD LAYOUT)             -->
         <!-- ======================================================== -->
-        <div id="nav-domain-fm" class="space-y-2 hidden">
-          <!-- 1. OVERVIEW & KPI -->
-          <div>
+        <div id="nav-domain-fm" class="space-y-3 hidden">
+          <!-- MODUL 1. OVERVIEW & AUDIT EKSEKUTIF -->
+          <div class="space-y-1 pb-2 border-b border-slate-100">
             <button type="button" data-view="view-fm-beranda" onclick="navTo('view-fm-beranda', this)" class="nav-btn active w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Dashboard Kondisi Hunian & Fasum Terpadu">
               <span class="flex items-center gap-2 min-w-0">
                 <i class="ph ph-chart-pie-slice text-base text-teal-700 shrink-0"></i>
-                <span class="truncate">Overview Hunian &amp; Fasum</span>
+                <span class="truncate font-semibold">Overview Hunian &amp; Fasum</span>
               </span>
               <span class="text-[10px] text-teal-700 font-semibold px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 shrink-0">KPI</span>
             </button>
           </div>
 
-          <!-- 2. DIREKTORI BANGUNAN & FASILITAS (UNIFIED ERP DRILL-DOWN) -->
-          <div>
-            <button type="button" data-view="view-fm-rincian" onclick="navTo('view-fm-rincian', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Direktori Fasilitas, Hirarki Bangunan, Peta & Kamar">
-              <span class="flex items-center gap-2 min-w-0">
-                <i class="ph ph-buildings text-base text-emerald-600 shrink-0"></i>
-                <span class="truncate">Direktori Bangunan &amp; Fasilitas</span>
-              </span>
-              <span class="text-[10px] text-emerald-700 font-semibold px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 shrink-0">Drill</span>
+          <!-- MODUL 2. DIREKTORI BANGUNAN & FASILITAS -->
+          <div class="pb-2 border-b border-slate-100">
+            <button type="button" onclick="toggleNavGroup('nav-group-fm-direktori', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-bold tracking-wide text-slate-500 hover:text-slate-800 uppercase transition cursor-pointer select-none">
+              <span class="flex items-center gap-1.5"><i class="ph-bold ph-buildings text-xs text-teal-700"></i> Bangunan &amp; Fasilitas</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
             </button>
+            <div id="nav-group-fm-direktori" class="space-y-1 mt-1">
+              <button type="button" data-view="view-fm-rincian" onclick="navTo('view-fm-rincian', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Rincian Kamar, Penghuni Aktif & Fasilitas Ruangan">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph ph-door text-base text-emerald-600 shrink-0"></i>
+                  <span class="truncate">Rincian Kamar &amp; Fasilitas</span>
+                </span>
+                <span class="text-[10px] text-emerald-700 font-semibold px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 shrink-0">Drill</span>
+              </button>
+              <button type="button" data-view="view-fm-peta" onclick="navTo('view-fm-peta', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Denah Skematik 4 Lokasi: Central, E1-2, E3, Factory">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph ph-map-trifold text-base text-teal-600 shrink-0"></i>
+                  <span class="truncate">Denah Skematik 4 Lokasi</span>
+                </span>
+                <span class="text-[10px] text-teal-700 font-semibold px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 shrink-0">4 Site</span>
+              </button>
+              <button type="button" data-view="view-gedung" onclick="navTo('view-gedung', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Master Katalog 416 Gedung Fisik & Ruangan">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph ph-building-office text-base text-amber-500 shrink-0"></i>
+                  <span class="truncate">Master Katalog 416 Gedung</span>
+                </span>
+                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium shrink-0" id="fm-badge-bldg">416</span>
+              </button>
+            </div>
           </div>
 
-          <!-- 3. SENSUS PENGHUNI & OKUPANSI SLOT -->
-          <div>
-            <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Sensus Penghuni, Ketersediaan Slot & Simulasi">
-              <span class="flex items-center gap-2 min-w-0">
-                <i class="ph ph-users text-base text-indigo-500 shrink-0"></i>
-                <span class="truncate">Sensus Penghuni &amp; Okupansi</span>
-              </span>
-              <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium shrink-0" id="fm-badge-penghuni">409</span>
+          <!-- MODUL 3. SENSUS PENGHUNI & OKUPANSI -->
+          <div class="pb-2 border-b border-slate-100">
+            <button type="button" onclick="toggleNavGroup('nav-group-fm-okupansi', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-bold tracking-wide text-slate-500 hover:text-slate-800 uppercase transition cursor-pointer select-none">
+              <span class="flex items-center gap-1.5"><i class="ph-bold ph-bed text-xs text-indigo-600"></i> Penghuni &amp; Okupansi</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
             </button>
+            <div id="nav-group-fm-okupansi" class="space-y-1 mt-1">
+              <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Daftar Sensus 409 Penghuni Aktif (NIK UU PDP)">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph ph-users text-base text-indigo-500 shrink-0"></i>
+                  <span class="truncate">Daftar Penghuni Aktif</span>
+                </span>
+                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-medium shrink-0" id="fm-badge-penghuni">409</span>
+              </button>
+              <button type="button" data-view="view-fm-ketersediaan" onclick="navTo('view-fm-ketersediaan', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Matriks Slot Ranjang & Kamar Siap Huni">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph ph-check-square-offset text-base text-emerald-600 shrink-0"></i>
+                  <span class="truncate">Ketersediaan Slot &amp; Siap Huni</span>
+                </span>
+                <span class="text-[10px] text-emerald-700 font-semibold px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 shrink-0">Slot</span>
+              </button>
+              <button type="button" data-view="view-fm-rencana" onclick="navTo('view-fm-rencana', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Simulasi Standar Kamar (2 Orang vs 4 Orang)">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph ph-calculator text-base text-indigo-500 shrink-0"></i>
+                  <span class="truncate">Perencanaan Standar Kamar</span>
+                </span>
+                <span class="text-[10px] text-indigo-700 font-semibold px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-200 shrink-0">Simulasi</span>
+              </button>
+            </div>
           </div>
 
-          <!-- 4. INSPEKSI & AUDIT FISIK -->
-          <div>
-            <button type="button" data-view="view-inspeksi" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Audit Standar & Formulir Inspeksi Ruangan Fisik">
-              <span class="flex items-center gap-2 min-w-0">
-                <i class="ph ph-clipboard-text text-base text-sky-600 shrink-0"></i>
-                <span class="truncate">Inspeksi &amp; Audit Lapangan</span>
-              </span>
-              <span class="text-[10px] text-sky-700 font-semibold px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200 shrink-0">Audit</span>
+          <!-- MODUL 4. INSPEKSI & AUDIT LAPANGAN -->
+          <div class="pb-2 border-b border-slate-100">
+            <button type="button" onclick="toggleNavGroup('nav-group-fm-audit', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-bold tracking-wide text-slate-500 hover:text-slate-800 uppercase transition cursor-pointer select-none">
+              <span class="flex items-center gap-1.5"><i class="ph-bold ph-clipboard-text text-xs text-sky-600"></i> Inspeksi &amp; Audit</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
             </button>
+            <div id="nav-group-fm-audit" class="space-y-1 mt-1">
+              <button type="button" data-view="view-inspeksi" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Formulir Checklist Inspeksi Fisik Ruangan">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph ph-clipboard-text text-base text-sky-600 shrink-0"></i>
+                  <span class="truncate">Formulir Inspeksi Kamar</span>
+                </span>
+                <span class="text-[10px] text-sky-700 font-semibold px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200 shrink-0">Audit</span>
+              </button>
+              <button type="button" data-view="view-riwayat-inspeksi" onclick="navTo('view-riwayat-inspeksi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Log Riwayat Hasil Pemeriksaan Fisik Ruangan">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph ph-clock-counter-clockwise text-base text-indigo-500 shrink-0"></i>
+                  <span class="truncate">Riwayat Audit &amp; Temuan</span>
+                </span>
+                <span class="text-[10px] text-indigo-700 font-semibold px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-200 shrink-0">Log</span>
+              </button>
+            </div>
           </div>
 
-          <!-- 5. WORK ORDER & MAINTENANCE FASILITAS -->
-          <div>
-            <button type="button" data-view="view-wo" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('history', 'FM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Work Order & Pemeliharaan Fasilitas Ruangan">
-              <span class="flex items-center gap-2 min-w-0">
-                <i class="ph ph-wrench text-base text-rose-600 shrink-0"></i>
-                <span class="truncate">Maintenance &amp; Work Order</span>
-              </span>
-              <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium shrink-0" id="fm-sidebar-wo-count">15</span>
+          <!-- MODUL 5. PEMELIHARAAN FASILITAS (MTC & WORK ORDER) -->
+          <div class="space-y-1">
+            <button type="button" onclick="toggleNavGroup('nav-group-fm-pemeliharaan', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-bold tracking-wide text-slate-500 hover:text-slate-800 uppercase transition cursor-pointer select-none">
+              <span class="flex items-center gap-1.5"><i class="ph-bold ph-wrench text-xs text-rose-600"></i> Maintenance &amp; Work Order</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
             </button>
+            <div id="nav-group-fm-pemeliharaan" class="space-y-1 mt-1">
+              <button type="button" data-view="view-wo" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('history', 'FM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Analisis Biaya Perawatan & Suku Cadang Fasilitas">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph ph-wrench text-base text-rose-600 shrink-0"></i>
+                  <span class="truncate">Analisis Biaya &amp; Suku Cadang</span>
+                </span>
+                <span class="text-[10px] text-rose-700 font-semibold px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 shrink-0">Drill</span>
+              </button>
+              <button type="button" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('kanban', 'FM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-medium cursor-pointer" title="Work Order Kanban Tiket Perbaikan Fasilitas">
+                <span class="flex items-center gap-2 min-w-0">
+                  <i class="ph ph-kanban text-base text-amber-500 shrink-0"></i>
+                  <span class="truncate">Kanban Tiket Perbaikan</span>
+                </span>
+                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-medium shrink-0" id="fm-sidebar-wo-count">15</span>
+              </button>
+            </div>
           </div>
         </div></nav>
 
@@ -4483,29 +4549,7 @@
       <!-- VIEW: PENGHUNI MESS / AVAILABILITY HUNIAN -->
       <!-- ======================================================== -->
       <div id="view-penghuni" class="page-view hidden space-y-4">
-        <!-- ERP SUB-TAB NAVIGATION (PENGHUNI & OKUPANSI) -->
-        <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 bg-white px-4 py-2.5 rounded-xl shadow-2xs gap-3">
-          <div class="flex items-center gap-1.5 sm:gap-2">
-            <button type="button" onclick="window.setPnsPenghuniTab('aktif')" id="tab-btn-penghuni-aktif" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer bg-indigo-600 text-white shadow-2xs">
-              <i class="ph-bold ph-users"></i>
-              <span>Daftar Penghuni (409)</span>
-            </button>
-            <button type="button" onclick="window.setPnsPenghuniTab('ketersediaan')" id="tab-btn-penghuni-ketersediaan" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-              <i class="ph-bold ph-bed"></i>
-              <span>Ketersediaan Slot Kosong</span>
-            </button>
-            <button type="button" onclick="window.setPnsPenghuniTab('rencana')" id="tab-btn-penghuni-rencana" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer text-slate-600 hover:text-slate-900 hover:bg-slate-100">
-              <i class="ph-bold ph-calculator"></i>
-              <span>Simulasi Standar Kamar</span>
-            </button>
-          </div>
-          <div class="text-[11px] font-medium text-slate-500">
-            Sensus Mess: <b class="text-indigo-800">1.506 Slot Total</b> &bull; Okupansi: <b class="text-emerald-700">27.2%</b>
-          </div>
-        </div>
-
-        <!-- 1. SUBVIEW AKTIF (DAFTAR PENGHUNI) -->
-        <div id="penghuni-subview-aktif" class="space-y-4">
+        
         <!-- Header -->
         <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
           <div>
@@ -4702,14 +4746,7 @@
               <!-- Dynamically populated buttons -->
             </div>
           </div>
-        </div><!-- END penghuni-subview-aktif -->
-
-        <!-- 2. SUBVIEW KETERSEDIAAN SLOT -->
-        <div id="penghuni-subview-ketersediaan" class="hidden space-y-4"></div>
-
-        <!-- 3. SUBVIEW SIMULASI STANDAR KAMAR -->
-        <div id="penghuni-subview-rencana" class="hidden space-y-4"></div>
-      </div>
+        </div>
       </div>
 
       </main>

@@ -1714,34 +1714,20 @@ const PNS_SECTION_TO_DEPT = {
       } else if (viewId === 'view-fm-beranda') {
         renderFmBeranda();
       } else if (viewId === 'view-fm-peta') {
-        if (!window.PNS_FM_STATE) window.PNS_FM_STATE = {};
-        window.PNS_FM_STATE.subTab = 'peta';
-        navTo('view-fm-rincian');
-        return;
+        renderFmPeta();
       } else if (viewId === 'view-fm-rincian') {
         renderFmRincian();
       } else if (viewId === 'view-fm-ketersediaan') {
-        if (!window.PNS_FM_STATE) window.PNS_FM_STATE = {};
-        window.PNS_FM_STATE.penghuniTab = 'ketersediaan';
-        navTo('view-penghuni');
-        return;
+        renderFmKetersediaan();
       } else if (viewId === 'view-fm-rencana') {
-        if (!window.PNS_FM_STATE) window.PNS_FM_STATE = {};
-        window.PNS_FM_STATE.penghuniTab = 'rencana';
-        navTo('view-penghuni');
-        return;
+        renderFmPerencanaan();
       } else if (viewId === 'view-fm-mobile') {
         renderFmMobile();
       } else if (viewId === 'view-validasi') {
         renderEnterpriseValidasiReport();
       } else if (viewId === 'view-penghuni') {
         initPenghuniFilters();
-        if (typeof window.setPnsPenghuniTab === 'function') {
-          const curPtab = (window.PNS_FM_STATE && window.PNS_FM_STATE.penghuniTab) || 'aktif';
-          window.setPnsPenghuniTab(curPtab);
-        } else {
-          renderPenghuniTable();
-        }
+        renderPenghuniTable();
       } else if (viewId === 'view-gedung') {
         renderBuildingsTable();
       } else if (viewId === 'view-assets') {
@@ -17376,207 +17362,7 @@ window.renderFmPeta = function(targetEl) {
     const shortBldgCode = d.c;
 
     // ERP Sub-Tab Navigation Header
-    const subTabNavHeader = `
-      <div class="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 bg-white px-4 py-2.5 rounded-xl shadow-2xs gap-3">
-        <div class="flex items-center gap-1.5 sm:gap-2">
-          <button type="button" onclick="window.setPnsFmSubTab('hierarki')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${subTab === 'hierarki' ? 'bg-teal-700 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
-            <i class="ph-bold ph-tree-structure"></i>
-            <span>Hierarki &amp; Kamar</span>
-          </button>
-          <button type="button" onclick="window.setPnsFmSubTab('peta')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${subTab === 'peta' ? 'bg-teal-700 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
-            <i class="ph-bold ph-map-trifold"></i>
-            <span>Peta Skematik 4 Lokasi</span>
-          </button>
-          <button type="button" onclick="window.setPnsFmSubTab('gedung')" class="px-3.5 py-1.5 rounded-lg text-xs font-bold transition flex items-center gap-1.5 cursor-pointer ${subTab === 'gedung' ? 'bg-teal-700 text-white shadow-2xs' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}">
-            <i class="ph-bold ph-table"></i>
-            <span>Master 416 Gedung</span>
-          </button>
-        </div>
-        <div class="hidden sm:flex items-center gap-2 text-xs font-medium text-slate-500">
-          <span>Site: <b class="text-teal-800">${PNS_FM_LNAME[d.loc] || 'Central'}</b></span>
-          <span class="text-slate-300">&bull;</span>
-          <span>Gedung: <b class="font-mono text-slate-800">${targetBldgCode}</b></span>
-        </div>
-      </div>
-    `;
-
-    // CASE 1: SUB-TAB PETA SKEMATIK 4 LOKASI
-    if (subTab === 'peta') {
-      el.innerHTML = `
-        <div class="space-y-4">
-          ${subTabNavHeader}
-          <div id="fm-peta-subview-container" class="space-y-4"></div>
-        </div>
-      `;
-      setTimeout(() => {
-        const pCont = document.getElementById('fm-peta-subview-container');
-        if (pCont && typeof renderFmPeta === 'function') {
-          renderFmPeta(pCont);
-        }
-      }, 10);
-      return;
-    }
-
-    // CASE 2: SUB-TAB MASTER 416 GEDUNG (TABLE FIT-TO-SCREEN, ZERO HORIZONTAL SCROLL)
-    if (subTab === 'gedung') {
-      const allMasterBldgs = (appState.buildings && appState.buildings.length > 0)
-        ? appState.buildings
-        : ((typeof PNS_MASTER_DATA !== 'undefined' && PNS_MASTER_DATA.buildings) || []);
-
-      const pState = window.fmBldgPageState || { page: 1, perPage: 15, search: '', site: '', cat: '' };
-      const q = (pState.search || '').toLowerCase().trim();
-      const sSite = pState.site || '';
-      const sCat = pState.cat || '';
-
-      const filtered = allMasterBldgs.filter(b => {
-        if (sSite && !String(b.lokasi_site || '').toLowerCase().includes(sSite.toLowerCase())) return false;
-        if (sCat && !String(b.kategori || '').toLowerCase().includes(sCat.toLowerCase())) return false;
-        if (q) {
-          const matchCode = String(b.kode_gedung || '').toLowerCase().includes(q);
-          const matchName = String(b.nama_gedung || b.nama_bangunan || '').toLowerCase().includes(q);
-          const matchPic = String(b.penanggungjawab || '').toLowerCase().includes(q);
-          if (!matchCode && !matchName && !matchPic) return false;
-        }
-        return true;
-      });
-
-      const totalItems = filtered.length;
-      const totalPages = Math.max(1, Math.ceil(totalItems / pState.perPage));
-      const curPage = Math.min(Math.max(1, pState.page || 1), totalPages);
-      const startIdx = (curPage - 1) * pState.perPage;
-      const paginated = filtered.slice(startIdx, startIdx + pState.perPage);
-
-      el.innerHTML = `
-        <div class="space-y-4">
-          ${subTabNavHeader}
-
-          <!-- Header & Controls -->
-          <div class="clean-card p-4 bg-white border border-slate-200/90 shadow-2xs space-y-3">
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-              <div>
-                <h2 class="text-sm font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-                  <i class="ph-bold ph-buildings text-teal-700"></i> Master Direktori Bangunan Fisik (416 Gedung)
-                </h2>
-                <p class="text-xs text-slate-500">Klik "Rincian" untuk drill-down ke kamar dan fasilitas inventaris unit.</p>
-              </div>
-              <span class="px-2.5 py-1 rounded-md bg-teal-50 text-teal-800 font-bold text-xs border border-teal-200">
-                Menampilkan ${totalItems} Gedung Terdata
-              </span>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-2.5">
-              <div class="sm:col-span-5 relative">
-                <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-sm"></i>
-                <input type="text" value="${escapeHtml(pState.search || '')}" oninput="window.onFmBldgSearch(this.value)" placeholder="Cari Kode Gedung, Nama, PIC..." class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition">
-              </div>
-              <div class="sm:col-span-4">
-                <select onchange="window.onFmBldgSiteFilter(this.value)" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition cursor-pointer">
-                  <option value="" ${!sSite ? 'selected' : ''}>🏢 Semua Site / Lokasi</option>
-                  <option value="Central" ${sSite === 'Central' ? 'selected' : ''}>Central Office (CO)</option>
-                  <option value="Estate 1" ${sSite === 'Estate 1' ? 'selected' : ''}>Estate 1 (E1)</option>
-                  <option value="Estate 2" ${sSite === 'Estate 2' ? 'selected' : ''}>Estate 2 (E2)</option>
-                  <option value="Estate 3" ${sSite === 'Estate 3' ? 'selected' : ''}>Estate 3 (E3)</option>
-                  <option value="Factory" ${sSite === 'Factory' ? 'selected' : ''}>Factory / Pabrik (FR)</option>
-                </select>
-              </div>
-              <div class="sm:col-span-3">
-                <select onchange="window.onFmBldgCatFilter(this.value)" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 transition cursor-pointer">
-                  <option value="" ${!sCat ? 'selected' : ''}>🏷️ Semua Kategori</option>
-                  <option value="BARAK" ${sCat === 'BARAK' ? 'selected' : ''}>🏠 Barak / Mess</option>
-                  <option value="LONGHOUSE" ${sCat === 'LONGHOUSE' ? 'selected' : ''}>🏢 Longhouse</option>
-                  <option value="KANTOR" ${sCat === 'KANTOR' ? 'selected' : ''}>🏛️ Kantor</option>
-                  <option value="FASILITAS" ${sCat === 'FASILITAS' ? 'selected' : ''}>🍽️ Fasum / Fasilitas</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          <!-- Table Container (Frozen Header, Zero Horizontal Scroll) -->
-          <div class="clean-card bg-white border border-slate-200/90 shadow-2xs overflow-hidden">
-            <div class="overflow-x-hidden max-h-[600px] overflow-y-auto scrollbar-thin">
-              <table class="w-full table-fixed text-left text-xs divide-y divide-slate-100">
-                <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-slate-500 uppercase text-[10px] font-bold tracking-wider">
-                  <tr>
-                    <th class="py-2.5 px-3 w-1/3">Gedung &amp; Kode Referensi</th>
-                    <th class="py-2.5 px-2.5 w-1/6">Kategori &amp; Fungsi</th>
-                    <th class="py-2.5 px-2.5 w-1/6">Lokasi / Site</th>
-                    <th class="py-2.5 px-2 w-20 text-center">Ruangan</th>
-                    <th class="py-2.5 px-2 w-24 text-center">Aset Fasilitas</th>
-                    <th class="py-2.5 px-2 w-20 text-center">Status</th>
-                    <th class="py-2.5 px-2.5 w-32 text-center">Aksi Drill-Down</th>
-                  </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-100">
-                  ${paginated.length === 0 ? `
-                    <tr>
-                      <td colspan="7" class="py-8 text-center text-slate-400">Tidak ada gedung yang cocok dengan filter.</td>
-                    </tr>
-                  ` : paginated.map(b => `
-                    <tr class="hover:bg-teal-50/20 transition">
-                      <td class="py-2 px-3 whitespace-normal break-words">
-                        <div class="font-extrabold text-xs text-slate-900 leading-snug">${escapeHtml(b.nama_gedung || b.nama_bangunan || b.kode_gedung)}</div>
-                        <div class="inline-flex items-center gap-1 font-mono text-[9.5px] font-bold text-slate-600 bg-slate-100 px-1.5 py-0.2 rounded mt-0.5 border border-slate-200">
-                          <i class="ph-bold ph-buildings text-teal-600"></i> ${escapeHtml(b.kode_gedung)}
-                        </div>
-                      </td>
-                      <td class="py-2 px-2.5">
-                        <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 uppercase">
-                          ${escapeHtml(b.kategori || 'FASILITAS')}
-                        </span>
-                      </td>
-                      <td class="py-2 px-2.5">
-                        <span class="text-[11px] font-semibold text-slate-700 block truncate">${escapeHtml(b.lokasi_site || '-')}</span>
-                        <span class="text-[9.5px] text-slate-400 block truncate">PIC: ${escapeHtml(b.penanggungjawab || 'HRGA')}</span>
-                      </td>
-                      <td class="py-2 px-2 text-center font-bold text-slate-800 text-xs">
-                        ${b.total_ruangan || 1}
-                      </td>
-                      <td class="py-2 px-2 text-center font-bold text-teal-800 text-xs">
-                        ${Number(b.total_asset || 0).toLocaleString('id-ID')} unit
-                      </td>
-                      <td class="py-2 px-2 text-center">
-                        <span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">
-                          Aktif
-                        </span>
-                      </td>
-                      <td class="py-2 px-2.5 text-center">
-                        <div class="inline-flex items-center gap-1">
-                          <button type="button" onclick="window.selectBldgAndDrillDown('${escapeHtml(b.kode_gedung)}')" class="px-2 py-1 text-[10px] font-bold rounded-lg bg-teal-50 hover:bg-teal-700 text-teal-800 hover:text-white border border-teal-200 transition cursor-pointer flex items-center gap-1 shadow-2xs" title="Buka Rincian Kamar & Fasilitas">
-                            <i class="ph-bold ph-door"></i> Rincian
-                          </button>
-                          <button type="button" onclick="window.openRoomInspectionDirect('${escapeHtml(b.kode_gedung)}', '')" class="px-2 py-1 text-[10px] font-bold rounded-lg bg-slate-100 hover:bg-slate-700 text-slate-700 hover:text-white border border-slate-200 transition cursor-pointer flex items-center gap-1 shadow-2xs" title="Inspeksi Lapangan">
-                            <i class="ph-bold ph-clipboard-text"></i> Audit
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  `).join('')}
-                </tbody>
-              </table>
-            </div>
-
-            <!-- Pagination Bar -->
-            <div class="p-3 bg-slate-50/80 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
-              <div class="font-medium">
-                Menampilkan ${totalItems > 0 ? startIdx + 1 : 0} - ${Math.min(startIdx + pState.perPage, totalItems)} dari ${totalItems.toLocaleString('id-ID')} gedung referensi fisik
-              </div>
-              <div class="flex items-center gap-1.5">
-                <button type="button" onclick="window.onFmBldgPageChange(${curPage - 1})" ${curPage <= 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-slate-200 bg-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 cursor-pointer">
-                  &larr; Prev
-                </button>
-                <span class="px-2 font-bold text-slate-700">Hal ${curPage} / ${totalPages}</span>
-                <button type="button" onclick="window.onFmBldgPageChange(${curPage + 1})" ${curPage >= totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-slate-200 bg-white font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 cursor-pointer">
-                  Next &rarr;
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-      return;
-    }
-
-    // CASE 3: SUB-TAB HIERARKI & KAMAR (DEFAULT DRILL-DOWN VIEW)
+    
     // 1. Resolve authentic building rooms dynamically from M_RUANGAN (appState.rooms or PNS_MASTER_DATA.rooms)
     const allMasterRooms = (appState.rooms && appState.rooms.length > 0)
       ? appState.rooms
@@ -17727,7 +17513,7 @@ window.renderFmPeta = function(targetEl) {
 
     el.innerHTML = `
       <div class="space-y-4">
-        ${subTabNavHeader}
+        
 
         <!-- Breadcrumb & Top Title Controls -->
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
