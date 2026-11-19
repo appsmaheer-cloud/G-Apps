@@ -1,30 +1,42 @@
 :root {
-  /* Pratama Nusantara Sakti Enterprise Design Tokens (Harmonized Corporate Light Mode) */
-  --bg-canvas: #F8FAFC;         /* slate-50 canvas */
-  --bg-surface: #FFFFFF;        /* pure white cards */
-  --bg-subtle: #F1F5F9;         /* slate-100 subtle backgrounds */
-  --border-subtle: #E2E8F0;     /* slate-200 crisp border */
-  --border-hover: #CBD5E1;      /* slate-300 hover border */
-  
-  --text-primary: #0F172A;      /* slate-900 high contrast headers */
-  --text-body: #334155;         /* slate-700 readable body text */
-  --text-secondary: #475569;    /* slate-600 secondary descriptions */
-  --text-muted: #64748B;        /* slate-500 helper meta */
-  
-  --primary-color: #059669;     /* emerald-600 PNS brand primary */
-  --primary-dark: #047857;      /* emerald-700 */
-  --primary-light: #ECFDF5;     /* emerald-50 soft accent */
-  
-  --secondary-color: #0284C7;   /* sky-600 corporate blue */
-  --secondary-light: #F0F9FF;   /* sky-50 soft accent */
-  
-  --status-success: #10B981;    /* emerald-500 */
-  --status-warning: #F59E0B;    /* amber-500 */
-  --status-danger: #EF4444;     /* rose-500 */
-  --status-info: #6366F1;       /* indigo-500 */
+  /* Pratama Nusantara Sakti — Clean Enterprise ERP Design Tokens */
+  --bg-canvas: #F4F5F7;         /* Cool neutral ERP canvas */
+  --bg-surface: #FFFFFF;        /* Pure white panels */
+  --bg-subtle: #F8FAFC;         /* Subtle header/sidebar tint */
+  --border-subtle: #DCE1E8;     /* Crisp 1px hairline border */
+  --border-hover: #BAC4D1;      /* Subtle hover border */
 
-  --selection-bg: rgba(5, 150, 105, 0.18);
-  --selection-text: #064E3B;
+  --text-primary: #0F172A;      /* High contrast ink */
+  --text-body: #334155;         /* Body copy */
+  --text-secondary: #475569;    /* Secondary labels */
+  --text-muted: #64748B;        /* Muted metadata */
+
+  /* Single Disciplined Accent Per Domain */
+  --am-accent: #1E40AF;         /* Asset Management: Deep Corporate Blue */
+  --am-tint: #EFF6FF;
+  --fm-accent: #0E5E63;         /* Facility Management: Deep Corporate Teal */
+  --fm-tint: #F0FDFA;
+
+  --primary-color: #1E40AF;
+  --primary-dark: #1E3A8A;
+  --primary-light: #EFF6FF;
+  --secondary-color: #0E5E63;
+  --secondary-light: #F0FDFA;
+
+  --status-success: #059669;
+  --status-warning: #D97706;
+  --status-danger: #DC2626;
+  --status-info: #2563EB;
+
+  --erp-radius: 4px;            /* Sharp 4px enterprise geometry */
+  --selection-bg: rgba(30, 64, 175, 0.14);
+  --selection-text: #1E3A8A;
+}
+
+[data-app="fm"] {
+  --primary-color: #0E5E63;
+  --primary-dark: #0A464A;
+  --primary-light: #F0FDFA;
 }
 
 ::selection {
@@ -36,34 +48,59 @@ body {
   background-color: var(--bg-canvas) !important;
   color: var(--text-body);
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
-  letter-spacing: -0.011em;
+  font-size: 13px;
+  letter-spacing: -0.008em;
   -webkit-tap-highlight-color: transparent;
   text-rendering: optimizeLegibility;
 }
 
-/* Form controls font and caret */
+/* Form controls */
 input, textarea, select {
   caret-color: var(--primary-color);
   color: var(--text-primary);
   font-family: inherit;
+  border-radius: var(--erp-radius) !important;
 }
 
 input::placeholder, textarea::placeholder {
-  color: #94A3B8; /* slate-400 */
+  color: #94A3B8;
 }
 
-/* Clean Surface Cards (Craft Floor: 1px crisp border, subtle elevation, no heavy dark slabs) */
-.clean-card {
+/* Clean Enterprise ERP Surfaces (Flat 1px Hairline Border, Sharp 4px Radius, Zero Soft Shadows) */
+.clean-card,
+.pns-card,
+.pns-kpi-card {
+  position: relative;
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 0.75rem;
-  box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  border-radius: var(--erp-radius) !important;
+  box-shadow: none !important;
+  transition: border-color 0.12s ease;
 }
 
-.clean-card:hover {
+.clean-card:hover,
+.pns-card:hover,
+.pns-kpi-card:hover {
   border-color: var(--border-hover);
-  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06);
+  box-shadow: none !important;
+}
+
+/* ERP Segmented KPI Strip */
+.erp-kpi-strip {
+  display: grid;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--erp-radius);
+  overflow: hidden;
+}
+
+.erp-kpi-cell {
+  padding: 12px 16px;
+  border-right: 1px solid var(--border-subtle);
+}
+
+.erp-kpi-cell:last-child {
+  border-right: none;
 }
 
 /* Performance Optimization for Large Lists/Grids */
@@ -72,29 +109,29 @@ input::placeholder, textarea::placeholder {
   contain-intrinsic-size: auto 128px;
 }
 
-/* Data Tables (Operate & Craft Floor: Tabular Nums, Scannable Density, High Contrast) */
+/* High-Density ERP Data Tables (13px rows, 11px uppercase headers, 1px gridlines) */
 table thead th {
   background-color: #F8FAFC !important;
-  color: #475569 !important; /* slate-600 */
+  color: #475569 !important;
   text-transform: uppercase;
   font-size: 0.6875rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border-subtle);
-  padding: 10px 14px;
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid #CBD5E1;
+  padding: 8px 12px;
   white-space: nowrap;
 }
 
 table tbody td {
-  border-bottom: 1px solid var(--border-subtle);
-  padding: 10px 14px;
+  border-bottom: 1px solid #E2E8F0;
+  padding: 8px 12px;
   font-size: 0.8125rem;
   color: var(--text-body);
   vertical-align: middle;
 }
 
 table tbody tr:hover td {
-  background-color: #F8FAFC;
+  background-color: #F1F5F9;
 }
 
 .num-tabular,
@@ -110,35 +147,68 @@ td.font-mono,
   font-variant-numeric: tabular-nums;
 }
 
-/* Active Navigation State - Pratama NS General Services Style (Zero Layout Shift) */
+/* ERP Status Indicator: Dot + Plain Text */
+.erp-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+.erp-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 9999px;
+  shrink: 0;
+}
+
+/* Clean Enterprise ERP Sidebar Navigation (Monochrome Inactive, Left Accent Bar Active) */
+#app-sidebar {
+  background-color: #F8FAFC !important;
+  border-right: 1px solid var(--border-subtle) !important;
+}
+
 .nav-btn {
-  color: #475569; /* slate-600 */
-  font-weight: 600;
-  border-radius: 0.5rem;
-  box-shadow: inset -3px 0 0 transparent;
-  transition: background-color 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+  color: #334155;
+  font-weight: 500;
+  border-radius: var(--erp-radius) !important;
+  box-shadow: inset 3px 0 0 transparent;
+  transition: background-color 0.12s ease, color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.nav-btn i {
+  color: #64748B !important;
+  transition: color 0.12s ease;
 }
 
 .nav-btn:hover {
-  background-color: #F1F5F9; /* slate-100 */
-  color: #0F172A; /* slate-900 */
+  background-color: #E9EEF5;
+  color: #0F172A;
 }
 
+.nav-btn:hover i {
+  color: #334155 !important;
+}
+
+/* Active State — AM (Deep Corporate Blue) */
 .nav-btn.active {
-  background-color: #ECFDF5 !important; /* emerald-50 */
-  color: #065F46 !important;            /* emerald-800 */
+  background-color: #EFF6FF !important;
+  color: #1E3A8A !important;
   font-weight: 600 !important;
-  box-shadow: inset -3px 0 0 #059669 !important; /* emerald-600 accent bar without box width shift */
+  box-shadow: inset 3px 0 0 #1E40AF !important;
 }
 
 .nav-btn.active i {
-  color: #059669 !important;
+  color: #1E40AF !important;
 }
 
+/* Active State — FM (Deep Corporate Teal) */
 [data-app="fm"] .nav-btn.active {
-  background-color: #F0FDFA !important; /* teal-50 */
-  color: #115E59 !important;            /* teal-800 */
-  box-shadow: inset -3px 0 0 #0E5E63 !important; /* FM deep teal accent */
+  background-color: #F0FDFA !important;
+  color: #0E5E63 !important;
+  font-weight: 600 !important;
+  box-shadow: inset 3px 0 0 #0E5E63 !important;
 }
 
 [data-app="fm"] .nav-btn.active i {
@@ -152,7 +222,7 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--primary-color);
-  outline-offset: 2px;
+  outline-offset: 1px;
 }
 
 /* Thin Scrollbars */
@@ -165,7 +235,7 @@ textarea:focus-visible {
 }
 .scrollbar-thin::-webkit-scrollbar-thumb {
   background-color: #CBD5E1;
-  border-radius: 9999px;
+  border-radius: 3px;
 }
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background-color: #94A3B8;
@@ -180,41 +250,9 @@ textarea:focus-visible {
   }
 }
 
-
-/* =========================================================================
-   ENTERPRISE PBI CORE STYLES (MATCHING PHP & POWER BI THEME)
-   ========================================================================= */
 * { box-sizing: border-box; }
-        body { font-family: 'Inter', sans-serif; }
-        
-        /* Clean Enterprise Card Styles (Zero AI Slop, Halus & Grounded) */
-        .pns-card {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem; /* 12px clean enterprise radius */
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-        }
-        .pns-card:hover {
-            border-color: #cbd5e1;
-            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
-        }
 
-        .pns-kpi-card {
-            position: relative;
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            border-radius: 0.75rem; /* 12px */
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-            overflow: hidden;
-        }
-        .pns-kpi-card:hover {
-            border-color: #cbd5e1;
-            box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.05);
-        }
-
-        /* Clean Slicer Condition Colors (Warna Menyesuaikan Kondisi) */
+/* Clean Slicer Condition Colors (Warna Menyesuaikan Kondisi) */
         .top-slicer-box {
             transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }

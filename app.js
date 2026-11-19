@@ -1675,6 +1675,43 @@ const PNS_SECTION_TO_DEPT = {
 
     appState.currentView = viewId;
     syncTopPills(viewId);
+    try {
+      const bcEl = document.getElementById('erp-top-breadcrumb');
+      if (bcEl) {
+        const isFm = !!(window.PNS_FM_STATE && window.PNS_FM_STATE.app === 'fm');
+        const bcMap = {
+          'view-dashboard': ['Asset Management', 'Ringkasan', 'Dashboard'],
+          'view-validasi': ['Asset Management', 'Ringkasan', 'Audit Validasi'],
+          'view-portfolio-all': ['Asset Management', 'Katalog Aset', 'Semua Aset'],
+          'view-portfolio': ['Asset Management', 'Katalog Aset', 'Komposisi Nilai'],
+          'view-asset-sebaran': ['Asset Management', 'Katalog Aset', 'Sebaran Site'],
+          'view-asset-movement': ['Asset Management', 'Katalog Aset', 'Riwayat Mutasi'],
+          'view-asset-detail': ['Asset Management', 'Katalog Aset', 'Dossier Unit'],
+          'view-asset-depreciation': ['Asset Management', 'Katalog Aset', 'Penyusutan Nilai'],
+          'view-reg-asset': ['Asset Management', 'Siklus Aset', 'Register Aset'],
+          'view-mutasi': ['Asset Management', 'Siklus Aset', 'Pindah Dept'],
+          'view-asset-location': ['Asset Management', 'Siklus Aset', 'Pindah Lokasi'],
+          'view-asset-status': ['Asset Management', 'Siklus Aset', 'Ubah Kondisi'],
+          'view-asset-disposal': ['Asset Management', 'Siklus Aset', 'Penghapusan'],
+          'view-fm-beranda': ['Facility Management', 'Ringkasan', 'Dashboard'],
+          'view-fm-rincian': ['Facility Management', 'Bangunan', 'Rincian Kamar'],
+          'view-fm-peta': ['Facility Management', 'Bangunan', 'Denah Peta'],
+          'view-gedung': [isFm ? 'Facility Management' : 'Asset Management', 'Bangunan', 'Daftar Gedung'],
+          'view-penghuni': ['Facility Management', 'Penghuni', 'Data Penghuni'],
+          'view-fm-ketersediaan': ['Facility Management', 'Penghuni', 'Slot Kosong'],
+          'view-fm-rencana': ['Facility Management', 'Penghuni', 'Simulasi Kamar'],
+          'view-inspeksi': ['Facility Management', 'Inspeksi', 'Form Cek Fisik'],
+          'view-riwayat-inspeksi': ['Facility Management', 'Inspeksi', 'Riwayat Temuan'],
+          'view-wo': [isFm ? 'Facility Management' : 'Asset Management', 'Perbaikan', (typeof currentWoViewMode !== 'undefined' && currentWoViewMode === 'kanban') ? 'Status Tiket' : 'Biaya & Part']
+        };
+        const parts = bcMap[viewId] || [isFm ? 'Facility Management' : 'Asset Management', 'Modul', viewId.replace('view-', '')];
+        bcEl.innerHTML = '<span class="font-medium text-slate-500 truncate">' + parts[0] + '</span>'
+          + '<span class="text-slate-300">/</span>'
+          + '<span class="font-medium text-slate-500 hidden md:inline truncate">' + parts[1] + '</span>'
+          + '<span class="text-slate-300 hidden md:inline">/</span>'
+          + '<span class="font-semibold text-slate-900 truncate">' + parts[2] + '</span>';
+      }
+    } catch (e) {}
 
     // Sync Hash Route for clean browser back/forward and deep linking per enterprise-prototype-ui-id
     try {
@@ -16144,10 +16181,10 @@ window.updateSingleAssetNote = updateSingleAssetNote;
       if (modSub) modSub.innerText = 'Hunian & Fasilitas Umum';
       if (modLogo) { modLogo.innerText = 'FM'; modLogo.style.backgroundColor = 'var(--fm-accent)'; }
       if (segAm) {
-        segAm.className = 'py-1 px-2 rounded-md transition text-center text-slate-500 hover:text-slate-900 font-medium cursor-pointer';
+        segAm.className = 'py-1.5 px-2 rounded-[3px] transition text-center text-slate-600 hover:text-slate-900 font-medium cursor-pointer border border-transparent';
       }
       if (segFm) {
-        segFm.className = 'py-1 px-2 rounded-md transition text-center bg-white text-teal-800 font-bold shadow-xs cursor-pointer ring-1 ring-slate-200';
+        segFm.className = 'py-1.5 px-2 rounded-[3px] transition text-center bg-white text-[#0E5E63] font-semibold cursor-pointer border border-[#DCE1E8]';
       }
       if (!skipNav && typeof navTo === 'function') navTo('view-fm-beranda');
     } else {
@@ -16162,10 +16199,10 @@ window.updateSingleAssetNote = updateSingleAssetNote;
       if (modSub) modSub.innerText = 'Seluruh Aset Perusahaan';
       if (modLogo) { modLogo.innerText = 'AM'; modLogo.style.backgroundColor = 'var(--am-accent)'; }
       if (segAm) {
-        segAm.className = 'py-1 px-2 rounded-md transition text-center bg-white text-slate-900 font-bold shadow-xs cursor-pointer ring-1 ring-slate-200';
+        segAm.className = 'py-1.5 px-2 rounded-[3px] transition text-center bg-white text-[#1E3A8A] font-semibold cursor-pointer border border-[#DCE1E8]';
       }
       if (segFm) {
-        segFm.className = 'py-1 px-2 rounded-md transition text-center text-slate-500 hover:text-slate-900 font-medium cursor-pointer';
+        segFm.className = 'py-1.5 px-2 rounded-[3px] transition text-center text-slate-600 hover:text-slate-900 font-medium cursor-pointer border border-transparent';
       }
       if (!skipNav && typeof navTo === 'function') navTo('view-dashboard');
     }
@@ -17079,26 +17116,26 @@ window.renderFmPeta = function(targetEl) {
           </div>
         </div>
 
-        <!-- 4 KPIs -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase">Slot Terisi</div>
-            <div class="text-2xl font-bold text-slate-900 mt-1 num-tabular">${terisi.toLocaleString('id-ID')}</div>
+        <!-- ERP Segmented KPI Strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-[#DCE1E8] bg-white border border-[#DCE1E8] rounded">
+          <div class="px-4 py-3">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Slot Terisi</div>
+            <div class="text-xl font-bold text-slate-900 mt-0.5 num-tabular">${terisi.toLocaleString('id-ID')}</div>
             <div class="text-[11px] text-slate-500 mt-0.5">${Math.round((terisi / Math.max(1, slot)) * 100)}% dari ${slot.toLocaleString('id-ID')} total slot</div>
           </div>
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase">Slot Kosong Siap Huni</div>
-            <div class="text-2xl font-bold text-emerald-700 mt-1 num-tabular">${kosong.toLocaleString('id-ID')}</div>
+          <div class="px-4 py-3">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Slot Kosong Siap Huni</div>
+            <div class="text-xl font-bold text-[#0E5E63] mt-0.5 num-tabular">${kosong.toLocaleString('id-ID')}</div>
             <div class="text-[11px] text-slate-500 mt-0.5">Tersedia untuk penempatan baru</div>
           </div>
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase">Kamar Kosong Total</div>
-            <div class="text-2xl font-bold text-teal-800 mt-1 num-tabular">${kk} Kamar</div>
-            <div class="text-[11px] text-slate-500 mt-0.5">Kandidat kamar dikunci untuk efisiensi</div>
+          <div class="px-4 py-3">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Kamar Kosong Total</div>
+            <div class="text-xl font-bold text-slate-900 mt-0.5 num-tabular">${kk} <span class="text-xs font-normal text-slate-500">Kamar</span></div>
+            <div class="text-[11px] text-slate-500 mt-0.5">Kandidat efisiensi operasional</div>
           </div>
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase">Kamar Melebihi 2 Orang</div>
-            <div class="text-2xl font-bold text-amber-700 mt-1 num-tabular">${gt2} Kamar</div>
+          <div class="px-4 py-3">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Kamar &gt; 2 Orang</div>
+            <div class="text-xl font-bold text-amber-700 mt-0.5 num-tabular">${gt2} <span class="text-xs font-normal text-slate-500">Kamar</span></div>
             <div class="text-[11px] text-slate-500 mt-0.5">Dari ${rooms.toLocaleString('id-ID')} kamar terdata</div>
           </div>
         </div>
@@ -17534,10 +17571,10 @@ window.renderFmPeta = function(targetEl) {
             <div class="flex items-center bg-white rounded-lg px-2.5 py-1.5 border border-slate-300 shadow-2xs">
               <span class="text-[10px] font-bold text-slate-400 uppercase mr-1.5">Kategori:</span>
               <select onchange="window.setPnsBldgCat(this.value);" class="text-xs font-bold text-slate-800 bg-transparent focus:outline-none cursor-pointer">
-                <option value="ALL" ${activeBldgCat === 'ALL' ? 'selected' : ''}>🏢 Semua Gedung</option>
-                <option value="HUNIAN" ${activeBldgCat === 'HUNIAN' ? 'selected' : ''}>🏠 Mess &amp; Hunian</option>
-                <option value="FASUM" ${activeBldgCat === 'FASUM' ? 'selected' : ''}>🍽️ Fasum (Kantin/Klinik)</option>
-                <option value="KANTOR" ${activeBldgCat === 'KANTOR' ? 'selected' : ''}>🏛️ Kantor &amp; Workshop</option>
+                <option value="ALL" ${activeBldgCat === 'ALL' ? 'selected' : ''}>Semua Gedung</option>
+                <option value="HUNIAN" ${activeBldgCat === 'HUNIAN' ? 'selected' : ''}>Mess &amp; Hunian</option>
+                <option value="FASUM" ${activeBldgCat === 'FASUM' ? 'selected' : ''}>Fasum (Kantin/Klinik)</option>
+                <option value="KANTOR" ${activeBldgCat === 'KANTOR' ? 'selected' : ''}>Kantor &amp; Workshop</option>
               </select>
             </div>
 
@@ -17555,23 +17592,23 @@ window.renderFmPeta = function(targetEl) {
           </div>
         </div>
 
-        <!-- 4 KPI Summary Cards -->
-        <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase">Jumlah Ruangan / Kamar</div>
-            <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${totalRoomsCount} Ruangan</div>
+        <!-- ERP Segmented KPI Strip -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 divide-y lg:divide-y-0 lg:divide-x divide-[#DCE1E8] bg-white border border-[#DCE1E8] rounded">
+          <div class="px-4 py-3">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Jumlah Ruangan</div>
+            <div class="text-xl font-bold text-slate-900 mt-0.5 num-tabular">${totalRoomsCount} <span class="text-xs font-normal text-slate-500">Ruangan</span></div>
           </div>
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase">Slot Terisi</div>
-            <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${totalOccupiedSlots} / ${totalSlotCapacity}</div>
+          <div class="px-4 py-3">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Okupansi Slot</div>
+            <div class="text-xl font-bold text-slate-900 mt-0.5 num-tabular">${totalOccupiedSlots} <span class="text-xs font-normal text-slate-400">/ ${totalSlotCapacity}</span></div>
           </div>
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase">Aset Fasilitas Ruangan</div>
-            <div class="text-2xl font-bold text-slate-900 mt-0.5 num-tabular">${actualRoomAssets.length || curRoomObj.total_asset || 0} Unit</div>
+          <div class="px-4 py-3">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Inventaris Ruangan</div>
+            <div class="text-xl font-bold text-slate-900 mt-0.5 num-tabular">${actualRoomAssets.length || curRoomObj.total_asset || 0} <span class="text-xs font-normal text-slate-500">Unit</span></div>
           </div>
-          <div class="clean-card p-3.5">
-            <div class="text-[11px] font-semibold text-slate-500 uppercase">Aset Hilang &bull; Rusak</div>
-            <div class="text-2xl font-bold text-rose-600 mt-0.5 num-tabular">${actualRoomAssets.filter(a => String(a.kondisi || '').toLowerCase().includes('rusak') || String(a.kondisi || '').toLowerCase().includes('broken') || String(a.kondisi || '').toLowerCase().includes('lost')).length || 0}</div>
+          <div class="px-4 py-3">
+            <div class="text-[11px] font-semibold text-slate-500 uppercase tracking-wide">Aset Rusak / Hilang</div>
+            <div class="text-xl font-bold text-rose-700 mt-0.5 num-tabular">${actualRoomAssets.filter(a => String(a.kondisi || '').toLowerCase().includes('rusak') || String(a.kondisi || '').toLowerCase().includes('broken') || String(a.kondisi || '').toLowerCase().includes('lost')).length || 0} <span class="text-xs font-normal text-slate-500">Unit</span></div>
           </div>
         </div>
 
@@ -17598,7 +17635,7 @@ window.renderFmPeta = function(targetEl) {
           <!-- RIGHT COLUMN: 1) Penghuni -> 2) Compact Unified Facility Cards -> 3) Detail Table -->
           <div class="lg:col-span-9 space-y-3.5">
             <!-- 1. PENGHUNI AKTIF KAMAR (CLICKABLE TO UPDATE) -->
-            <div class="clean-card p-3.5 space-y-2.5 border-2 border-emerald-500/30 bg-gradient-to-br from-white via-emerald-50/20 to-teal-50/30">
+            <div class="clean-card p-3.5 space-y-2.5 bg-white">
               <div class="flex flex-wrap justify-between items-center pb-2 border-b border-slate-200/80 gap-2">
                 <div class="flex items-center gap-2">
                   <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-black text-xs shadow-2xs">
@@ -17778,8 +17815,9 @@ window.renderFmPeta = function(targetEl) {
                           <td class="py-2 px-3 font-semibold text-slate-800 whitespace-normal break-words">${escapeHtml(a.nama_asset || '-')}</td>
                           <td class="py-2 px-3 text-slate-600 truncate">${escapeHtml(a.kategori_asset || a.kelompok_asset || '-')}</td>
                           <td class="py-2 px-3">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold ${String(a.kondisi || '').toLowerCase().includes('good') ? 'bg-emerald-100 text-emerald-800' : 'bg-amber-100 text-amber-800'}">
-                              ${escapeHtml(a.kondisi || 'Good Condition')}
+                            <span class="erp-status">
+                              <span class="erp-status-dot ${String(a.kondisi || '').toLowerCase().includes('good') ? 'bg-emerald-600' : 'bg-amber-500'}"></span>
+                              <span>${escapeHtml(a.kondisi || 'Good Condition')}</span>
                             </span>
                           </td>
                           <td class="py-2 px-3 text-right">

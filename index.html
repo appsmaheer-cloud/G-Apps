@@ -95,46 +95,45 @@
 </head>
 <body class="text-slate-800 bg-slate-50 h-screen overflow-hidden flex flex-col font-sans antialiased">
 
-  <!-- TOP HEADER -->
-  <header id="app-main-header" class="bg-white border-b border-slate-200 px-4 py-2.5 flex items-center justify-between shrink-0 shadow-2xs z-40">
-    <div class="flex items-center gap-3">
-      <button type="button" id="btn-toggle-sidebar" onclick="toggleSidebar()" aria-label="Buka atau tutup navigasi samping" class="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 hover:text-slate-900 cursor-pointer transition flex items-center justify-center shrink-0" title="Buka / Sembunyikan Navigasi Samping">
-        <i class="ph-bold ph-sidebar-simple text-lg" aria-hidden="true"></i>
+  <!-- TOP HEADER (CLEAN ENTERPRISE ERP - 48px FLAT BAR) -->
+  <header id="app-main-header" class="h-12 bg-white border-b border-[#DCE1E8] px-3.5 flex items-center justify-between shrink-0 z-40">
+    <div class="flex items-center gap-3 min-w-0">
+      <button type="button" id="btn-toggle-sidebar" onclick="toggleSidebar()" aria-label="Buka atau tutup navigasi samping" class="w-8 h-8 rounded border border-transparent hover:border-[#DCE1E8] hover:bg-slate-100 text-slate-600 hover:text-slate-900 cursor-pointer transition flex items-center justify-center shrink-0" title="Buka / Sembunyikan Navigasi Samping">
+        <i class="ph ph-sidebar-simple text-lg" aria-hidden="true"></i>
       </button>
-      <div class="flex items-center gap-2.5 cursor-pointer" onclick="navTo('view-dashboard')" title="Kembali ke Dashboard Utama">
-        <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 p-1 flex items-center justify-center shadow-xs shrink-0">
-          <img data-pns-logo alt="Logo PT Pratama Nusantara Sakti" width="28" height="28" class="w-full h-full object-contain">
+      <div class="flex items-center gap-2 cursor-pointer shrink-0" onclick="navTo('view-dashboard')" title="Kembali ke Dashboard Utama">
+        <div class="w-7 h-7 rounded bg-white border border-[#DCE1E8] p-0.5 flex items-center justify-center shrink-0">
+          <img data-pns-logo alt="Logo PT Pratama Nusantara Sakti" width="22" height="22" class="w-full h-full object-contain">
         </div>
-        <div>
-          <div class="flex items-center gap-2.5">
-            <span class="font-bold text-sm tracking-tight text-slate-900">PNS ASSET MANAGEMENT</span>
-            <span class="text-[10px] font-semibold uppercase px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 hidden sm:inline-flex items-center gap-1">
-              <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Enterprise v2.5
-            </span>
-          </div>
-          <p class="text-[11px] text-slate-500 hidden sm:block">PT Pratama Nusantara Sakti &bull; Sistem Manajemen Aset &amp; Fasilitas Terintegrasi</p>
-        </div>
+        <span class="font-bold text-[13px] tracking-tight text-slate-900 hidden sm:inline">PNS ERP</span>
       </div>
+      <span class="h-4 w-px bg-slate-200 hidden sm:inline-block shrink-0"></span>
+      <!-- Dynamic ERP Breadcrumb -->
+      <nav id="erp-top-breadcrumb" aria-label="Jejak Halaman" class="flex items-center gap-1.5 text-xs text-slate-500 truncate min-w-0">
+        <span class="font-medium text-slate-500">Asset Management</span>
+        <span class="text-slate-300">/</span>
+        <span class="font-semibold text-slate-900">Dashboard</span>
+      </nav>
     </div>
 
-    <!-- Top Pills Removed Per Request -->
-
     <!-- Right Controls -->
-    <div class="flex items-center gap-2">
-      <!-- Live Sync Badge -->
-      <div id="sync-badge" onclick="syncAllFromBackend(true)" title="Klik untuk sinkronisasi ulang dari Google Sheets" class="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-slate-100 hover:bg-emerald-50 text-slate-600 hover:text-emerald-700 border border-slate-200 cursor-pointer transition">
-        <span id="sync-dot" class="w-2 h-2 rounded-full bg-emerald-500"></span>
+    <div class="flex items-center gap-3 shrink-0">
+      <!-- Live Sync Status (Flat Dot + Text) -->
+      <button type="button" id="sync-badge" onclick="syncAllFromBackend(true)" title="Klik untuk sinkronisasi ulang dari Google Sheets" class="hidden sm:inline-flex items-center gap-1.5 px-2 py-1 rounded text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-slate-900 cursor-pointer transition">
+        <span id="sync-dot" class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
         <span id="sync-text">Sheets Synced</span>
-      </div>
+      </button>
 
-      <!-- User Profile Badge -->
-      <div class="flex items-center gap-2 pl-2 border-l border-slate-200">
-        <div class="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center text-xs font-bold text-slate-700">
+      <span class="h-4 w-px bg-slate-200 hidden sm:inline-block"></span>
+
+      <!-- User Profile (Compact ERP) -->
+      <div class="flex items-center gap-2">
+        <div class="w-6 h-6 rounded bg-slate-800 flex items-center justify-center text-[10px] font-bold text-white shrink-0">
           MK
         </div>
-        <div class="hidden md:block text-left">
-          <div class="text-xs font-bold text-slate-900 leading-tight">Miftahul Khoiry</div>
-          <div class="text-[10px] text-slate-500 font-semibold" id="header-user-role-badge">Akses Publik (Read-Only)</div>
+        <div class="hidden md:block text-left leading-none">
+          <div class="text-xs font-semibold text-slate-900">Miftahul Khoiry</div>
+          <div class="text-[10px] text-slate-500 mt-0.5" id="header-user-role-badge">Akses Publik</div>
         </div>
       </div>
     </div>
@@ -153,284 +152,251 @@
     </button>
 
     <!-- SIDEBAR NAVIGATION (STABLE ZERO-JUMP LAYOUT) -->
-    <aside id="app-sidebar" class="w-64 bg-white border-r border-slate-200 flex flex-col shrink-0 h-full overflow-hidden z-30 relative select-none">
-      <!-- MODULE DOMAIN SWITCHER (PRD: AM vs FM) -->
-      <div class="p-2 border-b border-slate-100 bg-slate-50/70">
-        <div class="grid grid-cols-2 p-0.5 bg-slate-200/70 rounded-lg text-xs font-semibold select-none">
-          <button type="button" id="seg-tab-am" onclick="switchAppDomain('am')" class="py-1 px-2 rounded-md transition text-center bg-white text-slate-900 font-bold shadow-xs cursor-pointer ring-1 ring-slate-200" title="Kelola seluruh aset perusahaan, nilai buku, dan mutasi">
+    <aside id="app-sidebar" class="w-60 bg-[#F8FAFC] border-r border-[#DCE1E8] flex flex-col shrink-0 h-full overflow-hidden z-30 relative select-none">
+      <!-- MODULE DOMAIN SWITCHER (CLEAN FLAT ERP SEGMENT) -->
+      <div class="p-2.5 border-b border-[#DCE1E8] bg-[#F8FAFC]">
+        <div class="grid grid-cols-2 p-0.5 bg-slate-200/80 rounded text-xs select-none">
+          <button type="button" id="seg-tab-am" onclick="switchAppDomain('am')" class="py-1.5 px-2 rounded-[3px] transition text-center bg-white text-[#1E3A8A] font-semibold cursor-pointer border border-[#DCE1E8]" title="Kelola seluruh aset perusahaan, nilai buku, dan mutasi">
             Asset (AM)
           </button>
-          <button type="button" id="seg-tab-fm" onclick="switchAppDomain('fm')" class="py-1 px-2 rounded-md transition text-center text-slate-500 hover:text-slate-900 font-medium cursor-pointer" title="Kelola hunian mess, longhouse, fasum, dan inspeksi lapangan">
+          <button type="button" id="seg-tab-fm" onclick="switchAppDomain('fm')" class="py-1.5 px-2 rounded-[3px] transition text-center text-slate-600 hover:text-slate-900 font-medium cursor-pointer border border-transparent" title="Kelola hunian mess, longhouse, fasum, dan inspeksi lapangan">
             Facility (FM)
           </button>
         </div>
       </div>
 
-      <nav id="sidebar-nav-scroll" class="p-2.5 space-y-3 flex-1 overflow-y-auto scrollbar-thin text-xs" style="scrollbar-gutter: stable;" aria-label="Menu Utama">
+      <nav id="sidebar-nav-scroll" class="px-2 py-2.5 space-y-3 flex-1 overflow-y-auto scrollbar-thin" style="scrollbar-gutter: stable;" aria-label="Menu Utama">
         <!-- ======================================================== -->
-        <!-- DOMAIN AM: ASSET MANAGEMENT (SELURUH ASET PERUSAHAAN)     -->
+        <!-- DOMAIN AM: ASSET MANAGEMENT                               -->
         <!-- ======================================================== -->
         <div id="nav-domain-am" class="space-y-3">
           <!-- MODUL 1: RINGKASAN -->
-          <div class="space-y-1 pb-2 border-b border-slate-100">
-            <button type="button" data-view="view-dashboard" onclick="navTo('view-dashboard', this)" class="nav-btn active w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-bold cursor-pointer" title="Ringkasan eksekutif seluruh aset perusahaan">
-              <span class="flex items-center gap-2 min-w-0">
-                <i class="ph-bold ph-squares-four text-base text-emerald-600 shrink-0"></i>
-                <span class="truncate">DASHBOARD</span>
+          <div class="space-y-0.5 pb-2 border-b border-slate-200/70">
+            <button type="button" data-view="view-dashboard" onclick="navTo('view-dashboard', this)" class="nav-btn active w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Ringkasan eksekutif seluruh aset perusahaan">
+              <span class="flex items-center gap-2.5 min-w-0">
+                <i class="ph ph-squares-four text-base shrink-0"></i>
+                <span class="truncate">Dashboard</span>
               </span>
-              <span class="text-[10px] text-emerald-700 font-extrabold px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 shrink-0">KPI</span>
             </button>
-            <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Audit kesesuaian fisik, selisih alokasi & drill-down audit">
-              <span class="flex items-center gap-2 min-w-0">
-                <i class="ph-bold ph-seal-check text-base text-sky-600 shrink-0"></i>
+            <button type="button" data-view="view-validasi" onclick="navTo('view-validasi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Audit kesesuaian fisik, selisih alokasi dan drill-down audit">
+              <span class="flex items-center gap-2.5 min-w-0">
+                <i class="ph ph-seal-check text-base shrink-0"></i>
                 <span class="truncate">Audit Validasi</span>
               </span>
-              <span class="text-[10px] text-sky-700 font-extrabold px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200 shrink-0">Audit</span>
             </button>
           </div>
 
           <!-- MODUL 2: KATALOG ASET -->
-          <div class="pb-2 border-b border-slate-100">
-            <button type="button" onclick="toggleNavGroup('nav-group-katalog', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-black tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
-              <span class="flex items-center gap-1.5"><i class="ph-bold ph-folder text-xs text-slate-600"></i> KATALOG ASET</span>
-              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          <div class="pb-2 border-b border-slate-200/70">
+            <button type="button" onclick="toggleNavGroup('nav-group-katalog', this)" class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] font-bold tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
+              <span>KATALOG ASET</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-150"></i>
             </button>
-            <div id="nav-group-katalog" class="space-y-1 mt-1">
-              <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Daftar induk seluruh 35.242 unit aset perusahaan">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-database text-base text-slate-500 shrink-0"></i>
+            <div id="nav-group-katalog" class="space-y-0.5 mt-1">
+              <button type="button" data-view="view-portfolio-all" onclick="navTo('view-portfolio-all', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Daftar induk seluruh 35.242 unit aset perusahaan">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-database text-base shrink-0"></i>
                   <span class="truncate">Semua Aset</span>
                 </span>
-                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold shrink-0">35K</span>
+                <span class="num-tabular text-[11px] text-slate-400 font-mono shrink-0">35K</span>
               </button>
-              <button type="button" data-view="view-portfolio" onclick="navTo('view-portfolio', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Nilai buku dan komposisi aset per kategori">
-                <i class="ph-bold ph-chart-pie text-base text-slate-500 shrink-0"></i>
+              <button type="button" data-view="view-portfolio" onclick="navTo('view-portfolio', this)" class="nav-btn w-full h-8 flex items-center gap-2.5 px-2.5 text-left text-[13px] cursor-pointer" title="Nilai buku dan komposisi aset per kategori">
+                <i class="ph ph-chart-pie text-base shrink-0"></i>
                 <span class="truncate">Komposisi Nilai</span>
               </button>
-              <button type="button" data-view="view-asset-sebaran" onclick="navTo('view-asset-sebaran', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Sebaran lokasi aset di kantor pusat dan kebun/pabrik">
-                <i class="ph-bold ph-map-pin text-base text-slate-500 shrink-0"></i>
+              <button type="button" data-view="view-asset-sebaran" onclick="navTo('view-asset-sebaran', this)" class="nav-btn w-full h-8 flex items-center gap-2.5 px-2.5 text-left text-[13px] cursor-pointer" title="Sebaran lokasi aset di kantor pusat dan kebun/pabrik">
+                <i class="ph ph-map-pin text-base shrink-0"></i>
                 <span class="truncate">Sebaran Site</span>
               </button>
-              <button type="button" data-view="view-asset-movement" onclick="navTo('view-asset-movement', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Detail pergerakan fisik dan mutasi unit aset">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-arrows-down-up text-base text-emerald-600 shrink-0"></i>
-                  <span class="truncate">Riwayat Mutasi</span>
-                </span>
-                <span class="text-[10px] text-emerald-700 font-extrabold px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200/80 shrink-0">Drill</span>
+              <button type="button" data-view="view-asset-movement" onclick="navTo('view-asset-movement', this)" class="nav-btn w-full h-8 flex items-center gap-2.5 px-2.5 text-left text-[13px] cursor-pointer" title="Detail pergerakan fisik dan mutasi unit aset">
+                <i class="ph ph-arrows-down-up text-base shrink-0"></i>
+                <span class="truncate">Riwayat Mutasi</span>
               </button>
-              <button type="button" data-view="view-asset-detail" onclick="navTo('view-asset-detail', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Dossier kartu riwayat lengkap dan spesifikasi unit aset">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-identification-badge text-base text-sky-600 shrink-0"></i>
-                  <span class="truncate">Dossier Unit</span>
-                </span>
-                <span class="text-[10px] text-sky-700 font-extrabold px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200/80 shrink-0">Unit</span>
+              <button type="button" data-view="view-asset-detail" onclick="navTo('view-asset-detail', this)" class="nav-btn w-full h-8 flex items-center gap-2.5 px-2.5 text-left text-[13px] cursor-pointer" title="Kartu riwayat lengkap dan spesifikasi unit aset">
+                <i class="ph ph-identification-badge text-base shrink-0"></i>
+                <span class="truncate">Dossier Unit</span>
               </button>
-              <button type="button" data-view="view-asset-depreciation" onclick="navTo('view-asset-depreciation', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Perhitungan depresiasi dan nilai sisa aset">
-                <i class="ph-bold ph-trend-down text-base text-slate-500 shrink-0"></i>
+              <button type="button" data-view="view-asset-depreciation" onclick="navTo('view-asset-depreciation', this)" class="nav-btn w-full h-8 flex items-center gap-2.5 px-2.5 text-left text-[13px] cursor-pointer" title="Perhitungan depresiasi dan nilai sisa aset">
+                <i class="ph ph-trend-down text-base shrink-0"></i>
                 <span class="truncate">Penyusutan Nilai</span>
               </button>
             </div>
           </div>
 
           <!-- MODUL 3: SIKLUS ASET -->
-          <div class="pb-2 border-b border-slate-100">
-            <button type="button" onclick="toggleNavGroup('nav-group-mutasi', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-black tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
-              <span class="flex items-center gap-1.5"><i class="ph-bold ph-arrows-clockwise text-xs text-blue-600"></i> SIKLUS ASET</span>
-              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          <div class="pb-2 border-b border-slate-200/70">
+            <button type="button" onclick="toggleNavGroup('nav-group-mutasi', this)" class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] font-bold tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
+              <span>SIKLUS ASET</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-150"></i>
             </button>
-            <div id="nav-group-mutasi" class="space-y-1 mt-1">
-              <button type="button" data-view="view-reg-asset" onclick="navTo('view-reg-asset', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Form pendaftaran dan registrasi aset baru">
-                <i class="ph-bold ph-plus-circle text-base text-blue-600 shrink-0"></i>
+            <div id="nav-group-mutasi" class="space-y-0.5 mt-1">
+              <button type="button" data-view="view-reg-asset" onclick="navTo('view-reg-asset', this)" class="nav-btn w-full h-8 flex items-center gap-2.5 px-2.5 text-left text-[13px] cursor-pointer" title="Form pendaftaran dan registrasi aset baru">
+                <i class="ph ph-plus-circle text-base shrink-0"></i>
                 <span class="truncate">Register Aset</span>
               </button>
-              <button type="button" data-view="view-mutasi" onclick="navTo('view-mutasi', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Pengalihan tanggung jawab aset antar departemen">
-                <i class="ph-bold ph-arrows-left-right text-base text-slate-500 shrink-0"></i>
+              <button type="button" data-view="view-mutasi" onclick="navTo('view-mutasi', this)" class="nav-btn w-full h-8 flex items-center gap-2.5 px-2.5 text-left text-[13px] cursor-pointer" title="Pengalihan tanggung jawab aset antar departemen">
+                <i class="ph ph-arrows-left-right text-base shrink-0"></i>
                 <span class="truncate">Pindah Dept</span>
               </button>
-              <button type="button" data-view="view-asset-location" onclick="navTo('view-asset-location', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Update lokasi fisik penempatan aset">
-                <i class="ph-bold ph-map-pin-line text-base text-slate-500 shrink-0"></i>
+              <button type="button" data-view="view-asset-location" onclick="navTo('view-asset-location', this)" class="nav-btn w-full h-8 flex items-center gap-2.5 px-2.5 text-left text-[13px] cursor-pointer" title="Update lokasi fisik penempatan aset">
+                <i class="ph ph-map-pin-line text-base shrink-0"></i>
                 <span class="truncate">Pindah Lokasi</span>
               </button>
-              <button type="button" data-view="view-asset-status" onclick="navTo('view-asset-status', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Update kondisi fisik aset: Baik, Rusak, atau Perbaikan">
-                <i class="ph-bold ph-check-circle text-base text-slate-500 shrink-0"></i>
+              <button type="button" data-view="view-asset-status" onclick="navTo('view-asset-status', this)" class="nav-btn w-full h-8 flex items-center gap-2.5 px-2.5 text-left text-[13px] cursor-pointer" title="Update kondisi fisik aset: Baik, Rusak, atau Perbaikan">
+                <i class="ph ph-check-circle text-base shrink-0"></i>
                 <span class="truncate">Ubah Kondisi</span>
               </button>
-              <button type="button" data-view="view-asset-disposal" onclick="navTo('view-asset-disposal', this)" class="nav-btn w-full h-8 flex items-center gap-2 px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Penghapusan aset rusak berat, hilang atau lelang">
-                <i class="ph-bold ph-trash text-base text-rose-500 shrink-0"></i>
+              <button type="button" data-view="view-asset-disposal" onclick="navTo('view-asset-disposal', this)" class="nav-btn w-full h-8 flex items-center gap-2.5 px-2.5 text-left text-[13px] cursor-pointer" title="Penghapusan aset rusak berat, hilang atau lelang">
+                <i class="ph ph-trash text-base shrink-0"></i>
                 <span class="truncate">Penghapusan</span>
               </button>
             </div>
           </div>
 
           <!-- MODUL 4: PERBAIKAN -->
-          <div class="space-y-1">
-            <button type="button" onclick="toggleNavGroup('nav-group-pemeliharaan', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-black tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
-              <span class="flex items-center gap-1.5"><i class="ph-bold ph-wrench text-xs text-rose-600"></i> PERBAIKAN</span>
-              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          <div class="space-y-0.5">
+            <button type="button" onclick="toggleNavGroup('nav-group-pemeliharaan', this)" class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] font-bold tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
+              <span>PERBAIKAN</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-150"></i>
             </button>
-            <div id="nav-group-pemeliharaan" class="space-y-1 mt-1">
-              <button type="button" data-view="view-wo" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('history', 'AM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Analisis pengeluaran biaya perawatan & suku cadang aset (Rp 27,65 Miliar)">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-coins text-base text-rose-600 shrink-0"></i>
+            <div id="nav-group-pemeliharaan" class="space-y-0.5 mt-1">
+              <button type="button" data-view="view-wo" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('history', 'AM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Analisis pengeluaran biaya perawatan dan suku cadang aset">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-coins text-base shrink-0"></i>
                   <span class="truncate">Biaya &amp; Part</span>
                 </span>
-                <span class="text-[10px] text-rose-700 font-extrabold px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 shrink-0">27,65 M</span>
+                <span class="num-tabular text-[11px] text-slate-400 font-mono shrink-0">27,6M</span>
               </button>
-              <button type="button" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('kanban', 'AM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Papan tiket pengerjaan work order (Baru, Proses, Selesai)">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-kanban text-base text-amber-500 shrink-0"></i>
+              <button type="button" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('kanban', 'AM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Papan tiket pengerjaan work order (Baru, Proses, Selesai)">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-kanban text-base shrink-0"></i>
                   <span class="truncate">Status Tiket</span>
                 </span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-bold shrink-0" id="sidebar-wo-count">15</span>
+                <span class="num-tabular text-[11px] text-slate-400 font-mono shrink-0" id="sidebar-wo-count">15</span>
               </button>
             </div>
           </div>
         </div>
 
         <!-- ======================================================== -->
-        <!-- DOMAIN FM: FACILITY MANAGEMENT (HUNIAN & FASILITAS UMUM)  -->
+        <!-- DOMAIN FM: FACILITY MANAGEMENT                            -->
         <!-- ======================================================== -->
         <div id="nav-domain-fm" class="space-y-3 hidden">
           <!-- MODUL 1: RINGKASAN -->
-          <div class="space-y-1 pb-2 border-b border-slate-100">
-            <button type="button" data-view="view-fm-beranda" onclick="navTo('view-fm-beranda', this)" class="nav-btn active w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-bold cursor-pointer" title="Dashboard utama kondisi mess, okupansi dan fasilitas">
-              <span class="flex items-center gap-2 min-w-0">
-                <i class="ph-bold ph-chart-pie-slice text-base text-teal-700 shrink-0"></i>
-                <span class="truncate">DASHBOARD</span>
+          <div class="space-y-0.5 pb-2 border-b border-slate-200/70">
+            <button type="button" data-view="view-fm-beranda" onclick="navTo('view-fm-beranda', this)" class="nav-btn active w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Dashboard utama kondisi mess, okupansi dan fasilitas">
+              <span class="flex items-center gap-2.5 min-w-0">
+                <i class="ph ph-chart-pie-slice text-base shrink-0"></i>
+                <span class="truncate">Dashboard</span>
               </span>
-              <span class="text-[10px] text-teal-700 font-extrabold px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 shrink-0">KPI</span>
             </button>
           </div>
 
           <!-- MODUL 2: BANGUNAN -->
-          <div class="pb-2 border-b border-slate-100">
-            <button type="button" onclick="toggleNavGroup('nav-group-fm-direktori', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-black tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
-              <span class="flex items-center gap-1.5"><i class="ph-bold ph-buildings text-xs text-teal-700"></i> BANGUNAN</span>
-              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          <div class="pb-2 border-b border-slate-200/70">
+            <button type="button" onclick="toggleNavGroup('nav-group-fm-direktori', this)" class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] font-bold tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
+              <span>BANGUNAN</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-150"></i>
             </button>
-            <div id="nav-group-fm-direktori" class="space-y-1 mt-1">
-              <button type="button" data-view="view-fm-rincian" onclick="navTo('view-fm-rincian', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Lihat detail kamar, penghuni aktif & fasilitas fisik di dalamnya">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-door text-base text-emerald-600 shrink-0"></i>
+            <div id="nav-group-fm-direktori" class="space-y-0.5 mt-1">
+              <button type="button" data-view="view-fm-rincian" onclick="navTo('view-fm-rincian', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Lihat detail kamar, penghuni aktif dan fasilitas fisik di dalamnya">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-door text-base shrink-0"></i>
                   <span class="truncate">Rincian Kamar</span>
                 </span>
-                <span class="text-[10px] text-emerald-700 font-extrabold px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 shrink-0">Unit</span>
               </button>
-              <button type="button" data-view="view-fm-peta" onclick="navTo('view-fm-peta', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Peta denah visual lokasi gedung di 4 site: Central, E1-2, E3, Pabrik">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-map-trifold text-base text-teal-600 shrink-0"></i>
+              <button type="button" data-view="view-fm-peta" onclick="navTo('view-fm-peta', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Peta denah visual lokasi gedung di 4 site: Central, E1-2, E3, Pabrik">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-map-trifold text-base shrink-0"></i>
                   <span class="truncate">Denah Peta</span>
                 </span>
-                <span class="text-[10px] text-teal-700 font-extrabold px-1.5 py-0.5 rounded bg-teal-50 border border-teal-200 shrink-0">4 Site</span>
+                <span class="num-tabular text-[11px] text-slate-400 font-mono shrink-0">4</span>
               </button>
-              <button type="button" data-view="view-gedung" onclick="navTo('view-gedung', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Daftar tabel seluruh 416 gedung fisik, jumlah ruangan dan total aset">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-building-office text-base text-amber-500 shrink-0"></i>
+              <button type="button" data-view="view-gedung" onclick="navTo('view-gedung', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Daftar tabel seluruh 416 gedung fisik, jumlah ruangan dan total aset">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-building-office text-base shrink-0"></i>
                   <span class="truncate">Daftar Gedung</span>
                 </span>
-                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold shrink-0" id="fm-badge-bldg">416</span>
+                <span class="num-tabular text-[11px] text-slate-400 font-mono shrink-0" id="fm-badge-bldg">416</span>
               </button>
             </div>
           </div>
 
           <!-- MODUL 3: PENGHUNI -->
-          <div class="pb-2 border-b border-slate-100">
-            <button type="button" onclick="toggleNavGroup('nav-group-fm-okupansi', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-black tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
-              <span class="flex items-center gap-1.5"><i class="ph-bold ph-users-three text-xs text-indigo-600"></i> PENGHUNI</span>
-              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          <div class="pb-2 border-b border-slate-200/70">
+            <button type="button" onclick="toggleNavGroup('nav-group-fm-okupansi', this)" class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] font-bold tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
+              <span>PENGHUNI</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-150"></i>
             </button>
-            <div id="nav-group-fm-okupansi" class="space-y-1 mt-1">
-              <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Daftar 409 karyawan aktif penghuni mess & longhouse">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-user-list text-base text-indigo-500 shrink-0"></i>
+            <div id="nav-group-fm-okupansi" class="space-y-0.5 mt-1">
+              <button type="button" data-view="view-penghuni" onclick="navTo('view-penghuni', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Daftar 409 karyawan aktif penghuni mess dan longhouse">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-user-list text-base shrink-0"></i>
                   <span class="truncate">Data Penghuni</span>
                 </span>
-                <span class="num-tabular text-[10px] px-1.5 py-0.5 rounded bg-slate-100 text-slate-600 font-bold shrink-0" id="fm-badge-penghuni">409</span>
+                <span class="num-tabular text-[11px] text-slate-400 font-mono shrink-0" id="fm-badge-penghuni">409</span>
               </button>
-              <button type="button" data-view="view-fm-ketersediaan" onclick="navTo('view-fm-ketersediaan', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Daftar ranjang kosong dan kamar siap huni untuk karyawan baru">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-bed text-base text-emerald-600 shrink-0"></i>
+              <button type="button" data-view="view-fm-ketersediaan" onclick="navTo('view-fm-ketersediaan', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Daftar ranjang kosong dan kamar siap huni untuk karyawan baru">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-bed text-base shrink-0"></i>
                   <span class="truncate">Slot Kosong</span>
                 </span>
-                <span class="text-[10px] text-emerald-700 font-extrabold px-1.5 py-0.5 rounded bg-emerald-50 border border-emerald-200 shrink-0">Siap Huni</span>
               </button>
-              <button type="button" data-view="view-fm-rencana" onclick="navTo('view-fm-rencana', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Hitung kapasitas kamar jika standar 2 orang vs 4 orang per kamar">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-calculator text-base text-indigo-500 shrink-0"></i>
+              <button type="button" data-view="view-fm-rencana" onclick="navTo('view-fm-rencana', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Hitung kapasitas kamar jika standar 2 orang vs 4 orang per kamar">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-calculator text-base shrink-0"></i>
                   <span class="truncate">Simulasi Kamar</span>
                 </span>
-                <span class="text-[10px] text-indigo-700 font-extrabold px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-200 shrink-0">Rasio</span>
               </button>
             </div>
           </div>
 
           <!-- MODUL 4: INSPEKSI -->
-          <div class="pb-2 border-b border-slate-100">
-            <button type="button" onclick="toggleNavGroup('nav-group-fm-audit', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-black tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
-              <span class="flex items-center gap-1.5"><i class="ph-bold ph-clipboard-text text-xs text-sky-600"></i> INSPEKSI</span>
-              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          <div class="pb-2 border-b border-slate-200/70">
+            <button type="button" onclick="toggleNavGroup('nav-group-fm-audit', this)" class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] font-bold tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
+              <span>INSPEKSI</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-150"></i>
             </button>
-            <div id="nav-group-fm-audit" class="space-y-1 mt-1">
-              <button type="button" data-view="view-inspeksi" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Formulir checklist periksa kondisi fisik fasilitas kamar">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-check-square-offset text-base text-sky-600 shrink-0"></i>
+            <div id="nav-group-fm-audit" class="space-y-0.5 mt-1">
+              <button type="button" data-view="view-inspeksi" onclick="navTo('view-inspeksi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Formulir checklist periksa kondisi fisik fasilitas kamar">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-check-square-offset text-base shrink-0"></i>
                   <span class="truncate">Form Cek Fisik</span>
                 </span>
-                <span class="text-[10px] text-sky-700 font-extrabold px-1.5 py-0.5 rounded bg-sky-50 border border-sky-200 shrink-0">Form</span>
               </button>
-              <button type="button" data-view="view-riwayat-inspeksi" onclick="navTo('view-riwayat-inspeksi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Arsip hasil temuan kerusakan dan riwayat pemeriksaan kamar">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-clock-counter-clockwise text-base text-indigo-500 shrink-0"></i>
+              <button type="button" data-view="view-riwayat-inspeksi" onclick="navTo('view-riwayat-inspeksi', this)" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Arsip hasil temuan kerusakan dan riwayat pemeriksaan kamar">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-clock-counter-clockwise text-base shrink-0"></i>
                   <span class="truncate">Riwayat Temuan</span>
                 </span>
-                <span class="text-[10px] text-indigo-700 font-extrabold px-1.5 py-0.5 rounded bg-indigo-50 border border-indigo-200 shrink-0">Log</span>
               </button>
             </div>
           </div>
 
           <!-- MODUL 5: PERBAIKAN -->
-          <div class="space-y-1">
-            <button type="button" onclick="toggleNavGroup('nav-group-fm-pemeliharaan', this)" class="w-full flex items-center justify-between px-2 pt-1.5 pb-1 text-[11px] font-black tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
-              <span class="flex items-center gap-1.5"><i class="ph-bold ph-wrench text-xs text-rose-600"></i> PERBAIKAN</span>
-              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-200"></i>
+          <div class="space-y-0.5">
+            <button type="button" onclick="toggleNavGroup('nav-group-fm-pemeliharaan', this)" class="w-full flex items-center justify-between px-2.5 py-1 text-[11px] font-bold tracking-wider text-slate-500 hover:text-slate-900 uppercase transition cursor-pointer select-none">
+              <span>PERBAIKAN</span>
+              <i class="ph-bold ph-caret-down text-[10px] group-caret transition-transform duration-150"></i>
             </button>
-            <div id="nav-group-fm-pemeliharaan" class="space-y-1 mt-1">
-              <button type="button" data-view="view-wo" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('history', 'FM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Rincian pengeluaran suku cadang dan servis perawatan fasilitas">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-coins text-base text-rose-600 shrink-0"></i>
+            <div id="nav-group-fm-pemeliharaan" class="space-y-0.5 mt-1">
+              <button type="button" data-view="view-wo" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('history', 'FM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Rincian pengeluaran suku cadang dan servis perawatan fasilitas">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-coins text-base shrink-0"></i>
                   <span class="truncate">Biaya &amp; Part</span>
                 </span>
-                <span class="text-[10px] text-rose-700 font-extrabold px-1.5 py-0.5 rounded bg-rose-50 border border-rose-200 shrink-0">Drill</span>
               </button>
-              <button type="button" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('kanban', 'FM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 rounded-lg text-slate-700 hover:text-slate-900 hover:bg-slate-100 text-left text-xs font-semibold cursor-pointer" title="Papan tiket progres pengerjaan perbaikan (Baru, Proses, Selesai)">
-                <span class="flex items-center gap-2 min-w-0">
-                  <i class="ph-bold ph-kanban text-base text-amber-500 shrink-0"></i>
+              <button type="button" onclick="navTo('view-wo', this); if (typeof switchWoViewMode === 'function') switchWoViewMode('kanban', 'FM');" class="nav-btn w-full h-8 flex items-center justify-between px-2.5 text-left text-[13px] cursor-pointer" title="Papan tiket progres pengerjaan perbaikan (Baru, Proses, Selesai)">
+                <span class="flex items-center gap-2.5 min-w-0">
+                  <i class="ph ph-kanban text-base shrink-0"></i>
                   <span class="truncate">Status Tiket</span>
                 </span>
-                <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-50 text-amber-700 font-bold shrink-0" id="fm-sidebar-wo-count">15</span>
+                <span class="num-tabular text-[11px] text-slate-400 font-mono shrink-0" id="fm-sidebar-wo-count">15</span>
               </button>
             </div>
           </div>
         </div>
       </nav>
-
-      <!-- Sidebar User & Footer (Fixed Shrink-0 at Bottom) -->
-      <div class="shrink-0 border-t border-slate-200 bg-slate-50/80 p-3 space-y-2">
-        <div class="flex items-center gap-2.5 px-1 py-0.5">
-          <div class="w-8 h-8 rounded-full bg-emerald-100 text-emerald-800 font-bold flex items-center justify-center text-xs shrink-0 shadow-2xs border border-emerald-200">
-            M
-          </div>
-          <div class="overflow-hidden leading-tight flex-1">
-            <div class="text-xs font-bold text-slate-800 truncate">Miftahul Khoiry</div>
-            <div class="text-[10px] text-slate-500 truncate">HRGA &amp; General Services</div>
-          </div>
-          <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0" title="Online &bull; Google Sheets Connected"></span>
-        </div>
-        <div class="text-[10px] text-slate-400 text-center pt-1 border-t border-slate-200/60 flex items-center justify-between">
-          <span>PT PNS &bull; v2.5</span>
-          <span class="font-mono text-emerald-600 font-bold">HRGA Suite</span>
-        </div>
-      </div>
     </aside>
 
     <!-- CONTENT AREA -->
