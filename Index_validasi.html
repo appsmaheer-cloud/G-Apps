@@ -1487,7 +1487,48 @@
 
                 <!-- POWER BI DRILL-THROUGH CONTEXT MENU POPUP -->
                 <div id="pbi-drill-context-menu" class="hidden fixed z-50 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 w-60 text-xs text-slate-700 select-none">
-    <div id="modal-photo-viewer" role="dialog" aria-modal="true" class="fixed inset-0 z-60 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 hidden">
+                    <option value="Koridor / Ruang Bersama">🚪 Koridor / Ruang Bersama</option>
+                  <option value="Fasilitas Lainnya">📦 Fasilitas / Aset Lainnya</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1 text-[11px]">Keterangan / Catatan Foto:</label>
+                <input type="text" id="hunian-pending-caption" placeholder="Contoh: Tampak depan Mess Blok Barat" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-1 focus:ring-indigo-500">
+              </div>
+              <button type="button" onclick="confirmSaveHunianPhoto()" class="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
+                <i class="ph-bold ph-check"></i> Simpan Foto ke Sistem &amp; Spreadsheet
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gallery of Current Photos -->
+        <div>
+          <div class="flex items-center justify-between mb-2.5">
+            <h4 class="font-bold text-slate-800 flex items-center gap-1.5">
+              <i class="ph-bold ph-images text-indigo-600"></i> Galeri Foto Dokumentasi (<span id="hunian-photo-count">0</span>)
+            </h4>
+            <span class="text-[11px] text-slate-400">Klik foto untuk perbesar</span>
+          </div>
+
+          <div id="hunian-photo-grid" class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+            <!-- Dynamically populated via renderHunianPhotoGrid() -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="p-3 bg-slate-50 border-t border-slate-200 flex justify-between items-center text-xs">
+        <span class="text-slate-400 text-[11px]">Tersinkronisasi otomatis dengan Google Spreadsheet &amp; Local Storage.</span>
+        <button type="button" onclick="closeHunianPhotoModal()" class="px-4 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-100 text-slate-700 font-semibold cursor-pointer">
+          Tutup
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LIGHTBOX / FULL SCREEN PHOTO VIEWER MODAL -->
+  <div id="modal-photo-viewer" role="dialog" aria-modal="true" class="fixed inset-0 z-60 bg-black/90 backdrop-blur-md flex items-center justify-center p-3 sm:p-6 hidden">
     <div class="relative max-w-4xl w-full flex flex-col items-center">
       <button type="button" onclick="closePhotoViewer()" class="absolute -top-10 right-0 text-white/80 hover:text-white flex items-center gap-1 text-xs font-bold bg-white/10 hover:bg-white/20 px-3 py-1 rounded-full cursor-pointer transition">
         <i class="ph-bold ph-x text-sm"></i> Tutup
@@ -1640,47 +1681,6 @@
                   <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">2.680</td>
                   <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">2.680</td>
                   <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 68,85 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">E3</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Estate 3</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">2.414</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">2.414</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 77,02 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">MR</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Gudang Marunda (MR)</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">1.636</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">1.636</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 4,92 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">HO</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Head Office Jakarta</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">866</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">866</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 4,54 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-amber-700">BC</td>
-                  <td class="py-2 px-3 font-semibold text-amber-800">Antrean Belum Checkout</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">227</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-amber-600 font-semibold">227</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 2,04 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-amber-100 text-amber-800">In Queue</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">RO</td>
     <div id="modal-drilldown-validasi" onclick="if(event.target === this) closeValidasiDrillModal()" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
     <div class="clean-card w-full max-w-5xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in">
       <!-- Modal Header -->

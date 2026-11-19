@@ -11817,8 +11817,17 @@ const PNS_SECTION_TO_DEPT = {
 
     const bldgs = Array.from(new Set(sourcePenghuni.map(p => p.kode_gedung).filter(Boolean))).sort();
 
-    bldgSelect.innerHTML = '<option value="">Semua Gedung / LH (' + bldgs.length + ')</option>' +
+    bldgSelect.innerHTML = '<option value="">Semua Gedung (' + bldgs.length + ')</option>' +
       bldgs.map(b => `<option value="${escapeHtml(b)}">${escapeHtml(b)}</option>`).join('');
+
+    const deptSelect = document.getElementById('filter-penghuni-dept');
+    if (deptSelect) {
+      const depts = Array.from(new Set(sourcePenghuni.map(p => String(p.departemen || '').trim()).filter(Boolean))).sort();
+      const prevDept = deptSelect.value;
+      deptSelect.innerHTML = '<option value="">Semua Departemen (' + depts.length + ')</option>' +
+        depts.map(dp => `<option value="${escapeHtml(dp)}">${escapeHtml(dp)}</option>`).join('');
+      if (prevDept) deptSelect.value = prevDept;
+    }
 
     onPenghuniBldgFilterChange();
   }
@@ -11873,23 +11882,49 @@ const PNS_SECTION_TO_DEPT = {
     renderPenghuniTable();
   }
 
+  window.filterPenghuniBySite = function(siteKey) {
+    const locEl = document.getElementById('filter-penghuni-loc');
+    if (!locEl) return;
+    locEl.value = (locEl.value === siteKey) ? '' : siteKey;
+    penghuniCurrentPage = 1;
+    renderPenghuniTable();
+  };
+
+  window.filterPenghuniByDept = function(deptName) {
+    const deptEl = document.getElementById('filter-penghuni-dept');
+    if (!deptEl) return;
+    deptEl.value = (deptEl.value === deptName) ? '' : deptName;
+    penghuniCurrentPage = 1;
+    renderPenghuniTable();
+  };
+
   function renderPenghuniTable() {
     renderHunianHouseCards();
 
     const searchEl = document.getElementById('search-penghuni');
     const query = String((searchEl && searchEl.value) || '').toLowerCase().trim();
     const locFilter = document.getElementById('filter-penghuni-loc') ? document.getElementById('filter-penghuni-loc').value : '';
+    const deptFilter = document.getElementById('filter-penghuni-dept') ? document.getElementById('filter-penghuni-dept').value : '';
     const bldgFilter = document.getElementById('filter-penghuni-bldg') ? document.getElementById('filter-penghuni-bldg').value : '';
     const roomFilter = document.getElementById('filter-penghuni-room') ? document.getElementById('filter-penghuni-room').value : '';
     const statusFilter = document.getElementById('filter-penghuni-status') ? document.getElementById('filter-penghuni-status').value : '';
     const tbody = document.getElementById('table-penghuni-body');
     if (!tbody) return;
 
-    // Gunakan data penghuni kamar & slot ranjang lengkap PT PNS (1.506 slot: Aktif & Vacant)
     const sourceData = (appState.penghuni && appState.penghuni.length > 0)
       ? appState.penghuni
       : (window.PNS_MASTER_DATA && window.PNS_MASTER_DATA.penghuni ? window.PNS_MASTER_DATA.penghuni : []);
     appState.penghuni = sourceData;
+
+    const classifySite = (kodeGedung) => {
+      const bUpper = String(kodeGedung || '').toUpperCase();
+      if (bUpper.includes('FR') || bUpper.includes('PABRIK') || bUpper.includes('FACTORY')) return { key: 'factory', label: 'Factory / Pabrik' };
+      if (bUpper.includes('E3')) return { key: 'e3', label: 'Estate 3 (E3)' };
+      if (bUpper.includes('E1') || bUpper.includes('E2') || bUpper.includes('ESTATE')) return { key: 'e12', label: 'Estate 1-2 (E1/E2)' };
+      if (bUpper.includes('HO')) return { key: 'HO', label: 'Head Office (HO)' };
+      if (bUpper.includes('RO')) return { key: 'RO', label: 'Regional Office (RO)' };
+      return { key: 'central', label: 'Central Office (CO)' };
+    };
 
     // Filter
     let filtered = sourceData.filter(p => {
@@ -11905,27 +11940,127 @@ const PNS_SECTION_TO_DEPT = {
 
       let matchLoc = true;
       if (locFilter) {
-        const bUpper = String(p.kode_gedung || '').toUpperCase();
-        if (locFilter === 'central') matchLoc = bUpper.includes('LH-') || bUpper.includes('CO') || bUpper.includes('CENTRAL');
-        else if (locFilter === 'e12') matchLoc = bUpper.includes('E1') || bUpper.includes('E2') || bUpper.includes('ESTATE');
-        else if (locFilter === 'e3') matchLoc = bUpper.includes('E3');
-        else if (locFilter === 'factory') matchLoc = bUpper.includes('FR') || bUpper.includes('PABRIK') || bUpper.includes('FACTORY');
-        else if (locFilter === 'HO') matchLoc = bUpper.includes('HO');
-        else if (locFilter === 'RO') matchLoc = bUpper.includes('RO');
+        const s = classifySite(p.kode_gedung);
+        matchLoc = (s.key === locFilter);
       }
 
+      const matchDept = !deptFilter || String(p.departemen || '').trim() === deptFilter;
       const matchBldg = !bldgFilter || p.kode_gedung === bldgFilter;
       const matchRoom = !roomFilter || p.nama_ruangan === roomFilter;
       const matchStatus = !statusFilter || p.status_hunian === statusFilter;
 
-      return matchQuery && matchLoc && matchBldg && matchRoom && matchStatus;
+      return matchQuery && matchLoc && matchDept && matchBldg && matchRoom && matchStatus;
     });
 
-    // Sorting: Penghuni aktif (yang ada orangnya & nama) selalu tampil di ATAS secara prioritas
+    // ==============================================================
+    // VRA-GRADE REACTIVE KPI CARDS & ANALYTICAL BREAKDOWN PANELS
+    // ==============================================================
+    const fTotal = filtered.length;
+    const fAktifList = filtered.filter(p => p.status_hunian === 'Aktif' || (p.nama_penghuni && String(p.status_hunian || '').toLowerCase() !== 'vacant'));
+    const fAktif = fAktifList.length;
+    const fVacant = Math.max(0, fTotal - fAktif);
+    const fOccPct = fTotal > 0 ? ((fAktif / fTotal) * 100).toFixed(1) : '0.0';
+    const fVacPct = fTotal > 0 ? ((fVacant / fTotal) * 100).toFixed(1) : '0.0';
+
+    const fBldgSet = new Set(filtered.map(p => p.kode_gedung).filter(Boolean));
+    const fRoomAllSet = new Set(filtered.map(p => (p.kode_gedung || '') + '|' + (p.nama_ruangan || '')));
+    const fRoomAktifSet = new Set(fAktifList.map(p => (p.kode_gedung || '') + '|' + (p.nama_ruangan || '')));
+    const avgPerRoom = fRoomAktifSet.size > 0 ? (fAktif / fRoomAktifSet.size).toFixed(1) : '0.0';
+
+    // Department aggregation
+    const deptCounts = {};
+    fAktifList.forEach(p => {
+      const dp = String(p.departemen || 'LAINNYA').trim() || 'LAINNYA';
+      deptCounts[dp] = (deptCounts[dp] || 0) + 1;
+    });
+    const sortedDepts = Object.entries(deptCounts).sort((a, b) => b[1] - a[1]);
+    const topDept = sortedDepts[0] || ['-', 0];
+    const topDeptPct = fAktif > 0 ? ((topDept[1] / fAktif) * 100).toFixed(1) : '0.0';
+
+    // Update 6 KPI Cards
+    const setTxt = (id, val) => { const e = document.getElementById(id); if (e) e.innerText = val; };
+    setTxt('penghuni-kpi-total', fTotal.toLocaleString('id-ID'));
+    setTxt('penghuni-kpi-sub-total', fAktif.toLocaleString('id-ID') + ' Terisi • ' + fVacant.toLocaleString('id-ID') + ' Kosong');
+    setTxt('penghuni-kpi-aktif', fAktif.toLocaleString('id-ID'));
+    setTxt('penghuni-kpi-sub-aktif', fOccPct + '% Rasio Okupansi');
+    setTxt('penghuni-kpi-vacant', fVacant.toLocaleString('id-ID'));
+    setTxt('penghuni-kpi-sub-vacant', fVacPct + '% Kapasitas Tersedia');
+    setTxt('penghuni-kpi-bldg', fBldgSet.size.toLocaleString('id-ID'));
+    setTxt('penghuni-kpi-sub-bldg', fRoomAllSet.size.toLocaleString('id-ID') + ' Kamar Terdata');
+    setTxt('penghuni-kpi-rooms', fRoomAktifSet.size.toLocaleString('id-ID'));
+    setTxt('penghuni-kpi-sub-rooms', 'Avg ' + avgPerRoom + ' org / kamar terisi');
+    setTxt('penghuni-kpi-topdept', topDept[0]);
+    setTxt('penghuni-kpi-sub-topdept', topDept[1].toLocaleString('id-ID') + ' Orang (' + topDeptPct + '%)');
+    setTxt('penghuni-analisa-occ-pct', fOccPct + '% Terisi');
+    setTxt('penghuni-analisa-dept-count', sortedDepts.length + ' Departemen');
+
+    // Update Analytical Panel 1: Okupansi per Site (from full sourceData so user can switch sites anytime!)
+    const siteStats = {};
+    sourceData.forEach(p => {
+      const s = classifySite(p.kode_gedung);
+      if (!siteStats[s.key]) siteStats[s.key] = { key: s.key, label: s.label, total: 0, aktif: 0 };
+      siteStats[s.key].total++;
+      if (p.status_hunian === 'Aktif' || (p.nama_penghuni && String(p.status_hunian || '').toLowerCase() !== 'vacant')) {
+        siteStats[s.key].aktif++;
+      }
+    });
+    const siteList = Object.values(siteStats).sort((a, b) => b.total - a.total);
+    const sitePanel = document.getElementById('penghuni-analisa-site');
+    if (sitePanel) {
+      sitePanel.innerHTML = siteList.map(st => {
+        const pct = st.total > 0 ? Math.round((st.aktif / st.total) * 100) : 0;
+        const vac = st.total - st.aktif;
+        const isSel = (locFilter === st.key);
+        return `
+          <div onclick="window.filterPenghuniBySite('${st.key}')" class="p-2 rounded border transition cursor-pointer ${isSel ? 'border-[#0E5E63] bg-[#F0FDFA]' : 'border-slate-100 hover:border-slate-300 bg-slate-50/60'}">
+            <div class="flex items-center justify-between text-xs mb-1">
+              <span class="font-semibold ${isSel ? 'text-[#0E5E63]' : 'text-slate-800'}">${escapeHtml(st.label)}</span>
+              <span class="font-mono text-[11px] text-slate-600">
+                <b class="text-slate-900">${st.aktif}</b> / ${st.total} slot &bull; <span class="font-bold text-[#0E5E63]">${pct}%</span> <span class="text-slate-400">(${vac} kosong)</span>
+              </span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-200 rounded-sm overflow-hidden">
+              <div class="h-full bg-[#0E5E63]" style="width: ${Math.min(100, pct)}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Update Analytical Panel 2: Top 6 Departemen (clickable slicer)
+    const deptPanel = document.getElementById('penghuni-analisa-dept');
+    if (deptPanel) {
+      const maxDeptVal = sortedDepts.length > 0 ? sortedDepts[0][1] : 1;
+      const top6 = sortedDepts.slice(0, 6);
+      if (top6.length === 0) {
+        deptPanel.innerHTML = '<div class="text-xs text-slate-400 py-4 text-center">Belum ada penghuni aktif pada filter ini.</div>';
+      } else {
+        deptPanel.innerHTML = top6.map(([dpName, cnt]) => {
+          const sharePct = fAktif > 0 ? ((cnt / fAktif) * 100).toFixed(1) : '0.0';
+          const barW = Math.max(4, Math.round((cnt / maxDeptVal) * 100));
+          const isSel = (deptFilter === dpName);
+          return `
+            <div onclick="window.filterPenghuniByDept('${escapeHtml(dpName)}')" class="p-2 rounded border transition cursor-pointer ${isSel ? 'border-[#0E5E63] bg-[#F0FDFA]' : 'border-slate-100 hover:border-slate-300 bg-slate-50/60'}">
+              <div class="flex items-center justify-between text-xs mb-1">
+                <span class="font-semibold truncate pr-2 ${isSel ? 'text-[#0E5E63]' : 'text-slate-800'}">${escapeHtml(dpName)}</span>
+                <span class="font-mono text-[11px] text-slate-600 shrink-0">
+                  <b class="text-slate-900">${cnt.toLocaleString('id-ID')}</b> org <span class="text-slate-400">(${sharePct}%)</span>
+                </span>
+              </div>
+              <div class="w-full h-1.5 bg-slate-200 rounded-sm overflow-hidden">
+                <div class="h-full bg-slate-700" style="width: ${barW}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+    }
+
+    // Sorting: Penghuni aktif selalu tampil di ATAS secara prioritas
     filtered.sort((a, b) => {
       const hasNameA = (a.status_hunian === 'Aktif' || (a.nama_penghuni && a.nama_penghuni.trim() !== '')) ? 1 : 0;
       const hasNameB = (b.status_hunian === 'Aktif' || (b.nama_penghuni && b.nama_penghuni.trim() !== '')) ? 1 : 0;
-      if (hasNameA !== hasNameB) return hasNameB - hasNameA; // Aktif first!
+      if (hasNameA !== hasNameB) return hasNameB - hasNameA;
 
       let valA = String(a[penghuniSortCol] || '').toLowerCase();
       let valB = String(b[penghuniSortCol] || '').toLowerCase();
@@ -11934,17 +12069,13 @@ const PNS_SECTION_TO_DEPT = {
       return 0;
     });
 
-    // Badges Counters: Total, Aktif, Vacant
-    const totalCount = sourceData.length;
-    const terisiCount = sourceData.filter(p => p.status_hunian === 'Aktif').length;
-    const vacantCount = sourceData.filter(p => p.status_hunian === 'Vacant').length;
-
+    // Quick toolbar counters
     const bTotal = document.getElementById('badge-total-slots');
     const bTerisi = document.getElementById('badge-terisi-slots');
     const bVacant = document.getElementById('badge-vacant-slots');
-    if (bTotal) bTotal.innerText = 'Total: ' + totalCount.toLocaleString('id-ID') + ' Slot Kasur';
-    if (bTerisi) bTerisi.innerText = 'Aktif: ' + terisiCount.toLocaleString('id-ID') + ' Terisi';
-    if (bVacant) bVacant.innerText = 'Vacant: ' + vacantCount.toLocaleString('id-ID') + ' Kosong';
+    if (bTotal) bTotal.innerText = 'Total: ' + fTotal.toLocaleString('id-ID');
+    if (bTerisi) bTerisi.innerText = 'Aktif: ' + fAktif.toLocaleString('id-ID');
+    if (bVacant) bVacant.innerText = 'Vacant: ' + fVacant.toLocaleString('id-ID');
 
     // Pagination
     const totalPages = Math.ceil(filtered.length / penghuniPageSize) || 1;
@@ -11961,7 +12092,7 @@ const PNS_SECTION_TO_DEPT = {
       if (filtered.length === 0) {
         pageInfo.innerText = 'Tidak ada slot ranjang/penghuni yang cocok';
       } else {
-        pageInfo.innerText = `Menampilkan ${(startIdx + 1).toLocaleString('id-ID')} - ${endIdx.toLocaleString('id-ID')} dari ${filtered.length.toLocaleString('id-ID')} Slot Kasur Terdaftar`;
+        pageInfo.innerText = `Menampilkan ${(startIdx + 1).toLocaleString('id-ID')} - ${endIdx.toLocaleString('id-ID')} dari ${filtered.length.toLocaleString('id-ID')} Slot Kasur`;
       }
     }
     if (pageControls) {
@@ -11969,11 +12100,11 @@ const PNS_SECTION_TO_DEPT = {
         pageControls.innerHTML = '';
       } else {
         pageControls.innerHTML = `
-          <button type="button" onclick="setPenghuniPage(${penghuniCurrentPage - 1})" ${penghuniCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-semibold cursor-pointer">
+          <button type="button" onclick="setPenghuniPage(${penghuniCurrentPage - 1})" ${penghuniCurrentPage === 1 ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-[#DCE1E8] bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-semibold cursor-pointer">
             &laquo; Prev
           </button>
-          <span class="px-2 font-bold text-slate-700">Halaman ${penghuniCurrentPage} / ${totalPages}</span>
-          <button type="button" onclick="setPenghuniPage(${penghuniCurrentPage + 1})" ${penghuniCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-semibold cursor-pointer">
+          <span class="px-2 font-semibold text-slate-700 num-tabular">Hal ${penghuniCurrentPage} / ${totalPages}</span>
+          <button type="button" onclick="setPenghuniPage(${penghuniCurrentPage + 1})" ${penghuniCurrentPage === totalPages ? 'disabled' : ''} class="px-2.5 py-1 rounded border border-[#DCE1E8] bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-semibold cursor-pointer">
             Next &raquo;
           </button>
         `;
@@ -11983,116 +12114,80 @@ const PNS_SECTION_TO_DEPT = {
     if (pagedItems.length === 0) {
       tbody.innerHTML = `
         <tr>
-          <td colspan="9" class="text-center py-12 text-slate-500">
-            <i class="ph-bold ph-bed text-3xl mb-2 block text-slate-400"></i>
-            <span class="font-bold text-slate-700 block">Tidak ada slot kasur yang cocok</span>
-            <span class="text-[11px] text-slate-400">Coba ubah kata kunci pencarian atau reset filter gedung/kamar/status.</span>
+          <td colspan="6" class="text-center py-10 text-slate-500">
+            <span class="font-semibold text-slate-700 block">Tidak ada data penghuni atau slot yang cocok</span>
+            <span class="text-xs text-slate-400">Ubah kata kunci pencarian atau reset filter di atas.</span>
           </td>
         </tr>
       `;
       return;
     }
 
-    // Sequence: Gedung | Ruangan | No. Bed | Status | NIK | Nama Penghuni | Departemen | Kontak | Aksi
+    // 6 Clean Fit-To-Screen Stacked ERP Columns (Zero Horizontal Scroll)
     tbody.innerHTML = pagedItems.map((p, idx) => {
       const pIdEscaped = escapeHtml(String(p.id || idx));
       const isVacant = p.status_hunian === 'Vacant' || !p.nama_penghuni;
+      const bldgCodeEsc = escapeHtml(p.kode_gedung || '-');
 
       return `
-        <tr class="hover:bg-slate-50/90 transition border-b border-slate-100 ${isVacant ? 'bg-amber-50/20' : ''}">
-          <!-- 1. GEDUNG / LH -->
-          <td class="py-2.5 px-3.5 font-mono font-bold text-indigo-700 whitespace-nowrap">
-            <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded bg-indigo-50 border border-indigo-100 text-[11px]">
-              <i class="ph-bold ph-buildings text-indigo-500"></i> ${escapeHtml(p.kode_gedung)}
-            </span>
+        <tr class="hover:bg-slate-50 transition border-b border-slate-200/80 ${isVacant ? 'bg-slate-50/40' : ''}">
+          <!-- 1. GEDUNG & KAMAR -->
+          <td class="py-2 px-3 whitespace-normal break-words">
+            <button type="button" onclick="PNS_FM_STATE.sel='${bldgCodeEsc}'; navTo('view-fm-rincian');" class="font-mono font-bold text-xs text-[#0E5E63] hover:underline text-left block cursor-pointer" title="Klik untuk buka Rincian Kamar & Fasilitas">
+              ${bldgCodeEsc}
+            </button>
+            <div class="text-[11px] text-slate-600 mt-0.5 truncate">
+              ${escapeHtml(p.nama_ruangan || '-')} &bull; <span class="font-mono text-slate-500">${escapeHtml(p.nomor_kasur || 'Bed Std')}</span>
+            </div>
           </td>
-          <!-- 2. RUANGAN / KAMAR -->
-          <td class="py-2.5 px-3 font-semibold text-slate-800 whitespace-nowrap">
-            <span class="inline-flex items-center gap-1">
-              <i class="ph-bold ph-door text-slate-400"></i> ${escapeHtml(p.nama_ruangan)}
-            </span>
-          </td>
-          <!-- 3. NO. BED -->
-          <td class="py-2.5 px-3 font-mono text-[11px] text-slate-600 whitespace-nowrap">
-            <span class="px-2 py-0.5 rounded ${isVacant ? 'bg-amber-50 border border-amber-200 text-amber-900 font-bold' : 'bg-slate-100 border border-slate-200 text-slate-700 font-semibold'}">
-              <i class="ph-bold ph-bed ${isVacant ? 'text-amber-600' : 'text-indigo-500'} mr-1"></i>${escapeHtml(p.nomor_kasur || 'Bed Standard')}
-            </span>
-          </td>
-          <!-- 4. STATUS -->
-          <td class="py-2.5 px-3 whitespace-nowrap">
+
+          <!-- 2. NAMA PENGHUNI & MASKED NIK (UU PDP) -->
+          <td class="py-2 px-3 whitespace-normal break-words">
             ${isVacant ? `
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-200 inline-flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Vacant (Kosong)
+              <div class="text-xs text-slate-400 italic">Slot Kosong (Siap Huni)</div>
+              <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="text-[11px] text-[#0E5E63] font-semibold hover:underline cursor-pointer mt-0.5">+ Alokasikan Penghuni</button>
+            ` : `
+              <div onclick="editPenghuni('${pIdEscaped}')" class="font-semibold text-slate-900 hover:text-[#0E5E63] cursor-pointer truncate">${escapeHtml(p.nama_penghuni || '-')}</div>
+              <div class="font-mono text-[11px] text-slate-500 mt-0.5">NIK: ${p.nik ? escapeHtml(maskNik(p.nik)) : '-'}</div>
+            `}
+          </td>
+
+          <!-- 3. DEPARTEMEN & JABATAN -->
+          <td class="py-2 px-3 whitespace-normal break-words">
+            ${isVacant ? '<span class="text-slate-400 text-xs">-</span>' : `
+              <div class="font-semibold text-xs text-slate-800 truncate">${escapeHtml(p.departemen || '-')}</div>
+              <div class="text-[11px] text-slate-500 truncate mt-0.5">${escapeHtml(p.jabatan || 'Karyawan')}</div>
+            `}
+          </td>
+
+          <!-- 4. STATUS (CLEAN ERP DOT + TEXT) -->
+          <td class="py-2 px-3">
+            ${isVacant ? `
+              <span class="erp-status">
+                <span class="erp-status-dot bg-amber-500"></span>
+                <span class="text-slate-600">Vacant</span>
               </span>
             ` : `
-              <span class="px-2 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-emerald-100 text-emerald-800 border border-emerald-200 inline-flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Aktif (Terisi)
+              <span class="erp-status">
+                <span class="erp-status-dot bg-emerald-600"></span>
+                <span class="text-slate-900">Aktif</span>
               </span>
             `}
           </td>
-          <!-- 5. NIK -->
-          <td class="py-2.5 px-3 font-mono font-bold text-slate-700 whitespace-nowrap">
-            ${p.nik ? escapeHtml(maskNik(p.nik)) : '<span class="text-slate-400 font-normal italic text-[11px]">- Kosong -</span>'}
+
+          <!-- 5. KONTAK -->
+          <td class="py-2 px-3 font-mono text-[11px] text-slate-600 truncate">
+            ${p.no_kontak && p.no_kontak !== '-' ? `<a href="https://wa.me/${p.no_kontak.replace(/[^0-9]/g, '')}" target="_blank" class="text-[#0E5E63] hover:underline">${escapeHtml(p.no_kontak)}</a>` : '<span class="text-slate-400">-</span>'}
           </td>
-          <!-- 6. NAMA PENGHUNI DENGAN FOTO TERKAIT NAMA & JABATAN -->
-          <td class="py-2 px-3.5 whitespace-nowrap">
-            ${isVacant ? `
-              <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center text-amber-600 font-bold text-xs shrink-0 cursor-pointer shadow-2xs hover:bg-indigo-50 hover:text-indigo-600 transition" onclick="editPenghuni('${pIdEscaped}')" title="Klik untuk isi penghuni">
-                  <i class="ph-bold ph-user-plus text-sm"></i>
-                </div>
-                <div>
-                  <div class="font-bold text-slate-400 italic text-[11px]">-- Belum Ada Penghuni --</div>
-                  <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="text-[10px] text-indigo-600 font-bold hover:underline inline-flex items-center gap-0.5 cursor-pointer">
-                    <i class="ph-bold ph-plus"></i> Isi Nama Penghuni
-                  </button>
-                </div>
-              </div>
-            ` : `
-              <div class="flex items-center gap-2.5 cursor-pointer group/res" onclick="editPenghuni('${pIdEscaped}')" title="Klik untuk update data penghuni">
-                <div class="relative w-9 h-9 rounded-full overflow-hidden bg-indigo-50 border border-indigo-200 flex items-center justify-center text-indigo-600 font-bold text-xs shrink-0 shadow-2xs group-hover/res:scale-105 transition" onclick="event.stopPropagation(); openPenghuniPhotoAction('${pIdEscaped}')" title="Klik untuk lihat / lengkapi foto">
-                  <img src="${getPenghuniAvatarUrl(p)}" alt="${escapeHtml(p.nama_penghuni)}" class="w-full h-full object-cover">
-                  <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full bg-slate-900/80 text-white flex items-center justify-center text-[7px]"><i class="ph-bold ph-camera"></i></span>
-                </div>
-                <div>
-                  <div class="font-bold text-slate-900 group-hover/res:text-indigo-600 transition flex items-center gap-1">
-                    <span>${escapeHtml(p.nama_penghuni || '-')}</span>
-                    <i class="ph-bold ph-note-pencil text-[10px] text-slate-400 group-hover/res:text-indigo-600"></i>
-                  </div>
-                  <div class="text-[10px] text-slate-500">${escapeHtml(p.jabatan || 'Karyawan')}</div>
-                </div>
-              </div>
-            `}
-          </td>
-          <!-- 7. DEPARTEMEN -->
-          <td class="py-2.5 px-3 whitespace-nowrap">
-            ${p.departemen ? `
-              <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[11px]">
-                <i class="ph-bold ph-briefcase text-slate-400"></i> ${escapeHtml(p.departemen)}
-              </span>
-            ` : '<span class="text-slate-400 text-[11px] italic">- Siap Diisi -</span>'}
-          </td>
-          <!-- 8. KONTAK -->
-          <td class="py-2.5 px-3 font-mono text-slate-600 whitespace-nowrap">
-            ${p.no_kontak && p.no_kontak !== '-' ? `<a href="https://wa.me/${p.no_kontak.replace(/[^0-9]/g, '')}" target="_blank" class="text-indigo-600 hover:underline inline-flex items-center gap-1"><i class="ph-bold ph-whatsapp-logo text-emerald-600"></i> ${escapeHtml(p.no_kontak)}</a>` : '<span class="text-slate-400">-</span>'}
-          </td>
-          <!-- 9. AKSI TERPADU (UPDATE, FASILITAS KAMAR, INSPEKSI) -->
-          <td class="py-2.5 px-3 text-center whitespace-nowrap">
+
+          <!-- 6. AKSI -->
+          <td class="py-2 px-3 text-right">
             <div class="inline-flex items-center gap-1">
-              ${isVacant ? `
-                <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-2.5 py-1 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow-xs transition cursor-pointer inline-flex items-center gap-1" title="Isi Penghuni">
-                  <i class="ph-bold ph-user-plus"></i> Isi
-                </button>
-              ` : `
-                <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-2 py-1 text-xs font-semibold rounded-lg bg-slate-100 hover:bg-indigo-50 hover:text-indigo-600 text-slate-700 border border-slate-200 transition cursor-pointer inline-flex items-center gap-1" title="Edit Data Penghuni">
-                  <i class="ph-bold ph-note-pencil"></i> Edit
-                </button>
-              `}
-              <button type="button" onclick="window.openRoomRincianDirect('${escapeHtml(p.kode_gedung)}', '${escapeHtml(p.nama_ruangan)}')" class="px-2 py-1 text-xs font-semibold rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white border border-emerald-200 transition cursor-pointer inline-flex items-center gap-1" title="Lihat Fasilitas & Kamar">
-                <i class="ph-bold ph-bed"></i> Kamar
+              <button type="button" onclick="editPenghuni('${pIdEscaped}')" class="px-2 py-1 text-[11px] font-semibold rounded border border-[#DCE1E8] bg-white hover:bg-slate-100 text-slate-700 cursor-pointer transition" title="${isVacant ? 'Isi Penghuni' : 'Edit Data Penghuni'}">
+                ${isVacant ? 'Isi' : 'Edit'}
               </button>
-              <button type="button" onclick="window.openRoomInspectionDirect('${escapeHtml(p.kode_gedung)}', '${escapeHtml(p.nama_ruangan)}')" class="px-2 py-1 text-xs font-semibold rounded-lg bg-amber-50 hover:bg-amber-600 text-amber-800 hover:text-white border border-amber-200 transition cursor-pointer inline-flex items-center gap-1" title="Inspeksi Kamar Ini">
-                <i class="ph-bold ph-clipboard-text"></i>
+              <button type="button" onclick="PNS_FM_STATE.sel='${bldgCodeEsc}'; navTo('view-fm-rincian');" class="px-2 py-1 text-[11px] font-semibold rounded border border-[#DCE1E8] bg-white hover:border-[#0E5E63] hover:text-[#0E5E63] text-slate-700 cursor-pointer transition" title="Lihat Kamar & Fasilitas">
+                Kamar
               </button>
             </div>
           </td>

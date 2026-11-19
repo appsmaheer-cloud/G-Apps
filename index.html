@@ -4529,73 +4529,165 @@
       <!-- ======================================================== -->
       <!-- VIEW: PENGHUNI MESS / AVAILABILITY HUNIAN -->
       <!-- ======================================================== -->
-      <div id="view-penghuni" class="page-view hidden space-y-4">
-        
-        <!-- Header -->
-        <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-3">
+      <div id="view-penghuni" class="page-view hidden space-y-3.5 pb-6">
+
+        <!-- 1. EXECUTIVE TITLE & ACTION BAR (VRA STYLE, CLEAN ERP FLAT) -->
+        <div class="bg-white rounded border border-[#DCE1E8] p-3.5 flex flex-col md:flex-row items-start md:items-center justify-between gap-3">
           <div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-200/80 mb-1">
-              <i class="ph-bold ph-bed text-indigo-500"></i> FASILITAS HUNIAN &amp; MESS KARYAWAN PT PNS
+            <div class="flex items-center gap-2 mb-0.5 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">
+              <span class="w-1.5 h-1.5 rounded-full bg-[#0E5E63]"></span>
+              <span>Facility Intelligence</span>
+              <span class="text-slate-300">/</span>
+              <span>Sensus Hunian &amp; Okupansi Mess</span>
             </div>
-            <h2 class="text-xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2">
-              Availability &amp; Daftar Penghuni Mess / Longhouse
-            </h2>
-            <p class="text-xs text-slate-500">
-              Monitoring status ketersediaan ranjang (Terisi / Vacant) per gedung dan nomor kamar (Standar LH Staff: 4 orang per kamar).
-            </p>
+            <h1 class="text-lg font-bold text-slate-900 tracking-tight">
+              Daftar Penghuni &amp; Analisa Okupansi Mess
+            </h1>
           </div>
           <div class="flex flex-wrap items-center gap-2">
-            <button type="button" onclick="exportPenghuniExcel('xlsx')" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-1.5 transition shadow-xs cursor-pointer" title="Download Data Penghuni Mess ke Microsoft Excel (.xlsx)">
-              <i class="ph-bold ph-file-xls text-sm"></i> Download Excel (.xlsx)
+            <button type="button" onclick="exportPenghuniExcel('xlsx')" class="px-3 py-1.5 text-xs font-semibold rounded bg-[#0E5E63] hover:bg-[#0A464A] text-white flex items-center gap-1.5 transition cursor-pointer" title="Download Data Penghuni Mess ke Microsoft Excel (.xlsx)">
+              <i class="ph ph-file-xls text-sm"></i> Export Excel
             </button>
-            <button type="button" onclick="promptAddPenghuni()" class="px-3.5 py-2 text-xs font-bold rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white flex items-center gap-1.5 transition shadow-xs cursor-pointer">
-              <i class="ph-bold ph-user-plus text-sm"></i> Tambah Penghuni Baru
+            <button type="button" onclick="promptAddPenghuni()" class="px-3 py-1.5 text-xs font-semibold rounded bg-slate-900 hover:bg-slate-800 text-white flex items-center gap-1.5 transition cursor-pointer">
+              <i class="ph ph-user-plus text-sm"></i> Tambah Penghuni
             </button>
-            <button type="button" onclick="syncAllFromBackend(true)" class="px-3 py-2 text-xs font-semibold rounded-lg bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 flex items-center gap-1.5 transition shadow-2xs cursor-pointer">
-              <i class="ph-bold ph-arrows-clockwise text-indigo-500"></i> Refresh Data
+            <button type="button" onclick="syncAllFromBackend(true)" class="px-2.5 py-1.5 text-xs font-semibold rounded bg-white border border-[#DCE1E8] hover:bg-slate-50 text-slate-700 flex items-center gap-1.5 transition cursor-pointer">
+              <i class="ph ph-arrows-clockwise text-sm"></i> Refresh
             </button>
           </div>
         </div>
 
-        <!-- FASILITAS HUNIAN / LONGHOUSE BUTTON CARDS -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-black uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
-              <i class="ph-bold ph-buildings text-indigo-600"></i> Blok Hunian, Mess &amp; Longhouse Karyawan
-            </span>
-            <span class="text-[11px] text-slate-400 font-medium">Klik card untuk filter kamar &amp; penghuni</span>
+        <!-- 2. 6 REACTIVE ENTERPRISE KPI CARDS (VRA-GRADE ANALYTICS) -->
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2.5">
+          <!-- KPI 1: Total Slot -->
+          <div class="bg-white rounded border border-[#DCE1E8] p-3 transition hover:border-[#BAC4D1]">
+            <div class="flex items-center justify-between text-slate-500 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Total Slot</span>
+              <i class="ph ph-bed text-slate-400 text-base"></i>
+            </div>
+            <div class="text-xl font-bold text-slate-900 num-tabular tracking-tight" id="penghuni-kpi-total">1.506</div>
+            <div class="text-[11px] text-slate-500 mt-0.5 truncate" id="penghuni-kpi-sub-total">409 Terisi &bull; 1.097 Kosong</div>
           </div>
-          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3" id="hunian-house-cards-grid">
+
+          <!-- KPI 2: Penghuni Aktif -->
+          <div class="bg-white rounded border border-[#DCE1E8] p-3 transition hover:border-[#BAC4D1]">
+            <div class="flex items-center justify-between text-slate-500 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Penghuni Aktif</span>
+              <i class="ph ph-users text-[#0E5E63] text-base"></i>
+            </div>
+            <div class="text-xl font-bold text-[#0E5E63] num-tabular tracking-tight" id="penghuni-kpi-aktif">409</div>
+            <div class="text-[11px] text-[#0E5E63] font-medium mt-0.5 truncate" id="penghuni-kpi-sub-aktif">27.2% Rasio Okupansi</div>
+          </div>
+
+          <!-- KPI 3: Slot Kosong Siap Huni -->
+          <div class="bg-white rounded border border-[#DCE1E8] p-3 transition hover:border-[#BAC4D1]">
+            <div class="flex items-center justify-between text-slate-500 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Slot Kosong</span>
+              <i class="ph ph-check-square-offset text-emerald-600 text-base"></i>
+            </div>
+            <div class="text-xl font-bold text-slate-900 num-tabular tracking-tight" id="penghuni-kpi-vacant">1.097</div>
+            <div class="text-[11px] text-emerald-700 font-medium mt-0.5 truncate" id="penghuni-kpi-sub-vacant">72.8% Siap Huni</div>
+          </div>
+
+          <!-- KPI 4: Gedung / Mess -->
+          <div class="bg-white rounded border border-[#DCE1E8] p-3 transition hover:border-[#BAC4D1]">
+            <div class="flex items-center justify-between text-slate-500 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Gedung / Mess</span>
+              <i class="ph ph-buildings text-slate-400 text-base"></i>
+            </div>
+            <div class="text-xl font-bold text-slate-900 num-tabular tracking-tight" id="penghuni-kpi-bldg">28</div>
+            <div class="text-[11px] text-slate-500 mt-0.5 truncate" id="penghuni-kpi-sub-bldg">Unit Bangunan Hunian</div>
+          </div>
+
+          <!-- KPI 5: Kamar Terisi -->
+          <div class="bg-white rounded border border-[#DCE1E8] p-3 transition hover:border-[#BAC4D1]">
+            <div class="flex items-center justify-between text-slate-500 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Kamar Terisi</span>
+              <i class="ph ph-door text-slate-400 text-base"></i>
+            </div>
+            <div class="text-xl font-bold text-slate-900 num-tabular tracking-tight" id="penghuni-kpi-rooms">0</div>
+            <div class="text-[11px] text-slate-500 mt-0.5 truncate" id="penghuni-kpi-sub-rooms">Kamar Aktif / Total</div>
+          </div>
+
+          <!-- KPI 6: Departemen Terbanyak -->
+          <div class="bg-white rounded border border-[#DCE1E8] p-3 transition hover:border-[#BAC4D1]">
+            <div class="flex items-center justify-between text-slate-500 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider">Dept Terbesar</span>
+              <i class="ph ph-briefcase text-slate-400 text-base"></i>
+            </div>
+            <div class="text-base font-bold text-slate-900 truncate tracking-tight mt-0.5" id="penghuni-kpi-topdept">-</div>
+            <div class="text-[11px] text-slate-500 mt-1 truncate" id="penghuni-kpi-sub-topdept">0 Orang (0%)</div>
+          </div>
+        </div>
+
+        <!-- 3. 2 REACTIVE ANALYTICAL BREAKDOWN PANELS (VRA STYLE: CLICKABLE CROSS-FILTER) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-3">
+          <!-- Panel Kiri: Okupansi per Site / Lokasi -->
+          <div class="bg-white rounded border border-[#DCE1E8] p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div>
+                <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Analisa Okupansi per Site</h2>
+                <p class="text-[11px] text-slate-500">Klik baris site untuk memfilter tabel penghuni di bawah</p>
+              </div>
+              <span class="text-xs font-bold text-[#0E5E63] num-tabular" id="penghuni-analisa-occ-pct">27.2% Terisi</span>
+            </div>
+            <div id="penghuni-analisa-site" class="space-y-2">
+              <!-- Populated dynamically by renderPenghuniTable() -->
+            </div>
+          </div>
+
+          <!-- Panel Kanan: Distribusi per Departemen (Top 6) -->
+          <div class="bg-white rounded border border-[#DCE1E8] p-3.5 space-y-2.5">
+            <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+              <div>
+                <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Distribusi Penghuni per Departemen</h2>
+                <p class="text-[11px] text-slate-500">Klik departemen untuk melihat daftar karyawan penghuninya</p>
+              </div>
+              <span class="text-xs font-semibold text-slate-500 num-tabular" id="penghuni-analisa-dept-count">Top 6 Dept</span>
+            </div>
+            <div id="penghuni-analisa-dept" class="space-y-2">
+              <!-- Populated dynamically by renderPenghuniTable() -->
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. BLOK HUNIAN QUICK SLICER (COLLAPSIBLE / COMPACT) -->
+        <div class="bg-white rounded border border-[#DCE1E8] p-3 space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-[11px] font-bold uppercase tracking-wider text-slate-600">Filter Cepat Blok Hunian / Longhouse</span>
+            <span class="text-[11px] text-slate-400">Klik blok untuk memfilter kamar</span>
+          </div>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2" id="hunian-house-cards-grid">
             <!-- Populated dynamically via renderHunianHouseCards() -->
           </div>
         </div>
 
-        <!-- AREA KUNING: SEARCH & FILTER CEPAT GEDUNG / LH / KAMAR -->
-        <div class="clean-card p-4 bg-white border border-slate-200/90 shadow-2xs space-y-3">
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
-            <div class="flex items-center gap-2">
-              <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
-              <span class="text-xs font-bold text-slate-800">Filter Cepat Hunian &amp; Pencarian Kamar</span>
+        <!-- 5. FILTER TOOLBAR (CLEAN ERP, ZERO EMOJI) -->
+        <div class="bg-white rounded border border-[#DCE1E8] p-3 space-y-2.5">
+          <div class="flex flex-wrap items-center justify-between gap-2">
+            <div class="flex items-center gap-2 text-xs font-bold text-slate-800 uppercase tracking-wider">
+              <i class="ph ph-funnel text-slate-500"></i> Filter Data Penghuni
             </div>
-            <!-- Quick Counters -->
-            <div class="flex items-center gap-2 text-xs">
-              <span id="badge-total-slots" class="px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700 font-bold border border-slate-200">
-                Total: 409 Penghuni
-              </span>
-              <span id="badge-terisi-slots" class="px-2.5 py-0.5 rounded-md bg-emerald-50 text-emerald-700 font-bold border border-emerald-200">
-                Aktif: 409 Orang
-              </span>
-              <span id="badge-vacant-slots" class="px-2.5 py-0.5 rounded-md bg-indigo-50 text-indigo-700 font-bold border border-indigo-200">
-                28 Mess / LH
-              </span>
+            <div class="flex items-center gap-3 text-[11px] font-mono text-slate-600">
+              <span id="badge-total-slots">Total: 1.506</span>
+              <span class="text-slate-300">|</span>
+              <span id="badge-terisi-slots" class="text-[#0E5E63] font-semibold">Aktif: 409</span>
+              <span class="text-slate-300">|</span>
+              <span id="badge-vacant-slots">Vacant: 1.097</span>
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2.5">
-            <!-- Filter Site / Lokasi -->
-            <div class="lg:col-span-3">
-              <select id="filter-penghuni-loc" onchange="window.onPenghuniLocFilterChange()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition cursor-pointer">
-                <option value="">🏢 Semua Site / Lokasi</option>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-12 gap-2">
+            <!-- Search -->
+            <div class="lg:col-span-3 relative">
+              <i class="ph ph-magnifying-glass absolute left-2.5 top-2 text-slate-400 text-sm"></i>
+              <input type="text" id="search-penghuni" oninput="onSearchPenghuni()" placeholder="Cari NIK, Nama, Kamar..." class="w-full pl-8 pr-2.5 py-1.5 text-xs rounded border border-[#DCE1E8] bg-white text-slate-800 placeholder:text-slate-400 focus:outline-none focus:border-[#0E5E63]">
+            </div>
+
+            <!-- Filter Site -->
+            <div class="lg:col-span-2">
+              <select id="filter-penghuni-loc" onchange="window.onPenghuniLocFilterChange()" class="w-full px-2.5 py-1.5 text-xs rounded border border-[#DCE1E8] bg-white text-slate-800 font-medium focus:outline-none focus:border-[#0E5E63] cursor-pointer">
+                <option value="">Semua Site / Lokasi</option>
                 <option value="central">Central Office (CO)</option>
                 <option value="e12">Estate 1-2 (E1/E2)</option>
                 <option value="e3">Estate 3 (E3)</option>
@@ -4605,122 +4697,71 @@
               </select>
             </div>
 
-            <!-- Kolom Pencarian LH / Kamar / NIK / Nama -->
-            <div class="lg:col-span-3 relative">
-              <i class="ph-bold ph-magnifying-glass absolute left-3 top-2.5 text-slate-500 text-sm"></i>
-              <input type="text" id="search-penghuni" oninput="onSearchPenghuni()" placeholder="Cari NIK, Nama, Kamar..." class="w-full pl-9 pr-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition">
-            </div>
-
-            <!-- Filter Gedung / LH -->
+            <!-- Filter Departemen -->
             <div class="lg:col-span-2">
-              <select id="filter-penghuni-bldg" onchange="onPenghuniBldgFilterChange()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition cursor-pointer">
-                <option value="">Semua Gedung / LH</option>
+              <select id="filter-penghuni-dept" onchange="penghuniCurrentPage=1; renderPenghuniTable()" class="w-full px-2.5 py-1.5 text-xs rounded border border-[#DCE1E8] bg-white text-slate-800 font-medium focus:outline-none focus:border-[#0E5E63] cursor-pointer">
+                <option value="">Semua Departemen</option>
               </select>
             </div>
 
-            <!-- Filter Ruangan / Kamar -->
+            <!-- Filter Gedung -->
             <div class="lg:col-span-2">
-              <select id="filter-penghuni-room" onchange="renderPenghuniTable()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 font-medium focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition cursor-pointer">
-                <option value="">Semua Kamar</option>
+              <select id="filter-penghuni-bldg" onchange="onPenghuniBldgFilterChange()" class="w-full px-2.5 py-1.5 text-xs rounded border border-[#DCE1E8] bg-white text-slate-800 font-medium focus:outline-none focus:border-[#0E5E63] cursor-pointer">
+                <option value="">Semua Gedung</option>
               </select>
             </div>
 
-            <!-- Filter Status Availability & Reset -->
+            <!-- Filter Kamar -->
+            <div class="lg:col-span-1">
+              <select id="filter-penghuni-room" onchange="renderPenghuniTable()" class="w-full px-2 py-1.5 text-xs rounded border border-[#DCE1E8] bg-white text-slate-800 font-medium focus:outline-none focus:border-[#0E5E63] cursor-pointer">
+                <option value="">Kamar</option>
+              </select>
+            </div>
+
+            <!-- Status & Reset -->
             <div class="lg:col-span-2 flex items-center gap-1.5">
-              <select id="filter-penghuni-status" onchange="renderPenghuniTable()" class="w-full px-3 py-2 text-xs rounded-lg border border-slate-200 bg-white text-slate-800 font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 transition cursor-pointer">
-                <option value="">Availability Slot</option>
+              <select id="filter-penghuni-status" onchange="renderPenghuniTable()" class="w-full px-2 py-1.5 text-xs rounded border border-[#DCE1E8] bg-white text-slate-800 font-medium focus:outline-none focus:border-[#0E5E63] cursor-pointer">
+                <option value="">Semua Status</option>
                 <option value="Aktif">Aktif (Terisi)</option>
-                <option value="Vacant">Vacant (Ada Slot Kosong)</option>
+                <option value="Vacant">Vacant (Kosong)</option>
               </select>
-              <button type="button" onclick="resetPenghuniFilters()" class="px-2.5 py-2 text-xs font-bold rounded-lg border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer flex items-center gap-1 shadow-2xs" title="Reset Filter Penghuni">
-                <i class="ph-bold ph-arrows-counter-clockwise"></i>
+              <button type="button" onclick="resetPenghuniFilters()" class="px-2 py-1.5 text-xs font-semibold rounded border border-[#DCE1E8] bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition cursor-pointer shrink-0" title="Reset Semua Filter">
+                <i class="ph ph-arrow-counter-clockwise"></i>
               </button>
             </div>
           </div>
         </div>
 
-        <!-- TABEL PENGHUNI DENGAN URUTAN BARU & SORTING CLICKABLE (Area Orange Screenshot 6) -->
-        <!-- Urutan Kolom: Gedung | Ruangan | No. Bed | NIK | Nama Penghuni | Dept | Status | Kontak | Aksi -->
-        <div class="clean-card overflow-hidden border border-slate-200 rounded-xl shadow-xs bg-white">
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead class="bg-slate-50/95 text-slate-700 uppercase tracking-wider text-[11px] font-bold border-b border-slate-200 select-none">
+        <!-- 6. ZERO-SCROLL FIT-TO-SCREEN ERP TABLE (STICKY HEADER) -->
+        <div class="bg-white rounded border border-[#DCE1E8] overflow-hidden">
+          <div class="overflow-x-hidden max-h-[580px] overflow-y-auto scrollbar-thin">
+            <table class="w-full table-fixed text-left border-collapse text-[13px]">
+              <thead class="bg-[#F8FAFC] sticky top-0 z-10 text-slate-600 uppercase tracking-wider text-[11px] font-bold border-b border-slate-300 select-none">
                 <tr>
-                  <!-- 1. GEDUNG / LH -->
-                  <th onclick="sortPenghuni('kode_gedung')" class="py-3 px-3.5 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-buildings text-indigo-500"></i>
-                      <span>Gedung / LH</span>
-                      <span id="sort-icon-kode_gedung" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
-                    </div>
+                  <th onclick="sortPenghuni('kode_gedung')" class="py-2.5 px-3 w-[20%] cursor-pointer hover:bg-slate-100 transition">
+                    Gedung &amp; Kamar <span id="sort-icon-kode_gedung" class="text-[10px] text-slate-400 ml-1">&#8597;</span>
                   </th>
-                  <!-- 2. RUANGAN / KAMAR -->
-                  <th onclick="sortPenghuni('nama_ruangan')" class="py-3 px-3 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-door text-slate-500"></i>
-                      <span>Ruangan / Kamar</span>
-                      <span id="sort-icon-nama_ruangan" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
-                    </div>
+                  <th onclick="sortPenghuni('nama_penghuni')" class="py-2.5 px-3 w-[26%] cursor-pointer hover:bg-slate-100 transition">
+                    Nama Penghuni &amp; NIK <span id="sort-icon-nama_penghuni" class="text-[10px] text-slate-400 ml-1">&#8597;</span>
                   </th>
-                  <!-- 3. NO. BED / SLOT (Standar 4 Bed per Kamar) -->
-                  <th onclick="sortPenghuni('nomor_kasur')" class="py-3 px-3 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-bed text-indigo-500"></i>
-                      <span>No. Bed / Slot</span>
-                      <span id="sort-icon-nomor_kasur" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
-                    </div>
+                  <th onclick="sortPenghuni('departemen')" class="py-2.5 px-3 w-[20%] cursor-pointer hover:bg-slate-100 transition">
+                    Departemen &amp; Jabatan <span id="sort-icon-departemen" class="text-[10px] text-slate-400 ml-1">&#8597;</span>
                   </th>
-                  <!-- 4. STATUS (Terisi / Vacant) -->
-                  <th onclick="sortPenghuni('status_hunian')" class="py-3 px-3 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-info text-amber-500"></i>
-                      <span>Status</span>
-                      <span id="sort-icon-status_hunian" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
-                    </div>
+                  <th onclick="sortPenghuni('status_hunian')" class="py-2.5 px-3 w-[12%] cursor-pointer hover:bg-slate-100 transition">
+                    Status <span id="sort-icon-status_hunian" class="text-[10px] text-slate-400 ml-1">&#8597;</span>
                   </th>
-                  <!-- 5. NIK -->
-                  <th onclick="sortPenghuni('nik')" class="py-3 px-3 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-identification-card text-slate-500"></i>
-                      <span>NIK</span>
-                      <span id="sort-icon-nik" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
-                    </div>
-                  </th>
-                  <!-- 6. NAMA PENGHUNI (Bisa Langsung Diisi / Diedit) -->
-                  <th onclick="sortPenghuni('nama_penghuni')" class="py-3 px-3.5 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-user text-emerald-500"></i>
-                      <span>Nama Penghuni</span>
-                      <span id="sort-icon-nama_penghuni" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
-                    </div>
-                  </th>
-                  <!-- 7. DEPARTEMEN -->
-                  <th onclick="sortPenghuni('departemen')" class="py-3 px-3 cursor-pointer hover:bg-slate-100 hover:text-indigo-600 transition group whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-briefcase text-slate-500"></i>
-                      <span>Departemen</span>
-                      <span id="sort-icon-departemen" class="text-xs font-black text-slate-400 group-hover:text-indigo-600">&#8597;</span>
-                    </div>
-                  </th>
-                  <!-- 8. KONTAK -->
-                  <th class="py-3 px-3 text-slate-600 whitespace-nowrap">
-                    <div class="flex items-center gap-1.5">
-                      <i class="ph-bold ph-phone text-slate-500"></i>
-                      <span>Kontak / WA</span>
-                    </div>
-                  </th>
-                  <!-- 9. AKSI EDIT / ISI -->
-                  <th class="py-3 px-3 text-center text-slate-600 whitespace-nowrap">Aksi</th>
+                  <th class="py-2.5 px-3 w-[11%]">Kontak</th>
+                  <th class="py-2.5 px-3 w-[11%] text-right">Aksi</th>
                 </tr>
               </thead>
-              <tbody id="table-penghuni-body" class="divide-y divide-slate-100">
+              <tbody id="table-penghuni-body" class="divide-y divide-slate-200">
                 <!-- Rendered dynamically via renderPenghuniTable() in app.js -->
               </tbody>
             </table>
           </div>
-          <!-- Pagination Toolbar for 3,000+ Bed Slots -->
-          <div id="penghuni-pagination-bar" class="p-3 bg-slate-50/80 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-600">
-            <div id="penghuni-page-info" class="font-medium">
+          <!-- Pagination Toolbar -->
+          <div id="penghuni-pagination-bar" class="px-3.5 py-2.5 bg-[#F8FAFC] border-t border-[#DCE1E8] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-600">
+            <div id="penghuni-page-info" class="font-medium num-tabular">
               Menampilkan data ranjang...
             </div>
             <div class="flex items-center gap-1.5" id="penghuni-page-controls">
