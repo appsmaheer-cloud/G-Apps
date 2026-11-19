@@ -1487,13 +1487,17 @@
 
                 <!-- POWER BI DRILL-THROUGH CONTEXT MENU POPUP -->
                 <div id="pbi-drill-context-menu" class="hidden fixed z-50 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 w-60 text-xs text-slate-700 select-none">
-                    <option value="Koridor / Ruang Bersama">🚪 Koridor / Ruang Bersama</option>
-                  <option value="Fasilitas Lainnya">📦 Fasilitas / Aset Lainnya</option>
+                    <option value="Koridor / Ruang Bersama">Koridor / Ruang Bersama</option>
+                  <option value="Fasilitas Lainnya">Fasilitas / Aset Lainnya</option>
                 </select>
               </div>
               <div>
                 <label class="block font-bold text-slate-700 mb-1 text-[11px]">Keterangan / Catatan Foto:</label>
-                <input type="text" id="hunian-pending-caption" placeholder="Contoh: Tampak depan Mess Blok Barat" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-1 focus:ring-indigo-500">
+                <input type="text" id="hunian-pending-caption" placeholder="Contoh: Tampak depan Mess Blok Barat" class="w-full px-2.5 py-1.5 text-xs rounded border border-[#DCE1E8] bg-white focus:outline-none focus:border-[#0E5E63]">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1 text-[11px]">Diperbarui Oleh (Nama Petugas):</label>
+                <input type="text" id="hunian-pending-uploader" value="Miftahul Khoiry" placeholder="Nama petugas lapangan..." class="w-full px-2.5 py-1.5 text-xs rounded border border-[#DCE1E8] bg-white focus:outline-none focus:border-[#0E5E63]">
               </div>
               <button type="button" onclick="confirmSaveHunianPhoto()" class="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
                 <i class="ph-bold ph-check"></i> Simpan Foto ke Sistem &amp; Spreadsheet
@@ -1677,10 +1681,6 @@
                 </tr>
                 <tr class="hover:bg-slate-50">
                   <td class="py-2 px-3 font-mono font-bold text-slate-700">E2</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Estate 2</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">2.680</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">2.680</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
     <div id="modal-drilldown-validasi" onclick="if(event.target === this) closeValidasiDrillModal()" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
     <div class="clean-card w-full max-w-5xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in">
       <!-- Modal Header -->

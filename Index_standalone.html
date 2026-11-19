@@ -5635,17 +5635,21 @@ body.validasi-standalone-view #validasi-standalone-topbar {
               <div>
                 <label class="block font-bold text-slate-700 mb-1 text-[11px]">Kategori Foto:</label>
                 <select id="hunian-pending-category" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white font-medium focus:ring-1 focus:ring-indigo-500">
-                  <option value="Tampak Depan / Eksterior">🏡 Tampak Depan / Bangunan Luar</option>
-                  <option value="Kamar Tidur / Bed">🛏️ Kamar Tidur / Ranjang</option>
-                  <option value="Kamar Mandi / Sanitasi">🚿 Kamar Mandi / Toilet</option>
-                  <option value="Dapur / Ruang Makan">🍽️ Dapur / Ruang Makan</option>
-                  <option value="Koridor / Ruang Bersama">🚪 Koridor / Ruang Bersama</option>
-                  <option value="Fasilitas Lainnya">📦 Fasilitas / Aset Lainnya</option>
+                  <option value="Tampak Depan / Eksterior">Tampak Depan / Bangunan Luar</option>
+                  <option value="Kamar Tidur / Bed">Kamar Tidur / Ranjang</option>
+                  <option value="Kamar Mandi / Sanitasi">Kamar Mandi / Toilet</option>
+                  <option value="Dapur / Ruang Makan">Dapur / Ruang Makan</option>
+                  <option value="Koridor / Ruang Bersama">Koridor / Ruang Bersama</option>
+                  <option value="Fasilitas Lainnya">Fasilitas / Aset Lainnya</option>
                 </select>
               </div>
               <div>
                 <label class="block font-bold text-slate-700 mb-1 text-[11px]">Keterangan / Catatan Foto:</label>
-                <input type="text" id="hunian-pending-caption" placeholder="Contoh: Tampak depan Mess Blok Barat" class="w-full px-2.5 py-1.5 text-xs rounded-lg border border-slate-300 bg-white focus:ring-1 focus:ring-indigo-500">
+                <input type="text" id="hunian-pending-caption" placeholder="Contoh: Tampak depan Mess Blok Barat" class="w-full px-2.5 py-1.5 text-xs rounded border border-[#DCE1E8] bg-white focus:outline-none focus:border-[#0E5E63]">
+              </div>
+              <div>
+                <label class="block font-bold text-slate-700 mb-1 text-[11px]">Diperbarui Oleh (Nama Petugas):</label>
+                <input type="text" id="hunian-pending-uploader" value="Miftahul Khoiry" placeholder="Nama petugas lapangan..." class="w-full px-2.5 py-1.5 text-xs rounded border border-[#DCE1E8] bg-white focus:outline-none focus:border-[#0E5E63]">
               </div>
               <button type="button" onclick="confirmSaveHunianPhoto()" class="w-full py-2 px-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-xs flex items-center justify-center gap-1.5 shadow-xs transition cursor-pointer">
                 <i class="ph-bold ph-check"></i> Simpan Foto ke Sistem &amp; Spreadsheet
@@ -6425,6 +6429,43 @@ body.validasi-standalone-view #validasi-standalone-topbar {
   }
   window.getHunianBuildingIllustration = getHunianBuildingIllustration;
 
+  function getDefaultLhPhotoInfo(b) {
+    const label = ((b && (b.nama_bangunan || b.nama_gedung || b.kode_gedung)) || '').toUpperCase();
+    if (label.includes('SPTD')) {
+      return {
+        url: 'img/lh/Depan Mess SPTD.jpeg',
+        label: 'Foto Standar Mess SPTD',
+        gallery: [
+          { url: 'img/lh/Depan Mess SPTD.jpeg', category: 'Tampak Depan', caption: 'Tampak Depan Mess SPTD (Foto Standar LH)' },
+          { url: 'img/lh/Pantry Mess SPTD.jpeg', category: 'Dapur / Pantry', caption: 'Pantry Mess SPTD (Foto Standar LH)' },
+          { url: 'img/lh/Samping Mess SPTD.jpeg', category: 'Tampak Samping', caption: 'Samping Mess SPTD (Foto Standar LH)' }
+        ]
+      };
+    }
+    if (label.includes('SPV') || label.includes('SUPERVISOR')) {
+      return {
+        url: 'img/lh/Depan mess spv.jpeg',
+        label: 'Foto Standar Mess SPV',
+        gallery: [
+          { url: 'img/lh/Depan mess spv.jpeg', category: 'Tampak Depan', caption: 'Tampak Depan Mess SPV (Foto Standar LH)' },
+          { url: 'img/lh/Pantry mess SPV.jpeg', category: 'Dapur / Pantry', caption: 'Pantry Mess SPV (Foto Standar LH)' },
+          { url: 'img/lh/SAMPING MESS SPV.jpeg', category: 'Tampak Samping', caption: 'Samping Mess SPV (Foto Standar LH)' }
+        ]
+      };
+    }
+    return {
+      url: 'img/lh/Depan Mess Staff dan Operator.jpeg',
+      label: 'Foto Standar LH Staff/Opt',
+      gallery: [
+        { url: 'img/lh/Depan Mess Staff dan Operator.jpeg', category: 'Tampak Depan', caption: 'Tampak Depan LH Staff & Operator (Foto Standar LH)' },
+        { url: 'img/lh/Pantry Mess Staff Operator 1.jpeg', category: 'Dapur / Pantry', caption: 'Pantry LH Staff & Operator (Foto Standar LH)' },
+        { url: 'img/lh/Samping Area Jemuran Staff dan Operator.jpeg', category: 'Area Jemuran', caption: 'Samping Area Jemuran LH (Foto Standar LH)' },
+        { url: 'img/lh/Lorong.jpeg', category: 'Koridor', caption: 'Koridor / Lorong LH (Foto Standar LH)' }
+      ]
+    };
+  }
+  window.getDefaultLhPhotoInfo = getDefaultLhPhotoInfo;
+
   function renderHunianHouseCards() {
     const grid = document.getElementById('hunian-house-cards-grid');
     if (!grid) return;
@@ -6434,10 +6475,9 @@ body.validasi-standalone-view #validasi-standalone-topbar {
     const penghuni = (appState && appState.penghuni) ? appState.penghuni : [];
     const hunianPhotos = (appState && appState.hunianPhotos) ? appState.hunianPhotos : {};
 
-    // Filter buildings that are mess/longhouse/hunian
     const hunianBldgs = bldgs.filter(b => {
       const cat = (b.kategori_fungsi || b.kategori || '').toUpperCase();
-      const n = (b.nama_bangunan || b.kode_gedung || '').toUpperCase();
+      const n = (b.nama_bangunan || b.nama_gedung || b.kode_gedung || '').toUpperCase();
       return cat.includes('HUNIAN') || n.includes('MESS') || n.includes('LONG HOUSE') || n.includes('BARAK') || n.includes('LH');
     });
 
@@ -6452,59 +6492,68 @@ body.validasi-standalone-view #validasi-standalone-topbar {
       const capacity = roomCount * 4;
       const occPct = capacity > 0 ? Math.min(100, Math.round((residentCount / capacity) * 100)) : 0;
       const isFull = residentCount >= capacity;
+
       const rawPhotos = (hunianPhotos[code] || []).filter(ph => ph && ph.url && !String(ph.url).includes('images.unsplash.com'));
-      const hasPhotos = rawPhotos.length > 0;
-      const thumbUrl = hasPhotos ? rawPhotos[0].url : getHunianBuildingIllustration(b);
+      const hasCustomPhotos = rawPhotos.length > 0;
+      const defaultLh = getDefaultLhPhotoInfo(b);
+      const thumbUrl = hasCustomPhotos ? rawPhotos[0].url : defaultLh.url;
+      const latestPhoto = hasCustomPhotos ? rawPhotos[0] : null;
+      const updatedWhen = latestPhoto && latestPhoto.created_at ? latestPhoto.created_at : 'Standar LH';
+      const updatedBy = latestPhoto && latestPhoto.uploader ? latestPhoto.uploader : 'Belum diperbarui';
+      const displayName = b.nama_bangunan || b.nama_gedung || code;
 
       return `
-        <div onclick="filterPenghuniByHouse('${code}')" class="hunian-house-card group text-left p-3.5 rounded-2xl bg-white border border-slate-200/90 hover:border-indigo-500 hover:shadow-md transition-all duration-200 flex flex-col justify-between shadow-2xs cursor-pointer relative overflow-hidden" data-house-code="${code}">
-          <!-- Roof Banner / House Shape Top -->
-          <div class="absolute top-0 inset-x-0 h-1.5 bg-gradient-to-r from-indigo-500 via-sky-500 to-indigo-600 group-hover:h-2 transition-all"></div>
-          
+        <div onclick="filterPenghuniByHouse('${escapeHtml(code)}')" class="hunian-house-card group text-left p-2.5 rounded bg-white border border-[#DCE1E8] hover:border-[#0E5E63] transition flex flex-col justify-between cursor-pointer relative overflow-hidden" data-house-code="${escapeHtml(code)}">
           <div>
-            <!-- BUILDING ILLUSTRATION OR REAL UPLOADED PHOTO BANNER -->
-            <div class="relative w-full h-24 rounded-xl overflow-hidden mb-2.5 border border-slate-100 shadow-2xs group/img bg-slate-900">
-              <img src="${thumbUrl}" alt="Visual ${escapeHtml(b.nama_bangunan || code)}" class="w-full h-full object-cover group-hover/img:scale-105 transition duration-300">
-              <div class="absolute inset-0 bg-gradient-to-t from-black/55 via-transparent to-transparent"></div>
-              <span class="absolute bottom-1.5 right-1.5 px-2 py-0.5 rounded-md bg-black/70 backdrop-blur-xs text-white text-[9px] font-bold flex items-center gap-1">
-                <i class="ph-bold ${hasPhotos ? 'ph-camera' : 'ph-buildings'}"></i> ${hasPhotos ? rawPhotos.length + ' Foto Asli' : 'Denah Hunian'}
-              </span>
-              <span class="absolute top-1.5 left-1.5 px-2 py-0.5 rounded-full text-[9px] font-black ${isFull ? 'bg-amber-500/90 text-white' : 'bg-emerald-500/90 text-white'} backdrop-blur-xs">
+            <!-- AUTHENTIC LH PHOTO BANNER (FROM IMG/LH OR UPDATED PHOTO) -->
+            <div class="relative w-full h-24 rounded-[3px] overflow-hidden mb-2 border border-slate-200 bg-slate-900">
+              <img src="${thumbUrl}" alt="Foto ${escapeHtml(displayName)}" onerror="this.src='img/lh/Depan Mess Staff dan Operator.jpeg'" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+              <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+              <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-[3px] text-[9px] font-bold uppercase tracking-wide ${isFull ? 'bg-amber-600 text-white' : 'bg-[#0E5E63] text-white'}">
                 ${isFull ? 'Penuh' : 'Tersedia'}
               </span>
+              <span class="absolute bottom-1 right-1.5 px-1.5 py-0.5 rounded-[3px] bg-black/75 text-white text-[9px] font-semibold flex items-center gap-1">
+                <i class="ph ph-camera"></i> ${hasCustomPhotos ? rawPhotos.length + ' Foto Update' : 'Foto LH'}
+              </span>
             </div>
-            
-            <span class="font-extrabold text-xs text-slate-900 group-hover:text-indigo-600 transition-colors block truncate" title="${escapeHtml(b.nama_bangunan)}">
-              ${escapeHtml(b.nama_bangunan || code)}
-            </span>
-            <span class="text-[10px] font-medium text-slate-400 block truncate mb-1">
-              ${escapeHtml(b.lokasi || b.kode_site || 'Central')} &bull; ${escapeHtml(code)}
-            </span>
+
+            <div class="font-bold text-xs text-slate-900 group-hover:text-[#0E5E63] transition-colors truncate" title="${escapeHtml(displayName)}">
+              ${escapeHtml(displayName)}
+            </div>
+            <div class="text-[10px] font-mono text-slate-500 truncate">
+              ${escapeHtml(b.lokasi_site || b.lokasi || b.kode_site || 'Central')} &bull; ${escapeHtml(code)}
+            </div>
           </div>
 
-          <div>
-            <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1.5">
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500 text-[10px] uppercase font-bold">Kamar / Ranjang:</span>
-                <span class="font-mono font-bold text-slate-800">${roomCount} Kmr &bull; ${capacity} Rjg</span>
+          <div class="mt-2 pt-2 border-t border-slate-100 space-y-1.5">
+            <!-- Occupancy stats -->
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-500">Terisi</span>
+              <span class="font-mono font-semibold text-slate-800">${residentCount}/${capacity} <span class="text-[#0E5E63]">(${occPct}%)</span></span>
+            </div>
+            <div class="w-full bg-slate-200 rounded-sm h-1 overflow-hidden">
+              <div class="${isFull ? 'bg-amber-600' : 'bg-[#0E5E63]'} h-1" style="width: ${Math.max(3, occPct)}%"></div>
+            </div>
+
+            <!-- UPDATE AUDIT METADATA: KAPAN & OLEH SIAPA -->
+            <div class="pt-1.5 border-t border-slate-100 text-[10px] leading-tight text-slate-500 space-y-0.5">
+              <div class="flex items-center justify-between gap-1 truncate">
+                <span class="text-slate-400">Update:</span>
+                <span class="font-mono font-medium ${hasCustomPhotos ? 'text-slate-700' : 'text-slate-400'} truncate">${escapeHtml(updatedWhen)}</span>
               </div>
-              <div class="flex items-center justify-between">
-                <span class="text-slate-500 text-[10px] uppercase font-bold">Terisi:</span>
-                <span class="font-mono font-bold text-indigo-600">${residentCount} Org (${occPct}%)</span>
-              </div>
-              <!-- Occupancy bar -->
-              <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-                <div class="${isFull ? 'bg-amber-500' : 'bg-emerald-500'} h-1.5 rounded-full" style="width: ${Math.max(4, occPct)}%"></div>
+              <div class="flex items-center justify-between gap-1 truncate">
+                <span class="text-slate-400">Oleh:</span>
+                <span class="font-medium ${hasCustomPhotos ? 'text-[#0E5E63]' : 'text-slate-400'} truncate">${escapeHtml(updatedBy)}</span>
               </div>
             </div>
 
-            <!-- ACTION BUTTONS: RINCIAN KAMAR & KELOLA FOTO -->
-            <div class="mt-2.5 pt-2 border-t border-slate-100 grid grid-cols-2 gap-1.5">
-              <button type="button" onclick="event.stopPropagation(); window.openRoomRincianDirect('${code}', 1)" class="py-1.5 px-2 rounded-lg bg-emerald-50 hover:bg-emerald-600 text-emerald-700 hover:text-white font-bold text-[10px] transition-all flex items-center justify-center gap-1 border border-emerald-200 shadow-2xs cursor-pointer" title="Buka Rincian Kamar & Penghuni">
-                <i class="ph-bold ph-door-open text-xs"></i> Rincian Kamar
+            <!-- ACTION BUTTONS -->
+            <div class="pt-1.5 grid grid-cols-2 gap-1.5">
+              <button type="button" onclick="event.stopPropagation(); window.openRoomRincianDirect('${escapeHtml(code)}', 1)" class="py-1 px-1.5 rounded bg-white hover:bg-[#0E5E63] text-slate-700 hover:text-white font-semibold text-[10px] transition flex items-center justify-center gap-1 border border-[#DCE1E8] hover:border-[#0E5E63] cursor-pointer" title="Buka Rincian Kamar & Penghuni">
+                <i class="ph ph-door-open"></i> Kamar
               </button>
-              <button type="button" onclick="event.stopPropagation(); openHunianPhotoModal('${code}', '${escapeHtml(b.nama_bangunan || code)}')" class="py-1.5 px-2 rounded-lg bg-indigo-50 hover:bg-indigo-600 text-indigo-700 hover:text-white font-bold text-[10px] transition-all flex items-center justify-center gap-1 border border-indigo-100 shadow-2xs cursor-pointer" title="Lengkapi / Kelola Foto Hunian">
-                <i class="ph-bold ph-camera text-xs"></i> ${hasPhotos ? 'Foto (' + rawPhotos.length + ')' : 'Upload Foto'}
+              <button type="button" onclick="event.stopPropagation(); openHunianPhotoModal('${escapeHtml(code)}', '${escapeHtml(displayName)}')" class="py-1 px-1.5 rounded bg-[#F0FDFA] hover:bg-[#0E5E63] text-[#0E5E63] hover:text-white font-semibold text-[10px] transition flex items-center justify-center gap-1 border border-[#0E5E63]/30 cursor-pointer" title="Perbarui Foto & Catat Petugas">
+                <i class="ph ph-camera"></i> Perbarui
               </button>
             </div>
           </div>
@@ -21863,46 +21912,54 @@ window.updateSingleAssetNote = updateSingleAssetNote;
     const countEl = document.getElementById('hunian-photo-count');
     if (!grid) return;
 
-    const photos = (appState.hunianPhotos && appState.hunianPhotos[activeHunianCode]) ? appState.hunianPhotos[activeHunianCode] : [];
-    if (countEl) countEl.innerText = photos.length;
+    const customPhotos = (appState.hunianPhotos && appState.hunianPhotos[activeHunianCode]) ? appState.hunianPhotos[activeHunianCode] : [];
+    const bldgs = (appState && appState.buildings) ? appState.buildings : [];
+    const bldg = bldgs.find(b => b.kode_gedung === activeHunianCode) || { kode_gedung: activeHunianCode, nama_bangunan: activeHunianName };
+    const defaultLh = getDefaultLhPhotoInfo(bldg);
 
-    if (photos.length === 0) {
-      grid.innerHTML = `
-        <div class="col-span-2 sm:col-span-3 py-8 text-center text-slate-400 bg-slate-50 rounded-xl border border-dashed border-slate-200">
-          <i class="ph-bold ph-camera-slash text-3xl mb-1.5 text-slate-300 block"></i>
-          <span class="font-bold text-slate-600 block text-xs">Belum ada foto dokumentasi</span>
-          <span class="text-[11px] text-slate-400">Gunakan tombol "Buka Kamera HP" atau "Unggah File" di atas untuk melengkapi foto fasilitas.</span>
-        </div>
-      `;
-      return;
-    }
+    if (countEl) countEl.innerText = customPhotos.length > 0 ? customPhotos.length : defaultLh.gallery.length;
 
-    grid.innerHTML = photos.map(p => `
-      <div class="group relative rounded-xl overflow-hidden border border-slate-200 bg-white shadow-2xs hover:shadow-md transition">
-        <div class="h-32 w-full bg-slate-900 cursor-pointer overflow-hidden relative" onclick="openPhotoViewer('${escapeHtml(p.url)}', '${escapeHtml(p.caption || p.category)}', '${escapeHtml(p.uploader || '')} &bull; ${escapeHtml(p.created_at || '')}')">
+    const customHtml = customPhotos.map(p => `
+      <div class="group relative rounded overflow-hidden border border-[#DCE1E8] bg-white transition">
+        <div class="h-32 w-full bg-slate-900 cursor-pointer overflow-hidden relative" onclick="openPhotoViewer('${escapeHtml(p.url)}', '${escapeHtml(p.caption || p.category)}', 'Oleh: ${escapeHtml(p.uploader || '-')} &bull; ${escapeHtml(p.created_at || '')}')">
           <img src="${p.url}" alt="${escapeHtml(p.caption || 'Foto Hunian')}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
-          <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition flex items-center justify-center text-white text-xs font-bold gap-1">
-            <i class="ph-bold ph-magnifying-glass-plus text-base"></i> Perbesar
-          </div>
+          <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-[3px] text-[9px] font-bold bg-[#0E5E63] text-white">Diperbarui</span>
         </div>
         <div class="p-2 space-y-1">
           <div class="flex items-center justify-between gap-1">
-            <span class="px-1.5 py-0.5 rounded text-[9px] font-bold bg-indigo-50 text-indigo-700 border border-indigo-100 truncate">
-              ${escapeHtml(p.category || 'Dokumentasi')}
-            </span>
-            <button type="button" onclick="deleteHunianPhoto('${activeHunianCode}', '${p.id}')" class="p-1 rounded text-rose-500 hover:bg-rose-50 hover:text-rose-700 text-xs cursor-pointer" title="Hapus Foto">
-              <i class="ph-bold ph-trash"></i>
+            <span class="text-[10px] font-bold text-[#0E5E63] uppercase truncate">${escapeHtml(p.category || 'Dokumentasi')}</span>
+            <button type="button" onclick="deleteHunianPhoto('${activeHunianCode}', '${p.id}')" class="p-0.5 rounded text-rose-600 hover:bg-rose-50 text-xs cursor-pointer" title="Hapus Foto">
+              <i class="ph ph-trash"></i>
             </button>
           </div>
-          <div class="text-[11px] font-bold text-slate-800 truncate" title="${escapeHtml(p.caption || '')}">
+          <div class="text-xs font-semibold text-slate-900 truncate" title="${escapeHtml(p.caption || '')}">
             ${escapeHtml(p.caption || 'Dokumentasi Fasilitas')}
           </div>
-          <div class="text-[9px] text-slate-400 truncate">
-            ${escapeHtml(p.created_at || '')}
+          <div class="pt-1 border-t border-slate-100 text-[10px] text-slate-500 space-y-0.5">
+            <div class="truncate"><b>Kapan:</b> ${escapeHtml(p.created_at || '-')}</div>
+            <div class="truncate"><b>Oleh:</b> ${escapeHtml(p.uploader || 'Petugas Lapangan')}</div>
           </div>
         </div>
       </div>
     `).join('');
+
+    const defaultHtml = defaultLh.gallery.map(g => `
+      <div class="group relative rounded overflow-hidden border border-dashed border-slate-300 bg-slate-50/70 transition">
+        <div class="h-32 w-full bg-slate-900 cursor-pointer overflow-hidden relative" onclick="openPhotoViewer('${escapeHtml(g.url)}', '${escapeHtml(g.caption)}', 'Foto Referensi Standar LH (img/lh)')">
+          <img src="${g.url}" alt="${escapeHtml(g.caption)}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+          <span class="absolute top-1.5 left-1.5 px-1.5 py-0.5 rounded-[3px] text-[9px] font-bold bg-slate-800/85 text-white">Standar LH</span>
+        </div>
+        <div class="p-2 space-y-1">
+          <div class="text-[10px] font-bold text-slate-500 uppercase truncate">${escapeHtml(g.category)}</div>
+          <div class="text-xs font-semibold text-slate-700 truncate">${escapeHtml(g.caption)}</div>
+          <div class="pt-1 border-t border-slate-200/70 text-[10px] text-slate-400">
+            Referensi folder <code>img/lh</code> &bull; Siap diperbarui
+          </div>
+        </div>
+      </div>
+    `).join('');
+
+    grid.innerHTML = customHtml + defaultHtml;
   }
 
   function triggerHunianCamera() {
@@ -21984,7 +22041,7 @@ window.updateSingleAssetNote = updateSingleAssetNote;
       url: photoUrl,
       category: category || 'Dokumentasi',
       caption: caption || `Foto fasilitas ${code}`,
-      uploader: 'Miftahul Khoiry',
+      uploader: (document.getElementById('hunian-pending-uploader') && document.getElementById('hunian-pending-uploader').value.trim()) ? document.getElementById('hunian-pending-uploader').value.trim() : 'Miftahul Khoiry',
       created_at: nowStr
     };
 
