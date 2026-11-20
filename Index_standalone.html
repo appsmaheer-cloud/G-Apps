@@ -2659,9 +2659,9 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                 <div id="view-asset-movement" class="page-view hidden space-y-4 pb-6">
 
                     <!-- TOP HEADER BAR (PT PRATAMA NUSANTARA SAKTI - Detail Asset Movement) -->
-                    <div class="bg-white rounded-2xl border border-slate-200/90 shadow-xs p-3.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+                    <div class="bg-white rounded border border-[#DCE1E8]  p-3.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
                         <div class="flex items-center gap-3">
-                            <div class="w-11 h-11 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 text-white flex items-center justify-center text-2xl shadow-xs shrink-0">
+                            <div class="w-11 h-11 rounded bg-[#1E40AF] text-white flex items-center justify-center text-2xl  shrink-0">
                                 <i class="ph-bold ph-pulse"></i>
                             </div>
                             <div>
@@ -2683,7 +2683,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
 
                         <!-- Right Controls: Slicers + Live Sync + Back Button -->
                         <div class="flex flex-wrap items-center gap-2 w-full lg:w-auto justify-end">
-                            <select id="mov-slicer-location" onchange="window.onAssetMovementFilterChange()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+                            <select id="mov-slicer-location" onchange="window.onAssetMovementFilterChange()" class="px-3 py-1.5 rounded border border-slate-200 bg-slate-50 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
                                 <option value="ALL">Semua Lokasi (8 Site)</option>
                                 <option value="CO">CO — Central Office</option>
                                 <option value="FR">FR — Factory Office</option>
@@ -2695,17 +2695,17 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                                 <option value="MR">MR — Gudang Marunda</option>
                             </select>
 
-                            <select id="mov-slicer-jenis" onchange="window.onAssetMovementFilterChange()" class="px-3 py-1.5 rounded-xl border border-slate-200 bg-slate-50 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
+                            <select id="mov-slicer-jenis" onchange="window.onAssetMovementFilterChange()" class="px-3 py-1.5 rounded border border-slate-200 bg-slate-50 text-xs font-bold text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500 cursor-pointer">
                                 <option value="ALL">Semua Jenis (Asset &amp; Non-Valuable)</option>
                                 <option value="Asset">ASSET (Valuable)</option>
                                 <option value="Non-Valueable Asset">Non-Valueable Asset</option>
                             </select>
 
-                            <button type="button" onclick="window.triggerLiveApiAndSheetSync()" class="px-3 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold flex items-center gap-1.5 shadow-2xs transition cursor-pointer" title="Sinkronkan langsung dari API & Google Sheets">
+                            <button type="button" onclick="window.triggerLiveApiAndSheetSync()" class="px-3 py-1.5 rounded bg-[#1E40AF] hover:bg-[#1E3A8A] text-white text-xs font-bold flex items-center gap-1.5  transition cursor-pointer" title="Sinkronkan langsung dari API & Google Sheets">
                                 <i class="ph-bold ph-arrows-clockwise"></i> Sync Live Sheet/API
                             </button>
 
-                            <button type="button" id="mov-back-btn" onclick="window.closeAssetMovementView()" class="px-3 py-1.5 rounded-xl border border-slate-300 hover:border-emerald-600 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 flex items-center justify-center gap-1.5 transition cursor-pointer shadow-2xs text-xs font-bold" title="Kembali ke Halaman Sebelumnya">
+                            <button type="button" id="mov-back-btn" onclick="window.closeAssetMovementView()" class="px-3 py-1.5 rounded border border-slate-300 hover:border-emerald-600 text-slate-700 hover:text-emerald-700 hover:bg-emerald-50 flex items-center justify-center gap-1.5 transition cursor-pointer  text-xs font-bold" title="Kembali ke Halaman Sebelumnya">
                                 <i class="ph-bold ph-arrow-left text-sm"></i>
                                 <span id="mov-back-btn-text">Kembali</span>
                             </button>
@@ -2713,7 +2713,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                     </div>
 
                     <!-- 5 IMPROVISED EXECUTIVE KPI CARDS BY CONDITION (CLICKABLE FOR CROSS-FILTERING) -->
-                    <div id="mov-kpi-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+                    <div id="mov-kpi-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-2.5">
                         <!-- Dynamically rendered by renderAssetMovementView() from 100% real data -->
                     </div>
 
@@ -2721,17 +2721,17 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                     <div class="grid grid-cols-1 lg:grid-cols-12 gap-3.5">
 
                         <!-- LEFT TABLE (5 COLS): Avg Umur Asset By Kategori -->
-                        <div class="lg:col-span-5 bg-white rounded-2xl border border-amber-300/90 shadow-xs p-3.5 flex flex-col">
+                        <div class="lg:col-span-5 bg-white rounded border border-[#DCE1E8]  p-3.5 flex flex-col">
                             <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
                                 <div>
                                     <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
-                                        <i class="ph-bold ph-hourglass-medium text-emerald-600"></i>
+                                        <i class="ph-bold ph-hourglass-medium text-[#1E40AF]"></i>
                                         <span>Avg Umur Asset By Kategori</span>
                                     </h3>
                                     <p class="text-[10px] text-slate-400">Klik baris untuk memfilter rincian unit di tabel kanan</p>
                                 </div>
-                                <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded-xl border border-slate-200/80">
-                                    <button type="button" id="btn-mov-left-nama" onclick="window.setMovLeftMode('nama_asset')" class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-600 text-white shadow-2xs transition cursor-pointer">nama_asset</button>
+                                <div class="flex items-center gap-1 bg-slate-100 p-0.5 rounded border border-slate-200/80">
+                                    <button type="button" id="btn-mov-left-nama" onclick="window.setMovLeftMode('nama_asset')" class="px-2.5 py-1 text-[10px] font-bold rounded-lg bg-emerald-600 text-white  transition cursor-pointer">nama_asset</button>
                                     <button type="button" id="btn-mov-left-kat" onclick="window.setMovLeftMode('kategori')" class="px-2.5 py-1 text-[10px] font-bold rounded-lg text-slate-600 hover:bg-white transition cursor-pointer">Kategori [+]</button>
                                 </div>
                             </div>
@@ -2751,7 +2751,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                             </div>
 
                             <!-- Table Container -->
-                            <div class="overflow-x-auto max-h-[470px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl flex-1">
+                            <div class="overflow-x-auto max-h-[470px] overflow-y-auto scrollbar-thin border border-slate-100 rounded flex-1">
                                 <table class="w-full text-left border-collapse">
                                     <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[11px] font-bold text-slate-700">
                                         <tr>
@@ -2777,17 +2777,17 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                         </div>
 
                         <!-- RIGHT VISUAL (7 COLS): ANALITIK VARIANS UMUR PAKAI, RISIKO OVER-LIFETIME & KOMPOSISI KONDISI KELOMPOK ASET -->
-                        <div class="lg:col-span-7 bg-white rounded-2xl border border-emerald-400/90 shadow-xs p-4 flex flex-col justify-between">
+                        <div class="lg:col-span-7 bg-white rounded border border-[#DCE1E8]  p-4 flex flex-col justify-between">
                             <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
                                 <div>
                                     <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
-                                        <i class="ph-bold ph-chart-bar-horizontal text-emerald-600"></i>
+                                        <i class="ph-bold ph-chart-bar-horizontal text-[#1E40AF]"></i>
                                         <span>Analitik Varians Umur Pakai &amp; Valuasi Kondisi Kelompok Aset</span>
                                     </h3>
                                     <p class="text-[10px] text-slate-400">Distribusi umur aktual vs standar pakai, risiko over-lifetime (&gt;100%), dan biaya pemeliharaan per kelompok aset (Klik bar untuk filter silang)</p>
                                 </div>
                                 <div class="flex items-center gap-1.5">
-                                    <button type="button" onclick="window.switchAppDomain && window.switchWoViewMode ? (navTo('view-wo'), switchWoViewMode('history')) : navTo('view-wo')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 flex items-center gap-1 transition cursor-pointer shadow-2xs" title="Buka Drill Maintenance & Detail Part">
+                                    <button type="button" onclick="window.switchAppDomain && window.switchWoViewMode ? (navTo('view-wo'), switchWoViewMode('history')) : navTo('view-wo')" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-rose-50 hover:bg-rose-600 text-rose-700 hover:text-white border border-rose-200 flex items-center gap-1 transition cursor-pointer " title="Buka Drill Maintenance & Detail Part">
                                         <i class="ph-bold ph-wrench"></i> Drill Maintenance
                                     </button>
                                     <button type="button" onclick="window.resetAssetMovementFilters()" class="px-2.5 py-1 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer">
@@ -2805,15 +2805,15 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                     </div>
 
                     <!-- FULL-WIDTH BOTTOM TABLE: Details Asset by Condition -->
-                    <div class="bg-white rounded-2xl border border-emerald-400/90 shadow-xs p-4 flex flex-col">
+                    <div class="bg-white rounded border border-[#DCE1E8]  p-4 flex flex-col">
                         <div class="flex flex-wrap items-center justify-between gap-2 pb-2.5 border-b border-slate-100">
                             <div>
                                 <h3 class="text-sm font-black text-slate-900 flex items-center gap-1.5">
-                                    <i class="ph-bold ph-list-magnifying-glass text-emerald-600"></i>
+                                    <i class="ph-bold ph-list-magnifying-glass text-[#1E40AF]"></i>
                                     <span>Details Asset by Condition</span>
                                     <span id="mov-right-count-badge" class="ml-1 px-2 py-0.5 rounded-full text-[10px] font-mono font-black bg-emerald-50 text-emerald-700 border border-emerald-200">35.160 Unit</span>
                                 </h3>
-                                <p class="text-[10px] text-slate-400">Tabel rincian unit aset di posisi bawah layar penuh &bull; Klik baris untuk membuka Dossier Lengkap atau klik tombol 🔧 Maint untuk drill ke Detail Part Maintenance</p>
+                                <p class="text-[10px] text-slate-400">Tabel rincian unit aset di posisi bawah layar penuh &bull; Klik baris untuk membuka Dossier Lengkap atau klik tombol Maint untuk drill ke Detail Part Maintenance</p>
                             </div>
                             <div class="flex flex-wrap items-center gap-2">
                                 <div class="relative min-w-[240px] sm:min-w-[300px]">
@@ -2825,7 +2825,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                                     <span id="mov-page-info" class="font-mono font-bold text-slate-600 px-2">Hal 1 / 352</span>
                                     <button type="button" onclick="window.changeMovRightPage(1)" id="btn-mov-next" class="px-2.5 py-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 font-bold text-slate-700 disabled:opacity-40 cursor-pointer">Next &raquo;</button>
                                 </div>
-                                <button type="button" onclick="window.exportMovementDetailsCsv('xlsx')" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-emerald-600 hover:bg-emerald-700 text-white flex items-center gap-1 transition cursor-pointer shadow-2xs">
+                                <button type="button" onclick="window.exportMovementDetailsCsv('xlsx')" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-[#1E40AF] hover:bg-[#1E3A8A] text-white flex items-center gap-1 transition cursor-pointer ">
                                     <i class="ph-bold ph-file-xls"></i> Export Excel (.xlsx)
                                 </button>
                                 <button type="button" onclick="window.exportMovementDetailsCsv('csv')" class="px-2.5 py-1.5 rounded-lg text-[10px] font-bold bg-slate-100 hover:bg-emerald-50 text-slate-700 hover:text-emerald-700 border border-slate-200 flex items-center gap-1 transition cursor-pointer">
@@ -2835,7 +2835,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                         </div>
 
                         <!-- Full-Width Details Asset Table (Fit-to-Screen, Frozen Header & Footer, Zero Horizontal Scroll) -->
-                        <div class="overflow-y-auto overflow-x-hidden max-h-[520px] scrollbar-thin border border-slate-200/90 rounded-xl mt-2.5">
+                        <div class="overflow-y-auto overflow-x-hidden max-h-[520px] scrollbar-thin border border-[#DCE1E8] rounded mt-2.5">
                             <table class="w-full text-left border-collapse table-fixed">
                                 <colgroup>
                                     <col style="width: 17%;">
@@ -2845,7 +2845,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                                     <col style="width: 18%;">
                                     <col style="width: 10%;">
                                 </colgroup>
-                                <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10px] font-bold text-slate-700 uppercase shadow-2xs">
+                                <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10px] font-bold text-slate-700 uppercase ">
                                     <tr>
                                         <th class="py-2.5 px-2.5">Unit &amp; Lokasi</th>
                                         <th class="py-2.5 px-2.5">Nama Aset &amp; Kelompok</th>
@@ -2881,9 +2881,9 @@ body.validasi-standalone-view #validasi-standalone-topbar {
 <div id="view-asset-detail" class="page-view hidden space-y-3.5 pb-6">
                     
                     <!-- Top Action & Slicer Bar -->
-                    <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white  rounded-2xl border border-slate-200/90  shadow-xs shrink-0 gap-3">
+                    <div class="flex flex-wrap items-center justify-between px-4 py-2.5 bg-white  rounded border border-[#DCE1E8]   shrink-0 gap-3">
                         <div class="flex flex-wrap items-center gap-2.5 flex-1 min-w-0">
-                            <button type="button" onclick="window.pns.switchView('view-asset-3')" class="px-3 py-1.5 rounded-xl bg-slate-100  hover:bg-emerald-600 hover:text-white  text-slate-700  text-xs font-bold transition flex items-center gap-1.5 cursor-pointer shadow-2xs shrink-0">
+                            <button type="button" onclick="window.pns.switchView('view-asset-3')" class="px-3 py-1.5 rounded bg-slate-100  hover:bg-emerald-600 hover:text-white  text-slate-700  text-xs font-bold transition flex items-center gap-1.5 cursor-pointer  shrink-0">
                                 <i class="ph-bold ph-arrow-left text-xs"></i>
                                 <span>Kembali ke Katalog Aset</span>
                             </button>
@@ -2892,7 +2892,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                             </span>
 
                             <!-- Slicer: Kelompok -->
-                            <div class="flex items-center bg-slate-50  rounded-xl px-3 py-1.5 border border-slate-200/90  shrink-0 shadow-2xs">
+                            <div class="flex items-center bg-slate-50  rounded px-3 py-1.5 border border-[#DCE1E8]  shrink-0 ">
                                 <span class="text-[10px] font-extrabold text-slate-400 uppercase mr-1.5">Kelompok:</span>
                                 <select id="slicer-assetd-group" onchange="window.pns.onAssetDetailFilterChange()" class="bg-transparent text-xs font-bold text-slate-800  focus:outline-none cursor-pointer max-w-[150px] truncate">
                                     <option value="ALL">Semua Kelompok</option>
@@ -2900,7 +2900,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                             </div>
 
                             <!-- Slicer: Kondisi -->
-                            <div class="flex items-center bg-slate-50  rounded-xl px-3 py-1.5 border border-slate-200/90  shrink-0 shadow-2xs">
+                            <div class="flex items-center bg-slate-50  rounded px-3 py-1.5 border border-[#DCE1E8]  shrink-0 ">
                                 <span class="text-[10px] font-extrabold text-slate-400 uppercase mr-1.5">Kondisi:</span>
                                 <select id="slicer-assetd-cond" onchange="window.pns.onAssetDetailFilterChange()" class="bg-transparent text-xs font-bold text-slate-800  focus:outline-none cursor-pointer">
                                     <option value="ALL">Semua Kondisi</option>
@@ -2913,29 +2913,29 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                             </div>
 
                             <!-- Search Box -->
-                            <div class="flex items-center bg-slate-50  rounded-xl px-3 py-1.5 border border-slate-200/90  flex-1 max-w-[220px] shadow-2xs">
+                            <div class="flex items-center bg-slate-50  rounded px-3 py-1.5 border border-[#DCE1E8]  flex-1 max-w-[220px] ">
                                 <i class="ph-bold ph-magnifying-glass text-slate-400 mr-2 text-xs"></i>
                                 <input type="text" id="slicer-assetd-search" oninput="window.pns.onAssetDetailSearch(this.value)" placeholder="Cari nama atau kode aset..." class="bg-transparent text-xs font-semibold text-slate-800  focus:outline-none w-full placeholder:text-slate-400">
                             </div>
 
                             <!-- Export CSV Button -->
-                            <button type="button" onclick="window.pns.exportAssetDetailCsv()" class="px-2.5 py-1.5 rounded-xl bg-slate-100  hover:bg-emerald-600 hover:text-white text-slate-700  text-xs font-bold transition flex items-center gap-1 shadow-2xs cursor-pointer" title="Download Data Dossier Aset (CSV)">
+                            <button type="button" onclick="window.pns.exportAssetDetailCsv()" class="px-2.5 py-1.5 rounded bg-slate-100  hover:bg-emerald-600 hover:text-white text-slate-700  text-xs font-bold transition flex items-center gap-1  cursor-pointer" title="Download Data Dossier Aset (CSV)">
                                 <i class="ph-bold ph-download-simple"></i>
                                 <span>Export</span>
                             </button>
                         </div>
 
                         <!-- Record Counter Badge -->
-                        <div class="text-[11px] font-mono font-bold text-slate-600  bg-slate-50  px-3 py-1.5 rounded-xl border border-slate-200/90  shrink-0 shadow-2xs">
+                        <div class="text-[11px] font-mono font-bold text-slate-600  bg-slate-50  px-3 py-1.5 rounded border border-[#DCE1E8]  shrink-0 ">
                             <span id="pbi-assetd-filtered-count">0</span> Aset Terfilter
                         </div>
                     </div>
 
                     <!-- Executive Unit Spotlight Dossier Card -->
                     <!-- REALTIME LIVE API VERIFICATION & CHECKOUT STRIP -->
-                    <div id="pbi-assetd-realtime-api-strip" class="p-3 bg-emerald-50/70 border border-emerald-200 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-2xs">
+                    <div id="pbi-assetd-realtime-api-strip" class="p-3 bg-[#EFF6FF] border border-[#BFDBFE] rounded flex flex-wrap items-center justify-between gap-3 text-xs ">
                         <div class="flex items-center gap-2 flex-wrap">
-                            <span class="px-2 py-0.5 rounded font-black text-[10px] bg-emerald-700 text-white uppercase tracking-wider flex items-center gap-1">
+                            <span class="px-2 py-0.5 rounded font-black text-[10px] bg-[#1E40AF] text-white uppercase tracking-wider flex items-center gap-1">
                                 <i class="ph-bold ph-seal-check"></i> Realtime Live API Data
                             </span>
                             <span class="text-slate-600 font-medium">Tipe Asset: <strong class="text-slate-900" id="pbi-assetd-api-tipe">-</strong></span>
@@ -2953,9 +2953,9 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                         </div>
                     </div>
 
-                    <div id="pbi-assetd-spotlight-card" class="pns-card p-4 bg-slate-50/80  border border-slate-200/90  rounded-xl flex flex-col md:flex-row items-start md:items-center justify-between gap-4 shadow-xs">
+                    <div id="pbi-assetd-spotlight-card" class="pns-card p-4 bg-slate-50/80  border border-[#DCE1E8]  rounded flex flex-col md:flex-row items-start md:items-center justify-between gap-4 ">
                         <div class="flex items-center gap-3.5">
-                            <div class="w-11 h-11 rounded-lg bg-emerald-600 text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
+                            <div class="w-11 h-11 rounded-lg bg-[#1E40AF] text-white flex items-center justify-center text-xl shrink-0 ">
                                 <i class="ph-bold ph-identification-card"></i>
                             </div>
                             <div>
@@ -2967,7 +2967,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                                 <span class="text-[11px] text-slate-500  font-medium" id="pbi-assetd-spotlight-meta">Lokasi: Semua Kantor | Departemen: All Departments</span>
                             </div>
                         </div>
-                        <div class="flex flex-wrap items-center gap-4 bg-white/70  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                        <div class="flex flex-wrap items-center gap-4 bg-white/70  p-3 rounded border border-slate-200/80  ">
                             <div class="text-right">
                                 <span class="text-[9px] font-bold text-slate-400 uppercase block">Rasio MTC / CAPEX</span>
                                 <span class="text-sm font-black text-slate-800  font-mono" id="pbi-assetd-spotlight-ratio">0.0%</span>
@@ -2979,12 +2979,12 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                                 </span>
                             </div>
                             <div class="border-l border-slate-200 pl-3 flex items-center gap-2">
-                                <button type="button" onclick="window.drillCurrentSpotlightToMaintenance()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs" title="Drill ke Riwayat Maintenance & Detail Part untuk Aset Ini">
+                                <button type="button" onclick="window.drillCurrentSpotlightToMaintenance()" class="px-3 py-1.5 rounded-lg bg-rose-600 hover:bg-rose-700 text-white text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer " title="Drill ke Riwayat Maintenance & Detail Part untuk Aset Ini">
                                     <i class="ph-bold ph-wrench"></i>
                                     <span>Drill Maintenance &amp; Part</span>
                                 </button>
                                 <div id="pbi-assetd-spotlight-bldg-action" class="hidden">
-                                    <button type="button" id="pbi-assetd-spotlight-bldg-btn" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer shadow-xs">
+                                    <button type="button" id="pbi-assetd-spotlight-bldg-btn" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-[11px] font-bold transition flex items-center gap-1.5 cursor-pointer ">
                                         <i class="ph-bold ph-compass"></i>
                                         <span>Eksplorasi Gedung</span>
                                     </button>
@@ -2995,42 +2995,42 @@ body.validasi-standalone-view #validasi-standalone-topbar {
 
                     <!-- 4 Hero Decision Cards -->
                     <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3.5 shrink-0">
-                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                        <div class="pns-card p-4  flex flex-col justify-between">
                             <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Total Aset Terdata</span>
                             <span class="text-2xl font-black text-slate-800  mt-1 block tracking-tight" id="pbi-assetd-total-count">0 Unit</span>
                         </div>
-                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                        <div class="pns-card p-4  flex flex-col justify-between">
                             <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Nilai Perolehan Bruto</span>
                             <span class="text-2xl font-black text-cyan-600  mt-1 block tracking-tight truncate" id="pbi-assetd-total-acq">Rp 0</span>
                         </div>
-                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                        <div class="pns-card p-4  flex flex-col justify-between">
                             <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Estimasi Nilai Buku</span>
                             <span class="text-2xl font-black text-amber-600  mt-1 block tracking-tight truncate" id="pbi-assetd-total-book">Rp 0</span>
                         </div>
-                        <div class="pns-card p-4 shadow-xs flex flex-col justify-between">
+                        <div class="pns-card p-4  flex flex-col justify-between">
                             <span class="text-[10.5px] font-extrabold text-slate-400  uppercase tracking-wider block">Akumulasi Biaya MTC</span>
                             <span class="text-2xl font-black text-rose-600  mt-1 block tracking-tight truncate" id="pbi-assetd-total-mtc">Rp 0</span>
                         </div>
                     </div>
 
                     <!-- Dedicated Building Breakdown Card (Dynamic, shown when viewing a Building Asset) -->
-                    <div id="pbi-assetd-bldg-breakdown-card" class="hidden pns-card p-4 sm:p-5 border border-slate-200/90  bg-slate-50/80  rounded-xl shadow-xs flex-col gap-4 transition-all">
+                    <div id="pbi-assetd-bldg-breakdown-card" class="hidden pns-card p-4 sm:p-5 border border-[#DCE1E8]  bg-slate-50/80  rounded  flex-col gap-4 transition-all">
                         <!-- Top Bar: Title & Badges & Action Buttons -->
                         <div class="flex flex-wrap items-center justify-between gap-3 pb-3 border-b border-blue-100 ">
                             <div class="flex items-center gap-3">
-                                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-xl shrink-0 shadow-xs">
+                                <div class="w-10 h-10 rounded bg-blue-600 text-white flex items-center justify-center text-xl shrink-0 ">
                                     <i class="ph-bold ph-buildings"></i>
                                 </div>
                                 <div>
                                     <div class="flex items-center gap-2 flex-wrap">
                                         <span class="text-[10px] font-black uppercase tracking-wider px-2 py-0.5 rounded bg-blue-100 text-blue-700   font-mono">
-                                            🏢 BREAKDOWN FASILITAS GEDUNG
+                                            BREAKDOWN FASILITAS GEDUNG
                                         </span>
                                         <span id="pbi-assetd-bldg-loc-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-slate-100  text-slate-600  font-mono">
                                             CO
                                         </span>
                                         <span id="pbi-assetd-bldg-scope-badge" class="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-100 text-emerald-700   font-mono">
-                                            🏢 Dalam Gedung
+                                            Dalam Gedung
                                         </span>
                                     </div>
                                     <h3 id="pbi-assetd-bldg-name" class="text-sm sm:text-base font-black text-slate-800  mt-0.5">
@@ -3042,11 +3042,11 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                                 </div>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button type="button" id="pbi-assetd-btn-open-explorer" class="px-3.5 py-1.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5 shadow-xs cursor-pointer">
+                                <button type="button" id="pbi-assetd-btn-open-explorer" class="px-3.5 py-1.5 rounded bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold transition flex items-center gap-1.5  cursor-pointer">
                                     <i class="ph-bold ph-compass text-sm"></i>
                                     <span>Buka di Modul Gedung & Kamar</span>
                                 </button>
-                                <button type="button" onclick="window.print()" class="px-3 py-1.5 rounded-xl bg-white  hover:bg-slate-100  text-slate-700  text-xs font-bold transition border border-slate-200  flex items-center gap-1.5 shadow-2xs cursor-pointer">
+                                <button type="button" onclick="window.print()" class="px-3 py-1.5 rounded bg-white  hover:bg-slate-100  text-slate-700  text-xs font-bold transition border border-slate-200  flex items-center gap-1.5  cursor-pointer">
                                     <i class="ph-bold ph-printer"></i>
                                     <span class="hidden sm:inline">Cetak</span>
                                 </button>
@@ -3055,19 +3055,19 @@ body.validasi-standalone-view #validasi-standalone-topbar {
 
                         <!-- Quick Stats Counters -->
                         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                            <div class="bg-white/80  p-3 rounded border border-slate-200/80  ">
                                 <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Total Ruangan / Kamar</span>
                                 <span id="pbi-assetd-bldg-stat-rooms" class="text-base sm:text-lg font-black text-slate-800  font-mono mt-0.5 block">0 Ruang</span>
                             </div>
-                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                            <div class="bg-white/80  p-3 rounded border border-slate-200/80  ">
                                 <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Total Fasilitas Fisik</span>
                                 <span id="pbi-assetd-bldg-stat-units" class="text-base sm:text-lg font-black text-blue-600  font-mono mt-0.5 block">0 Unit</span>
                             </div>
-                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                            <div class="bg-white/80  p-3 rounded border border-slate-200/80  ">
                                 <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Kondisi Fisik Baik</span>
                                 <span id="pbi-assetd-bldg-stat-good" class="text-base sm:text-lg font-black text-emerald-600  font-mono mt-0.5 block">100%</span>
                             </div>
-                            <div class="bg-white/80  p-3 rounded-xl border border-slate-200/80  shadow-2xs">
+                            <div class="bg-white/80  p-3 rounded border border-slate-200/80  ">
                                 <span class="text-[9.5px] font-bold text-slate-400 uppercase block">Nilai Gedung Induk</span>
                                 <span id="pbi-assetd-bldg-stat-acq" class="text-base sm:text-lg font-black text-slate-800  font-mono mt-0.5 block truncate">Rp 0</span>
                             </div>
@@ -3092,7 +3092,7 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                         </div>
 
                         <!-- Child Inventory Table -->
-                        <div class="overflow-x-auto scrollbar-thin border border-slate-200  rounded-xl bg-white  shadow-2xs max-h-[380px]">
+                        <div class="overflow-x-auto scrollbar-thin border border-slate-200  rounded bg-white   max-h-[380px]">
                             <table class="w-full text-left border-collapse whitespace-nowrap text-xs">
                                 <thead class="sticky top-0 bg-slate-50  text-[10px] font-black uppercase tracking-wider text-slate-500  border-b border-slate-200 ">
                                     <tr>
@@ -3112,63 +3112,100 @@ body.validasi-standalone-view #validasi-standalone-topbar {
                         </div>
                     </div>
 
-                    <!-- Visuals & Dossier Matrix -->
-                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-3.5 min-h-[500px]">
+                    <!-- Visual KPI Analytics Row (Left: Charts | Right: Site & Lifecycle Visual KPIs) -->
+                    <div class="grid grid-cols-1 xl:grid-cols-12 gap-3">
                         
-                        <!-- Left Charts (Departemen Bar & Kondisi Donut) -->
-                        <div class="xl:col-span-5 flex flex-col gap-3.5">
-                            <div class="pns-card p-4 flex flex-col min-h-[260px] shadow-xs">
-                                <span class="text-xs sm:text-sm font-bold text-slate-800  pb-3 border-b border-slate-100  shrink-0">Distribusi Nilai Aset per Departemen</span>
-                                <div class="flex-1 w-full min-h-[200px]" id="chart-pbi-assetd-dept-bar"></div>
+                        <!-- Left Charts (5 Cols): Departemen Bar & Kondisi Donut -->
+                        <div class="xl:col-span-5 flex flex-col gap-3">
+                            <div class="bg-white rounded border border-[#DCE1E8] p-3.5 flex flex-col min-h-[250px]">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-100 shrink-0">
+                                    <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Distribusi Nilai Aset per Departemen</span>
+                                    <span class="text-[11px] font-mono text-slate-400">Top Dept</span>
+                                </div>
+                                <div class="flex-1 w-full min-h-[195px]" id="chart-pbi-assetd-dept-bar"></div>
                             </div>
-                            <div class="pns-card p-4 flex flex-col min-h-[240px] shadow-xs">
-                                <span class="text-xs sm:text-sm font-bold text-slate-800  pb-3 border-b border-slate-100  shrink-0">Proporsi Kondisi Fisik Aset</span>
+                            <div class="bg-white rounded border border-[#DCE1E8] p-3.5 flex flex-col min-h-[235px]">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-100 shrink-0">
+                                    <span class="text-xs font-bold text-slate-900 uppercase tracking-wider">Proporsi Kondisi Fisik Aset</span>
+                                    <span class="text-[11px] font-mono text-slate-400">5 Kondisi</span>
+                                </div>
                                 <div class="flex-1 w-full min-h-[180px]" id="chart-pbi-assetd-cond-donut"></div>
                             </div>
                         </div>
 
-                        <!-- Right Asset Dossier Table -->
-                        <div class="xl:col-span-7 pns-card p-4 flex flex-col min-h-[520px] shadow-xs">
-                            <div class="flex items-center justify-between pb-3 border-b border-slate-100  shrink-0">
-                                <div>
-                                    <span class="text-xs sm:text-sm font-bold text-slate-800  block" id="pbi-assetd-table-title">Dossier & Spesifikasi Master Aset</span>
-                                    <span class="text-[10.5px] text-slate-400 font-medium" id="pbi-assetd-table-subtitle">Lengkap dengan Rekomendasi Lifecycle & Biaya Servis</span>
-                                </div>
-                                <div class="flex items-center gap-2">
-                                    <div id="pbi-assetd-table-mode-tabs" class="hidden items-center gap-1 bg-slate-100  p-0.5 rounded-lg border border-slate-200 ">
-                                        <button type="button" id="pbi-assetd-tab-parent" onclick="window.pns.setAssetDetailTableMode('PARENT')" class="px-2.5 py-1 rounded-md text-[10px] font-bold bg-white  text-slate-800  shadow-2xs cursor-pointer">
-                                            🏢 Data Induk
-                                        </button>
-                                        <button type="button" id="pbi-assetd-tab-breakdown" onclick="window.pns.setAssetDetailTableMode('BREAKDOWN')" class="px-2.5 py-1 rounded-md text-[10px] font-bold text-slate-500 hover:text-slate-800  cursor-pointer flex items-center gap-1">
-                                            <span>📦 Fasilitas Gedung</span>
-                                            <span id="pbi-assetd-tab-breakdown-count" class="px-1.5 py-0.2 rounded-full bg-blue-100 text-blue-700   font-mono text-[9px]">0</span>
-                                        </button>
+                        <!-- Right Visual KPI Panels (7 Cols — Replaces Squished Table) -->
+                        <div class="xl:col-span-7 flex flex-col gap-3">
+                            <!-- Visual KPI Panel 1: Analisa Lifecycle, Umur Pakai & Retensi Nilai Buku -->
+                            <div class="bg-white rounded border border-[#DCE1E8] p-3.5 space-y-3">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                                    <div>
+                                        <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Analisa Lifecycle &amp; Kesehatan Portofolio</span>
+                                        <span class="text-[11px] text-slate-500">Status umur pakai terhadap standar, rasio beban MTC, dan retensi nilai buku</span>
                                     </div>
-                                    <span id="pbi-assetd-table-badge" class="text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-700  ">100 Aset Teratas</span>
+                                    <span class="text-xs font-mono font-bold text-[#1E40AF]" id="pbi-assetd-kpi-nbv-ratio">0.0% NBV</span>
+                                </div>
+                                <div id="pbi-assetd-kpi-lifecycle" class="space-y-2.5">
+                                    <!-- Dynamically rendered by renderAssetDetailVisualKpis() -->
                                 </div>
                             </div>
-                            <div class="flex-1 overflow-auto scrollbar-thin mt-2 max-h-[460px]">
-                                <table class="w-full text-left border-collapse whitespace-nowrap text-xs">
-                                    <thead class="sticky top-0 bg-slate-50/95  backdrop-blur-xs text-[10px] font-black uppercase tracking-wider text-slate-500  border-b border-slate-200 ">
-                                        <tr>
-                                            <th class="px-3.5 py-2.5 min-w-[130px]">Kode Aset</th>
-                                            <th class="px-3 py-2.5 min-w-[180px]">Nama Aset</th>
-                                            <th class="px-3 py-2.5 min-w-[120px]">Kelompok</th>
-                                            <th class="px-3 py-2.5 min-w-[110px]">Lokasi</th>
-                                            <th class="px-3 py-2.5 min-w-[130px] text-cyan-600 ">Section PIC</th>
-                                            <th class="px-3 py-2.5 min-w-[120px] text-emerald-600">User / Pemegang</th>
-                                            <th class="px-3 py-2.5 text-center min-w-[100px]">Kondisi</th>
-                                            <th class="px-3 py-2.5 text-right min-w-[120px]">Harga Perolehan</th>
-                                            <th class="px-3 py-2.5 text-right min-w-[110px] text-rose-600 font-bold">Biaya MTC</th>
-                                            <th class="px-3 py-2.5 text-center min-w-[130px]">Rekomendasi</th>
-                                            <th class="px-3 py-2.5 text-center min-w-[70px]">Aksi</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="table-pbi-assetd-matrix"></tbody>
-                                </table>
+
+                            <!-- Visual KPI Panel 2: Sebaran Unit & Nilai Buku per Lokasi / Site -->
+                            <div class="bg-white rounded border border-[#DCE1E8] p-3.5 flex-1 flex flex-col space-y-2.5">
+                                <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+                                    <div>
+                                        <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Sebaran Unit &amp; Nilai Buku per Site</span>
+                                        <span class="text-[11px] text-slate-500">Distribusi volume aset dan estimasi NBV di setiap lokasi operasional</span>
+                                    </div>
+                                    <span class="text-[11px] font-mono text-slate-500" id="pbi-assetd-kpi-site-count">0 Site</span>
+                                </div>
+                                <div id="pbi-assetd-kpi-site" class="space-y-2 flex-1">
+                                    <!-- Dynamically rendered by renderAssetDetailVisualKpis() -->
+                                </div>
                             </div>
                         </div>
 
+                    </div>
+
+                    <!-- FULL-WIDTH BOTTOM SECTION: Dossier & Spesifikasi Master Aset -->
+                    <div class="bg-white rounded border border-[#DCE1E8] p-4 flex flex-col">
+                        <div class="flex flex-wrap items-center justify-between gap-2 pb-3 border-b border-slate-200 shrink-0">
+                            <div>
+                                <span class="text-sm font-bold text-slate-900 block" id="pbi-assetd-table-title">Dossier &amp; Spesifikasi Master Aset</span>
+                                <span class="text-[11px] text-slate-500" id="pbi-assetd-table-subtitle">Lengkap dengan Rekomendasi Lifecycle &amp; Biaya Servis &bull; Klik baris untuk melihat spotlight unit</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <div id="pbi-assetd-table-mode-tabs" class="hidden items-center gap-1 bg-slate-100 p-0.5 rounded border border-[#DCE1E8]">
+                                    <button type="button" id="pbi-assetd-tab-parent" onclick="window.pns.setAssetDetailTableMode('PARENT')" class="px-2.5 py-1 rounded-[3px] text-[11px] font-semibold bg-white text-slate-900 cursor-pointer border border-[#DCE1E8]">
+                                        Data Induk
+                                    </button>
+                                    <button type="button" id="pbi-assetd-tab-breakdown" onclick="window.pns.setAssetDetailTableMode('BREAKDOWN')" class="px-2.5 py-1 rounded-[3px] text-[11px] font-semibold text-slate-600 hover:text-slate-900 cursor-pointer flex items-center gap-1">
+                                        <span>Fasilitas Gedung</span>
+                                        <span id="pbi-assetd-tab-breakdown-count" class="px-1.5 py-0.2 rounded bg-slate-200 text-slate-700 font-mono text-[10px]">0</span>
+                                    </button>
+                                </div>
+                                <span id="pbi-assetd-table-badge" class="text-[11px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-100 text-slate-700 border border-[#DCE1E8]">100 Aset Teratas</span>
+                            </div>
+                        </div>
+                        <div class="overflow-auto scrollbar-thin mt-2.5 max-h-[520px] border border-[#DCE1E8] rounded">
+                            <table class="w-full text-left border-collapse whitespace-nowrap text-[13px]">
+                                <thead class="sticky top-0 z-10 bg-[#F8FAFC] text-[11px] font-bold uppercase tracking-wider text-slate-600 border-b border-slate-300">
+                                    <tr>
+                                        <th class="px-3 py-2.5 min-w-[125px]">Kode Aset</th>
+                                        <th class="px-3 py-2.5 min-w-[180px]">Nama Aset</th>
+                                        <th class="px-3 py-2.5 min-w-[120px]">Kelompok</th>
+                                        <th class="px-3 py-2.5 min-w-[105px]">Lokasi</th>
+                                        <th class="px-3 py-2.5 min-w-[125px]">Section PIC</th>
+                                        <th class="px-3 py-2.5 min-w-[115px]">User / Pemegang</th>
+                                        <th class="px-3 py-2.5 text-center min-w-[100px]">Kondisi</th>
+                                        <th class="px-3 py-2.5 text-right min-w-[120px]">Harga Perolehan</th>
+                                        <th class="px-3 py-2.5 text-right min-w-[110px]">Biaya MTC</th>
+                                        <th class="px-3 py-2.5 text-center min-w-[130px]">Rekomendasi</th>
+                                        <th class="px-3 py-2.5 text-center min-w-[70px]">Aksi</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="table-pbi-assetd-matrix" class="divide-y divide-slate-200"></tbody>
+                            </table>
+                        </div>
                     </div>
 
                 </div>
@@ -12488,79 +12525,137 @@ const PNS_SECTION_TO_DEPT = {
 
     const kpiGrid = document.getElementById('mov-kpi-cards-grid');
     if (kpiGrid) {
-      kpiGrid.innerHTML = COND_META.map(m => {
+      // Compute Grand Totals for Card #1: JUMLAH ASSET
+      let grandTotal = 0, grandAsset = 0, grandNonVal = 0, grandHpp = 0, grandNbv = 0;
+      COND_META.forEach(m => {
         const b = buckets[m.key];
-        const sharePct = (b.total / totalPortfolio * 100).toFixed(2);
+        grandTotal += b.total;
+        grandAsset += b.asset;
+        grandNonVal += b.nonVal;
+        grandHpp += b.hpp;
+        grandNbv += b.nbv;
+      });
+      const grandAssetPct = grandTotal > 0 ? (grandAsset / grandTotal * 100) : 0;
+      const grandNbvRatio = grandHpp > 0 ? (grandNbv / grandHpp * 100) : 0;
+      const isAllSelected = (movState.kondisi === 'ALL');
+
+      const totalAssetCardHtml = `
+        <div onclick="window.toggleMovCondFilter('ALL')"
+             class="bg-white rounded border ${isAllSelected ? 'border-[#1E40AF] ring-1 ring-[#1E40AF] bg-[#EFF6FF]/40' : 'border-[#DCE1E8] hover:border-[#1E40AF]'} p-3 transition cursor-pointer flex flex-col justify-between relative overflow-hidden group"
+             title="Klik untuk tampilkan seluruh kondisi aset">
+          <div class="absolute top-0 inset-x-0 h-[2px] bg-[#1E40AF]"></div>
+          <div>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[#1E3A8A] flex items-center gap-1">
+                <i class="ph ph-stack text-sm"></i> JUMLAH ASSET
+              </span>
+              <span class="text-[10px] font-mono font-bold text-[#1E40AF]">100%</span>
+            </div>
+            <div class="flex items-baseline justify-between my-1">
+              <span class="text-2xl font-bold font-mono tracking-tight text-slate-900 num-tabular">${formatNum(grandTotal)}</span>
+              <span class="text-[10px] font-medium text-slate-400">${isAllSelected ? 'Semua' : 'Reset'}</span>
+            </div>
+            <div class="my-2 bg-[#F8FAFC] rounded p-2 border border-slate-200/70">
+              <div class="w-full h-1.5 bg-slate-200 rounded-sm overflow-hidden flex mb-1.5">
+                <div class="bg-[#1E40AF] h-full" style="width: ${grandAssetPct.toFixed(1)}%"></div>
+              </div>
+              <div class="space-y-0.5 text-[10.5px]">
+                <div class="flex items-center justify-between">
+                  <span class="font-medium text-slate-700 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#1E40AF]"></span> ASSET
+                  </span>
+                  <span class="font-mono font-bold text-slate-900">${formatNum(grandAsset)}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-500 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Non-Valuable
+                  </span>
+                  <span class="font-mono font-semibold text-slate-700">${formatNum(grandNonVal)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-100 space-y-0.5 text-[10.5px]">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-slate-500 shrink-0">Perolehan</span>
+              <span class="font-mono font-semibold text-slate-800 truncate" title="Rp ${formatNum(grandHpp, 2)}">${formatRp(grandHpp)}</span>
+            </div>
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-slate-500 shrink-0">Nilai Buku</span>
+              <span class="font-mono font-bold text-slate-900 truncate" title="Rp ${formatNum(grandNbv, 2)}">${formatRp(grandNbv)}</span>
+            </div>
+            <div class="pt-0.5 flex items-center justify-between text-[10px] text-slate-400">
+              <span>Retensi NBV</span>
+              <span class="font-mono font-semibold text-slate-600">${grandNbvRatio.toFixed(1)}%</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const condCardsHtml = COND_META.map(m => {
+        const b = buckets[m.key];
+        const sharePct = (b.total / totalPortfolio * 100).toFixed(1);
         const assetPct = b.total > 0 ? (b.asset / b.total * 100) : 0;
         const nbvRatio = b.hpp > 0 ? (b.nbv / b.hpp * 100) : 0;
         const isSelected = movState.kondisi === m.key;
 
         return `
           <div onclick="window.toggleMovCondFilter('${m.key}')"
-               class="bg-white rounded-2xl border-2 ${m.border} ${isSelected ? m.activeRing : 'hover:shadow-md'} p-3.5 shadow-xs transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden group"
+               class="bg-white rounded border ${isSelected ? 'border-[#1E40AF] ring-1 ring-[#1E40AF] bg-[#EFF6FF]/30' : 'border-[#DCE1E8] hover:border-slate-400'} p-3 transition cursor-pointer flex flex-col justify-between relative overflow-hidden group"
                title="Klik untuk memfilter tabel berdasarkan kondisi ${m.title}">
-            <!-- Top Accent Strip -->
-            <div class="absolute top-0 inset-x-0 h-1 ${m.barColor}"></div>
-
-            <!-- Card Header & Main Count -->
+            <div class="absolute top-0 inset-x-0 h-[2px] ${m.barColor}"></div>
             <div>
               <div class="flex items-center justify-between gap-1 mb-1">
-                <span class="text-[11px] font-black uppercase tracking-wider ${m.titleColor} flex items-center gap-1">
-                  <i class="ph-bold ${m.icon} text-sm"></i> ${m.title}
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1 truncate">
+                  <span class="w-1.5 h-1.5 rounded-full ${m.barColor} shrink-0"></span> ${m.title}
                 </span>
-                <span class="px-1.5 py-0.5 rounded-full text-[9.5px] font-mono font-black border ${m.badgeBg}">
-                  ${sharePct}%
-                </span>
+                <span class="text-[10px] font-mono font-semibold text-slate-500 shrink-0">${sharePct}%</span>
               </div>
-
               <div class="flex items-baseline justify-between my-1">
-                <span class="text-2xl font-black font-mono tracking-tight ${m.countColor}">${formatNum(b.total)}</span>
-                <span class="text-[9.5px] font-bold text-slate-400 group-hover:text-slate-700 transition flex items-center gap-0.5">
-                  ${isSelected ? '✓ Filter Aktif' : 'Klik Filter'}
+                <span class="text-2xl font-bold font-mono tracking-tight text-slate-900 num-tabular">${formatNum(b.total)}</span>
+                <span class="text-[10px] font-medium ${isSelected ? 'text-[#1E40AF]' : 'text-slate-400 group-hover:text-slate-600'}">
+                  ${isSelected ? 'Aktif' : 'Filter'}
                 </span>
               </div>
-
-              <!-- Improvised Stacked Split Bar: ASSET vs Non-Valueable Asset -->
-              <div class="my-2 bg-slate-50 rounded-xl p-2 border border-slate-100">
-                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden flex mb-1.5">
+              <div class="my-2 bg-[#F8FAFC] rounded p-2 border border-slate-200/70">
+                <div class="w-full h-1.5 bg-slate-200 rounded-sm overflow-hidden flex mb-1.5">
                   <div class="${m.barColor} h-full" style="width: ${assetPct.toFixed(1)}%" title="ASSET: ${formatNum(b.asset)}"></div>
                 </div>
                 <div class="space-y-0.5 text-[10.5px]">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold ${m.subTextColor} flex items-center gap-1">
+                    <span class="font-medium text-slate-700 flex items-center gap-1.5">
                       <span class="w-1.5 h-1.5 rounded-full ${m.barColor}"></span> ASSET
                     </span>
-                    <span class="font-mono font-black ${m.subTextColor}">${formatNum(b.asset)}</span>
+                    <span class="font-mono font-bold text-slate-900">${formatNum(b.asset)}</span>
                   </div>
                   <div class="flex items-center justify-between">
-                    <span class="font-semibold text-slate-500 flex items-center gap-1">
-                      <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Non-Valueable Asset
+                    <span class="text-slate-500 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Non-Valuable
                     </span>
-                    <span class="font-mono font-bold text-slate-700">${formatNum(b.nonVal)}</span>
+                    <span class="font-mono font-semibold text-slate-700">${formatNum(b.nonVal)}</span>
                   </div>
                 </div>
               </div>
             </div>
-
-            <!-- Financial Valuation Footer (Nilai Perolehan, Nilai Buku & Rasio NBV) -->
-            <div class="pt-2 border-t border-slate-100 space-y-1 text-[10.5px]">
+            <div class="pt-2 border-t border-slate-100 space-y-0.5 text-[10.5px]">
               <div class="flex items-center justify-between gap-1">
-                <span class="font-bold ${m.subTextColor} shrink-0">Nilai Perolehan</span>
-                <span class="font-mono font-semibold text-slate-800 truncate" title="Rp ${formatNum(b.hpp, 2)}">${formatNum(Math.round(b.hpp))}</span>
+                <span class="text-slate-500 shrink-0">Perolehan</span>
+                <span class="font-mono font-semibold text-slate-800 truncate" title="Rp ${formatNum(b.hpp, 2)}">${formatRp(b.hpp)}</span>
               </div>
               <div class="flex items-center justify-between gap-1">
-                <span class="font-bold ${m.subTextColor} shrink-0">Nilai Buku</span>
-                <span class="font-mono font-black text-slate-800 truncate" title="Rp ${formatNum(b.nbv, 2)}">${b.nbv > 0 ? formatNum(Math.round(b.nbv)) : '-'}</span>
+                <span class="text-slate-500 shrink-0">Nilai Buku</span>
+                <span class="font-mono font-bold text-slate-900 truncate" title="Rp ${formatNum(b.nbv, 2)}">${b.nbv > 0 ? formatRp(b.nbv) : '-'}</span>
               </div>
-              <!-- NBV Retention Mini Progress -->
-              <div class="pt-1 flex items-center justify-between text-[9px] text-slate-400">
-                <span>Rasio Nilai Buku (NBV)</span>
-                <span class="font-mono font-bold text-slate-600">${nbvRatio.toFixed(1)}%</span>
+              <div class="pt-0.5 flex items-center justify-between text-[10px] text-slate-400">
+                <span>Retensi NBV</span>
+                <span class="font-mono font-semibold text-slate-600">${nbvRatio.toFixed(1)}%</span>
               </div>
             </div>
           </div>
         `;
       }).join('');
+
+      kpiGrid.innerHTML = totalAssetCardHtml + condCardsHtml;
     }
 
     renderAssetMovementLeftTable();
@@ -13362,11 +13457,125 @@ const PNS_SECTION_TO_DEPT = {
 
     // Charts: 1. Dept bar & 2. Cond donut
     renderAssetDetailCharts(list);
+    renderAssetDetailVisualKpis(list);
 
     // Render Table
     renderAssetDetailTable(list);
   }
   window.renderAssetDetailPage = window.pns.renderAssetDetailPage = renderAssetDetailPage;
+
+  
+  function renderAssetDetailVisualKpis(list) {
+    const total = list.length || 0;
+    let totalHpp = 0, totalNbv = 0, totalMtc = 0;
+    let productiveCount = 0, overAgeCount = 0, highMtcCount = 0, brokenLostCount = 0;
+    const siteMap = {};
+
+    list.forEach(a => {
+      const hpp = Number(a.hpp || a.total_harga_perolehan) || 0;
+      const nbv = Number(a.nbv || a.Nilai_buku) || 0;
+      const mtc = Number(a.maintenance_cost) || 0;
+      const umur = Number(a.umur_asset || a.umur) || 0;
+      const std = Number(a.standar_umur || a.std) || 5;
+      const kond = String(a.kond || a.kondisi || '').toLowerCase();
+      const loc = String(a.loc || a.location || 'CO').trim() || 'CO';
+
+      totalHpp += hpp;
+      totalNbv += nbv;
+      totalMtc += mtc;
+
+      if (kond.includes('broken') || kond.includes('lost') || kond.includes('disposal')) {
+        brokenLostCount++;
+      } else if (umur >= std) {
+        overAgeCount++;
+      } else {
+        productiveCount++;
+      }
+
+      if (hpp > 0 && (mtc / hpp) > 0.30) highMtcCount++;
+
+      if (!siteMap[loc]) siteMap[loc] = { loc, count: 0, nbv: 0, hpp: 0 };
+      siteMap[loc].count++;
+      siteMap[loc].nbv += nbv;
+      siteMap[loc].hpp += hpp;
+    });
+
+    const nbvRatio = totalHpp > 0 ? ((totalNbv / totalHpp) * 100) : 0;
+    const mtcRatio = totalHpp > 0 ? ((totalMtc / totalHpp) * 100) : 0;
+    const prodPct = total > 0 ? ((productiveCount / total) * 100) : 0;
+    const overPct = total > 0 ? ((overAgeCount / total) * 100) : 0;
+    const riskPct = total > 0 ? ((brokenLostCount / total) * 100) : 0;
+
+    setElText('pbi-assetd-kpi-nbv-ratio', nbvRatio.toFixed(1) + '% Retensi NBV');
+
+    const lifeEl = document.getElementById('pbi-assetd-kpi-lifecycle');
+    if (lifeEl) {
+      lifeEl.innerHTML = `
+        <!-- 4 Segmented Lifecycle Indicators -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#DCE1E8] border border-[#DCE1E8] rounded bg-[#F8FAFC]">
+          <div class="px-3 py-2">
+            <div class="text-[10px] font-bold uppercase text-slate-500">Produktif (&lt; Std)</div>
+            <div class="text-base font-bold font-mono text-emerald-700 num-tabular mt-0.5">${formatNum(productiveCount)}</div>
+            <div class="text-[10px] text-slate-500">${prodPct.toFixed(1)}% dari portofolio</div>
+          </div>
+          <div class="px-3 py-2">
+            <div class="text-[10px] font-bold uppercase text-slate-500">Over-Age (&ge; Std)</div>
+            <div class="text-base font-bold font-mono text-amber-700 num-tabular mt-0.5">${formatNum(overAgeCount)}</div>
+            <div class="text-[10px] text-slate-500">${overPct.toFixed(1)}% melewati umur</div>
+          </div>
+          <div class="px-3 py-2">
+            <div class="text-[10px] font-bold uppercase text-slate-500">Rusak / Hilang</div>
+            <div class="text-base font-bold font-mono text-rose-700 num-tabular mt-0.5">${formatNum(brokenLostCount)}</div>
+            <div class="text-[10px] text-slate-500">${riskPct.toFixed(1)}% perlu tindak lanjut</div>
+          </div>
+          <div class="px-3 py-2">
+            <div class="text-[10px] font-bold uppercase text-slate-500">Beban MTC / HPP</div>
+            <div class="text-base font-bold font-mono text-slate-900 num-tabular mt-0.5">${mtcRatio.toFixed(2)}%</div>
+            <div class="text-[10px] text-slate-500">${formatNum(highMtcCount)} unit &gt;30% CAPEX</div>
+          </div>
+        </div>
+
+        <!-- Stacked Lifecycle Composition Bar -->
+        <div class="space-y-1">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="font-semibold text-slate-700">Komposisi Kesehatan Umur Aset</span>
+            <span class="font-mono text-slate-500">Produktif ${prodPct.toFixed(0)}% &bull; Over-Age ${overPct.toFixed(0)}% &bull; Risiko ${riskPct.toFixed(0)}%</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-200 rounded-sm overflow-hidden flex">
+            <div class="bg-emerald-600 h-full" style="width: ${prodPct.toFixed(1)}%" title="Produktif: ${formatNum(productiveCount)}"></div>
+            <div class="bg-amber-500 h-full" style="width: ${overPct.toFixed(1)}%" title="Over-Age: ${formatNum(overAgeCount)}"></div>
+            <div class="bg-rose-600 h-full" style="width: ${riskPct.toFixed(1)}%" title="Rusak/Hilang: ${formatNum(brokenLostCount)}"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Site Distribution Visual KPI Panel
+    const siteList = Object.values(siteMap).sort((a, b) => b.count - a.count);
+    setElText('pbi-assetd-kpi-site-count', siteList.length + ' Lokasi');
+    const siteEl = document.getElementById('pbi-assetd-kpi-site');
+    if (siteEl) {
+      const topSites = siteList.slice(0, 6);
+      const maxCount = topSites.length > 0 ? topSites[0].count : 1;
+      siteEl.innerHTML = topSites.map(s => {
+        const share = total > 0 ? ((s.count / total) * 100).toFixed(1) : '0.0';
+        const barW = Math.max(4, Math.round((s.count / maxCount) * 100));
+        return `
+          <div class="p-2 rounded border border-slate-100 bg-[#F8FAFC] hover:border-slate-300 transition">
+            <div class="flex items-center justify-between text-xs mb-1 gap-2">
+              <span class="font-semibold text-slate-800 truncate">${escapeHtml(s.loc)}</span>
+              <span class="font-mono text-[11px] text-slate-600 shrink-0">
+                <b class="text-slate-900">${formatNum(s.count)}</b> unit (${share}%) &bull; NBV <b class="text-[#1E40AF]">${formatRp(s.nbv)}</b>
+              </span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-200 rounded-sm overflow-hidden">
+              <div class="h-full bg-[#1E40AF]" style="width: ${barW}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
 
   function renderAssetDetailCharts(list) {
     if (typeof ApexCharts === 'undefined') return;

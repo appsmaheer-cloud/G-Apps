@@ -6348,79 +6348,137 @@ const PNS_SECTION_TO_DEPT = {
 
     const kpiGrid = document.getElementById('mov-kpi-cards-grid');
     if (kpiGrid) {
-      kpiGrid.innerHTML = COND_META.map(m => {
+      // Compute Grand Totals for Card #1: JUMLAH ASSET
+      let grandTotal = 0, grandAsset = 0, grandNonVal = 0, grandHpp = 0, grandNbv = 0;
+      COND_META.forEach(m => {
         const b = buckets[m.key];
-        const sharePct = (b.total / totalPortfolio * 100).toFixed(2);
+        grandTotal += b.total;
+        grandAsset += b.asset;
+        grandNonVal += b.nonVal;
+        grandHpp += b.hpp;
+        grandNbv += b.nbv;
+      });
+      const grandAssetPct = grandTotal > 0 ? (grandAsset / grandTotal * 100) : 0;
+      const grandNbvRatio = grandHpp > 0 ? (grandNbv / grandHpp * 100) : 0;
+      const isAllSelected = (movState.kondisi === 'ALL');
+
+      const totalAssetCardHtml = `
+        <div onclick="window.toggleMovCondFilter('ALL')"
+             class="bg-white rounded border ${isAllSelected ? 'border-[#1E40AF] ring-1 ring-[#1E40AF] bg-[#EFF6FF]/40' : 'border-[#DCE1E8] hover:border-[#1E40AF]'} p-3 transition cursor-pointer flex flex-col justify-between relative overflow-hidden group"
+             title="Klik untuk tampilkan seluruh kondisi aset">
+          <div class="absolute top-0 inset-x-0 h-[2px] bg-[#1E40AF]"></div>
+          <div>
+            <div class="flex items-center justify-between gap-1 mb-1">
+              <span class="text-[11px] font-bold uppercase tracking-wider text-[#1E3A8A] flex items-center gap-1">
+                <i class="ph ph-stack text-sm"></i> JUMLAH ASSET
+              </span>
+              <span class="text-[10px] font-mono font-bold text-[#1E40AF]">100%</span>
+            </div>
+            <div class="flex items-baseline justify-between my-1">
+              <span class="text-2xl font-bold font-mono tracking-tight text-slate-900 num-tabular">${formatNum(grandTotal)}</span>
+              <span class="text-[10px] font-medium text-slate-400">${isAllSelected ? 'Semua' : 'Reset'}</span>
+            </div>
+            <div class="my-2 bg-[#F8FAFC] rounded p-2 border border-slate-200/70">
+              <div class="w-full h-1.5 bg-slate-200 rounded-sm overflow-hidden flex mb-1.5">
+                <div class="bg-[#1E40AF] h-full" style="width: ${grandAssetPct.toFixed(1)}%"></div>
+              </div>
+              <div class="space-y-0.5 text-[10.5px]">
+                <div class="flex items-center justify-between">
+                  <span class="font-medium text-slate-700 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#1E40AF]"></span> ASSET
+                  </span>
+                  <span class="font-mono font-bold text-slate-900">${formatNum(grandAsset)}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                  <span class="text-slate-500 flex items-center gap-1.5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Non-Valuable
+                  </span>
+                  <span class="font-mono font-semibold text-slate-700">${formatNum(grandNonVal)}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="pt-2 border-t border-slate-100 space-y-0.5 text-[10.5px]">
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-slate-500 shrink-0">Perolehan</span>
+              <span class="font-mono font-semibold text-slate-800 truncate" title="Rp ${formatNum(grandHpp, 2)}">${formatRp(grandHpp)}</span>
+            </div>
+            <div class="flex items-center justify-between gap-1">
+              <span class="text-slate-500 shrink-0">Nilai Buku</span>
+              <span class="font-mono font-bold text-slate-900 truncate" title="Rp ${formatNum(grandNbv, 2)}">${formatRp(grandNbv)}</span>
+            </div>
+            <div class="pt-0.5 flex items-center justify-between text-[10px] text-slate-400">
+              <span>Retensi NBV</span>
+              <span class="font-mono font-semibold text-slate-600">${grandNbvRatio.toFixed(1)}%</span>
+            </div>
+          </div>
+        </div>
+      `;
+
+      const condCardsHtml = COND_META.map(m => {
+        const b = buckets[m.key];
+        const sharePct = (b.total / totalPortfolio * 100).toFixed(1);
         const assetPct = b.total > 0 ? (b.asset / b.total * 100) : 0;
         const nbvRatio = b.hpp > 0 ? (b.nbv / b.hpp * 100) : 0;
         const isSelected = movState.kondisi === m.key;
 
         return `
           <div onclick="window.toggleMovCondFilter('${m.key}')"
-               class="bg-white rounded-2xl border-2 ${m.border} ${isSelected ? m.activeRing : 'hover:shadow-md'} p-3.5 shadow-xs transition-all cursor-pointer flex flex-col justify-between relative overflow-hidden group"
+               class="bg-white rounded border ${isSelected ? 'border-[#1E40AF] ring-1 ring-[#1E40AF] bg-[#EFF6FF]/30' : 'border-[#DCE1E8] hover:border-slate-400'} p-3 transition cursor-pointer flex flex-col justify-between relative overflow-hidden group"
                title="Klik untuk memfilter tabel berdasarkan kondisi ${m.title}">
-            <!-- Top Accent Strip -->
-            <div class="absolute top-0 inset-x-0 h-1 ${m.barColor}"></div>
-
-            <!-- Card Header & Main Count -->
+            <div class="absolute top-0 inset-x-0 h-[2px] ${m.barColor}"></div>
             <div>
               <div class="flex items-center justify-between gap-1 mb-1">
-                <span class="text-[11px] font-black uppercase tracking-wider ${m.titleColor} flex items-center gap-1">
-                  <i class="ph-bold ${m.icon} text-sm"></i> ${m.title}
+                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1 truncate">
+                  <span class="w-1.5 h-1.5 rounded-full ${m.barColor} shrink-0"></span> ${m.title}
                 </span>
-                <span class="px-1.5 py-0.5 rounded-full text-[9.5px] font-mono font-black border ${m.badgeBg}">
-                  ${sharePct}%
-                </span>
+                <span class="text-[10px] font-mono font-semibold text-slate-500 shrink-0">${sharePct}%</span>
               </div>
-
               <div class="flex items-baseline justify-between my-1">
-                <span class="text-2xl font-black font-mono tracking-tight ${m.countColor}">${formatNum(b.total)}</span>
-                <span class="text-[9.5px] font-bold text-slate-400 group-hover:text-slate-700 transition flex items-center gap-0.5">
-                  ${isSelected ? '✓ Filter Aktif' : 'Klik Filter'}
+                <span class="text-2xl font-bold font-mono tracking-tight text-slate-900 num-tabular">${formatNum(b.total)}</span>
+                <span class="text-[10px] font-medium ${isSelected ? 'text-[#1E40AF]' : 'text-slate-400 group-hover:text-slate-600'}">
+                  ${isSelected ? 'Aktif' : 'Filter'}
                 </span>
               </div>
-
-              <!-- Improvised Stacked Split Bar: ASSET vs Non-Valueable Asset -->
-              <div class="my-2 bg-slate-50 rounded-xl p-2 border border-slate-100">
-                <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden flex mb-1.5">
+              <div class="my-2 bg-[#F8FAFC] rounded p-2 border border-slate-200/70">
+                <div class="w-full h-1.5 bg-slate-200 rounded-sm overflow-hidden flex mb-1.5">
                   <div class="${m.barColor} h-full" style="width: ${assetPct.toFixed(1)}%" title="ASSET: ${formatNum(b.asset)}"></div>
                 </div>
                 <div class="space-y-0.5 text-[10.5px]">
                   <div class="flex items-center justify-between">
-                    <span class="font-bold ${m.subTextColor} flex items-center gap-1">
+                    <span class="font-medium text-slate-700 flex items-center gap-1.5">
                       <span class="w-1.5 h-1.5 rounded-full ${m.barColor}"></span> ASSET
                     </span>
-                    <span class="font-mono font-black ${m.subTextColor}">${formatNum(b.asset)}</span>
+                    <span class="font-mono font-bold text-slate-900">${formatNum(b.asset)}</span>
                   </div>
                   <div class="flex items-center justify-between">
-                    <span class="font-semibold text-slate-500 flex items-center gap-1">
-                      <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Non-Valueable Asset
+                    <span class="text-slate-500 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span> Non-Valuable
                     </span>
-                    <span class="font-mono font-bold text-slate-700">${formatNum(b.nonVal)}</span>
+                    <span class="font-mono font-semibold text-slate-700">${formatNum(b.nonVal)}</span>
                   </div>
                 </div>
               </div>
             </div>
-
-            <!-- Financial Valuation Footer (Nilai Perolehan, Nilai Buku & Rasio NBV) -->
-            <div class="pt-2 border-t border-slate-100 space-y-1 text-[10.5px]">
+            <div class="pt-2 border-t border-slate-100 space-y-0.5 text-[10.5px]">
               <div class="flex items-center justify-between gap-1">
-                <span class="font-bold ${m.subTextColor} shrink-0">Nilai Perolehan</span>
-                <span class="font-mono font-semibold text-slate-800 truncate" title="Rp ${formatNum(b.hpp, 2)}">${formatNum(Math.round(b.hpp))}</span>
+                <span class="text-slate-500 shrink-0">Perolehan</span>
+                <span class="font-mono font-semibold text-slate-800 truncate" title="Rp ${formatNum(b.hpp, 2)}">${formatRp(b.hpp)}</span>
               </div>
               <div class="flex items-center justify-between gap-1">
-                <span class="font-bold ${m.subTextColor} shrink-0">Nilai Buku</span>
-                <span class="font-mono font-black text-slate-800 truncate" title="Rp ${formatNum(b.nbv, 2)}">${b.nbv > 0 ? formatNum(Math.round(b.nbv)) : '-'}</span>
+                <span class="text-slate-500 shrink-0">Nilai Buku</span>
+                <span class="font-mono font-bold text-slate-900 truncate" title="Rp ${formatNum(b.nbv, 2)}">${b.nbv > 0 ? formatRp(b.nbv) : '-'}</span>
               </div>
-              <!-- NBV Retention Mini Progress -->
-              <div class="pt-1 flex items-center justify-between text-[9px] text-slate-400">
-                <span>Rasio Nilai Buku (NBV)</span>
-                <span class="font-mono font-bold text-slate-600">${nbvRatio.toFixed(1)}%</span>
+              <div class="pt-0.5 flex items-center justify-between text-[10px] text-slate-400">
+                <span>Retensi NBV</span>
+                <span class="font-mono font-semibold text-slate-600">${nbvRatio.toFixed(1)}%</span>
               </div>
             </div>
           </div>
         `;
       }).join('');
+
+      kpiGrid.innerHTML = totalAssetCardHtml + condCardsHtml;
     }
 
     renderAssetMovementLeftTable();
@@ -7222,11 +7280,125 @@ const PNS_SECTION_TO_DEPT = {
 
     // Charts: 1. Dept bar & 2. Cond donut
     renderAssetDetailCharts(list);
+    renderAssetDetailVisualKpis(list);
 
     // Render Table
     renderAssetDetailTable(list);
   }
   window.renderAssetDetailPage = window.pns.renderAssetDetailPage = renderAssetDetailPage;
+
+  
+  function renderAssetDetailVisualKpis(list) {
+    const total = list.length || 0;
+    let totalHpp = 0, totalNbv = 0, totalMtc = 0;
+    let productiveCount = 0, overAgeCount = 0, highMtcCount = 0, brokenLostCount = 0;
+    const siteMap = {};
+
+    list.forEach(a => {
+      const hpp = Number(a.hpp || a.total_harga_perolehan) || 0;
+      const nbv = Number(a.nbv || a.Nilai_buku) || 0;
+      const mtc = Number(a.maintenance_cost) || 0;
+      const umur = Number(a.umur_asset || a.umur) || 0;
+      const std = Number(a.standar_umur || a.std) || 5;
+      const kond = String(a.kond || a.kondisi || '').toLowerCase();
+      const loc = String(a.loc || a.location || 'CO').trim() || 'CO';
+
+      totalHpp += hpp;
+      totalNbv += nbv;
+      totalMtc += mtc;
+
+      if (kond.includes('broken') || kond.includes('lost') || kond.includes('disposal')) {
+        brokenLostCount++;
+      } else if (umur >= std) {
+        overAgeCount++;
+      } else {
+        productiveCount++;
+      }
+
+      if (hpp > 0 && (mtc / hpp) > 0.30) highMtcCount++;
+
+      if (!siteMap[loc]) siteMap[loc] = { loc, count: 0, nbv: 0, hpp: 0 };
+      siteMap[loc].count++;
+      siteMap[loc].nbv += nbv;
+      siteMap[loc].hpp += hpp;
+    });
+
+    const nbvRatio = totalHpp > 0 ? ((totalNbv / totalHpp) * 100) : 0;
+    const mtcRatio = totalHpp > 0 ? ((totalMtc / totalHpp) * 100) : 0;
+    const prodPct = total > 0 ? ((productiveCount / total) * 100) : 0;
+    const overPct = total > 0 ? ((overAgeCount / total) * 100) : 0;
+    const riskPct = total > 0 ? ((brokenLostCount / total) * 100) : 0;
+
+    setElText('pbi-assetd-kpi-nbv-ratio', nbvRatio.toFixed(1) + '% Retensi NBV');
+
+    const lifeEl = document.getElementById('pbi-assetd-kpi-lifecycle');
+    if (lifeEl) {
+      lifeEl.innerHTML = `
+        <!-- 4 Segmented Lifecycle Indicators -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-[#DCE1E8] border border-[#DCE1E8] rounded bg-[#F8FAFC]">
+          <div class="px-3 py-2">
+            <div class="text-[10px] font-bold uppercase text-slate-500">Produktif (&lt; Std)</div>
+            <div class="text-base font-bold font-mono text-emerald-700 num-tabular mt-0.5">${formatNum(productiveCount)}</div>
+            <div class="text-[10px] text-slate-500">${prodPct.toFixed(1)}% dari portofolio</div>
+          </div>
+          <div class="px-3 py-2">
+            <div class="text-[10px] font-bold uppercase text-slate-500">Over-Age (&ge; Std)</div>
+            <div class="text-base font-bold font-mono text-amber-700 num-tabular mt-0.5">${formatNum(overAgeCount)}</div>
+            <div class="text-[10px] text-slate-500">${overPct.toFixed(1)}% melewati umur</div>
+          </div>
+          <div class="px-3 py-2">
+            <div class="text-[10px] font-bold uppercase text-slate-500">Rusak / Hilang</div>
+            <div class="text-base font-bold font-mono text-rose-700 num-tabular mt-0.5">${formatNum(brokenLostCount)}</div>
+            <div class="text-[10px] text-slate-500">${riskPct.toFixed(1)}% perlu tindak lanjut</div>
+          </div>
+          <div class="px-3 py-2">
+            <div class="text-[10px] font-bold uppercase text-slate-500">Beban MTC / HPP</div>
+            <div class="text-base font-bold font-mono text-slate-900 num-tabular mt-0.5">${mtcRatio.toFixed(2)}%</div>
+            <div class="text-[10px] text-slate-500">${formatNum(highMtcCount)} unit &gt;30% CAPEX</div>
+          </div>
+        </div>
+
+        <!-- Stacked Lifecycle Composition Bar -->
+        <div class="space-y-1">
+          <div class="flex items-center justify-between text-[11px]">
+            <span class="font-semibold text-slate-700">Komposisi Kesehatan Umur Aset</span>
+            <span class="font-mono text-slate-500">Produktif ${prodPct.toFixed(0)}% &bull; Over-Age ${overPct.toFixed(0)}% &bull; Risiko ${riskPct.toFixed(0)}%</span>
+          </div>
+          <div class="w-full h-2.5 bg-slate-200 rounded-sm overflow-hidden flex">
+            <div class="bg-emerald-600 h-full" style="width: ${prodPct.toFixed(1)}%" title="Produktif: ${formatNum(productiveCount)}"></div>
+            <div class="bg-amber-500 h-full" style="width: ${overPct.toFixed(1)}%" title="Over-Age: ${formatNum(overAgeCount)}"></div>
+            <div class="bg-rose-600 h-full" style="width: ${riskPct.toFixed(1)}%" title="Rusak/Hilang: ${formatNum(brokenLostCount)}"></div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Site Distribution Visual KPI Panel
+    const siteList = Object.values(siteMap).sort((a, b) => b.count - a.count);
+    setElText('pbi-assetd-kpi-site-count', siteList.length + ' Lokasi');
+    const siteEl = document.getElementById('pbi-assetd-kpi-site');
+    if (siteEl) {
+      const topSites = siteList.slice(0, 6);
+      const maxCount = topSites.length > 0 ? topSites[0].count : 1;
+      siteEl.innerHTML = topSites.map(s => {
+        const share = total > 0 ? ((s.count / total) * 100).toFixed(1) : '0.0';
+        const barW = Math.max(4, Math.round((s.count / maxCount) * 100));
+        return `
+          <div class="p-2 rounded border border-slate-100 bg-[#F8FAFC] hover:border-slate-300 transition">
+            <div class="flex items-center justify-between text-xs mb-1 gap-2">
+              <span class="font-semibold text-slate-800 truncate">${escapeHtml(s.loc)}</span>
+              <span class="font-mono text-[11px] text-slate-600 shrink-0">
+                <b class="text-slate-900">${formatNum(s.count)}</b> unit (${share}%) &bull; NBV <b class="text-[#1E40AF]">${formatRp(s.nbv)}</b>
+              </span>
+            </div>
+            <div class="w-full h-1.5 bg-slate-200 rounded-sm overflow-hidden">
+              <div class="h-full bg-[#1E40AF]" style="width: ${barW}%"></div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+  }
 
   function renderAssetDetailCharts(list) {
     if (typeof ApexCharts === 'undefined') return;
