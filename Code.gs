@@ -11,7 +11,8 @@
  * dengan tetap mempertahankan 100% Struktur Tabel Lama (Legacy Schema) & Integrasi Maintenance:
  * 1. PMAK (22 kolom) - Permohonan & Kelayakan Perbaikan Aset / BPP Terintegrasi
  * 2. asset (42 kolom) - Master Katalog 34.266 Aset Fisik
- * 3. data_mtc (21 kolom) - Historical Maintenance, Spare Part & Servis (34.232 Transaksi / Rp 27,65 M)
+ * 3. data_mtc (24 kolom) - Historical Maintenance, Spare Part & Servis (70.487 Transaksi / Rp 29,12 M)
+ * 3b. MTC_SUMMARY_UNIT (14 kolom) - Ringkasan Biaya & Kategori MTC per KODE UNIT (1.506 Unit)
  * 4. WORK_ORDERS (15 kolom) - Data Tiket Servis, Pemeliharaan & Status Lapangan
  * 5. M_GEDUNG (12 kolom) - Master Gedung Fisik
  * 6. M_RUANGAN (10 kolom) - Master Ruangan
@@ -44,6 +45,22 @@ const LEGACY_TRANSAKSI_HEADERS = [
   'nama_asset', 'dari_lokasi', 'ke_lokasi', 'dari_penanggungjawab', 'ke_penanggungjawab',
   'keterangan', 'operator'
 ];
+
+const DATA_MTC_24_HEADERS = [
+  'MEMORIAL', 'TANGGAL', 'ACC. CODE DEBIT', 'ACC. NAME DEBIT', 'NOMINAL',
+  'NO REFERENCE', 'DESCRIPTION', 'NAMA SPARE PART & JASA', 'QTY', 'SATUAN',
+  'LOCATION', 'KODE UNIT', 'KATEGORI ASSET', 'DETAIL NAMA ASSET', 'KODE SISTEM GS',
+  'DIV', 'DEPT', 'KODE_SECTION', 'COA', 'NAMA_COA',
+  'NOMINAL_EDIT', 'KATEGORI', 'KATEGORI_MAINTENANCE', 'SUB_KATEGORI_MAINTENANCE'
+];
+
+const MTC_SUMMARY_14_HEADERS = [
+  'KODE_UNIT', 'DETAIL_NAMA_ASSET', 'KATEGORI_ASSET', 'LOCATION',
+  'DIV', 'DEPT', 'KODE_SECTION', 'TOTAL_TX', 'TOTAL_QTY',
+  'TOTAL_NOMINAL', 'KATEGORI_MTC_UTAMA', 'SUB_KATEGORI_MTC_UTAMA',
+  'LAST_MTC_DATE', 'KATEGORI_ASET_MTC'
+];
+
 
 function doGet(e) {
   if (e && e.parameter && e.parameter.api) {
@@ -270,7 +287,9 @@ function handleApiGet(params) {
     } else if (api === 'pmak') {
       res.data = apiGetPmakList(parseInt(params.limit || 200, 10));
     } else if (api === 'data_mtc') {
-      res.data = apiGetMtcHistory(params.kode_unit || '', parseInt(params.limit || 200, 10));
+      res.data = apiGetMtcHistory(params.kode_unit || '', parseInt(params.limit || 200, 10), params.kat_mtc || '', params.sub_kat_mtc || '');
+    } else if (api === 'mtc_summary') {
+      res.data = apiGetMtcSummary();
     } else {
       res.success = false;
       res.message = 'Unknown API endpoint: ' + api;
@@ -307,6 +326,10 @@ function handleApiPost(action, payload) {
     return cleanExtraApiRowsFromMasterAsset();
   } else if (action === 'save_pmak') {
     return apiSavePmak(payload);
+  } else if (action === 'import_data_mtc') {
+    return importDataMtcFromDrive(payload.fileName || '');
+  } else if (action === 'rebuild_mtc_summary') {
+    return rebuildMtcUnitSummary();
   }
   return { success: false, message: 'Aksi POST tidak dikenal: ' + action };
 }
@@ -321,6 +344,9 @@ function onOpen() {
       .addItem('📋 1. Cek Status & Jumlah Data Database', 'checkDatabaseHealthStatus')
       .addSeparator()
       .addItem('⚡ 2. Tarik Sinkronisasi API Pusat PNS (Opsional)', 'syncAssetVerReportFromApi')
+      .addSeparator()
+      .addItem('📥 3. Import data_mtc dari Google Drive (Auto Kategori)', 'importDataMtcFromDrive')
+      .addItem('🔄 4. Rebuild Ringkasan MTC per KODE UNIT', 'rebuildMtcUnitSummary')
       .addToUi();
   } catch (e) {
     Logger.log('onOpen info: ' + e);
@@ -372,7 +398,21 @@ function apiGetDashboardStats() {
   var totalGedung = sheetGedung && sheetGedung.getLastRow() > 1 ? (sheetGedung.getLastRow() - 1) : 416;
   var totalRuangan = sheetRuangan && sheetRuangan.getLastRow() > 1 ? (sheetRuangan.getLastRow() - 1) : 1559;
   var totalInsp = sheetInsp && sheetInsp.getLastRow() > 1 ? (sheetInsp.getLastRow() - 1) : 12;
-  var totalMtc = sheetMtc && sheetMtc.getLastRow() > 1 ? (sheetMtc.getLastRow() - 1) : 34232;
+  var sheetMtcSum = ss.getSheetByName('MTC_SUMMARY_UNIT');
+  var totalMtc = sheetMtc && sheetMtc.getLastRow() > 1 ? (sheetMtc.getLastRow() - 1) : 70487;
+  var totalBiayaMtc = 29117201746;
+  if (sheetMtcSum && sheetMtcSum.getLastRow() > 1) {
+    try {
+      var sumRows = sheetMtcSum.getRange(2, 8, sheetMtcSum.getLastRow() - 1, 3).getValues();
+      var sTx = 0, sNom = 0;
+      for (var si = 0; si < sumRows.length; si++) {
+        sTx += Number(sumRows[si][0]) || 0;
+        sNom += Number(sumRows[si][2]) || 0;
+      }
+      if (sNom > 0) totalBiayaMtc = Math.round(sNom);
+      if (sTx > 0) totalMtc = Math.round(sTx);
+    } catch (eSum) {}
+  }
   var liveApiCount = sheetLiveApi && sheetLiveApi.getLastRow() > 1 ? (sheetLiveApi.getLastRow() - 1) : 0;
   var masterAssetCount = sheetAsset && sheetAsset.getLastRow() > 1 ? (sheetAsset.getLastRow() - 1) : 0;
   var totalAssetsLive = Math.max(liveApiCount, masterAssetCount, 35160);
@@ -389,7 +429,7 @@ function apiGetDashboardStats() {
     valuasi_hpp: 1120265723612,
     akumulasi_penyusutan: 438484408626,
     nilai_buku_nbv: 681781314986,
-    biaya_perawatan: 23232987484
+    biaya_perawatan: totalBiayaMtc
   };
 }
 
@@ -1852,40 +1892,524 @@ function apiSavePmak(payload) {
 }
 
 /**
- * Mengambil histori data_mtc (21 kolom) untuk analisis pemeliharaan per unit aset
+ * ============================================================================
+ * ENGINE MAINTENANCE BARU (24 KOLOM data_mtc + KODE UNIT + MTC_SUMMARY_UNIT)
+ * ============================================================================
  */
-function apiGetMtcHistory(kodeUnit, limit) {
+function classifyMaintenancePart_(partName, desc, namaCoa, katAset) {
+  var p = String(partName || '').toUpperCase();
+  var d = String(desc || '').toUpperCase();
+  var coa = String(namaCoa || '').toUpperCase();
+  var kat = String(katAset || '').toUpperCase();
+  var text = p + ' ' + d;
+
+  if (/\bTAMBAL BAN\b|\bGANTI BAN\b|\bVULKANISIR\b|\bPRESS BAN\b/.test(text) && (coa.indexOf('JASA') !== -1 || p.indexOf('JASA') !== -1 || p.indexOf('TAMBAL') !== -1)) return ['Jasa & Servis Bengkel (Labor & Services)', 'Jasa Ganti / Tambal Ban'];
+  if (/\bBAN DALAM\b|\bTUBE\b|\bFLAP\b|\bMARSET\b/.test(p)) return ['Ban, Roda & Penggerak (Tire & Chassis)', 'Ban Dalam & Flap (Tube)'];
+  if (/\bBAN LUAR\b|\bTIRE\b|\bTYRE\b|\bSWALLOW\b|\bIRC\b|\bDUNLOP\b|\bBRIDGESTONE\b|\bGAJAH TUNGGAL\b|\b7\.50-16\b|\b80\/90\b|\b70\/90\b|\b2\.75-17\b|\b2\.50-17\b/.test(p)) return ['Ban, Roda & Penggerak (Tire & Chassis)', 'Ban Luar (Tire)'];
+  if (/\bBEARING\b|\bLAHER\b|\bBUSHING\b|\bCOMSTIR\b|\bCONE\b|\bBALL RACE\b/.test(p)) return ['Ban, Roda & Penggerak (Tire & Chassis)', 'Bearing & Bushing Roda'];
+  if (/\bRANTAI\b|\bGEAR SET\b|\bSPROCKET\b|\bGIR\b|\bCHAIN\b/.test(p)) return ['Ban, Roda & Penggerak (Tire & Chassis)', 'Rantai & Gear Set (Drive Chain)'];
+
+  if (/\bSHOE\b|\bKAMPAS REM BELAKANG\b|\bBRAKE SHOE\b|\bSHOE SET\b/.test(p)) return ['Sistem Pengereman (Brake System)', 'Kampas Rem Belakang (Shoe Set RR)'];
+  if (/\bPAD SET\b|\bKAMPAS REM DEPAN\b|\bBRAKE PAD\b|\bDISKPAD\b|\bDISC PAD\b|\bKAMPAS REM\b/.test(p)) return ['Sistem Pengereman (Brake System)', 'Kampas Rem Depan (Pad Set FR)'];
+  if (/\bMASTER REM\b|\bCALIPER\b|\bBRAKE CYLINDER\b|\bCAKRAM\b|\bTROMOL\b|\bBOOSTER REM\b/.test(p)) return ['Sistem Pengereman (Brake System)', 'Master Rem, Caliper & Piston'];
+
+  if (coa.indexOf('JASA') !== -1 || /^JASA\b|\bUPAH\b|\bSERVICE\b|\bSERVIS\b|\bPERBAIKAN\b|\bKALIBRASI\b|\bOVERHOUL\b|\bOVERHAUL\b|\bBUBUT\b|\bLAS\b|\bFABRIKASI\b|\bCUCI AC\b|\bBONGKAR PASANG\b/.test(p)) {
+    if (/OVERHOUL|OVERHAUL|BUBUT|FABRIKASI|\bLAS\b|REKONDISI|REBUILD/.test(p)) return ['Jasa & Servis Bengkel (Labor & Services)', 'Jasa Overhaul, Las & Fabrikasi'];
+    if (/BAN|TUBE/.test(p)) return ['Jasa & Servis Bengkel (Labor & Services)', 'Jasa Ganti / Tambal Ban'];
+    return ['Jasa & Servis Bengkel (Labor & Services)', 'Jasa Servis Lengkap & Tune Up'];
+  }
+
+  if (/\bGREASE\b|\bGEMUK\b|\bSTEMPET\b/.test(p)) return ['Pelumas & Fluida (Lubricants)', 'Gemuk / Grease Pelumas'];
+  if (/\bCOOLANT\b|\bMINYAK REM\b|\bBRAKE FLUID\b|\bAIR ACCU\b|\bAIR RADIATOR\b|\bATF\b|\bHYDRAULIC OIL\b|\bOLI HIDROLIK\b|\bTELLUS\b/.test(p)) return ['Pelumas & Fluida (Lubricants)', 'Radiator Coolant & Minyak Rem'];
+  if (/\bGARDAN\b|\bTRANSMISI\b|\bSAE 90\b|\bSAE 140\b|\bGL-4\b|\bGL-5\b|\bROREX\b|\bSPIRAX\b/.test(p)) return ['Pelumas & Fluida (Lubricants)', 'Oli Transmisi & Gardan'];
+  if (/\bOLI\b|\bOIL\b|\bMEDITRAN\b|\bMESRAN\b|\bYAMALUBE\b|\bMPX\b|\bSPX\b|\bSHELL\b|\bRIMULA\b|\bPRIMA XP\b|\bFASTRON\b|\bCASTROL\b|\bLUBRICANT\b/.test(p)) return ['Pelumas & Fluida (Lubricants)', 'Oli Mesin (Diesel & Bensin)'];
+
+  if (/\bAKI\b|\bACCU\b|\bBATTERY\b|\bBATERAI\b|\bYUASA\b|\bGS ASTRA\b|\bINCOE\b|\bUPS\b/.test(p)) return ['Kelistrikan & Penerangan (Electrical)', 'Aki / Baterai Unit'];
+  if (/\bLAMPU\b|\bBOHLAM\b|\bLED\b|\bBULB\b|\bHEADLAMP\b|\bSTOP LAMP\b|\bSEIN\b|\bFLOOD LIGHT\b|\bSOROT\b|\bTL\b/.test(p)) return ['Kelistrikan & Penerangan (Electrical)', 'Lampu LED & Bohlam Penerangan'];
+  if (/\bDINAMO\b|\bSTARTER\b|\bALTERNATOR\b|\bSTATOR\b|\bROTOR\b|\bANGKER\b|\bARMATURE\b|\bSOLENOID\b|\bAVR\b/.test(p)) return ['Kelistrikan & Penerangan (Electrical)', 'Dinamo Starter & Alternator'];
+  if (/\bBUSI\b|\bSPARK PLUG\b|\bCOIL\b|\bKOIL\b|\bCDI\b|\bKIPROK\b|\bREGULATOR\b|\bIGNITION\b/.test(p)) return ['Kelistrikan & Penerangan (Electrical)', 'Busi & Pengapian (Spark Plug)'];
+  if (/\bKABEL\b|\bRELAY\b|\bSEKRING\b|\bFUSE\b|\bSAKLAR\b|\bSWITCH\b|\bMCB\b|\bKONTAKTOR\b|\bSTOP KONTAK\b|\bKAPASITOR\b|\bFREON\b|\bCOMPRESSOR\b|\bKOMPRESOR\b|\bAC SPLIT\b|\bMODUL\b|\bSENSOR\b/.test(p)) return ['Kelistrikan & Penerangan (Electrical)', 'Kabel Bodi, Relay & Sekring'];
+
+  if (/\bFILTER\b|\bSARINGAN\b|\bSEPARATOR\b|\bSPARATOR\b|\bCLEANER\b|\bRACOR\b|\bSAKURA\b|\bDONALDSON\b|\bFLEETGUARD\b/.test(p)) return ['Mesin & Powertrain (Engine Parts)', 'Filter (Oli, Solar, Udara)'];
+  if (/\bBELT\b|\bVANBELT\b|\bFANBELT\b|\bV-BELT\b|\bTIMING\b|\bFAN DRIVE\b/.test(p)) return ['Mesin & Powertrain (Engine Parts)', 'V-Belt / Fan Belt / Timing Belt'];
+  if (/\bSEAL\b|\bO-RING\b|\bORING\b|\bKARET\b|\bHOSE\b|\bSELANG\b|\bGROMMET\b|\bSIL\b/.test(p)) return ['Mesin & Powertrain (Engine Parts)', 'Seal, O-Ring & Karet'];
+  if (/\bPISTON\b|\bRING\b|\bPACKING\b|\bGASKET\b|\bKLEP\b|\bVALVE\b|\bNOZZLE\b|\bINJECTOR\b|\bFUEL PUMP\b|\bWATER PUMP\b|\bRADIATOR\b|\bCRANK\b|\bCAMSHAFT\b|\bCARBURETOR\b|\bKARBURATOR\b|\bKOPLING\b|\bCLUTCH\b|\bKAMPAS GANDA\b|\bCYLINDER\b|\bHEAD\b|\bENGINE\b|\bTURBO\b|\bKNALPOT\b/.test(p)) return ['Mesin & Powertrain (Engine Parts)', 'Piston, Ring, Packing & Gasket Mesin'];
+
+  if (/\bCAT\b|\bPAINT\b|\bPLATONE\b|\bDULUX\b|\bNIPPON\b|\bTHINNER\b|\bDEMPUL\b|\bMENI\b|\bKUAS\b|\bROLLER CAT\b|\bNO DROP\b|\bAQUAPROOF\b/.test(p)) return ['Material Bangunan & Infrastruktur', 'Cat, Thinner & Pelapis Anti Karat'];
+  if (/\bPIPA\b|\bPVC\b|\bWAVIN\b|\bRUCIKA\b|\bKERAN\b|\bKRAN\b|\bELBOW\b|\bTEE\b|\bSOCK\b|\bVALVE\b|\bBALL VALVE\b|\bCLOSET\b|\bKLOSET\b|\bTANDON\b|\bTEDMOND\b|\bPOMPA AIR\b|\bJET PUMP\b|\bSHOWER\b|\bWASTAFEL\b/.test(p)) return ['Material Bangunan & Infrastruktur', 'Pipa, Keran & Perlengkapan Plumbing'];
+  if (/\bSEMEN\b|\bPASIR\b|\bBATU\b|\bSPLIT\b|\bKERIKIL\b|\bBATA\b|\bHEBEL\b|\bSIKAGROUT\b|\bKERAMIK\b|\bKORAL\b|\bSIRTU\b/.test(p)) return ['Material Bangunan & Infrastruktur', 'Semen, Pasir & Agregat'];
+  if (/\bBESI\b|\bUNP\b|\bCNP\b|\bHOLLOW\b|\bSIKU\b|\bPLATE\b|\bPLAT\b|\bWIRE MESH\b|\bKAYU\b|\bTRIPLEK\b|\bMULTIPLEX\b|\bSENG\b|\bSPANDEK\b|\bGYPSUM\b|\bPAPAN\b|\bBALOK\b|\bRENG\b|\bKASAU\b|\bPAKU\b|\bENGSEL\b|\bKUNCI\b|\bHANDLE\b|\bGEMBOK\b|\bATAP\b|\bPLAFON\b|\bPINTU\b|\bJENDELA\b/.test(p)) return ['Material Bangunan & Infrastruktur', 'Besi, Baja & Kayu Konstruksi'];
+
+  if (/\bBAUT\b|\bMUR\b|\bRING\b|\bBOLT\b|\bNUT\b|\bWASHER\b|\bSKRUP\b|\bSEKRUP\b|\bRIVET\b|\bANCHOR\b|\bDINABOLT\b|\bKLIP\b|\bKLEM\b|\bCLAMP\b/.test(p)) return ['Consumable & Fast Moving Umum', 'Baut, Mur & Ring (Fasteners)'];
+  if (/\bLEM\b|\bMAJUN\b|\bAMPLAS\b|\bWD-40\b|\bKAWAT LAS\b|\bOKSIGEN\b|\bCO2\b|\bACETYLENE\b|\bCUTTING\b|\bGRINDA\b|\bGERINDA\b|\bSILICONE\b|\bSEALANT\b|\bSOLASI\b|\bISOLASI\b|\bMASKER\b|\bSARUNG TANGAN\b|\bMATA BOR\b|\bKUAS\b|\bBENSIN\b|\bSOLAR\b|\bPERTALITE\b/.test(p)) return ['Consumable & Fast Moving Umum', 'Lem, Majun, Amplas & WD-40'];
+
+  if (coa.indexOf('BANGUNAN') !== -1 || coa.indexOf('JALAN') !== -1 || coa.indexOf('PERALATAN RUMAH') !== -1 || kat.indexOf('BANGUNAN') !== -1) return ['Material Bangunan & Infrastruktur', 'Besi, Baja & Kayu Konstruksi'];
+  if (coa.indexOf('PERALATAN KANTOR') !== -1 || kat.indexOf('PERALATAN') !== -1) return ['Kelistrikan & Penerangan (Electrical)', 'Kabel Bodi, Relay & Sekring'];
+  if (coa.indexOf('MESIN') !== -1 || coa.indexOf('POWER PLANT') !== -1 || coa.indexOf('BOILER') !== -1 || coa.indexOf('PRODUCTION') !== -1 || kat.indexOf('MESIN') !== -1) return ['Mesin & Powertrain (Engine Parts)', 'Piston, Ring, Packing & Gasket Mesin'];
+  if (coa.indexOf('MOTOR') !== -1 || coa.indexOf('MOBIL') !== -1 || coa.indexOf('ANGKUTAN') !== -1 || coa.indexOf('WATER TRANSPORT') !== -1 || coa.indexOf('ALAT BERAT') !== -1 || kat.indexOf('KENDARAAN') !== -1 || kat.indexOf('ALAT BERAT') !== -1) return ['Mesin & Powertrain (Engine Parts)', 'Piston, Ring, Packing & Gasket Mesin'];
+  return ['Consumable & Fast Moving Umum', 'Lem, Majun, Amplas & WD-40'];
+}
+
+/**
+ * Logic Import Mudah untuk data_mtc (mendukung 22 kolom mentah Excel maupun 24 kolom sudah diperkaya)
+ * Ambil file CSV terbaru di Google Drive (default: DATA_MTC_MASTER_NEW.csv), tulis ke tab data_mtc,
+ * otomatis isi KATEGORI_MAINTENANCE & SUB_KATEGORI_MAINTENANCE, lalu rebuild MTC_SUMMARY_UNIT.
+ */
+function importDataMtcFromDrive(optionalFileName) {
+  var ss = getDb();
+  var fileName = String(optionalFileName || 'DATA_MTC_MASTER_NEW.csv').trim();
+  try {
+    if (!optionalFileName && typeof SpreadsheetApp !== 'undefined' && SpreadsheetApp.getUi) {
+      var ui = SpreadsheetApp.getUi();
+      var promptRes = ui.prompt(
+        'Import data_mtc dari Google Drive',
+        'Masukkan nama file CSV di Google Drive Anda (default: DATA_MTC_MASTER_NEW.csv):',
+        ui.ButtonSet.OK_CANCEL
+      );
+      if (promptRes.getSelectedButton() !== ui.Button.OK) return { success: false, cancelled: true };
+      var txt = String(promptRes.getResponseText() || '').trim();
+      if (txt) fileName = txt;
+    }
+  } catch (eUi) {}
+
+  var files = DriveApp.getFilesByName(fileName);
+  var targetFile = null;
+  var latestTime = 0;
+  while (files.hasNext()) {
+    var f = files.next();
+    var t = f.getLastUpdated().getTime();
+    if (t >= latestTime) {
+      latestTime = t;
+      targetFile = f;
+    }
+  }
+  if (!targetFile) {
+    var msgMissing = 'File "' + fileName + '" tidak ditemukan di Google Drive Anda. Silakan upload CSV terlebih dahulu ke Google Drive.';
+    try { SpreadsheetApp.getUi().alert('Import data_mtc', msgMissing, SpreadsheetApp.getUi().ButtonSet.OK); } catch (e) {}
+    return { success: false, message: msgMissing };
+  }
+
+  var csvText = targetFile.getBlob().getDataAsString('UTF-8');
+  if (csvText.charCodeAt(0) === 0xFEFF) csvText = csvText.slice(1);
+  var parsed = Utilities.parseCsv(csvText);
+  if (!parsed || parsed.length < 2) {
+    return { success: false, message: 'File CSV kosong atau tidak memiliki baris data.' };
+  }
+
+  // Deteksi otomatis baris header ('MEMORIAL') agar aman meski ada baris judul di atasnya
+  var headerRowIdx = 0;
+  for (var h = 0; h < Math.min(10, parsed.length); h++) {
+    if (String(parsed[h][0] || '').trim().toUpperCase() === 'MEMORIAL') {
+      headerRowIdx = h;
+      break;
+    }
+  }
+
+  var sheet = ss.getSheetByName('data_mtc') || ss.getSheetByName('Data MTC');
+  if (!sheet) {
+    sheet = ss.insertSheet('data_mtc');
+  } else {
+    sheet.clearContents();
+  }
+
+  sheet.getRange(1, 1, 1, 24).setValues([DATA_MTC_24_HEADERS]);
+  sheet.setFrozenRows(1);
+
+  var batch = [];
+  var writeRow = 2;
+  var importedCount = 0;
+
+  for (var i = headerRowIdx + 1; i < parsed.length; i++) {
+    var r = parsed[i];
+    if (!r || r.length < 12) continue;
+    var memorial = String(r[0] || '').trim();
+    var kodeUnit = String(r[11] || '').trim();
+    if (!memorial && !kodeUnit) continue;
+
+    var partName = String(r[7] || '').trim();
+    var desc = String(r[6] || '').trim();
+    var namaCoa = String(r[19] || '').trim();
+    var katOrig = String(r[21] || '').trim();
+    var kmVal = String(r[22] || '').trim();
+    var skmVal = String(r[23] || '').trim();
+
+    if (!kmVal || !skmVal) {
+      var cls = classifyMaintenancePart_(partName, desc, namaCoa, katOrig);
+      if (!kmVal) kmVal = cls[0];
+      if (!skmVal) skmVal = cls[1];
+    }
+
+    batch.push([
+      memorial,
+      r[1] || '',
+      r[2] || '',
+      r[3] || '',
+      Number(r[4]) || 0,
+      r[5] || '',
+      desc,
+      partName,
+      Number(r[8]) || 0,
+      r[9] || '',
+      r[10] || '',
+      kodeUnit,
+      r[12] || '',
+      r[13] || '',
+      r[14] || '',
+      r[15] || '',
+      r[16] || '',
+      r[17] || '',
+      r[18] || '',
+      namaCoa,
+      Number(r[20]) || 0,
+      katOrig,
+      kmVal,
+      skmVal
+    ]);
+    importedCount++;
+
+    if (batch.length >= 10000) {
+      sheet.getRange(writeRow, 1, batch.length, 24).setValues(batch);
+      writeRow += batch.length;
+      batch = [];
+    }
+  }
+  if (batch.length > 0) {
+    sheet.getRange(writeRow, 1, batch.length, 24).setValues(batch);
+  }
+
+  var summaryRes = rebuildMtcUnitSummary();
+  var okMsg = 'Berhasil mengimpor ' + importedCount.toLocaleString('id-ID') + ' baris transaksi data_mtc (24 kolom) dari "' + fileName + '" dan merebuild ' + (summaryRes.total_units || 0).toLocaleString('id-ID') + ' KODE UNIT di MTC_SUMMARY_UNIT.';
+  try { SpreadsheetApp.getUi().alert('Import data_mtc Selesai', okMsg, SpreadsheetApp.getUi().ButtonSet.OK); } catch (e2) {}
+  return { success: true, imported_rows: importedCount, summary: summaryRes };
+}
+
+/**
+ * Agregasi data_mtc (24 kolom) berdasarkan KODE UNIT -> sheet MTC_SUMMARY_UNIT (14 kolom).
+ * Juga melengkapi kolom 23-24 di data_mtc jika ada baris manual baru yang belum terisi kategorinya.
+ */
+function rebuildMtcUnitSummary() {
+  var ss = getDb();
+  var sheet = ss.getSheetByName('data_mtc') || ss.getSheetByName('Data MTC');
+  if (!sheet || sheet.getLastRow() <= 1) {
+    return { success: false, message: 'Sheet data_mtc kosong.' };
+  }
+
+  var lastRow = sheet.getLastRow();
+  var lastCol = Math.min(24, sheet.getLastColumn());
+  if (lastCol < 24) {
+    sheet.getRange(1, 23, 1, 2).setValues([['KATEGORI_MAINTENANCE', 'SUB_KATEGORI_MAINTENANCE']]);
+  }
+
+  var unitMap = {};
+  var chunkSize = 15000;
+  var totalTxAll = 0;
+  var totalNominalAll = 0;
+
+  for (var start = 2; start <= lastRow; start += chunkSize) {
+    var count = Math.min(chunkSize, lastRow - start + 1);
+    var rows = sheet.getRange(start, 1, count, Math.max(22, lastCol)).getValues();
+    var missingCatUpdates = [];
+    var hasMissingCat = false;
+
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      var kodeUnit = String(r[11] || '').trim();
+      if (!kodeUnit) {
+        missingCatUpdates.push([r[22] || '', r[23] || '']);
+        continue;
+      }
+
+      var km = String(r[22] || '').trim();
+      var skm = String(r[23] || '').trim();
+      if (!km || !skm) {
+        var cls = classifyMaintenancePart_(r[7], r[6], r[19], r[21]);
+        if (!km) km = cls[0];
+        if (!skm) skm = cls[1];
+        hasMissingCat = true;
+      }
+      missingCatUpdates.push([km, skm]);
+
+      var nom = parseFloat(r[20] !== '' && r[20] !== null ? r[20] : r[4]) || 0;
+      var qty = parseFloat(r[8]) || 0;
+      var tgl = r[1] ? (r[1] instanceof Date ? Utilities.formatDate(r[1], 'Asia/Jakarta', 'yyyy-MM-dd') : String(r[1]).slice(0, 10)) : '';
+
+      totalTxAll++;
+      totalNominalAll += nom;
+
+      var uKey = kodeUnit.toUpperCase();
+      var u = unitMap[uKey];
+      if (!u) {
+        u = {
+          kode_unit: kodeUnit,
+          detail_nama: String(r[13] || kodeUnit).trim(),
+          kat_asset: String(r[12] || '').trim(),
+          location: String(r[10] || 'CO').trim(),
+          div: String(r[15] || '').trim(),
+          dept: String(r[16] || '').trim(),
+          section: String(r[17] || 'HGS').trim(),
+          tx: 0,
+          qty: 0,
+          nom: 0,
+          last_date: tgl,
+          kat_aset_mtc: String(r[21] || '').trim(),
+          kmNom: {},
+          skmNom: {}
+        };
+        unitMap[uKey] = u;
+      }
+      u.tx++;
+      u.qty += qty;
+      u.nom += nom;
+      if (tgl && tgl > u.last_date) u.last_date = tgl;
+      u.kmNom[km] = (u.kmNom[km] || 0) + nom;
+      u.skmNom[skm] = (u.skmNom[skm] || 0) + nom;
+    }
+
+    if (hasMissingCat) {
+      sheet.getRange(start, 23, missingCatUpdates.length, 2).setValues(missingCatUpdates);
+    }
+  }
+
+  var keys = Object.keys(unitMap);
+  var outRows = [];
+  for (var k = 0; k < keys.length; k++) {
+    var obj = unitMap[keys[k]];
+    var bestKm = '-', bestKmN = -1;
+    for (var kmKey in obj.kmNom) {
+      if (obj.kmNom[kmKey] > bestKmN) { bestKmN = obj.kmNom[kmKey]; bestKm = kmKey; }
+    }
+    var bestSkm = '-', bestSkmN = -1;
+    for (var skmKey in obj.skmNom) {
+      if (obj.skmNom[skmKey] > bestSkmN) { bestSkmN = obj.skmNom[skmKey]; bestSkm = skmKey; }
+    }
+    outRows.push([
+      obj.kode_unit,
+      obj.detail_nama,
+      obj.kat_asset,
+      obj.location,
+      obj.div,
+      obj.dept,
+      obj.section,
+      obj.tx,
+      Math.round(obj.qty * 100) / 100,
+      Math.round(obj.nom),
+      bestKm,
+      bestSkm,
+      obj.last_date || '-',
+      obj.kat_aset_mtc
+    ]);
+  }
+  outRows.sort(function(a, b) { return b[9] - a[9]; });
+
+  var sumSheet = ss.getSheetByName('MTC_SUMMARY_UNIT');
+  if (!sumSheet) {
+    sumSheet = ss.insertSheet('MTC_SUMMARY_UNIT');
+  } else {
+    sumSheet.clearContents();
+  }
+  sumSheet.getRange(1, 1, 1, 14).setValues([MTC_SUMMARY_14_HEADERS]);
+  sumSheet.setFrozenRows(1);
+  if (outRows.length > 0) {
+    sumSheet.getRange(2, 1, outRows.length, 14).setValues(outRows);
+  }
+
+  try {
+    CacheService.getScriptCache().remove('MTC_SUMMARY_V1');
+  } catch (eCache) {}
+
+  return {
+    success: true,
+    total_units: outRows.length,
+    total_tx: totalTxAll,
+    total_nominal: Math.round(totalNominalAll),
+    updated_at: new Date().toISOString()
+  };
+}
+
+/**
+ * Endpoint ringan ?api=mtc_summary (membaca MTC_SUMMARY_UNIT ~1.506 baris + Cache 10 menit)
+ */
+function apiGetMtcSummary() {
+  try {
+    var cache = CacheService.getScriptCache();
+    var cached = cache.get('MTC_SUMMARY_V1');
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (eC) {}
+
+  var ss = getDb();
+  var sumSheet = ss.getSheetByName('MTC_SUMMARY_UNIT');
+  if (!sumSheet || sumSheet.getLastRow() <= 1) {
+    // Auto-build summary once if data_mtc already exists
+    var dataSheet = ss.getSheetByName('data_mtc') || ss.getSheetByName('Data MTC');
+    if (dataSheet && dataSheet.getLastRow() > 1) {
+      rebuildMtcUnitSummary();
+      sumSheet = ss.getSheetByName('MTC_SUMMARY_UNIT');
+    }
+  }
+  if (!sumSheet || sumSheet.getLastRow() <= 1) {
+    return { total_nominal: 0, total_tx: 0, total_units: 0, by_unit: {}, by_kat_mtc: {}, by_sub_kat_mtc: {}, items: [] };
+  }
+
+  var rows = sumSheet.getRange(2, 1, sumSheet.getLastRow() - 1, 14).getValues();
+  var byUnit = {};
+  var byKatMtc = {};
+  var bySubKatMtc = {};
+  var totalNominal = 0;
+  var totalTx = 0;
+
+  for (var i = 0; i < rows.length; i++) {
+    var r = rows[i];
+    var ku = String(r[0] || '').trim();
+    if (!ku) continue;
+    var tx = Number(r[7]) || 0;
+    var nom = Number(r[9]) || 0;
+    var km = String(r[10] || 'Consumable & Fast Moving Umum').trim();
+    var skm = String(r[11] || 'Lem, Majun, Amplas & WD-40').trim();
+
+    totalTx += tx;
+    totalNominal += nom;
+    byUnit[ku] = {
+      kode_unit: ku,
+      detail_nama_asset: String(r[1] || ku),
+      kategori_asset: String(r[2] || ''),
+      location: String(r[3] || 'CO'),
+      dept: String(r[5] || ''),
+      kode_section: String(r[6] || 'HGS'),
+      tx_count: tx,
+      total_qty: Number(r[8]) || 0,
+      total_nominal: Math.round(nom),
+      kat_mtc: km,
+      sub_kat_mtc: skm,
+      last_date: r[12] ? (r[12] instanceof Date ? Utilities.formatDate(r[12], 'Asia/Jakarta', 'yyyy-MM-dd') : String(r[12]).slice(0, 10)) : '-'
+    };
+    byKatMtc[km] = (byKatMtc[km] || 0) + Math.round(nom);
+    bySubKatMtc[skm] = (bySubKatMtc[skm] || 0) + Math.round(nom);
+  }
+
+  var payload = {
+    total_nominal: Math.round(totalNominal),
+    total_tx: totalTx,
+    total_units: rows.length,
+    by_unit: byUnit,
+    by_kat_mtc: byKatMtc,
+    by_sub_kat_mtc: bySubKatMtc,
+    updated_at: new Date().toISOString()
+  };
+
+  try {
+    var jsonStr = JSON.stringify(payload);
+    if (jsonStr.length < 95000) {
+      CacheService.getScriptCache().put('MTC_SUMMARY_V1', jsonStr, 600);
+    }
+  } catch (ePut) {}
+
+  return payload;
+}
+
+/**
+ * Mengambil histori data_mtc (24 kolom) dihubungkan via KODE UNIT (kolom L / r[11])
+ */
+function apiGetMtcHistory(kodeUnit, limit, katMtc, subKatMtc) {
   var ss = getDb();
   var sheet = ss.getSheetByName('data_mtc') || ss.getSheetByName('Data MTC');
   if (!sheet || sheet.getLastRow() <= 1) return [];
 
   var lastRow = sheet.getLastRow();
-  var count = Math.min(lastRow - 1, limit || 200);
-  var startRow = Math.max(2, lastRow - count + 1);
-  var rows = sheet.getRange(startRow, 1, count, 21).getValues();
+  var lastCol = Math.min(24, sheet.getLastColumn());
+  var filterUnit = (kodeUnit || '').trim().toUpperCase();
+  var filterKm = (katMtc || '').trim().toUpperCase();
+  var filterSkm = (subKatMtc || '').trim().toUpperCase();
+  var maxRes = limit || 300;
   var res = [];
-  var filterUnit = (kodeUnit || '').trim().toLowerCase();
 
-  for (var i = rows.length - 1; i >= 0; i--) {
-    var r = rows[i];
-    var unit = String(r[10] || r[13] || '').trim();
-    if (filterUnit && !unit.toLowerCase().includes(filterUnit)) continue;
+  if (filterUnit || filterKm || filterSkm) {
+    // Scan seluruh chunk data_mtc dari baris terbaru agar seluruh periode 2019-2026 per KODE UNIT ketemu 100%
+    var chunkSize = 15000;
+    for (var end = lastRow; end >= 2; end -= chunkSize) {
+      var start = Math.max(2, end - chunkSize + 1);
+      var count = end - start + 1;
+      var rows = sheet.getRange(start, 1, count, lastCol).getValues();
+      for (var i = rows.length - 1; i >= 0; i--) {
+        var r = rows[i];
+        var unit = String(r[11] || '').trim();
+        if (filterUnit && unit.toUpperCase() !== filterUnit && unit.toUpperCase().indexOf(filterUnit) === -1) continue;
+        var km = String(r[22] || '').trim();
+        var skm = String(r[23] || '').trim();
+        if (!km || !skm) {
+          var cls = classifyMaintenancePart_(r[7], r[6], r[19], r[21]);
+          if (!km) km = cls[0];
+          if (!skm) skm = cls[1];
+        }
+        if (filterKm && km.toUpperCase() !== filterKm) continue;
+        if (filterSkm && skm.toUpperCase() !== filterSkm) continue;
+
+        res.push({
+          memorial: String(r[0] || ''),
+          tanggal: r[1] ? (r[1] instanceof Date ? Utilities.formatDate(r[1], 'Asia/Jakarta', 'yyyy-MM-dd') : String(r[1]).slice(0, 10)) : '',
+          acc_name: String(r[3] || ''),
+          nominal: parseFloat(r[20] !== '' && r[20] !== null ? r[20] : r[4]) || 0,
+          nominal_edit: parseFloat(r[20] !== '' && r[20] !== null ? r[20] : r[4]) || 0,
+          no_reference: String(r[5] || ''),
+          deskripsi: String(r[6] || ''),
+          nama_sparepart: String(r[7] || ''),
+          qty: parseFloat(r[8] || 0),
+          satuan: String(r[9] || ''),
+          lokasi: String(r[10] || ''),
+          kode_unit: unit,
+          kategori_asset: String(r[12] || ''),
+          nama_asset: String(r[13] || ''),
+          kode_gs: String(r[14] || ''),
+          divisi: String(r[15] || ''),
+          departemen: String(r[16] || ''),
+          section: String(r[17] || ''),
+          kategori: String(r[21] || ''),
+          kategori_maintenance: km,
+          sub_kategori_maintenance: skm
+        });
+        if (res.length >= maxRes) return res;
+      }
+    }
+    return res;
+  }
+
+  // Tanpa filter: ambil transaksi terbaru
+  var take = Math.min(lastRow - 1, maxRes);
+  var startRow = Math.max(2, lastRow - take + 1);
+  var tailRows = sheet.getRange(startRow, 1, take, lastCol).getValues();
+  for (var j = tailRows.length - 1; j >= 0; j--) {
+    var tr = tailRows[j];
+    var tUnit = String(tr[11] || '').trim();
+    var tKm = String(tr[22] || '').trim();
+    var tSkm = String(tr[23] || '').trim();
+    if (!tKm || !tSkm) {
+      var tCls = classifyMaintenancePart_(tr[7], tr[6], tr[19], tr[21]);
+      if (!tKm) tKm = tCls[0];
+      if (!tSkm) tSkm = tCls[1];
+    }
     res.push({
-      memorial: String(r[0] || ''),
-      tanggal: r[1] ? (r[1] instanceof Date ? Utilities.formatDate(r[1], 'Asia/Jakarta', 'yyyy-MM-dd') : String(r[1]).slice(0, 10)) : '',
-      acc_name: String(r[3] || ''),
-      nominal: parseFloat(r[4] || 0),
-      deskripsi: String(r[5] || ''),
-      nama_sparepart: String(r[6] || ''),
-      qty: parseFloat(r[7] || 0),
-      satuan: String(r[8] || ''),
-      lokasi: String(r[9] || ''),
-      kode_unit: unit,
-      nama_asset: String(r[11] || ''),
-      divisi: String(r[14] || ''),
-      departemen: String(r[15] || ''),
-      section: String(r[16] || ''),
-      kategori: String(r[20] || '')
+      memorial: String(tr[0] || ''),
+      tanggal: tr[1] ? (tr[1] instanceof Date ? Utilities.formatDate(tr[1], 'Asia/Jakarta', 'yyyy-MM-dd') : String(tr[1]).slice(0, 10)) : '',
+      acc_name: String(tr[3] || ''),
+      nominal: parseFloat(tr[20] !== '' && tr[20] !== null ? tr[20] : tr[4]) || 0,
+      nominal_edit: parseFloat(tr[20] !== '' && tr[20] !== null ? tr[20] : tr[4]) || 0,
+      no_reference: String(tr[5] || ''),
+      deskripsi: String(tr[6] || ''),
+      nama_sparepart: String(tr[7] || ''),
+      qty: parseFloat(tr[8] || 0),
+      satuan: String(tr[9] || ''),
+      lokasi: String(tr[10] || ''),
+      kode_unit: tUnit,
+      kategori_asset: String(tr[12] || ''),
+      nama_asset: String(tr[13] || ''),
+      kode_gs: String(tr[14] || ''),
+      divisi: String(tr[15] || ''),
+      departemen: String(tr[16] || ''),
+      section: String(tr[17] || ''),
+      kategori: String(tr[21] || ''),
+      kategori_maintenance: tKm,
+      sub_kategori_maintenance: tSkm
     });
   }
   return res;
