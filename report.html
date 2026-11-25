@@ -135,7 +135,13 @@
   <main id="app-main-content" class="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4">
 
     <!-- VIEW 1: LAPORAN VALIDASI & REKONSILIASI ASET -->
-                    <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
+                  <span class="font-bold text-xs text-slate-800 uppercase tracking-wider block">Catatan Ketertiban &amp; Kepatuhan Mess:</span>
+              <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
+                  <input type="checkbox" id="check-kepatuhan-rokok" checked class="rounded accent-sky-600">
+                  <span class="text-xs text-slate-700">Bebas puntung rokok di kamar</span>
+                </label>
+                <label class="flex items-center gap-2 p-2.5 rounded-lg border border-slate-200 bg-slate-50 cursor-pointer">
                   <input type="checkbox" id="check-kepatuhan-listrik" checked class="rounded accent-sky-600">
                   <span class="text-xs text-slate-700">Instalasi listrik standar (tidak modif)</span>
                 </label>
@@ -595,15 +601,15 @@
               <div class="text-2xl font-black text-slate-900 num-tabular tracking-tight">3.663</div>
               <div class="pt-2 border-t border-slate-100 text-[11px] space-y-1 text-slate-600">
                 <div class="flex justify-between"><span>Asset:</span><span class="font-bold text-slate-900">2.958</span></div>
-                <div class="flex justify-between"><span>Non-Valueable:</span><span class="font-bold text-slate-900">705</span></div>
-                <div class="flex justify-between"><span>Nilai Perolehan:</span><span class="font-bold text-slate-900 num-tabular">Rp 166,31 M</span></div>
-                <div class="flex justify-between"><span>Nilai Buku:</span><span class="font-bold text-amber-600 num-tabular">Rp 16,32 M</span></div>
-              </div>
-            </div>
-
 
     <!-- VIEW 2: DRILL THROUGH REKONSILIASI DETAIL -->
     
+                </div>
+
+                <!-- ---------------------------------------------------- -->
+                <!-- VIEW 6B: MASTER ASET - 2. LOKASI KANTOR (OFFICE CARDS) -->
+                <!-- ---------------------------------------------------- -->
+
       <div id="view-asset-sebaran" class="page-view hidden space-y-5">
                     
                     <!-- Top Action Bar -->
@@ -934,15 +940,15 @@
                             </div>
 
                             <!-- Performance Matrix Table with Horizontal Data Bars -->
-                            <div class="overflow-x-auto max-h-[625px] overflow-y-auto scrollbar-thin border border-slate-100 rounded-xl flex-1">
-                                <table class="w-full text-left border-collapse">
-                                    <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[11px] font-black">
-                                        <tr>
-                                            <th id="dt-perf-col-header" class="py-2 px-3 text-slate-800 min-w-[180px]">Section</th>
-                                            <th class="py-2 px-2 text-right text-slate-800">Asset</th>
 
     <!-- VIEW 3: DETAIL ASSET MOVEMENT & CONDITION VALUATION -->
-                            <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700">PBI</span>
+                    </div>
+
+                <!-- POWER BI DRILL-THROUGH CONTEXT MENU POPUP -->
+                <div id="pbi-drill-context-menu" class="hidden fixed z-50 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 w-60 text-xs text-slate-700 select-none">
+                    <div class="px-3 py-1.5 border-b border-slate-100 flex items-center justify-between">
+                        <span id="pbi-ctx-title" class="font-black text-[11px] text-slate-900 truncate max-w-[190px]">CENTRAL OFFICE</span>
+                        <span class="text-[9px] font-bold uppercase px-1.5 py-0.5 rounded bg-emerald-50 text-emerald-700">PBI</span>
                     </div>
                     <button type="button" id="pbi-ctx-btn-drill" class="w-full px-3 py-2 text-left hover:bg-slate-100 flex items-center justify-between font-bold text-slate-800 cursor-pointer group">
                         <span class="flex items-center gap-2">
@@ -1152,15 +1158,15 @@
                         <div class="overflow-y-auto overflow-x-hidden max-h-[520px] scrollbar-thin border border-[#DCE1E8] rounded mt-2.5">
                             <table class="w-full text-left border-collapse table-fixed">
                                 <colgroup>
-                                    <col style="width: 17%;">
-                                    <col style="width: 28%;">
-                                    <col style="width: 13%;">
+
+    <!-- VIEW 4: DETAIL DOSSIER & SPESIFIKASI UNIT ASET -->
+                                        <col style="width: 13%;">
                                     <col style="width: 14%;">
                                     <col style="width: 18%;">
                                     <col style="width: 10%;">
-
-    <!-- VIEW 4: DETAIL DOSSIER & SPESIFIKASI UNIT ASET -->
-                                        <tr>
+                                </colgroup>
+                                <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[10px] font-bold text-slate-700 uppercase ">
+                                    <tr>
                                         <th class="py-2.5 px-2.5">Unit &amp; Lokasi</th>
                                         <th class="py-2.5 px-2.5">Nama Aset &amp; Kelompok</th>
                                         <th class="py-2.5 px-2 text-center">Kondisi</th>
@@ -1446,19 +1452,19 @@
                         </div>
 
                         <!-- Right Visual KPI Panels (7 Cols — Replaces Squished Table) -->
-                        <div class="xl:col-span-7 flex flex-col gap-3">
-                            <!-- Visual KPI Panel 1: Analisa Lifecycle, Umur Pakai & Retensi Nilai Buku -->
-                            <div class="bg-white rounded border border-[#DCE1E8] p-3.5 space-y-3">
-                                <div class="flex items-center justify-between pb-2 border-b border-slate-100">
-                                    <div>
-                                        <span class="text-xs font-bold text-slate-900 uppercase tracking-wider block">Analisa Lifecycle &amp; Kesehatan Portofolio</span>
 
   </main>
 
   <!-- ======================================================== -->
   <!-- FLOATING CONTEXT MENUS & MODALS                          -->
   <!-- ======================================================== -->
-                                              <th class="py-2 px-2 text-center text-amber-500 min-w-[76px]">Broken</th>
+                                      <thead class="bg-slate-50 sticky top-0 z-10 border-b border-slate-200 text-[11px] font-black">
+                                        <tr>
+                                            <th id="dt-perf-col-header" class="py-2 px-3 text-slate-800 min-w-[180px]">Section</th>
+                                            <th class="py-2 px-2 text-right text-slate-800">Asset</th>
+                                            <th class="py-2 px-2 text-center text-emerald-600 min-w-[82px]">Good</th>
+                                            <th class="py-2 px-2 text-center text-rose-500 min-w-[76px]">Repair</th>
+                                            <th class="py-2 px-2 text-center text-amber-500 min-w-[76px]">Broken</th>
                                             <th class="py-2 px-2 text-center text-slate-700 min-w-[72px]">Lost</th>
                                             <th class="py-2 px-2 text-center text-slate-500 min-w-[72px]">Disposal</th>
                                         </tr>
@@ -1481,13 +1487,13 @@
                             </div>
                         </div>
 
-                    </div>
-
-                </div>
-
-                <!-- POWER BI DRILL-THROUGH CONTEXT MENU POPUP -->
-                <div id="pbi-drill-context-menu" class="hidden fixed z-50 bg-white rounded-xl shadow-2xl border border-slate-200 py-1.5 w-60 text-xs text-slate-700 select-none">
-              </h4>
+        <div class="p-4 sm:p-5 overflow-y-auto space-y-5 flex-1 text-xs">
+        <!-- Quick Action Bar: Ambil Foto Kamera & Upload File -->
+        <div class="p-4 rounded-xl bg-indigo-50/60 border border-indigo-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+          <div>
+            <h4 class="font-bold text-slate-900 flex items-center gap-1.5">
+              <i class="ph-bold ph-camera-plus text-indigo-600"></i> Ambil &amp; Tambah Foto Baru
+            </h4>
             <p class="text-[11px] text-slate-500">Lengkapi foto tampak depan mess, kondisi kamar, ranjang, atau fasilitas umum.</p>
           </div>
           <div class="flex items-center gap-2 w-full sm:w-auto">
@@ -1675,12 +1681,6 @@
             </h4>
             <span class="text-[10.5px] text-slate-500 font-mono">Status: 100% Cocok</span>
           </div>
-          <div class="overflow-x-auto">
-            <table class="w-full text-left border-collapse text-xs">
-              <thead class="bg-slate-50 text-slate-600 font-bold uppercase tracking-wider text-[10px] border-b border-slate-200">
-                <tr>
-                  <th class="py-2.5 px-3">Kode</th>
-                  <th class="py-2.5 px-3">Lokasi Operasional</th>
     <div id="modal-drilldown-validasi" onclick="if(event.target === this) closeValidasiDrillModal()" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
     <div class="clean-card w-full max-w-5xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in">
       <!-- Modal Header -->
