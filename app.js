@@ -1576,7 +1576,193 @@ const PNS_SECTION_TO_DEPT = {
   }
   window.fetchLiveUnitMtcFromSheet = fetchLiveUnitMtcFromSheet;
 
-  function syncAllFromBackend(showToast, forceFresh) {
+  // =========================================================================
+  // BROWSER INDEXEDDB CACHE + SINGLE-SOURCE COMPACT SNAPSHOT SYNC
+  // =========================================================================
+  window.PNS_LOCAL_SNAPSHOT_VERSION = (typeof window !== 'undefined' && window.PNS_API_METRICS && window.PNS_API_METRICS.last_sync) ? window.PNS_API_METRICS.last_sync : '';
+
+  const PnsSnapshotDB = {
+    _dbName: 'pns_asset_live_cache',
+    _storeName: 'snapshots',
+    _open() {
+      return new Promise(resolve => {
+        if (typeof window === 'undefined' || !window.indexedDB) return resolve(null);
+        try {
+          const req = window.indexedDB.open(this._dbName, 1);
+          req.onupgradeneeded = () => {
+            try {
+              const db = req.result;
+              if (!db.objectStoreNames.contains(this._storeName)) {
+                db.createObjectStore(this._storeName);
+              }
+            } catch (e) {}
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => resolve(null);
+        } catch (e) {
+          resolve(null);
+        }
+      });
+    },
+    async get(key) {
+      try {
+        const db = await this._open();
+        if (!db) return null;
+        return await new Promise(resolve => {
+          try {
+            const tx = db.transaction(this._storeName, 'readonly');
+            const req = tx.objectStore(this._storeName).get(key);
+            req.onsuccess = () => resolve(req.result || null);
+            req.onerror = () => resolve(null);
+          } catch (e) {
+            resolve(null);
+          }
+        });
+      } catch (e) {
+        return null;
+      }
+    },
+    async set(key, val) {
+      try {
+        const db = await this._open();
+        if (!db) return false;
+        return await new Promise(resolve => {
+          try {
+            const tx = db.transaction(this._storeName, 'readwrite');
+            tx.objectStore(this._storeName).put(val, key);
+            tx.oncomplete = () => resolve(true);
+            tx.onerror = () => resolve(false);
+          } catch (e) {
+            resolve(false);
+          }
+        });
+      } catch (e) {
+        return false;
+      }
+    }
+  };
+
+  function applyCompactAssetSnapshot(snap, showToast) {
+    if (!snap || !Array.isArray(snap.rows) || snap.rows.length === 0) return false;
+    const beforeCount = Array.isArray(window.PNS_ALL_ASSETS_ROWS) ? window.PNS_ALL_ASSETS_ROWS.length : 0;
+    window.PNS_ALL_ASSETS_ROWS = snap.rows;
+
+    if (Array.isArray(snap.belum_checkout)) {
+      window.PNS_BELUM_CHECKOUT_ASSETS = snap.belum_checkout;
+      if (typeof remCheckoutFiltersInitialized !== 'undefined') remCheckoutFiltersInitialized = false;
+    }
+
+    const st = snap.stats || {};
+    window.PNS_API_METRICS = Object.assign({}, window.PNS_API_METRICS || {}, {
+      total_assets: Number(st.total_assets) || snap.rows.length,
+      verified_assets: Number(st.verified_assets) || 0,
+      unverified_assets: Number(st.unverified_assets) || 0,
+      total_hpp: Number(st.valuasi_hpp) || 0,
+      last_sync: snap.synced_at || new Date().toISOString()
+    });
+    window.PNS_LOCAL_SNAPSHOT_VERSION = snap.synced_at || snap.version || new Date().toISOString();
+
+    appState.liveSheetTotal = snap.rows.length;
+    appState.liveSheetDelta = Math.max(0, snap.rows.length - beforeCount);
+
+    _pnsCachedNormalizedAssets = null;
+    if (typeof cachedFilteredAssets !== 'undefined') cachedFilteredAssets = null;
+    if (typeof _cachedUnifiedMaintAssets !== 'undefined') _cachedUnifiedMaintAssets = null;
+
+    if (typeof updateDashboardRealMetrics === 'function') updateDashboardRealMetrics();
+    if (typeof renderDashboardCharts === 'function') renderDashboardCharts();
+    if (typeof renderAllAssetsTable === 'function') renderAllAssetsTable();
+    if (typeof renderValidasiTable === 'function') renderValidasiTable();
+    if (typeof renderValidasiMatrix === 'function') renderValidasiMatrix();
+    if (typeof renderReminderCheckoutTable === 'function') renderReminderCheckoutTable();
+    if (typeof renderPortfolioAllTable === 'function') renderPortfolioAllTable();
+    if (typeof renderPortfolioComposition === 'function') renderPortfolioComposition();
+    if (typeof renderAssetSebaran === 'function') renderAssetSebaran();
+    if (typeof renderAssetMovementView === 'function') renderAssetMovementView();
+    if (typeof renderAssetDrillThrough === 'function') renderAssetDrillThrough();
+    if (typeof renderMaintenanceDrillView === 'function' && appState.currentView === 'view-wo') renderMaintenanceDrillView();
+
+    const syncTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+    const badgeEl = document.getElementById('sync-badge');
+    if (badgeEl) {
+      badgeEl.title = `Snapshot live (${snap.rows.length.toLocaleString('id-ID')} aset) · Sync ${syncTime} WIB`;
+    }
+    setSyncIndicator(`Sheets Synced · ${syncTime}`, false);
+
+    if (showToast && typeof Swal !== 'undefined') {
+      Swal.fire({
+        icon: 'success',
+        title: 'Live Snapshot Tersinkron',
+        html: `<p class="text-xs text-slate-600">Seluruh <b>${snap.rows.length.toLocaleString('id-ID')} unit aset</b> dari tab <b>asset</b> berhasil diperbarui ke Frontend &amp; disimpan ke cache browser.</p>`,
+        timer: 1800,
+        showConfirmButton: false
+      });
+    }
+    return true;
+  }
+
+  function hydrateSnapshotFromIndexedDb() {
+    if (window._pnsIdbHydratePromise) return window._pnsIdbHydratePromise;
+    window._pnsIdbHydratePromise = PnsSnapshotDB.get('assets_v1').then(snap => {
+      if (snap && Array.isArray(snap.rows) && snap.rows.length > 1000) {
+        const curVer = String(window.PNS_LOCAL_SNAPSHOT_VERSION || '');
+        const idbVer = String(snap.synced_at || snap.version || '');
+        if (!curVer || (idbVer && idbVer >= curVer)) {
+          applyCompactAssetSnapshot(snap, false);
+        }
+      }
+      return snap || null;
+    }).catch(() => null);
+    return window._pnsIdbHydratePromise;
+  }
+  window.hydrateSnapshotFromIndexedDb = hydrateSnapshotFromIndexedDb;
+
+  function syncCompactAssetSnapshot(forceDownload, showToast) {
+    const since = forceDownload ? '' : (window.PNS_LOCAL_SNAPSHOT_VERSION || '');
+    if (isGasEnvironment()) {
+      return new Promise(resolve => {
+        try {
+          google.script.run
+            .withSuccessHandler(snap => {
+              if (snap && snap.unchanged) {
+                setSyncIndicator('Sheets Synced', false);
+                return resolve(snap);
+              }
+              if (snap && Array.isArray(snap.rows) && snap.rows.length > 0) {
+                applyCompactAssetSnapshot(snap, showToast);
+                PnsSnapshotDB.set('assets_v1', snap);
+              }
+              resolve(snap);
+            })
+            .withFailureHandler(() => resolve(null))
+            .apiGetFullAssetsCompact(since);
+        } catch (e) { resolve(null); }
+      });
+    }
+
+    const remoteUrl = getRemoteGasUrl();
+    if (!remoteUrl) return Promise.resolve(null);
+    const qs = '?api=full_assets_compact' + (since ? '&since=' + encodeURIComponent(since) : '') + '&_ts=' + Date.now();
+    return fetch(remoteUrl + qs, { cache: 'no-store' })
+      .then(r => r.json())
+      .then(res => {
+        const snap = (res && res.data) ? res.data : res;
+        if (snap && snap.unchanged) {
+          return snap;
+        }
+        if (snap && Array.isArray(snap.rows) && snap.rows.length > 0) {
+          applyCompactAssetSnapshot(snap, showToast);
+          PnsSnapshotDB.set('assets_v1', snap);
+        }
+        return snap;
+      })
+      .catch(() => null);
+  }
+  window.syncCompactAssetSnapshot = syncCompactAssetSnapshot;
+
+  async function syncAllFromBackend(showToast, forceFresh) {
+    try { await hydrateSnapshotFromIndexedDb(); } catch (e) {}
+
     if (isGasEnvironment()) {
       setSyncIndicator('Syncing Sheets...', true);
       const mtcPromise = syncMtcSummaryFromSheet(!!forceFresh);
@@ -1592,16 +1778,21 @@ const PNS_SECTION_TO_DEPT = {
           })
           .apiGetBootstrapData();
       });
-      return Promise.all([bootPromise, mtcPromise]).then(([data, mtc]) => {
-        if (showToast && typeof Swal !== 'undefined') {
-          Swal.fire({ icon: 'success', title: 'Data Terbarui', text: 'Seluruh tabel & ringkasan MTC berhasil disinkronkan dari Google Sheets.', timer: 1500, showConfirmButton: false });
-        }
-        return { bootstrap: data, mtcSummary: mtc };
-      });
+      const [data, mtc] = await Promise.all([bootPromise, mtcPromise]);
+      const serverVer = (data && data.snapshot_version) ? String(data.snapshot_version) : '';
+      let snapRes = null;
+      if (forceFresh || !window.PNS_LOCAL_SNAPSHOT_VERSION || (serverVer && serverVer !== window.PNS_LOCAL_SNAPSHOT_VERSION)) {
+        setSyncIndicator('Syncing Full Asset...', true);
+        snapRes = await syncCompactAssetSnapshot(!!forceFresh, false);
+      }
+      if (showToast && typeof Swal !== 'undefined') {
+        Swal.fire({ icon: 'success', title: 'Data Terbarui', text: 'Seluruh tabel, aset & ringkasan MTC berhasil disinkronkan dari Google Sheets.', timer: 1500, showConfirmButton: false });
+      }
+      return { bootstrap: data, mtcSummary: mtc, snapshot: snapRes };
     }
 
     const remoteUrl = getRemoteGasUrl();
-    if (!remoteUrl) return Promise.resolve(null);
+    if (!remoteUrl) return null;
 
     setSyncIndicator('Connecting API...', true);
     const mtcPromise = syncMtcSummaryFromSheet(!!forceFresh);
@@ -1617,16 +1808,22 @@ const PNS_SECTION_TO_DEPT = {
         return null;
       });
 
-    return Promise.all([bootPromise, mtcPromise]).then(([boot, mtc]) => {
-      if (showToast && typeof Swal !== 'undefined') {
-        if (boot || mtc) {
-          Swal.fire({ icon: 'success', title: 'Data Terbarui', text: 'Sinkronisasi dari Web App Google Sheets selesai.', timer: 1500, showConfirmButton: false });
-        } else {
-          Swal.fire({ icon: 'info', title: 'Mode Cepat Aktif', text: 'Menampilkan data referensi lokal PT Pratama Nusantara Sakti.', timer: 1500, showConfirmButton: false });
-        }
+    const [boot, mtc] = await Promise.all([bootPromise, mtcPromise]);
+    const serverVer = (boot && boot.snapshot_version) ? String(boot.snapshot_version) : '';
+    let snapRes = null;
+    if (boot && (forceFresh || !window.PNS_LOCAL_SNAPSHOT_VERSION || (serverVer && serverVer !== window.PNS_LOCAL_SNAPSHOT_VERSION))) {
+      setSyncIndicator('Downloading Live Catalog...', true);
+      snapRes = await syncCompactAssetSnapshot(!!forceFresh, false);
+    }
+
+    if (showToast && typeof Swal !== 'undefined') {
+      if (boot || mtc || snapRes) {
+        Swal.fire({ icon: 'success', title: 'Data Terbarui', text: 'Sinkronisasi penuh dari Google Sheets selesai.', timer: 1500, showConfirmButton: false });
+      } else {
+        Swal.fire({ icon: 'info', title: 'Mode Cepat Aktif', text: 'Menampilkan data referensi cache lokal PT Pratama Nusantara Sakti.', timer: 1500, showConfirmButton: false });
       }
-      return { bootstrap: boot, mtcSummary: mtc };
-    });
+    }
+    return { bootstrap: boot, mtcSummary: mtc, snapshot: snapRes };
   }
   window.syncAllFromBackend = syncAllFromBackend;
 
@@ -1680,13 +1877,13 @@ const PNS_SECTION_TO_DEPT = {
     };
 
     try {
-      updateProgress('Tahap 1/3: API Pusat → Google Sheet', 'Menarik https://api.pns.co.id/main/asset_ver_report ke tab API_ASSET_LIVE & COMPARE_API_ASSET...');
+      updateProgress('Tahap 1/3: Transform API → Sheet asset', 'Menarik https://api.pns.co.id/main/asset_ver_report, transformasi 1x ke tab asset & membangun snapshot Drive...');
       const apiSyncRes = await callBackend('syncAssetVerReportFromApi', [true], 'api=sync_api_report').catch(e => ({ success: false, error: String(e) }));
 
       updateProgress('Tahap 2/3: Rebuild Ringkasan MTC', 'Memperbarui tab MTC_SUMMARY_UNIT per KODE UNIT & mereset cache server...');
       const mtcRebuildRes = await callBackend('rebuildMtcUnitSummary', [true], 'api=rebuild_mtc_summary').catch(e => ({ success: false, error: String(e) }));
 
-      updateProgress('Tahap 3/3: Google Sheet → Frontend', 'Memuat bootstrap aset & ringkasan biaya MTC terbaru ke UI...');
+      updateProgress('Tahap 3/3: Google Sheet → Frontend & Cache', 'Mengunduh snapshot penuh tabel asset, MTC & metadata ke Frontend + IndexedDB...');
       window.PNS_LIVE_SHEET_MTC_BY_UNIT = {};
       const syncedData = await syncAllFromBackend(false, true);
 
@@ -1695,9 +1892,11 @@ const PNS_SECTION_TO_DEPT = {
       setSyncIndicator(`Synced · ${syncTime.slice(0, 5)}`, false);
 
       if (!silent && typeof Swal !== 'undefined') {
+        const totalMaster = Number((apiSyncRes && apiSyncRes.totalMasterAfter) || (syncedData && syncedData.snapshot && syncedData.snapshot.rows && syncedData.snapshot.rows.length) || (window.PNS_ALL_ASSETS_ROWS && window.PNS_ALL_ASSETS_ROWS.length)) || 0;
         const apiRows = Number(apiSyncRes && apiSyncRes.totalApi) || 0;
         const belumChk = Number(apiSyncRes && apiSyncRes.belumCheckout) || 0;
-        const diffCount = Number((apiSyncRes && apiSyncRes.updated) || 0) + Number((apiSyncRes && apiSyncRes.inserted) || 0);
+        const insertedCnt = Number(apiSyncRes && apiSyncRes.inserted) || 0;
+        const updatedCnt = Number(apiSyncRes && apiSyncRes.updated) || 0;
         const mtcUnits = Number((mtcRebuildRes && mtcRebuildRes.total_units) || (syncedData && syncedData.mtcSummary && syncedData.mtcSummary.total_units)) || 0;
         const mtcTx = Number((mtcRebuildRes && mtcRebuildRes.total_tx) || (syncedData && syncedData.mtcSummary && syncedData.mtcSummary.total_tx)) || 0;
         const mtcNom = Number((mtcRebuildRes && mtcRebuildRes.total_nominal) || (syncedData && syncedData.mtcSummary && syncedData.mtcSummary.total_nominal)) || 0;
@@ -1706,15 +1905,15 @@ const PNS_SECTION_TO_DEPT = {
           icon: (apiSyncRes && apiSyncRes.success === false) ? 'warning' : 'success',
           title: 'Refresh Full System Selesai',
           html: `<div class="text-left text-xs space-y-1.5 text-slate-700">
-            <div class="font-semibold text-slate-900">1. API Pusat → Google Sheet</div>
-            <div>• Baris API Pusat: <b>${apiRows.toLocaleString('id-ID')}</b> baris</div>
-            <div>• Belum Checkout: <b>${belumChk.toLocaleString('id-ID')}</b> | Selisih/Baru: <b>${diffCount.toLocaleString('id-ID')}</b></div>
+            <div class="font-semibold text-slate-900">1. Single-Source Transform API → Sheet asset</div>
+            <div>• API Pusat ditarik: <b>${apiRows.toLocaleString('id-ID')}</b> unit | Total di Sheet &amp; UI: <b>${totalMaster.toLocaleString('id-ID')}</b> aset</div>
+            <div>• Baru: <b>${insertedCnt.toLocaleString('id-ID')}</b> | Ter-update: <b>${updatedCnt.toLocaleString('id-ID')}</b> | Belum Checkout: <b>${belumChk.toLocaleString('id-ID')}</b></div>
             <div class="font-semibold text-slate-900 pt-1">2. Maintenance (KODE UNIT)</div>
             <div>• Unit MTC: <b>${mtcUnits.toLocaleString('id-ID')}</b> unit (${mtcTx.toLocaleString('id-ID')} transaksi)</div>
             <div>• Total Biaya MTC: <b>Rp ${Math.round(mtcNom).toLocaleString('id-ID')}</b></div>
-            <div class="font-semibold text-slate-900 pt-1">3. Otomatisasi &amp; Waktu</div>
+            <div class="font-semibold text-slate-900 pt-1">3. Otomatisasi &amp; Cache Browser</div>
             <div>• Cron Per Jam (Server): <b>${cronActive ? 'AKTIF (Setiap 1 Jam)' : 'Belum aktif (klik menu Sheet → Aktifkan Cron)'}</b></div>
-            <div>• Waktu Refresh: <b>${escapeHtml(syncTime)} WIB</b></div>
+            <div>• Snapshot IndexedDB: <b>Tersimpan (${escapeHtml(syncTime)} WIB)</b></div>
           </div>`
         });
       }
@@ -18751,6 +18950,7 @@ window.switchMobileView = function(view) {
     try { renderValidasiTable(); } catch (e) { console.warn('renderValidasiTable error:', e); }
     try { renderValidasiMatrix(); } catch (e) { console.warn('renderValidasiMatrix error:', e); }
 
+    try { hydrateSnapshotFromIndexedDb(); } catch (e) { console.warn('hydrateSnapshotFromIndexedDb error:', e); }
     try { syncAllFromBackend(false); } catch (e) { console.warn('syncAllFromBackend error:', e); }
 
     // Deep-Link & Executive Report Route Handler (?view=... / ?report=validasi / ?app=fm)
@@ -19114,38 +19314,5 @@ window.switchMobileView = function(view) {
 
   window.pullLiveAssetsFromApi = function(showToast) {
     setSyncIndicator('Pulling Live Asset Sheet...', true);
-
-    if (isGasEnvironment()) {
-      google.script.run
-        .withSuccessHandler(res => {
-          setSyncIndicator('Sheets Synchronized', false);
-          if (res && res.items && Array.isArray(res.items)) {
-            applyLiveAssetPullItems(res.items, res.source_sheet || 'API_ASSET_LIVE', showToast);
-          }
-        })
-        .withFailureHandler(err => {
-          setSyncIndicator('Offline Cache', false);
-          if (showToast && typeof Swal !== 'undefined') {
-            Swal.fire({ icon: 'error', title: 'Gagal Menarik API', text: String(err) });
-          }
-        })
-        .apiGetLiveAssets();
-      return;
-    }
-
-    const remoteUrl = getRemoteGasUrl();
-    if (remoteUrl) {
-      fetch(remoteUrl + '?api=live_assets')
-        .then(r => r.json())
-        .then(res => {
-          setSyncIndicator('Sheets Synchronized', false);
-          const data = (res && res.data) ? res.data : res;
-          if (data && data.items && Array.isArray(data.items)) {
-            applyLiveAssetPullItems(data.items, data.source_sheet || 'API_ASSET_LIVE', showToast);
-          }
-        })
-        .catch(() => {
-          setSyncIndicator('Offline Cache', false);
-        });
-    }
+    return syncCompactAssetSnapshot(true, showToast);
   };

@@ -148,9 +148,8 @@ function apiGetLiveAssets(params) {
   params = params || {};
   var limit = parseInt(params.limit || 0, 10);
   var ss = getDb();
-  var sheetLive = ss.getSheetByName('API_ASSET_LIVE');
-  var useLiveApiSheet = sheetLive && sheetLive.getLastRow() > 1;
-  var sheet = useLiveApiSheet ? sheetLive : getMasterAssetSheet(ss);
+  var sheet = getMasterAssetSheet(ss);
+  var useLiveApiSheet = false;
   if (!sheet || sheet.getLastRow() <= 1) return { success: true, live_timestamp: new Date().toISOString(), total_in_sheet: 0, returned_count: 0, items: [] };
 
   var numRows = sheet.getLastRow() - 1;
@@ -288,6 +287,8 @@ function handleApiGet(params) {
       res.data = apiFullSystemRefresh({ rebuildMtc: params.rebuild_mtc !== '0' });
     } else if (api === 'cron_status') {
       res.data = getCronStatus();
+    } else if (api === 'full_assets_compact') {
+      res.data = apiGetFullAssetsCompact(params.since || '');
     } else if (api === 'hunian_photos') {
       res.data = apiGetHunianPhotos(params.kode_gedung || '');
     } else if (api === 'pmak') {
@@ -355,7 +356,7 @@ function onOpen() {
     ui.createMenu('🏢 PNS Asset System')
       .addItem('📋 1. Cek Status & Jumlah Data Database', 'checkDatabaseHealthStatus')
       .addSeparator()
-      .addItem('⚡ 2. Tarik Sinkronisasi API Pusat PNS (Opsional)', 'syncAssetVerReportFromApi')
+      .addItem('⚡ 2. Transform & Sync API Pusat → Sheet asset', 'syncAssetVerReportFromApi')
       .addSeparator()
       .addItem('📥 3. Import data_mtc dari Google Drive (Auto Kategori)', 'importDataMtcFromDrive')
       .addItem('🔄 4. Rebuild Ringkasan MTC per KODE UNIT', 'rebuildMtcUnitSummary')
@@ -364,6 +365,8 @@ function onOpen() {
       .addItem('⏰ 6. Aktifkan Cron Otomatis Per Jam', 'installHourlyCronTrigger')
       .addItem('🛑 7. Matikan Cron Otomatis Per Jam', 'removeHourlyCronTrigger')
       .addItem('📊 8. Cek Status Cron & Sync Terakhir', 'showCronStatusAlert')
+      .addSeparator()
+      .addItem('🧹 9. Bersihkan Tab Lama (API_ASSET_LIVE & COMPARE)', 'cleanupLegacyApiTabs')
       .addToUi();
   } catch (e) {
     Logger.log('onOpen info: ' + e);
@@ -432,21 +435,23 @@ function apiGetDashboardStats() {
   }
   var liveApiCount = sheetLiveApi && sheetLiveApi.getLastRow() > 1 ? (sheetLiveApi.getLastRow() - 1) : 0;
   var masterAssetCount = sheetAsset && sheetAsset.getLastRow() > 1 ? (sheetAsset.getLastRow() - 1) : 0;
-  var totalAssetsLive = Math.max(liveApiCount, masterAssetCount, 35160);
   var meta = getSyncMeta_();
+  var totalAssetsLive = Math.max(masterAssetCount, meta.total_assets || 0, 35160);
 
   return {
     total_gedung: totalGedung,
     total_ruangan: totalRuangan,
     total_assets: totalAssetsLive,
-    live_api_count: liveApiCount,
+    verified_assets: meta.verified_assets || 0,
+    unverified_assets: meta.unverified_assets || 0,
+    live_api_count: liveApiCount || masterAssetCount,
     master_asset_count: masterAssetCount,
     total_inspeksi: totalInsp,
     total_wo: totalMtc,
-    total_belum_checkout: meta.belum_checkout_count || 279,
-    valuasi_hpp: 1120265723612,
-    akumulasi_penyusutan: 438484408626,
-    nilai_buku_nbv: 681781314986,
+    total_belum_checkout: meta.belum_checkout_count || 268,
+    valuasi_hpp: meta.valuasi_hpp || 1120265723612,
+    akumulasi_penyusutan: meta.akumulasi_penyusutan || 438484408626,
+    nilai_buku_nbv: meta.nilai_buku_nbv || 681781314986,
     biaya_perawatan: totalBiayaMtc,
     last_api_sync_at: meta.last_api_sync_at || null,
     last_mtc_rebuild_at: meta.last_mtc_rebuild_at || null,
@@ -554,15 +559,16 @@ function apiGetLiveApiAssetDelta(limit) {
 }
 
 function apiGetBootstrapData() {
+  var meta = getSyncMeta_();
   return {
     stats: apiGetDashboardStats(),
     inspections: apiGetInspectionHistory(50),
     workOrders: apiGetWorkOrders(),
     penghuni: apiGetPenghuniList(''),
-    registeredAssets: apiGetRegisteredAssets(300),
-    liveApiAssets: apiGetLiveApiAssetDelta(600),
+    registeredAssets: apiGetRegisteredAssets(100),
     mutations: apiGetAssetMutations(200),
     sync_meta: getCronStatus(),
+    snapshot_version: meta.last_api_sync_at || '',
     fetched_at: new Date().toISOString()
   };
 }
@@ -1646,9 +1652,479 @@ function saveSyncMeta_(patch) {
   }
 }
 
+function saveCompactAssetSnapshotToDrive_(snapshotObj) {
+  var jsonStr = JSON.stringify(snapshotObj);
+  var props = PropertiesService.getScriptProperties();
+  var fileId = props.getProperty('PNS_SNAPSHOT_FILE_ID');
+  var file = null;
+  if (fileId) {
+    try {
+      var candidate = DriveApp.getFileById(fileId);
+      if (candidate && !candidate.isTrashed()) {
+        candidate.setContent(jsonStr);
+        file = candidate;
+      }
+    } catch (e) {
+      file = null;
+    }
+  }
+  if (!file) {
+    var existing = DriveApp.getFilesByName('PNS_ASSET_LIVE_SNAPSHOT_V1.json');
+    if (existing.hasNext()) {
+      file = existing.next();
+      if (!file.isTrashed()) {
+        file.setContent(jsonStr);
+      } else {
+        file = DriveApp.createFile('PNS_ASSET_LIVE_SNAPSHOT_V1.json', jsonStr, MimeType.PLAIN_TEXT);
+      }
+    } else {
+      file = DriveApp.createFile('PNS_ASSET_LIVE_SNAPSHOT_V1.json', jsonStr, MimeType.PLAIN_TEXT);
+    }
+    props.setProperty('PNS_SNAPSHOT_FILE_ID', file.getId());
+  }
+  return { fileId: file.getId(), bytes: jsonStr.length };
+}
+
+function buildCompactRowFromAsset42_(r, extraApi) {
+  var std = Number(r[16]) || 5;
+  var umur = Number(r[22]) || 0;
+  var hpp = parseFloat(r[18] || 0) || 0;
+  var susut = parseFloat(r[28] || 0) || 0;
+  var nbv = parseFloat(r[29] !== '' && r[29] !== undefined ? r[29] : r[18]) || 0;
+  var kodeUnit = String(r[9] || r[7] || r[0] || '').trim();
+  var nama = String(r[11] || '-').trim();
+  var namaDetail = String(r[12] || nama || '-').trim();
+  var kondisi = String(r[13] || 'Good Condition').trim();
+  var lifetime = String(r[27] || (umur >= std ? '↑ DIATAS' : '↓ DIBAWAH')).trim();
+  return [
+    kodeUnit,
+    nama,
+    String(r[36] || r[4] || 'INVENTARIS DAN PERALATAN').trim(),
+    String(r[30] || r[5] || 'UMUM').trim(),
+    String(r[1] || 'CO').trim(),
+    kondisi,
+    std,
+    umur,
+    Math.round(hpp),
+    Math.round(susut),
+    Math.round(nbv),
+    String(r[39] || 'Aktif / Digunakan').trim(),
+    String(r[2] || 'HRGA').trim(),
+    String(r[35] || 'BELUM VERIFIKASI').trim(),
+    String(r[3] || (hpp >= 1000000 ? 'Asset' : 'Non-Valueable Asset')).trim(),
+    namaDetail,
+    Number(r[0]) || r[0],
+    lifetime,
+    (extraApi && extraApi.status_verif_3) || kondisi,
+    (extraApi && extraApi.user_verif) || String(r[21] || '-').trim(),
+    (extraApi && extraApi.catatan_verif) || '-',
+    (extraApi && extraApi.tgl_verif) || '-',
+    (extraApi && extraApi.tipe_asset) || 'UMUM',
+    String(r[15] || r[33] || 'BELUM CHECKOUT').trim(),
+    (extraApi && extraApi.tgl_checkout) || '-'
+  ];
+}
+
 /**
- * 3. Full Sync Backend: Tarik Data Asli API ke `API_ASSET_LIVE` + Compare ke `COMPARE_API_ASSET`
- *    (Tanpa mengubah/merusak struktur 42 kolom di sheet `asset`)
+ * Single Source of Truth:
+ * 1x Transformasi langsung dari API Pusat ke tab `asset` (42 kolom) + simpan snapshot kompak di Drive
+ * (Kolom akuntansi/depresiasi lama per asset_id dipertahankan; aset baru dihitung otomatis)
+ */
+function transformApiAndUpsertMasterAsset_(apiData) {
+  return SheetDB.withLock(function() {
+    var ss = getDb();
+    var sheet = getMasterAssetSheet(ss);
+    var mLastRow = sheet.getLastRow();
+    var mLastCol = Math.max(42, sheet.getLastColumn());
+    var mValues = mLastRow > 1 ? sheet.getRange(2, 1, mLastRow - 1, mLastCol).getValues() : [];
+
+    var masterById = {};
+    for (var i = 0; i < mValues.length; i++) {
+      var mr = mValues[i];
+      var mId = String(mr[0] || '').trim();
+      if (mId && !masterById[mId]) {
+        masterById[mId] = mr;
+      }
+    }
+
+    // Deduplikasi API berdasarkan A_ID (prioritaskan entri terbaru / yang memiliki tanggal checkout)
+    var dedupApiMap = {};
+    var dedupApiList = [];
+    for (var k = 0; k < apiData.length; k++) {
+      var rawItem = apiData[k];
+      var aId = String(rawItem.A_ID || '').trim();
+      if (!aId) continue;
+      if (!Object.prototype.hasOwnProperty.call(dedupApiMap, aId)) {
+        dedupApiMap[aId] = dedupApiList.length;
+        dedupApiList.push(rawItem);
+      } else {
+        var curIdx = dedupApiMap[aId];
+        var existingIt = dedupApiList[curIdx];
+        if ((rawItem.TANGGAL_CHECKOUT && !existingIt.TANGGAL_CHECKOUT) || k > curIdx) {
+          dedupApiList[curIdx] = rawItem;
+        }
+      }
+    }
+
+    var outRows42 = [];
+    var compactRows = [];
+    var belumCheckoutList = [];
+    var seenMasterIds = {};
+    var insertedCount = 0;
+    var updatedCount = 0;
+    var verifiedCount = 0;
+    var unverifiedCount = 0;
+    var totalHpp = 0;
+    var totalSusut = 0;
+    var totalNbv = 0;
+
+    for (var j = 0; j < dedupApiList.length; j++) {
+      var item = dedupApiList[j];
+      var idStr = String(item.A_ID || '').trim();
+      seenMasterIds[idStr] = true;
+      var prev = masterById[idStr] || null;
+      if (prev) updatedCount++; else insertedCount++;
+
+      var kodeUnit = (item.NO_ASSET_MANUAL && item.NO_ASSET_MANUAL !== '-')
+        ? String(item.NO_ASSET_MANUAL).trim()
+        : String(item.NO_ASSET_SISTEM || idStr).trim();
+      var noAsset = String(item.NO_ASSET_SISTEM || kodeUnit).trim();
+      var noAlokasi = String(item.NO_ASSET_ALOKASI_SISTEM || (prev ? prev[8] : kodeUnit)).trim();
+      var loc = String(item.LOCATION || (prev ? prev[1] : 'CO')).trim();
+      var sec = String(item.KODE_SECTION || item.NAMA_SECTION || (prev ? prev[2] : 'HRGA')).trim();
+      var nama = String(item.NAMA_ASSET || (prev ? prev[11] : '-')).trim();
+      var namaDetail = (prev && prev[12] && prev[12] !== '-') ? String(prev[12]).trim() : nama;
+      var kondisi = String(item['STATUS VERIFIKASI_3'] || item.STATUS_KONDISI_AWAL || (prev ? prev[13] : 'Good Condition')).trim();
+      var chkTipe = String(item.TIPE_CHECKOUT || (prev ? prev[14] : '')).trim();
+      var chk = String(item.CHECKOUT || (prev ? prev[15] : 'BELUM CHECKOUT')).trim();
+      var tglPerolehan = item.TANGGAL_PEROLEHAN ? String(item.TANGGAL_PEROLEHAN).slice(0, 10) : (prev ? String(prev[17] || '').slice(0, 10) : '');
+      var hpp = parseFloat(item.TOTAL_HARGA_PEROLEHAN || 0) || (prev ? (parseFloat(prev[18] || 0) || 0) : 0);
+      var umur = Number(item.UMUR);
+      if (isNaN(umur)) umur = prev ? (Number(prev[22]) || 0) : 0;
+
+      var stdUmur = prev ? (Number(prev[16]) || 5) : 5;
+      var tarif = prev ? (prev[24] !== '' && prev[24] !== undefined ? prev[24] : (1 / stdUmur)) : (1 / stdUmur);
+      var susut = prev ? (parseFloat(prev[28] || 0) || 0) : Math.min(hpp, Math.round(hpp * Math.min(1, Math.max(0, umur) / stdUmur)));
+      var nbv = prev
+        ? (prev[29] !== '' && prev[29] !== undefined ? (parseFloat(prev[29]) || 0) : Math.max(0, Math.round(hpp - susut)))
+        : Math.max(0, Math.round(hpp - susut));
+      var lifetime = (prev && prev[27]) ? String(prev[27]).trim() : (umur >= stdUmur ? '↑ DIATAS' : '↓ DIBAWAH');
+      var statusVerif = String(item.STATUS_VERIFIKASI_TERAKHIR || (prev ? prev[35] : 'BELUM VERIFIKASI')).trim();
+      var kel = String(item.KELOMPOK || (prev ? prev[36] : 'INVENTARIS DAN PERALATAN')).trim();
+      var kat = String(item.KATEGORI || (prev ? prev[30] : 'UMUM')).trim();
+      var subKat = String(item.SUBKATEGORI || (prev ? prev[31] : '-')).trim();
+      var jenis = (prev && prev[3]) ? String(prev[3]).trim() : (hpp >= 1000000 ? 'Asset' : 'Non-Valueable Asset');
+      var createBy = String(item.USER_VERIFIKASI || (prev ? prev[21] : '-')).trim();
+      var statusChk = String(item.CHECKOUT || (prev ? prev[33] : chkTipe || 'BELUM CHECKOUT')).trim();
+      var disposal = prev ? String(prev[39] || 'Aktif / Digunakan').trim() : 'Aktif / Digunakan';
+
+      var row42 = [
+        Number(item.A_ID) || item.A_ID,
+        loc,
+        sec,
+        jenis,
+        prev ? (prev[4] || kel) : kel,
+        prev ? (prev[5] || kat) : kat,
+        prev ? (prev[6] || subKat) : subKat,
+        noAsset,
+        noAlokasi,
+        kodeUnit,
+        prev ? (prev[10] || 'ASSET') : 'ASSET',
+        nama,
+        namaDetail,
+        kondisi,
+        chkTipe,
+        chk,
+        stdUmur,
+        tglPerolehan,
+        Math.round(hpp),
+        String(item.custom_fields || (prev ? prev[19] : '') || ''),
+        prev ? (prev[20] || '') : '',
+        createBy,
+        umur,
+        prev ? (prev[23] !== undefined ? prev[23] : (stdUmur - umur)) : (stdUmur - umur),
+        tarif,
+        prev ? (prev[25] || '') : '',
+        prev ? (prev[26] !== undefined ? prev[26] : Math.round((umur / stdUmur) * 100)) : Math.round((umur / stdUmur) * 100),
+        lifetime,
+        Math.round(susut),
+        Math.round(nbv),
+        kat,
+        subKat,
+        kodeUnit + ' ' + nama + ' ' + loc + ' ' + sec,
+        statusChk,
+        prev ? (prev[34] || 0) : 0,
+        statusVerif,
+        kel,
+        prev ? (prev[37] || Math.round(nbv)) : Math.round(nbv),
+        prev ? (prev[38] || Math.round(nbv)) : Math.round(nbv),
+        disposal,
+        prev ? (prev[40] || Math.round(susut)) : Math.round(susut),
+        prev ? (prev[41] || '') : ''
+      ];
+      outRows42.push(row42);
+
+      var extraApi = {
+        status_verif_3: String(item['STATUS VERIFIKASI_3'] || kondisi).trim(),
+        user_verif: createBy,
+        catatan_verif: String(item.CATATAN_VERIFIKASI || '-').trim(),
+        tgl_verif: item.TANGGAL_VERIFIKASI ? String(item.TANGGAL_VERIFIKASI).slice(0, 19) : '-',
+        tipe_asset: String(item.TIPE_ASSET || 'UMUM').trim(),
+        tgl_checkout: item.TANGGAL_CHECKOUT ? String(item.TANGGAL_CHECKOUT).slice(0, 19) : '-'
+      };
+      compactRows.push(buildCompactRowFromAsset42_(row42, extraApi));
+
+      totalHpp += Math.round(hpp);
+      totalSusut += Math.round(susut);
+      totalNbv += Math.round(nbv);
+      if (statusVerif.toUpperCase().indexOf('BELUM') !== -1) unverifiedCount++; else verifiedCount++;
+
+      var isBelumChk = (
+        chk.toUpperCase().indexOf('BELUM') !== -1 ||
+        chkTipe.toUpperCase().indexOf('BELUM') !== -1 ||
+        loc.toUpperCase().indexOf('BELUM') !== -1
+      );
+      if (isBelumChk) {
+        belumCheckoutList.push({
+          asset_id: Number(item.A_ID) || item.A_ID,
+          kode_unit: kodeUnit,
+          no_asset: noAsset,
+          no_asset_alokasi: noAlokasi || 'BELUM CHECKOUT',
+          nama_asset: nama,
+          nama_asset_detail: namaDetail,
+          kelompok: kel,
+          kategori: kat,
+          subkategori: subKat,
+          location: loc || 'BELUM CHECKOUT',
+          section: sec || 'BELUM CHECKOUT',
+          kondisi: kondisi,
+          tipe_checkout: chkTipe || 'BELUM CHECKOUT',
+          status_checkout: chk || 'BELUM CHECKOUT (API Live)',
+          status_verifikasi: statusVerif,
+          tanggal_perolehan: tglPerolehan,
+          standar_umur: stdUmur,
+          umur_asset: umur,
+          harga_perolehan: Math.round(hpp),
+          nilai_buku: Math.round(nbv),
+          pic: createBy
+        });
+      }
+    }
+
+    // Pertahankan aset manual / historis yang hanya ada di sheet `asset`
+    for (var m = 0; m < mValues.length; m++) {
+      var orig = mValues[m];
+      var origId = String(orig[0] || '').trim();
+      if (!origId || seenMasterIds[origId]) continue;
+      var padded = orig.slice(0, 42);
+      while (padded.length < 42) padded.push('');
+      outRows42.push(padded);
+      compactRows.push(buildCompactRowFromAsset42_(padded, null));
+      totalHpp += Math.round(parseFloat(padded[18] || 0) || 0);
+      totalSusut += Math.round(parseFloat(padded[28] || 0) || 0);
+      totalNbv += Math.round(parseFloat(padded[29] !== '' ? padded[29] : padded[18]) || 0);
+      var oVer = String(padded[35] || '').toUpperCase();
+      if (oVer.indexOf('BELUM') !== -1) unverifiedCount++; else verifiedCount++;
+    }
+
+    // Tulis ke tab `asset` dalam batch 10.000 baris (1x tulis, cepat & aman)
+    sheet.getRange(1, 1, 1, LEGACY_ASSET_42_HEADERS.length).setValues([LEGACY_ASSET_42_HEADERS]);
+    sheet.setFrozenRows(1);
+    var writePos = 2;
+    for (var b = 0; b < outRows42.length; b += 10000) {
+      var chunk = outRows42.slice(b, b + 10000);
+      sheet.getRange(writePos, 1, chunk.length, 42).setValues(chunk);
+      writePos += chunk.length;
+    }
+    var prevLast = sheet.getLastRow();
+    if (prevLast > outRows42.length + 1) {
+      sheet.getRange(outRows42.length + 2, 1, prevLast - (outRows42.length + 1), Math.max(42, sheet.getLastColumn())).clearContent();
+    }
+
+    var syncedAt = new Date().toISOString();
+    var snapshotObj = {
+      version: syncedAt,
+      synced_at: syncedAt,
+      source: 'asset (Live API Transformed)',
+      stats: {
+        total_assets: compactRows.length,
+        verified_assets: verifiedCount,
+        unverified_assets: unverifiedCount,
+        belum_checkout_count: belumCheckoutList.length,
+        valuasi_hpp: totalHpp,
+        akumulasi_penyusutan: totalSusut,
+        nilai_buku_nbv: totalNbv
+      },
+      belum_checkout: belumCheckoutList,
+      rows: compactRows
+    };
+    var snapInfo = saveCompactAssetSnapshotToDrive_(snapshotObj);
+
+    saveSyncMeta_({
+      last_api_sync_at: syncedAt,
+      total_api_rows: dedupApiList.length,
+      total_assets: compactRows.length,
+      verified_assets: verifiedCount,
+      unverified_assets: unverifiedCount,
+      belum_checkout_count: belumCheckoutList.length,
+      new_in_api: insertedCount,
+      diff_loc_checkout: updatedCount,
+      valuasi_hpp: totalHpp,
+      akumulasi_penyusutan: totalSusut,
+      nilai_buku_nbv: totalNbv,
+      snapshot_bytes: snapInfo.bytes
+    });
+
+    return {
+      success: true,
+      totalApi: dedupApiList.length,
+      totalMasterAfter: outRows42.length,
+      inserted: insertedCount,
+      updated: updatedCount,
+      belumCheckout: belumCheckoutList.length,
+      valuasi_hpp: totalHpp,
+      akumulasi_penyusutan: totalSusut,
+      nilai_buku_nbv: totalNbv,
+      synced_at: syncedAt,
+      snapshot_bytes: snapInfo.bytes
+    };
+  }, 30000);
+}
+
+function buildCompactSnapshotFromAssetSheet_() {
+  var ss = getDb();
+  var sheet = getMasterAssetSheet(ss);
+  if (!sheet || sheet.getLastRow() <= 1) {
+    return { version: '', synced_at: '', source: 'empty', stats: {}, belum_checkout: [], rows: [] };
+  }
+  var lastRow = sheet.getLastRow();
+  var lastCol = Math.min(42, sheet.getLastColumn());
+  var compactRows = [];
+  var belumCheckoutList = [];
+  var totalHpp = 0, totalSusut = 0, totalNbv = 0, verifiedCount = 0, unverifiedCount = 0;
+
+  for (var start = 2; start <= lastRow; start += 10000) {
+    var count = Math.min(10000, lastRow - start + 1);
+    var rows = sheet.getRange(start, 1, count, lastCol).getValues();
+    for (var i = 0; i < rows.length; i++) {
+      var r = rows[i];
+      if (!r[0] && !r[9]) continue;
+      compactRows.push(buildCompactRowFromAsset42_(r, null));
+      totalHpp += Math.round(parseFloat(r[18] || 0) || 0);
+      totalSusut += Math.round(parseFloat(r[28] || 0) || 0);
+      totalNbv += Math.round(parseFloat(r[29] !== '' ? r[29] : r[18]) || 0);
+      var sv = String(r[35] || '').toUpperCase();
+      if (sv.indexOf('BELUM') !== -1) unverifiedCount++; else verifiedCount++;
+      var chk = String(r[15] || r[33] || '').toUpperCase();
+      var loc = String(r[1] || '').toUpperCase();
+      if (chk.indexOf('BELUM') !== -1 || loc.indexOf('BELUM') !== -1) {
+        belumCheckoutList.push({
+          asset_id: Number(r[0]) || r[0],
+          kode_unit: String(r[9] || r[7] || r[0]).trim(),
+          no_asset: String(r[7] || r[0]).trim(),
+          no_asset_alokasi: String(r[8] || 'BELUM CHECKOUT').trim(),
+          nama_asset: String(r[11] || '-').trim(),
+          nama_asset_detail: String(r[12] || r[11] || '-').trim(),
+          kelompok: String(r[36] || r[4] || 'INVENTARIS DAN PERALATAN').trim(),
+          kategori: String(r[30] || r[5] || 'UMUM').trim(),
+          subkategori: String(r[31] || '-').trim(),
+          location: String(r[1] || 'BELUM CHECKOUT').trim(),
+          section: String(r[2] || 'BELUM CHECKOUT').trim(),
+          kondisi: String(r[13] || 'Good Condition').trim(),
+          tipe_checkout: String(r[14] || 'BELUM CHECKOUT').trim(),
+          status_checkout: String(r[15] || 'BELUM CHECKOUT').trim(),
+          status_verifikasi: String(r[35] || 'BELUM VERIFIKASI').trim(),
+          tanggal_perolehan: r[17] ? String(r[17]).slice(0, 10) : '',
+          standar_umur: Number(r[16]) || 5,
+          umur_asset: Number(r[22]) || 0,
+          harga_perolehan: Math.round(parseFloat(r[18] || 0) || 0),
+          nilai_buku: Math.round(parseFloat(r[29] || 0) || 0),
+          pic: String(r[21] || '-').trim()
+        });
+      }
+    }
+  }
+  var syncedAt = getSyncMeta_().last_api_sync_at || new Date().toISOString();
+  var snapshotObj = {
+    version: syncedAt,
+    synced_at: syncedAt,
+    source: 'asset (Sheet Rebuild)',
+    stats: {
+      total_assets: compactRows.length,
+      verified_assets: verifiedCount,
+      unverified_assets: unverifiedCount,
+      belum_checkout_count: belumCheckoutList.length,
+      valuasi_hpp: totalHpp,
+      akumulasi_penyusutan: totalSusut,
+      nilai_buku_nbv: totalNbv
+    },
+    belum_checkout: belumCheckoutList,
+    rows: compactRows
+  };
+  saveCompactAssetSnapshotToDrive_(snapshotObj);
+  saveSyncMeta_({
+    last_api_sync_at: syncedAt,
+    total_assets: compactRows.length,
+    verified_assets: verifiedCount,
+    unverified_assets: unverifiedCount,
+    belum_checkout_count: belumCheckoutList.length,
+    valuasi_hpp: totalHpp,
+    akumulasi_penyusutan: totalSusut,
+    nilai_buku_nbv: totalNbv
+  });
+  return snapshotObj;
+}
+
+function apiGetFullAssetsCompact(sinceVersion) {
+  var meta = getSyncMeta_();
+  if (sinceVersion && meta.last_api_sync_at && String(sinceVersion).trim() === String(meta.last_api_sync_at).trim()) {
+    return {
+      success: true,
+      unchanged: true,
+      synced_at: meta.last_api_sync_at,
+      total_assets: meta.total_assets || 0
+    };
+  }
+  var props = PropertiesService.getScriptProperties();
+  var fileId = props.getProperty('PNS_SNAPSHOT_FILE_ID');
+  if (fileId) {
+    try {
+      var file = DriveApp.getFileById(fileId);
+      if (file && !file.isTrashed()) {
+        return JSON.parse(file.getBlob().getDataAsString('UTF-8'));
+      }
+    } catch (e) {
+      Logger.log('apiGetFullAssetsCompact Drive read error: ' + e);
+    }
+  }
+  return buildCompactSnapshotFromAssetSheet_();
+}
+
+function cleanupLegacyApiTabs() {
+  var ss = getDb();
+  var masterSheet = getMasterAssetSheet(ss);
+  if (!masterSheet || masterSheet.getLastRow() <= 10000) {
+    var guardMsg = 'Penghapusan dibatalkan demi keamanan: tab `asset` saat ini memiliki kurang dari 10.000 baris. Jalankan Sync API → Sheet asset terlebih dahulu.';
+    try { SpreadsheetApp.getUi().alert('Pembersihan Tab Lama', guardMsg, SpreadsheetApp.getUi().ButtonSet.OK); } catch (e) {}
+    return { success: false, message: guardMsg };
+  }
+  var deleted = [];
+  ['API_ASSET_LIVE', 'COMPARE_API_ASSET'].forEach(function(tabName) {
+    var sh = ss.getSheetByName(tabName);
+    if (sh) {
+      ss.deleteSheet(sh);
+      deleted.push(tabName);
+    }
+  });
+  var okMsg = deleted.length > 0
+    ? ('Berhasil menghapus ' + deleted.length + ' tab redundan: ' + deleted.join(', ') + '. Spreadsheet kini lebih ringan dengan 1 Single Source of Truth (tab `asset`).')
+    : 'Tab lama (API_ASSET_LIVE / COMPARE_API_ASSET) sudah tidak ada — spreadsheet sudah bersih.';
+  try { SpreadsheetApp.getUi().alert('Pembersihan Tab Lama Selesai', okMsg, SpreadsheetApp.getUi().ButtonSet.OK); } catch (e2) {}
+  return { success: true, deleted: deleted, message: okMsg };
+}
+
+/**
+ * 3. Single-Pass Sync Backend: Tarik API Pusat → Transformasi 1x & UPSERT ke `asset` + Simpan Snapshot Drive
  */
 function syncAssetVerReportFromApi(silent) {
   try {
@@ -1657,48 +2133,24 @@ function syncAssetVerReportFromApi(silent) {
     var json = JSON.parse(response.getContentText());
     var data = json.data || [];
 
-    var totalHppApi = 0;
-    for (var idx = 0; idx < data.length; idx++) {
-      totalHppApi += parseFloat(data[idx].TOTAL_HARGA_PEROLEHAN || 0) || 0;
-    }
+    var res = transformApiAndUpsertMasterAsset_(data);
 
-    var pullRes = pullRawApiToSheet(data);
-    var compRes = compareApiWithMasterAsset(data);
-    var syncedAt = new Date().toISOString();
-
-    saveSyncMeta_({
-      last_api_sync_at: syncedAt,
-      total_api_rows: data.length,
-      belum_checkout_count: compRes.belumCheckout || 0,
-      new_in_api: compRes.newInApi || 0,
-      diff_loc_checkout: compRes.diffLocOrCheckout || 0,
-      total_hpp_api: Math.round(totalHppApi)
-    });
-
-    var summaryMsg = 'Tarik API & Compare Berhasil!\n' +
-      '• Tab API_ASSET_LIVE: ' + (pullRes.totalApiRows || data.length) + ' baris asli API (36 kolom)\n' +
-      '• Tab COMPARE_API_ASSET: ' + (compRes.totalFindings || 0) + ' baris selisih/rekonsiliasi\n' +
-      '  - Baru di API (Belum di sheet asset): ' + (compRes.newInApi || 0) + '\n' +
-      '  - Reminder Belum Checkout: ' + (compRes.belumCheckout || 0) + '\n' +
-      '  - Beda Lokasi / Checkout: ' + (compRes.diffLocOrCheckout || 0) + '\n' +
-      '• Sheet Master `asset` (42 kolom) tetap terjaga murni.';
+    var summaryMsg = 'Transform & Sync 1-Jalur ke Sheet `asset` Berhasil!\n' +
+      '• Data API Pusat ditarik: ' + (res.totalApi || 0).toLocaleString('id-ID') + ' aset unik\n' +
+      '• Total Baris Sheet `asset` (42 kolom): ' + (res.totalMasterAfter || 0).toLocaleString('id-ID') + ' aset\n' +
+      '  - Update Operasional: ' + (res.updated || 0).toLocaleString('id-ID') + ' aset\n' +
+      '  - Aset Baru Ditambahkan: ' + (res.inserted || 0).toLocaleString('id-ID') + ' aset\n' +
+      '  - Reminder Belum Checkout: ' + (res.belumCheckout || 0).toLocaleString('id-ID') + ' unit\n' +
+      '• Snapshot Drive Kompak diperbarui (' + Math.round((res.snapshot_bytes || 0) / 1024) + ' KB).';
 
     if (!silent) {
       try {
-        SpreadsheetApp.getUi().alert('Sinkronisasi & Compare API Selesai', summaryMsg, SpreadsheetApp.getUi().ButtonSet.OK);
+        SpreadsheetApp.getUi().alert('Sync API → Sheet asset Selesai', summaryMsg, SpreadsheetApp.getUi().ButtonSet.OK);
       } catch (uiErr) {}
     }
 
-    return {
-      success: true,
-      message: summaryMsg,
-      totalApi: data.length,
-      updated: compRes.diffLocOrCheckout || 0,
-      inserted: compRes.newInApi || 0,
-      belumCheckout: compRes.belumCheckout || 0,
-      synced_at: syncedAt,
-      compareResult: compRes
-    };
+    res.message = summaryMsg;
+    return res;
   } catch (err) {
     Logger.log('syncAssetVerReportFromApi error: ' + err);
     return { success: false, error: String(err) };
