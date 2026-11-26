@@ -14702,19 +14702,22 @@ const PNS_SECTION_TO_DEPT = {
 
     return all.filter(a => {
       const vSt = String(a.statusVerif || a.status_verifikasi || '').toUpperCase();
-      const isNewAsset = vSt.includes('BELUM') || a.isUnvalidated || String(a.rawSec || '').includes('BELUM');
+      const chkSt = String(a.checkout || '').toUpperCase();
+      const isNewAsset = !vSt || vSt === '-' || vSt.includes('BELUM') || a.isUnvalidated || String(a.rawSec || '').toUpperCase().includes('BELUM') || chkSt.includes('BELUM');
       const isInspected2026 = inspected2026Keys.has(String(a.no_asset || a.kode_unit || '').trim());
 
-      // Filter Status / Siklus
-      if (status) {
-        const st = status.toLowerCase();
-        if (st === 'sudah_2025' && isNewAsset) return false;
-        if (st === 'new_asset' && !isNewAsset) return false;
-        if (st === 'belum_2026' && isInspected2026) return false;
-        if (st === 'sudah_2026' && !isInspected2026) return false;
-        if (st === 'sesuai' && isNewAsset) return false;
-        if (st === 'belum' && !isNewAsset) return false;
+      // Filter Status / Siklus — default HANYA menampilkan aset yang sudah tervalidasi
+      const st = String(status || '').toLowerCase();
+      if (!st || st === 'sudah_2025' || st === 'sesuai') {
+        if (isNewAsset) return false;
+      } else if (st === 'new_asset' || st === 'belum') {
+        if (!isNewAsset) return false;
+      } else if (st === 'sudah_2026') {
+        if (isNewAsset || !isInspected2026) return false;
+      } else if (st === 'belum_2026') {
+        if (isNewAsset || isInspected2026) return false;
       }
+      // st === 'all' -> tampilkan seluruh aset (termasuk yang belum validasi)
 
       // 1. Filter Location
       if (loc && a.locRaw !== loc && a.loc !== loc) return false;

@@ -1749,22 +1749,20 @@ function calcAssetDepreciation_(tglStr, stdUmur, hppVal, nowDate) {
     var yr = parseInt(cleanTgl.slice(0, 4), 10);
     if (yr >= 1990) {
       var parts = cleanTgl.split('-');
-      var dt = new Date(Date.UTC(yr, parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)));
       var ref = nowDate || new Date();
-      if (!isNaN(dt.getTime())) {
-        var diffYears = (ref.getTime() - dt.getTime()) / (365.25 * 86400000);
-        umur = diffYears > 0 ? Math.round(diffYears * 100) / 100 : 0;
-        var endYear = yr + Math.round(std);
-        tglAkhir = endYear + '-' + parts[1] + '-' + parts[2];
-      }
+      var curYear = ref.getFullYear();
+      umur = (curYear - yr) > 0 ? (curYear - yr) : 0;
+      var endYear = yr + Math.round(std);
+      tglAkhir = endYear + '-' + parts[1] + '-' + parts[2];
     }
   }
 
   var varian = Math.round((std - umur) * 100) / 100;
   var tarif = std > 0 ? Math.round((1 / std) * 10000) / 10000 : 0;
-  var pctUe = std > 0 ? Math.min(1, Math.round((umur / std) * 10000) / 10000) : 0;
+  var rawPctUe = std > 0 ? Math.min(1, umur / std) : 0;
+  var pctUe = Math.round(rawPctUe * 10000) / 10000;
   var lifetime = (std > 0 && umur >= std) ? '↑ DIATAS' : '↓ DIBAWAH';
-  var susut = Math.round(hpp * pctUe);
+  var susut = Math.round(hpp * rawPctUe);
   var nbv = Math.max(0, Math.round(hpp - susut));
 
   return {
@@ -2058,13 +2056,13 @@ function transformApiAndUpsertMasterAsset_(apiData) {
       sheet.getRange(outRows42.length + 2, 1, prevLast - (outRows42.length + 1), totalColsToClean).clearContent();
     }
 
-    // Pasang 8 Single-Cell ARRAYFORMULA di W2:AD2 (otomatis menghitung 34.940+ baris tanpa membuat Sheet berat)
+    // Pasang 8 Single-Cell ARRAYFORMULA di W2:AD2 (tahun fiskal bulat sesuai Dashboard tanpa membuat Sheet berat)
     var formulasW2ToAD2 = [[
-      '=ARRAYFORMULA(IF(A2:A="","",IFERROR(IF(R2:R="",0,IF(YEAR(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))<1990,0,IF((TODAY()-IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))<0,0,ROUND((TODAY()-IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))/365.25,2)))),0)))',
-      '=ARRAYFORMULA(IF(A2:A="","",ROUND(N(Q2:Q)-N(W2:W),2)))',
+      '=ARRAYFORMULA(IF(A2:A="","",IFERROR(IF(R2:R="",0,IF(YEAR(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))<1990,0,IF(YEAR(TODAY())-YEAR(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))<0,0,YEAR(TODAY())-YEAR(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))))),0)))',
+      '=ARRAYFORMULA(IF(A2:A="","",N(Q2:Q)-N(W2:W)))',
       '=ARRAYFORMULA(IF(A2:A="","",IF(N(Q2:Q)>0,ROUND(1/N(Q2:Q),4),0)))',
       '=ARRAYFORMULA(IF(A2:A="","",IFERROR(IF((R2:R="")+(N(Q2:Q)<=0),"",IF(YEAR(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))<1990,"",TEXT(DATE(YEAR(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))+N(Q2:Q),MONTH(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R))),DAY(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))),"yyyy-mm-dd"))),"")))',
-      '=ARRAYFORMULA(IF(A2:A="","",IF(N(Q2:Q)>0,IF(N(W2:W)/N(Q2:Q)>1,1,ROUND(N(W2:W)/N(Q2:Q),4)),0)))',
+      '=ARRAYFORMULA(IF(A2:A="","",IF(N(Q2:Q)>0,IF(N(W2:W)/N(Q2:Q)>1,1,N(W2:W)/N(Q2:Q)),0)))',
       '=ARRAYFORMULA(IF(A2:A="","",IF((N(Q2:Q)>0)*(N(W2:W)>=N(Q2:Q)),"↑ DIATAS","↓ DIBAWAH")))',
       '=ARRAYFORMULA(IF(A2:A="","",ROUND(N(S2:S)*N(AA2:AA),0)))',
       '=ARRAYFORMULA(IF(A2:A="","",IF(N(S2:S)-N(AC2:AC)<0,0,ROUND(N(S2:S)-N(AC2:AC),0))))'
@@ -2074,7 +2072,7 @@ function transformApiAndUpsertMasterAsset_(apiData) {
     if (outRows42.length > 0) {
       try {
         sheet.getRange(2, 19, outRows42.length, 1).setNumberFormat('#,##0');
-        sheet.getRange(2, 23, outRows42.length, 2).setNumberFormat('0.00');
+        sheet.getRange(2, 23, outRows42.length, 2).setNumberFormat('0');
         sheet.getRange(2, 25, outRows42.length, 1).setNumberFormat('0.00%');
         sheet.getRange(2, 27, outRows42.length, 1).setNumberFormat('0.0%');
         sheet.getRange(2, 29, outRows42.length, 2).setNumberFormat('#,##0');
