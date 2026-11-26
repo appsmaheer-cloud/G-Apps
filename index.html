@@ -426,7 +426,7 @@
         <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <h1 class="text-xl sm:text-2xl font-semibold tracking-tight text-slate-800">Dashboard Analisis &amp; Manajemen Aset</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Ringkasan menyeluruh portofolio 35.160 aset, status validasi fisik, valuasi perolehan, depresiasi, dan fasilitas lapangan PT PNS.</p>
+            <p class="text-xs text-slate-500 mt-0.5" id="dash-header-sub">Ringkasan menyeluruh portofolio aset, status validasi fisik, valuasi perolehan, depresiasi, dan fasilitas lapangan PT PNS.</p>
           </div>
           <div class="flex items-center gap-2">
             <button type="button" onclick="refreshDashboard()" class="flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 transition">
@@ -613,7 +613,7 @@
             <div class="flex justify-between items-center mb-4">
               <div>
                 <h3 class="font-bold text-sm text-slate-900">Kondisi Fisik Aset</h3>
-                <p class="text-xs text-slate-500">Proporsi kelayakan 35.160 inventaris</p>
+                <p class="text-xs text-slate-500" id="dash-donut-chart-sub">Proporsi kelayakan seluruh inventaris</p>
               </div>
               <span id="badge-dashboard-cond-good" class="text-xs px-2 py-0.5 rounded bg-emerald-100 text-emerald-700 font-bold">82,29% Good</span>
             </div>
@@ -1150,8 +1150,8 @@
         <div id="asset-catalog-bottom-table-wrap" class="clean-card w-full p-4 flex flex-col shadow-xs bg-white border border-slate-200/90 rounded-2xl">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between pb-3 border-b border-slate-100 gap-2 shrink-0">
             <div>
-              <span class="text-xs sm:text-sm font-black text-slate-900 block flex items-center gap-1.5">
-                <i class="ph-bold ph-table text-indigo-600"></i> Matriks Portofolio Master Aset (35.160 Unit Terintegrasi)
+              <span class="text-xs sm:text-sm font-black text-slate-900 block flex items-center gap-1.5" id="all-asset-matrix-title">
+                <i class="ph-bold ph-table text-indigo-600"></i> Matriks Portofolio Master Aset (Terintegrasi Live)
               </span>
               <span class="text-[10.5px] text-slate-500 font-medium" id="all-asset-paging-info">Menampilkan data aset lengkap. Klik baris mana saja untuk membuka Dokumen &amp; Riwayat Dossier.</span>
             </div>
@@ -5057,7 +5057,7 @@
               </span>
             </div>
             <p class="text-[11px] text-slate-500">
-              Endpoint: <code class="font-mono text-[10.5px] text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">https://api.pns.co.id/main/asset_ver_report</code> &bull; Total Aktual: <strong>35.160 Unit</strong>
+              Endpoint: <code class="font-mono text-[10.5px] text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">https://api.pns.co.id/main/asset_ver_report</code> &bull; Total Aktual: <strong id="api-compare-total-header">- Unit</strong>
             </p>
           </div>
         </div>
@@ -5072,34 +5072,34 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div class="bg-slate-50 border border-slate-200/90 rounded-xl p-3.5">
             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Aset di API</span>
-            <div class="text-2xl font-black text-slate-900 mt-1 num-tabular">35.160</div>
+            <div class="text-2xl font-black text-slate-900 mt-1 num-tabular" id="cmp-kpi-total">-</div>
             <span class="text-[10.5px] font-medium text-emerald-700 mt-0.5 block">100% Records Terdata</span>
           </div>
           <div class="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3.5">
             <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Aset Validasi (Fisik)</span>
-            <div class="text-2xl font-black text-emerald-800 mt-1 num-tabular">34.806</div>
-            <span class="text-[10.5px] font-semibold text-emerald-700 mt-0.5 block">98,99% Terverifikasi</span>
+            <div class="text-2xl font-black text-emerald-800 mt-1 num-tabular" id="cmp-kpi-verif">-</div>
+            <span class="text-[10.5px] font-semibold text-emerald-700 mt-0.5 block" id="cmp-kpi-verif-pct">-% Terverifikasi</span>
           </div>
           <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-3.5">
             <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider block">Belum Verifikasi</span>
-            <div class="text-2xl font-black text-amber-800 mt-1 num-tabular">354</div>
-            <span class="text-[10.5px] font-semibold text-amber-700 mt-0.5 block">1,01% Antrean Opname</span>
+            <div class="text-2xl font-black text-amber-800 mt-1 num-tabular" id="cmp-kpi-unverif">-</div>
+            <span class="text-[10.5px] font-semibold text-amber-700 mt-0.5 block" id="cmp-kpi-unverif-pct">-% Antrean Opname</span>
           </div>
           <div class="bg-indigo-50/60 border border-indigo-200 rounded-xl p-3.5">
             <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block">Valuasi Perolehan (HPP)</span>
-            <div class="text-2xl font-black text-indigo-900 mt-1 num-tabular">Rp 1,16 T</div>
-            <span class="text-[10.5px] font-medium text-indigo-700 mt-0.5 block truncate">Rp 1.157.444.129.562</span>
+            <div class="text-2xl font-black text-indigo-900 mt-1 num-tabular" id="cmp-kpi-hpp">-</div>
+            <span class="text-[10.5px] font-medium text-indigo-700 mt-0.5 block truncate" id="cmp-kpi-hpp-full">-</span>
           </div>
         </div>
 
-        <!-- Tabel Komparasi 9 Lokasi Kerja PT PNS -->
+        <!-- Tabel Komparasi Lokasi Kerja PT PNS -->
         <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
           <div class="px-4 py-2.5 bg-slate-100/80 border-b border-slate-200 flex justify-between items-center">
             <h4 class="font-extrabold text-slate-800 text-xs flex items-center gap-2">
               <i class="ph-bold ph-map-trifold text-emerald-600"></i>
-              Matriks Paritas Data API vs Rekonsiliasi Per Lokasi Kerja (9 Lokasi Aktual)
+              Matriks Paritas Data Live Sheet &amp; API Per Lokasi Kerja
             </h4>
-            <span class="text-[10.5px] text-slate-500 font-mono">Status: 100% Cocok</span>
+            <span class="text-[10.5px] text-slate-500 font-mono">Status: 100% Sinkron</span>
           </div>
           <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse text-xs">
@@ -5107,105 +5107,16 @@
                 <tr>
                   <th class="py-2.5 px-3">Kode</th>
                   <th class="py-2.5 px-3">Lokasi Operasional</th>
-                  <th class="py-2.5 px-3 text-right">Data API Live</th>
-                  <th class="py-2.5 px-3 text-right">Asset Validasi</th>
+                  <th class="py-2.5 px-3 text-right">Data Sheet Live</th>
+                  <th class="py-2.5 px-3 text-right">Terverifikasi</th>
                   <th class="py-2.5 px-3 text-right">Belum Verif</th>
                   <th class="py-2.5 px-3 text-right">Total HPP</th>
                   <th class="py-2.5 px-3 text-center">Status Paritas</th>
                 </tr>
               </thead>
-              <tbody class="divide-y divide-slate-100 text-[11.5px]">
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">CO</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Central Office</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">13.681</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">13.677</td>
-                  <td class="py-2 px-3 text-right font-mono text-amber-600 font-semibold">4</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 747,13 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">FR</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Factory / Pabrik Gula</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">10.757</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">10.757</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 135,12 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">E1</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Estate 1</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">2.759</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">2.636</td>
-                  <td class="py-2 px-3 text-right font-mono text-amber-600 font-semibold">123</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 116,91 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">E2</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Estate 2</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">2.680</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">2.680</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 68,85 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">E3</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Estate 3</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">2.414</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">2.414</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 77,02 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">MR</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Gudang Marunda (MR)</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">1.636</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">1.636</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 4,92 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">HO</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Head Office Jakarta</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">866</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">866</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 4,54 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-amber-700">BC</td>
-                  <td class="py-2 px-3 font-semibold text-amber-800">Antrean Belum Checkout</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">227</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-amber-600 font-semibold">227</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 2,04 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-amber-100 text-amber-800">In Queue</span></td>
-                </tr>
-                <tr class="hover:bg-slate-50">
-                  <td class="py-2 px-3 font-mono font-bold text-slate-700">RO</td>
-                  <td class="py-2 px-3 font-semibold text-slate-800">Regional Office Lampung</td>
-                  <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">140</td>
-                  <td class="py-2 px-3 text-right font-mono text-emerald-700 font-semibold">140</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-400">0</td>
-                  <td class="py-2 px-3 text-right font-mono text-slate-800">Rp 0,92 M</td>
-                  <td class="py-2 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Cocok</span></td>
-                </tr>
+              <tbody class="divide-y divide-slate-100 text-[11.5px]" id="api-compare-tbody">
               </tbody>
-              <tfoot class="bg-slate-100/90 font-bold border-t-2 border-slate-300 text-slate-900">
-                <tr>
-                  <td colspan="2" class="py-2.5 px-3 uppercase text-[10.5px]">Total Portofolio PT PNS</td>
-                  <td class="py-2.5 px-3 text-right font-mono text-sm text-slate-900">35.160</td>
-                  <td class="py-2.5 px-3 text-right font-mono text-sm text-emerald-700">34.806</td>
-                  <td class="py-2.5 px-3 text-right font-mono text-sm text-amber-700">354</td>
-                  <td class="py-2.5 px-3 text-right font-mono text-sm text-indigo-900">Rp 1.157,44 M</td>
-                  <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-black bg-emerald-600 text-white">100% PARITAS</span></td>
-                </tr>
+              <tfoot class="bg-slate-100/90 font-bold border-t-2 border-slate-300 text-slate-900" id="api-compare-tfoot">
               </tfoot>
             </table>
           </div>
@@ -5216,7 +5127,7 @@
       <div class="px-5 py-3 border-t border-slate-200 bg-slate-50/80 flex flex-wrap items-center justify-between gap-2.5">
         <div class="text-[11px] text-slate-500 flex items-center gap-1.5">
           <i class="ph-bold ph-clock-counter-clockwise text-emerald-600"></i>
-          <span>Sinkronisasi Terakhir: Real-Time Live API (35.160 Aset)</span>
+          <span id="api-compare-footer-ts">Sinkronisasi Terakhir: Live Sheet &amp; API</span>
         </div>
         <div class="flex items-center gap-2">
           <button type="button" onclick="syncAssetVerReportLive()" class="px-3.5 py-1.5 rounded-xl border border-emerald-300 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 text-xs font-bold transition flex items-center gap-1.5 cursor-pointer">

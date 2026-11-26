@@ -1637,7 +1637,7 @@
               </span>
             </div>
             <p class="text-[11px] text-slate-500">
-              Endpoint: <code class="font-mono text-[10.5px] text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">https://api.pns.co.id/main/asset_ver_report</code> &bull; Total Aktual: <strong>35.160 Unit</strong>
+              Endpoint: <code class="font-mono text-[10.5px] text-emerald-800 bg-emerald-50 px-1 py-0.2 rounded border border-emerald-200">https://api.pns.co.id/main/asset_ver_report</code> &bull; Total Aktual: <strong id="api-compare-total-header">- Unit</strong>
             </p>
           </div>
         </div>
@@ -1652,34 +1652,34 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-3">
           <div class="bg-slate-50 border border-slate-200/90 rounded-xl p-3.5">
             <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Total Aset di API</span>
-            <div class="text-2xl font-black text-slate-900 mt-1 num-tabular">35.160</div>
+            <div class="text-2xl font-black text-slate-900 mt-1 num-tabular" id="cmp-kpi-total">-</div>
             <span class="text-[10.5px] font-medium text-emerald-700 mt-0.5 block">100% Records Terdata</span>
           </div>
           <div class="bg-emerald-50/60 border border-emerald-200 rounded-xl p-3.5">
             <span class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider block">Aset Validasi (Fisik)</span>
-            <div class="text-2xl font-black text-emerald-800 mt-1 num-tabular">34.806</div>
-            <span class="text-[10.5px] font-semibold text-emerald-700 mt-0.5 block">98,99% Terverifikasi</span>
+            <div class="text-2xl font-black text-emerald-800 mt-1 num-tabular" id="cmp-kpi-verif">-</div>
+            <span class="text-[10.5px] font-semibold text-emerald-700 mt-0.5 block" id="cmp-kpi-verif-pct">-% Terverifikasi</span>
           </div>
           <div class="bg-amber-50/60 border border-amber-200 rounded-xl p-3.5">
             <span class="text-[10px] font-bold text-amber-700 uppercase tracking-wider block">Belum Verifikasi</span>
-            <div class="text-2xl font-black text-amber-800 mt-1 num-tabular">354</div>
-            <span class="text-[10.5px] font-semibold text-amber-700 mt-0.5 block">1,01% Antrean Opname</span>
+            <div class="text-2xl font-black text-amber-800 mt-1 num-tabular" id="cmp-kpi-unverif">-</div>
+            <span class="text-[10.5px] font-semibold text-amber-700 mt-0.5 block" id="cmp-kpi-unverif-pct">-% Antrean Opname</span>
           </div>
           <div class="bg-indigo-50/60 border border-indigo-200 rounded-xl p-3.5">
             <span class="text-[10px] font-bold text-indigo-700 uppercase tracking-wider block">Valuasi Perolehan (HPP)</span>
-            <div class="text-2xl font-black text-indigo-900 mt-1 num-tabular">Rp 1,16 T</div>
-            <span class="text-[10.5px] font-medium text-indigo-700 mt-0.5 block truncate">Rp 1.157.444.129.562</span>
+            <div class="text-2xl font-black text-indigo-900 mt-1 num-tabular" id="cmp-kpi-hpp">-</div>
+            <span class="text-[10.5px] font-medium text-indigo-700 mt-0.5 block truncate" id="cmp-kpi-hpp-full">-</span>
           </div>
         </div>
 
-        <!-- Tabel Komparasi 9 Lokasi Kerja PT PNS -->
+        <!-- Tabel Komparasi Lokasi Kerja PT PNS -->
         <div class="border border-slate-200 rounded-xl overflow-hidden bg-white shadow-2xs">
           <div class="px-4 py-2.5 bg-slate-100/80 border-b border-slate-200 flex justify-between items-center">
             <h4 class="font-extrabold text-slate-800 text-xs flex items-center gap-2">
               <i class="ph-bold ph-map-trifold text-emerald-600"></i>
-              Matriks Paritas Data API vs Rekonsiliasi Per Lokasi Kerja (9 Lokasi Aktual)
+              Matriks Paritas Data Live Sheet &amp; API Per Lokasi Kerja
             </h4>
-            <span class="text-[10.5px] text-slate-500 font-mono">Status: 100% Cocok</span>
+            <span class="text-[10.5px] text-slate-500 font-mono">Status: 100% Sinkron</span>
           </div>
     <div id="modal-drilldown-validasi" onclick="if(event.target === this) closeValidasiDrillModal()" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs hidden flex items-center justify-center p-3 sm:p-5">
     <div class="clean-card w-full max-w-5xl bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh] animate-in">

@@ -436,7 +436,7 @@ function apiGetDashboardStats() {
   var liveApiCount = sheetLiveApi && sheetLiveApi.getLastRow() > 1 ? (sheetLiveApi.getLastRow() - 1) : 0;
   var masterAssetCount = sheetAsset && sheetAsset.getLastRow() > 1 ? (sheetAsset.getLastRow() - 1) : 0;
   var meta = getSyncMeta_();
-  var totalAssetsLive = Math.max(masterAssetCount, meta.total_assets || 0, 35160);
+  var totalAssetsLive = masterAssetCount || meta.total_assets || 0;
 
   return {
     total_gedung: totalGedung,
@@ -1725,10 +1725,102 @@ function buildCompactRowFromAsset42_(r, extraApi) {
   ];
 }
 
+function formatDateYmd_(val) {
+  if (!val) return '';
+  if (val instanceof Date && !isNaN(val.getTime())) {
+    var y = val.getFullYear();
+    var m = ('0' + (val.getMonth() + 1)).slice(-2);
+    var d = ('0' + val.getDate()).slice(-2);
+    return y + '-' + m + '-' + d;
+  }
+  var s = String(val).trim();
+  if (!s || s === '-' || s.toUpperCase().indexOf('BELUM') !== -1) return '';
+  return s.slice(0, 10);
+}
+
+function calcAssetDepreciation_(tglStr, stdUmur, hppVal, nowDate) {
+  var std = (Number(stdUmur) > 0) ? Number(stdUmur) : 5;
+  var hpp = parseFloat(hppVal || 0) || 0;
+  var cleanTgl = formatDateYmd_(tglStr);
+  var umur = 0;
+  var tglAkhir = '';
+
+  if (cleanTgl && /^\d{4}-\d{2}-\d{2}$/.test(cleanTgl)) {
+    var yr = parseInt(cleanTgl.slice(0, 4), 10);
+    if (yr >= 1990) {
+      var parts = cleanTgl.split('-');
+      var dt = new Date(Date.UTC(yr, parseInt(parts[1], 10) - 1, parseInt(parts[2], 10)));
+      var ref = nowDate || new Date();
+      if (!isNaN(dt.getTime())) {
+        var diffYears = (ref.getTime() - dt.getTime()) / (365.25 * 86400000);
+        umur = diffYears > 0 ? Math.round(diffYears * 100) / 100 : 0;
+        var endYear = yr + Math.round(std);
+        tglAkhir = endYear + '-' + parts[1] + '-' + parts[2];
+      }
+    }
+  }
+
+  var varian = Math.round((std - umur) * 100) / 100;
+  var tarif = std > 0 ? Math.round((1 / std) * 10000) / 10000 : 0;
+  var pctUe = std > 0 ? Math.min(1, Math.round((umur / std) * 10000) / 10000) : 0;
+  var lifetime = (std > 0 && umur >= std) ? '↑ DIATAS' : '↓ DIBAWAH';
+  var susut = Math.round(hpp * pctUe);
+  var nbv = Math.max(0, Math.round(hpp - susut));
+
+  return {
+    std: std,
+    umur: umur,
+    varian: varian,
+    tarif: tarif,
+    tglAkhir: tglAkhir,
+    pctUe: pctUe,
+    lifetime: lifetime,
+    susut: susut,
+    nbv: nbv
+  };
+}
+
+function appendSyncLogRow_(ss, entry) {
+  try {
+    var headers = ['WAKTU_WIB', 'SUMBER', 'TOTAL_API', 'TOTAL_ASSET', 'TERVERIFIKASI', 'BELUM_VERIF', 'BELUM_CHECKOUT', 'VALUASI_HPP', 'TOTAL_PENYUSUTAN', 'NILAI_BUKU_NBV', 'STATUS'];
+    var logSheet = ss.getSheetByName('SYNC_LOG');
+    if (!logSheet) {
+      logSheet = ss.insertSheet('SYNC_LOG');
+      logSheet.getRange(1, 1, 1, headers.length).setValues([headers])
+        .setBackground('#0F172A').setFontColor('#FFFFFF').setFontWeight('bold');
+      logSheet.setFrozenRows(1);
+    }
+    var wibTime = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
+    logSheet.appendRow([
+      wibTime,
+      entry.source || 'API_PUSAT',
+      entry.totalApi || 0,
+      entry.totalAssets || 0,
+      entry.verified || 0,
+      entry.unverified || 0,
+      entry.belumCheckout || 0,
+      entry.hpp || 0,
+      entry.susut || 0,
+      entry.nbv || 0,
+      entry.status || 'OK'
+    ]);
+    var lr = logSheet.getLastRow();
+    if (lr > 2) {
+      logSheet.getRange(lr, 8, 1, 3).setNumberFormat('#,##0');
+    }
+    if (lr > 205) {
+      logSheet.deleteRows(2, lr - 201);
+    }
+  } catch (eLog) {
+    Logger.log('appendSyncLogRow_ info: ' + eLog);
+  }
+}
+
 /**
  * Single Source of Truth:
  * 1x Transformasi langsung dari API Pusat ke tab `asset` (42 kolom) + simpan snapshot kompak di Drive
- * (Kolom akuntansi/depresiasi lama per asset_id dipertahankan; aset baru dihitung otomatis)
+ * - API UMUR = standar_umur (umur ekonomis), umur_asset & penyusutan dihitung real-time dari tanggal_perolehan
+ * - Menulis 8 ARRAYFORMULA di W2:AD2 sehingga Google Sheets memiliki rumus live tanpa lag
  */
 function transformApiAndUpsertMasterAsset_(apiData) {
   return SheetDB.withLock(function() {
@@ -1737,6 +1829,7 @@ function transformApiAndUpsertMasterAsset_(apiData) {
     var mLastRow = sheet.getLastRow();
     var mLastCol = Math.max(42, sheet.getLastColumn());
     var mValues = mLastRow > 1 ? sheet.getRange(2, 1, mLastRow - 1, mLastCol).getValues() : [];
+    var nowDate = new Date();
 
     var masterById = {};
     for (var i = 0; i < mValues.length; i++) {
@@ -1797,18 +1890,14 @@ function transformApiAndUpsertMasterAsset_(apiData) {
       var kondisi = String(item['STATUS VERIFIKASI_3'] || item.STATUS_KONDISI_AWAL || (prev ? prev[13] : 'Good Condition')).trim();
       var chkTipe = String(item.TIPE_CHECKOUT || (prev ? prev[14] : '')).trim();
       var chk = String(item.CHECKOUT || (prev ? prev[15] : 'BELUM CHECKOUT')).trim();
-      var tglPerolehan = item.TANGGAL_PEROLEHAN ? String(item.TANGGAL_PEROLEHAN).slice(0, 10) : (prev ? String(prev[17] || '').slice(0, 10) : '');
-      var hpp = parseFloat(item.TOTAL_HARGA_PEROLEHAN || 0) || (prev ? (parseFloat(prev[18] || 0) || 0) : 0);
-      var umur = Number(item.UMUR);
-      if (isNaN(umur)) umur = prev ? (Number(prev[22]) || 0) : 0;
+      var tglPerolehan = formatDateYmd_(item.TANGGAL_PEROLEHAN) || (prev ? formatDateYmd_(prev[17]) : '');
+      var hpp = parseFloat(item.TOTAL_HARGA_PEROLEHAN || 0);
+      if (isNaN(hpp) || hpp === 0) hpp = prev ? (parseFloat(prev[18] || 0) || 0) : 0;
 
-      var stdUmur = prev ? (Number(prev[16]) || 5) : 5;
-      var tarif = prev ? (prev[24] !== '' && prev[24] !== undefined ? prev[24] : (1 / stdUmur)) : (1 / stdUmur);
-      var susut = prev ? (parseFloat(prev[28] || 0) || 0) : Math.min(hpp, Math.round(hpp * Math.min(1, Math.max(0, umur) / stdUmur)));
-      var nbv = prev
-        ? (prev[29] !== '' && prev[29] !== undefined ? (parseFloat(prev[29]) || 0) : Math.max(0, Math.round(hpp - susut)))
-        : Math.max(0, Math.round(hpp - susut));
-      var lifetime = (prev && prev[27]) ? String(prev[27]).trim() : (umur >= stdUmur ? '↑ DIATAS' : '↓ DIBAWAH');
+      // API `UMUR` adalah Standar Umur Ekonomis (Useful Life: 4/5/8 thn); umur_asset dihitung dari tgl_perolehan
+      var stdUmur = (Number(item.UMUR) > 0) ? Number(item.UMUR) : ((prev && Number(prev[16]) > 0) ? Number(prev[16]) : 5);
+      var dep = calcAssetDepreciation_(tglPerolehan, stdUmur, hpp, nowDate);
+
       var statusVerif = String(item.STATUS_VERIFIKASI_TERAKHIR || (prev ? prev[35] : 'BELUM VERIFIKASI')).trim();
       var kel = String(item.KELOMPOK || (prev ? prev[36] : 'INVENTARIS DAN PERALATAN')).trim();
       var kat = String(item.KATEGORI || (prev ? prev[30] : 'UMUM')).trim();
@@ -1835,20 +1924,20 @@ function transformApiAndUpsertMasterAsset_(apiData) {
         kondisi,
         chkTipe,
         chk,
-        stdUmur,
+        dep.std,
         tglPerolehan,
         Math.round(hpp),
         String(item.custom_fields || (prev ? prev[19] : '') || ''),
         prev ? (prev[20] || '') : '',
         createBy,
-        umur,
-        prev ? (prev[23] !== undefined ? prev[23] : (stdUmur - umur)) : (stdUmur - umur),
-        tarif,
-        prev ? (prev[25] || '') : '',
-        prev ? (prev[26] !== undefined ? prev[26] : Math.round((umur / stdUmur) * 100)) : Math.round((umur / stdUmur) * 100),
-        lifetime,
-        Math.round(susut),
-        Math.round(nbv),
+        dep.umur,
+        dep.varian,
+        dep.tarif,
+        dep.tglAkhir,
+        dep.pctUe,
+        dep.lifetime,
+        dep.susut,
+        dep.nbv,
         kat,
         subKat,
         kodeUnit + ' ' + nama + ' ' + loc + ' ' + sec,
@@ -1856,10 +1945,10 @@ function transformApiAndUpsertMasterAsset_(apiData) {
         prev ? (prev[34] || 0) : 0,
         statusVerif,
         kel,
-        prev ? (prev[37] || Math.round(nbv)) : Math.round(nbv),
-        prev ? (prev[38] || Math.round(nbv)) : Math.round(nbv),
+        prev ? (prev[37] !== '' && prev[37] !== undefined ? prev[37] : dep.nbv) : dep.nbv,
+        prev ? (prev[38] !== '' && prev[38] !== undefined ? prev[38] : dep.nbv) : dep.nbv,
         disposal,
-        prev ? (prev[40] || Math.round(susut)) : Math.round(susut),
+        prev ? (prev[40] !== '' && prev[40] !== undefined ? prev[40] : dep.susut) : dep.susut,
         prev ? (prev[41] || '') : ''
       ];
       outRows42.push(row42);
@@ -1875,8 +1964,8 @@ function transformApiAndUpsertMasterAsset_(apiData) {
       compactRows.push(buildCompactRowFromAsset42_(row42, extraApi));
 
       totalHpp += Math.round(hpp);
-      totalSusut += Math.round(susut);
-      totalNbv += Math.round(nbv);
+      totalSusut += dep.susut;
+      totalNbv += dep.nbv;
       if (statusVerif.toUpperCase().indexOf('BELUM') !== -1) unverifiedCount++; else verifiedCount++;
 
       var isBelumChk = (
@@ -1902,10 +1991,10 @@ function transformApiAndUpsertMasterAsset_(apiData) {
           status_checkout: chk || 'BELUM CHECKOUT (API Live)',
           status_verifikasi: statusVerif,
           tanggal_perolehan: tglPerolehan,
-          standar_umur: stdUmur,
-          umur_asset: umur,
+          standar_umur: dep.std,
+          umur_asset: dep.umur,
           harga_perolehan: Math.round(hpp),
-          nilai_buku: Math.round(nbv),
+          nilai_buku: dep.nbv,
           pic: createBy
         });
       }
@@ -1918,28 +2007,101 @@ function transformApiAndUpsertMasterAsset_(apiData) {
       if (!origId || seenMasterIds[origId]) continue;
       var padded = orig.slice(0, 42);
       while (padded.length < 42) padded.push('');
+      var mStd = Number(padded[16]) > 0 ? Number(padded[16]) : 5;
+      var mHpp = parseFloat(padded[18] || 0) || 0;
+      var mTgl = formatDateYmd_(padded[17]);
+      padded[17] = mTgl;
+      var mDep = calcAssetDepreciation_(mTgl, mStd, mHpp, nowDate);
+      padded[22] = mDep.umur;
+      padded[23] = mDep.varian;
+      padded[24] = mDep.tarif;
+      padded[25] = mDep.tglAkhir;
+      padded[26] = mDep.pctUe;
+      padded[27] = mDep.lifetime;
+      padded[28] = mDep.susut;
+      padded[29] = mDep.nbv;
       outRows42.push(padded);
       compactRows.push(buildCompactRowFromAsset42_(padded, null));
-      totalHpp += Math.round(parseFloat(padded[18] || 0) || 0);
-      totalSusut += Math.round(parseFloat(padded[28] || 0) || 0);
-      totalNbv += Math.round(parseFloat(padded[29] !== '' ? padded[29] : padded[18]) || 0);
+      totalHpp += Math.round(mHpp);
+      totalSusut += mDep.susut;
+      totalNbv += mDep.nbv;
       var oVer = String(padded[35] || '').toUpperCase();
       if (oVer.indexOf('BELUM') !== -1) unverifiedCount++; else verifiedCount++;
     }
 
-    // Tulis ke tab `asset` dalam batch 10.000 baris (1x tulis, cepat & aman)
+    // Tulis ke tab `asset` (A:V + AE:AP sebagai nilai, dan W2:AD2 sebagai 8 ARRAYFORMULA live bebas lag)
     sheet.getRange(1, 1, 1, LEGACY_ASSET_42_HEADERS.length).setValues([LEGACY_ASSET_42_HEADERS]);
     sheet.setFrozenRows(1);
+
+    var prevLast = sheet.getLastRow();
+    var totalColsToClean = Math.max(42, sheet.getLastColumn());
+    if (prevLast > 1) {
+      // Kosongkan W2:AD terlebih dahulu sebelum mengisi ARRAYFORMULA agar tidak muncul #REF!
+      sheet.getRange(2, 23, prevLast - 1, 8).clearContent();
+    }
+
     var writePos = 2;
     for (var b = 0; b < outRows42.length; b += 10000) {
       var chunk = outRows42.slice(b, b + 10000);
-      sheet.getRange(writePos, 1, chunk.length, 42).setValues(chunk);
+      var leftChunk = [];
+      var rightChunk = [];
+      for (var c = 0; c < chunk.length; c++) {
+        leftChunk.push(chunk[c].slice(0, 22));
+        rightChunk.push(chunk[c].slice(30, 42));
+      }
+      sheet.getRange(writePos, 1, chunk.length, 22).setValues(leftChunk);
+      sheet.getRange(writePos, 31, chunk.length, 12).setValues(rightChunk);
       writePos += chunk.length;
     }
-    var prevLast = sheet.getLastRow();
+
     if (prevLast > outRows42.length + 1) {
-      sheet.getRange(outRows42.length + 2, 1, prevLast - (outRows42.length + 1), Math.max(42, sheet.getLastColumn())).clearContent();
+      sheet.getRange(outRows42.length + 2, 1, prevLast - (outRows42.length + 1), totalColsToClean).clearContent();
     }
+
+    // Pasang 8 Single-Cell ARRAYFORMULA di W2:AD2 (otomatis menghitung 34.940+ baris tanpa membuat Sheet berat)
+    var formulasW2ToAD2 = [[
+      '=ARRAYFORMULA(IF(A2:A="","",IFERROR(IF(R2:R="",0,IF(YEAR(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))<1990,0,IF((TODAY()-IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))<0,0,ROUND((TODAY()-IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))/365.25,2)))),0)))',
+      '=ARRAYFORMULA(IF(A2:A="","",ROUND(N(Q2:Q)-N(W2:W),2)))',
+      '=ARRAYFORMULA(IF(A2:A="","",IF(N(Q2:Q)>0,ROUND(1/N(Q2:Q),4),0)))',
+      '=ARRAYFORMULA(IF(A2:A="","",IFERROR(IF((R2:R="")+(N(Q2:Q)<=0),"",IF(YEAR(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))<1990,"",TEXT(DATE(YEAR(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))+N(Q2:Q),MONTH(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R))),DAY(IF(ISNUMBER(R2:R),R2:R,DATEVALUE(R2:R)))),"yyyy-mm-dd"))),"")))',
+      '=ARRAYFORMULA(IF(A2:A="","",IF(N(Q2:Q)>0,IF(N(W2:W)/N(Q2:Q)>1,1,ROUND(N(W2:W)/N(Q2:Q),4)),0)))',
+      '=ARRAYFORMULA(IF(A2:A="","",IF((N(Q2:Q)>0)*(N(W2:W)>=N(Q2:Q)),"↑ DIATAS","↓ DIBAWAH")))',
+      '=ARRAYFORMULA(IF(A2:A="","",ROUND(N(S2:S)*N(AA2:AA),0)))',
+      '=ARRAYFORMULA(IF(A2:A="","",IF(N(S2:S)-N(AC2:AC)<0,0,ROUND(N(S2:S)-N(AC2:AC),0))))'
+    ]];
+    sheet.getRange(2, 23, 1, 8).setFormulas(formulasW2ToAD2);
+
+    if (outRows42.length > 0) {
+      try {
+        sheet.getRange(2, 19, outRows42.length, 1).setNumberFormat('#,##0');
+        sheet.getRange(2, 23, outRows42.length, 2).setNumberFormat('0.00');
+        sheet.getRange(2, 25, outRows42.length, 1).setNumberFormat('0.00%');
+        sheet.getRange(2, 27, outRows42.length, 1).setNumberFormat('0.0%');
+        sheet.getRange(2, 29, outRows42.length, 2).setNumberFormat('#,##0');
+      } catch (eFmt) {}
+    }
+
+    try {
+      var wibNote = Utilities.formatDate(new Date(), 'Asia/Jakarta', 'yyyy-MM-dd HH:mm:ss');
+      sheet.getRange(1, 1).setNote(
+        'Live Transform API → asset: ' + wibNote + ' WIB\n' +
+        'Total Aset: ' + outRows42.length + ' | Belum Checkout: ' + belumCheckoutList.length + '\n' +
+        'Rumus Live aktif di W2:AD2 (=ARRAYFORMULA) — tanpa copy rumus per baris.'
+      );
+    } catch (eNote) {}
+
+    appendSyncLogRow_(ss, {
+      source: 'API_PUSAT_TO_ASSET',
+      totalApi: dedupApiList.length,
+      totalAssets: outRows42.length,
+      verified: verifiedCount,
+      unverified: unverifiedCount,
+      belumCheckout: belumCheckoutList.length,
+      hpp: totalHpp,
+      susut: totalSusut,
+      nbv: totalNbv,
+      status: 'OK (ARRAYFORMULA W2:AD2)'
+    });
 
     var syncedAt = new Date().toISOString();
     var snapshotObj = {

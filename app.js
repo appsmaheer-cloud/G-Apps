@@ -1427,6 +1427,7 @@ const PNS_SECTION_TO_DEPT = {
       // Invalidate normalized & maintenance caches so all views recompute from fresh Google Sheets data
       _pnsCachedNormalizedAssets = null;
       cachedFilteredAssets = null;
+      window._cachedUnifiedAssets = null;
       if (typeof _cachedUnifiedMaintAssets !== 'undefined') _cachedUnifiedMaintAssets = null;
     }
 
@@ -1667,6 +1668,7 @@ const PNS_SECTION_TO_DEPT = {
 
     _pnsCachedNormalizedAssets = null;
     if (typeof cachedFilteredAssets !== 'undefined') cachedFilteredAssets = null;
+    window._cachedUnifiedAssets = null;
     if (typeof _cachedUnifiedMaintAssets !== 'undefined') _cachedUnifiedMaintAssets = null;
 
     if (typeof updateDashboardRealMetrics === 'function') updateDashboardRealMetrics();
@@ -1681,6 +1683,7 @@ const PNS_SECTION_TO_DEPT = {
     if (typeof renderAssetMovementView === 'function') renderAssetMovementView();
     if (typeof renderAssetDrillThrough === 'function') renderAssetDrillThrough();
     if (typeof renderMaintenanceDrillView === 'function' && appState.currentView === 'view-wo') renderMaintenanceDrillView();
+    if (typeof renderApiLiveCompareModal === 'function') renderApiLiveCompareModal();
 
     const syncTime = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
     const badgeEl = document.getElementById('sync-badge');
@@ -2475,22 +2478,23 @@ const PNS_SECTION_TO_DEPT = {
     const roomCount = (appState.rooms || []).length || 1559;
     const belumCheckoutList = getBelumCheckoutAssetsList();
 
-    const liveSheetTotal = Math.max(
-      totalAssets,
-      Number(appState.liveSheetTotal) || 0,
-      Number(appState.stats && (appState.stats.total_assets || appState.stats.live_api_count)) || 0
-    );
+    const liveSheetTotal = totalAssets;
     const baselineCount = (window.PNS_API_METRICS && Number(window.PNS_API_METRICS.total_assets)) || totalAssets;
     const liveDelta = Math.max(0, Number(appState.liveSheetDelta) || 0, liveSheetTotal - baselineCount);
+    const totalFmt = liveSheetTotal.toLocaleString('id-ID');
 
     setEl('stat-bldg-count', bldgCount.toLocaleString('id-ID'));
     setEl('nav-badge-bldg', bldgCount.toLocaleString('id-ID'));
     setEl('stat-room-count', roomCount.toLocaleString('id-ID'));
     setEl('nav-badge-room', roomCount.toLocaleString('id-ID'));
-    setEl('stat-asset-count', liveSheetTotal.toLocaleString('id-ID'));
-    setEl('nav-badge-asset', liveSheetTotal.toLocaleString('id-ID'));
+    setEl('stat-asset-count', totalFmt);
+    setEl('nav-badge-asset', totalFmt);
     setEl('stat-belum-checkout-count', belumCheckoutList.length.toLocaleString('id-ID'));
     setEl('badge-dashboard-cond-good', `${goodPct}% Good (${goodCount.toLocaleString('id-ID')})`);
+    setEl('dash-header-sub', `Ringkasan menyeluruh portofolio ${totalFmt} aset, status validasi fisik, valuasi perolehan, depresiasi, dan fasilitas lapangan PT PNS.`);
+    setEl('dash-bar-chart-sub', `Distribusi ${totalFmt} unit aset fisik per lokasi operasional`);
+    setEl('dash-donut-chart-sub', `Proporsi kelayakan ${totalFmt} inventaris`);
+    setEl('mov-live-source-badge', `Real-Time Sheet & API (${totalFmt} Unit)`);
 
     const deltaBadge = document.getElementById('stat-asset-delta-badge');
     const subAssetEl = document.getElementById('stat-asset-sub');
@@ -13393,73 +13397,61 @@ const PNS_SECTION_TO_DEPT = {
   window.toggleAssetTableExpand = toggleAssetTableExpand;
 
   
-  // UNIFIED ASSET CATALOG PROVIDER: 35.160 Real Assets Directly from Live API
+  // UNIFIED ASSET CATALOG PROVIDER (100% Live Single Source of Truth)
   window.currentAssetCatalogSegment = 'ALL'; // 'ALL' | 'VALIDASI' | 'BELUM_CHECKOUT'
 
+  function _isAssetBelumCheckoutRow(r) {
+    if (!r) return false;
+    const chk = String(r[23] || '').toUpperCase();
+    const loc = String(r[4] || '').toUpperCase();
+    const sec = String(r[12] || '').toUpperCase();
+    return chk.includes('BELUM') || loc.includes('BELUM') || sec.includes('BELUM');
+  }
+
+  function _isAssetVerifiedRow(r) {
+    if (!r) return false;
+    const v = String(r[13] || r[11] || '').toUpperCase();
+    return Boolean(v) && !v.includes('BELUM') && v !== '-';
+  }
+
   function getUnifiedAllAssetRows() {
-    if (window._cachedUnifiedAssets && window._cachedUnifiedAssets.length >= 35160) {
+    if (window._cachedUnifiedAssets && window._cachedUnifiedAssets.length > 0) {
       return window._cachedUnifiedAssets;
     }
-    let masterRows = (typeof window !== 'undefined' && Array.isArray(window.PNS_ALL_ASSETS_ROWS) && window.PNS_ALL_ASSETS_ROWS.length >= 35160)
-      ? window.PNS_ALL_ASSETS_ROWS
-      : [];
-    if (masterRows.length >= 35160) {
-      window._cachedUnifiedAssets = masterRows;
-      return masterRows;
+    if (typeof window !== 'undefined' && Array.isArray(window.PNS_ALL_ASSETS_ROWS) && window.PNS_ALL_ASSETS_ROWS.length > 0) {
+      window._cachedUnifiedAssets = window.PNS_ALL_ASSETS_ROWS;
+      return window.PNS_ALL_ASSETS_ROWS;
     }
-    if (masterRows.length === 0) {
-      const norm = (typeof getAllNormalizedAssets === 'function') ? getAllNormalizedAssets() : [];
-      if (norm && norm.length > 0) {
-        masterRows = norm.map(a => [
-          a.kode_unit || a.no_asset || '-',
-          a.nama_asset_detail || a.nama_asset || '-',
-          a.kel || 'INVENTARIS DAN PERALATAN',
-          a.kat || 'UMUM',
-          a.locRaw || a.loc || 'CO',
-          a.kond || 'Good Condition',
-          a.std || 5,
-          a.umur || 4,
-          a.hpp || 0,
-          a.susut || 0,
-          a.nbv || 0,
-          a.statusVerif || 'ALOKASI SESUAI',
-          a.rawSec || 'HRGA',
-          a.statusVerif || 'ALOKASI SESUAI',
-          a.jenis_asset || 'Asset',
-          a.nama_asset_detail || a.nama_asset || '-',
-          a.asset_id || 1,
-          'NORMAL'
-        ]);
-      }
-    }
-    const bcList = (typeof window !== 'undefined' && Array.isArray(window.PNS_BELUM_CHECKOUT_ASSETS))
-      ? window.PNS_BELUM_CHECKOUT_ASSETS
-      : [];
-
-    const mappedBc = bcList.map(item => [
-      item.kode_unit || item.no_asset || '-',
-      item.nama_asset_detail || item.nama_asset || 'Aset Belum Checkout',
-      item.kelompok || 'INVENTARIS DAN PERALATAN',
-      item.kategori || 'BELUM CHECKOUT',
-      item.location || 'CO',
-      item.kondisi || 'Good Condition',
-      Number(item.standar_umur) || 4,
-      Number(item.umur_asset) || 0,
-      Number(item.harga_perolehan) || 0,
-      Number(item.akumulasi_penyusutan) || 0,
-      Number(item.nilai_buku) || 0,
-      'Aktif / Digunakan',
-      item.section || 'HRGA',
-      item.status_verifikasi || 'BELUM VERIFIKASI',
-      'Non-Valueable Asset',
-      item.nama_asset_detail || item.nama_asset || '-',
-      item.asset_id || 1,
-      'NORMAL'
+    const norm = (typeof getAllNormalizedAssets === 'function') ? getAllNormalizedAssets() : [];
+    const fallbackRows = (norm || []).map(a => [
+      a.kode_unit || a.no_asset || '-',
+      a.nama_asset_detail || a.nama_asset || '-',
+      a.kel || 'INVENTARIS DAN PERALATAN',
+      a.kat || 'UMUM',
+      a.locRaw || a.loc || 'CO',
+      a.kond || 'Good Condition',
+      a.std || 5,
+      a.umur || 0,
+      a.hpp || 0,
+      a.susut || 0,
+      a.nbv || 0,
+      a.status_aktif || 'Aktif / Digunakan',
+      a.rawSec || 'HRGA',
+      a.statusVerif || 'BELUM VERIFIKASI',
+      a.jenis_asset || 'Asset',
+      a.nama_asset_detail || a.nama_asset || '-',
+      a.asset_id || 1,
+      a.lifetime || '↓ DIBAWAH',
+      a.statusVerif3 || a.kond || 'Good Condition',
+      a.userVerif || '-',
+      a.catatanVerif || '-',
+      a.tglVerif || '-',
+      a.tipeAsset || 'UMUM',
+      a.checkout || 'BELUM CHECKOUT',
+      a.tglCheckout || '-'
     ]);
-
-    const unified = masterRows.concat(mappedBc);
-    window._cachedUnifiedAssets = unified;
-    return unified;
+    window._cachedUnifiedAssets = fallbackRows;
+    return fallbackRows;
   }
 
   function setAssetCatalogSegment(segment) {
@@ -13485,19 +13477,12 @@ const PNS_SECTION_TO_DEPT = {
   function getFilteredAllAssets() {
     if (cachedFilteredAssets) return cachedFilteredAssets;
 
-    // Sumber data: 35.160 baris aset dari Live API
     const allUnifiedRows = getUnifiedAllAssetRows();
     let rawRows = allUnifiedRows;
     if (window.currentAssetCatalogSegment === 'VALIDASI' || window.currentAssetCatalogSegment === 'MASTER') {
-      rawRows = allUnifiedRows.filter(r => {
-        const v = String(r[13] || r[11] || '').toUpperCase();
-        return v && !v.includes('BELUM') && v !== '-';
-      });
+      rawRows = allUnifiedRows.filter(_isAssetVerifiedRow);
     } else if (window.currentAssetCatalogSegment === 'BELUM_CHECKOUT') {
-      rawRows = allUnifiedRows.filter(r => {
-        const v = String(r[13] || r[11] || '').toUpperCase();
-        return !v || v.includes('BELUM') || v === '-';
-      });
+      rawRows = allUnifiedRows.filter(_isAssetBelumCheckoutRow);
     }
 
     if (rawRows.length === 0) {
@@ -13653,11 +13638,21 @@ const PNS_SECTION_TO_DEPT = {
     if (typeof window === 'undefined') return;
 
     const allUnifiedRows = getUnifiedAllAssetRows();
+    const verifTotalCount = allUnifiedRows.filter(_isAssetVerifiedRow).length;
+    const bcTotalCount = allUnifiedRows.filter(_isAssetBelumCheckoutRow).length;
+
+    const btnAllEl = document.getElementById('btn-segment-asset-all');
+    const btnMasterEl = document.getElementById('btn-segment-asset-master');
+    const btnBcEl = document.getElementById('btn-segment-asset-bc');
+    if (btnAllEl) btnAllEl.textContent = `Semua Aset (${allUnifiedRows.length.toLocaleString('id-ID')})`;
+    if (btnMasterEl) btnMasterEl.textContent = `Sudah Validasi (${verifTotalCount.toLocaleString('id-ID')})`;
+    if (btnBcEl) btnBcEl.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span> Belum Checkout (${bcTotalCount.toLocaleString('id-ID')})`;
+
     let rawRows = allUnifiedRows;
     if (window.currentAssetCatalogSegment === 'MASTER' || window.currentAssetCatalogSegment === 'VALIDASI') {
-      rawRows = allUnifiedRows.filter(r => r[12] !== 'BELUM_CHECKOUT');
+      rawRows = allUnifiedRows.filter(_isAssetVerifiedRow);
     } else if (window.currentAssetCatalogSegment === 'BELUM_CHECKOUT') {
-      rawRows = allUnifiedRows.filter(r => r[12] === 'BELUM_CHECKOUT');
+      rawRows = allUnifiedRows.filter(_isAssetBelumCheckoutRow);
     }
     const totalCountAll = rawRows.length;
 
@@ -13810,6 +13805,10 @@ const PNS_SECTION_TO_DEPT = {
 
     setEl('pbi-asset-filtered-count', filteredCount.toLocaleString('id-ID'));
     setEl('pbi-asset-total-count', filteredCount.toLocaleString('id-ID') + ' Unit');
+    const titleEl = document.getElementById('all-asset-matrix-title');
+    if (titleEl) {
+      titleEl.innerHTML = `<i class="ph-bold ph-table text-indigo-600"></i> Matriks Portofolio Master Aset (${filteredCount.toLocaleString('id-ID')} dari ${allUnifiedRows.length.toLocaleString('id-ID')} Unit)`;
+    }
     setEl('pbi-asset-nilai-perolehan', fmtMoney(totalPerolehan));
     setEl('pbi-asset-nilai-penyusutan', fmtMoney(totalSusut));
     setEl('pbi-asset-nilai-buku', fmtMoney(totalBuku));
@@ -18999,9 +18998,115 @@ window.switchMobileView = function(view) {
     }
   }
   // ========================================================
-  // LIVE API REAL-TIME SYNC & DIRECT COMPARISON (35.160 ASET)
+  // LIVE API REAL-TIME SYNC & DIRECT COMPARISON (DYNAMIC)
   // ========================================================
+  function computeLiveCompareSiteMatrix() {
+    const rows = getUnifiedAllAssetRows();
+    const siteDefs = [
+      { code: 'CO', name: 'Central Office' },
+      { code: 'FR', name: 'Factory / Pabrik Gula' },
+      { code: 'E1', name: 'Estate 1' },
+      { code: 'E2', name: 'Estate 2' },
+      { code: 'E3', name: 'Estate 3' },
+      { code: 'MR', name: 'Gudang Marunda (MR)' },
+      { code: 'HO', name: 'Head Office Jakarta' },
+      { code: 'BC', name: 'Antrean Belum Checkout' },
+      { code: 'RO', name: 'Regional Office Lampung' }
+    ];
+    const map = {};
+    siteDefs.forEach(s => {
+      map[s.code] = { code: s.code, name: s.name, total: 0, verif: 0, unverif: 0, hpp: 0 };
+    });
+
+    let totalAll = 0, verifAll = 0, unverifAll = 0, hppAll = 0;
+    for (let i = 0; i < rows.length; i++) {
+      const r = rows[i];
+      if (!r) continue;
+      const isBc = _isAssetBelumCheckoutRow(r);
+      const rawLoc = String(r[4] || 'CO').trim().toUpperCase();
+      const siteCode = isBc ? 'BC' : (map[rawLoc] ? rawLoc : 'CO');
+      const isVerif = _isAssetVerifiedRow(r);
+      const hpp = Number(r[8]) || 0;
+
+      totalAll++;
+      hppAll += hpp;
+      if (isVerif) verifAll++; else unverifAll++;
+
+      const bucket = map[siteCode];
+      bucket.total++;
+      bucket.hpp += hpp;
+      if (isVerif) bucket.verif++; else bucket.unverif++;
+    }
+
+    return {
+      rows: siteDefs.map(s => map[s.code]),
+      totalAll,
+      verifAll,
+      unverifAll,
+      hppAll
+    };
+  }
+
+  function renderApiLiveCompareModal() {
+    const mat = computeLiveCompareSiteMatrix();
+    const setElText = (id, v) => {
+      const el = document.getElementById(id);
+      if (el) el.textContent = v;
+    };
+    const verPct = mat.totalAll > 0 ? ((mat.verifAll / mat.totalAll) * 100).toFixed(2).replace('.', ',') : '0,00';
+    const unvPct = mat.totalAll > 0 ? ((mat.unverifAll / mat.totalAll) * 100).toFixed(2).replace('.', ',') : '0,00';
+
+    setElText('api-compare-total-header', `${mat.totalAll.toLocaleString('id-ID')} Unit`);
+    setElText('cmp-kpi-total', mat.totalAll.toLocaleString('id-ID'));
+    setElText('cmp-kpi-verif', mat.verifAll.toLocaleString('id-ID'));
+    setElText('cmp-kpi-verif-pct', `${verPct}% Terverifikasi`);
+    setElText('cmp-kpi-unverif', mat.unverifAll.toLocaleString('id-ID'));
+    setElText('cmp-kpi-unverif-pct', `${unvPct}% Antrean Opname`);
+    setElText('cmp-kpi-hpp', formatRupiahCompact(mat.hppAll));
+    setElText('cmp-kpi-hpp-full', `Rp ${Math.round(mat.hppAll).toLocaleString('id-ID')}`);
+
+    const tbody = document.getElementById('api-compare-tbody');
+    if (tbody) {
+      tbody.innerHTML = mat.rows.map(s => {
+        const isBc = s.code === 'BC';
+        const codeCls = isBc ? 'text-amber-700' : 'text-slate-700';
+        const nameCls = isBc ? 'text-amber-800' : 'text-slate-800';
+        const statusHtml = isBc
+          ? '<span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-amber-100 text-amber-800">In Queue</span>'
+          : '<span class="px-2 py-0.5 rounded-full text-[9.5px] font-bold bg-emerald-100 text-emerald-800">100% Sinkron</span>';
+        return `<tr class="hover:bg-slate-50">
+          <td class="py-2 px-3 font-mono font-bold ${codeCls}">${escapeHtml(s.code)}</td>
+          <td class="py-2 px-3 font-semibold ${nameCls}">${escapeHtml(s.name)}</td>
+          <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">${s.total.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-3 text-right font-mono ${s.verif > 0 ? 'text-emerald-700 font-semibold' : 'text-slate-400'}">${s.verif.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-3 text-right font-mono ${s.unverif > 0 ? 'text-amber-600 font-semibold' : 'text-slate-400'}">${s.unverif.toLocaleString('id-ID')}</td>
+          <td class="py-2 px-3 text-right font-mono text-slate-800">${escapeHtml(formatRupiahCompact(s.hpp))}</td>
+          <td class="py-2 px-3 text-center">${statusHtml}</td>
+        </tr>`;
+      }).join('');
+    }
+
+    const tfoot = document.getElementById('api-compare-tfoot');
+    if (tfoot) {
+      tfoot.innerHTML = `<tr>
+        <td colspan="2" class="py-2.5 px-3 uppercase text-[10.5px]">Total Portofolio PT PNS</td>
+        <td class="py-2.5 px-3 text-right font-mono text-sm text-slate-900">${mat.totalAll.toLocaleString('id-ID')}</td>
+        <td class="py-2.5 px-3 text-right font-mono text-sm text-emerald-700">${mat.verifAll.toLocaleString('id-ID')}</td>
+        <td class="py-2.5 px-3 text-right font-mono text-sm text-amber-700">${mat.unverifAll.toLocaleString('id-ID')}</td>
+        <td class="py-2.5 px-3 text-right font-mono text-sm text-indigo-900">${escapeHtml(formatRupiahCompact(mat.hppAll))}</td>
+        <td class="py-2.5 px-3 text-center"><span class="px-2 py-0.5 rounded-full text-[9.5px] font-black bg-emerald-600 text-white">100% SINKRON</span></td>
+      </tr>`;
+    }
+
+    const syncTs = (window.PNS_API_METRICS && window.PNS_API_METRICS.last_sync)
+      ? new Date(window.PNS_API_METRICS.last_sync).toLocaleString('id-ID')
+      : new Date().toLocaleString('id-ID');
+    setElText('api-compare-footer-ts', `Sinkronisasi Terakhir: ${syncTs} (${mat.totalAll.toLocaleString('id-ID')} Aset Live)`);
+  }
+  window.renderApiLiveCompareModal = renderApiLiveCompareModal;
+
   window.showApiLiveCompareModal = function() {
+    renderApiLiveCompareModal();
     const modal = document.getElementById('modal-api-compare');
     if (modal) {
       modal.classList.remove('hidden');
@@ -19029,33 +19134,28 @@ window.switchMobileView = function(view) {
       if (typeof showToast === 'function') showToast('Library XLSX sedang memuat...', 'warning');
       return;
     }
+    const mat = computeLiveCompareSiteMatrix();
     const wb = XLSX.utils.book_new();
     const rows = [
-      ['PT PRATAMA NUSANTARA SAKTI - LAPORAN KOMPARASI LIVE API VS MASTER & VALIDASI'],
+      ['PT PRATAMA NUSANTARA SAKTI - LAPORAN KOMPARASI LIVE SHEET & API'],
       ['Tanggal Ekspor:', new Date().toLocaleString('id-ID')],
       ['Endpoint:', 'https://api.pns.co.id/main/asset_ver_report'],
-      ['Total Aset di API:', 35160],
-      ['Aset Validasi (Fisik):', 34806],
-      ['Belum Verifikasi (Antrean):', 354],
-      ['Total Valuasi HPP:', 1157444129562],
+      ['Total Aset Live:', mat.totalAll],
+      ['Aset Terverifikasi:', mat.verifAll],
+      ['Belum Verifikasi:', mat.unverifAll],
+      ['Total Valuasi HPP:', Math.round(mat.hppAll)],
       [],
-      ['Kode', 'Lokasi Operasional', 'Total API Live', 'Asset Validasi', 'Belum Verifikasi', 'HPP Perolehan (Rp)', 'Status Paritas'],
-      ['CO', 'Central Office', 13681, 13677, 4, 747125309489, '100% Cocok'],
-      ['FR', 'Factory / Pabrik Gula', 10757, 10757, 0, 135123985112, '100% Cocok'],
-      ['E1', 'Estate 1', 2759, 2636, 123, 116912340550, '100% Cocok'],
-      ['E2', 'Estate 2', 2680, 2680, 0, 68852109432, '100% Cocok'],
-      ['E3', 'Estate 3', 2414, 2414, 0, 77021450890, '100% Cocok'],
-      ['MR', 'Gudang Marunda (MR)', 1636, 1636, 0, 4921500210, '100% Cocok'],
-      ['HO', 'Head Office Jakarta', 866, 866, 0, 4541203090, '100% Cocok'],
-      ['BC', 'Antrean Belum Checkout', 227, 0, 227, 2043209800, 'In Queue'],
-      ['RO', 'Regional Office Lampung', 140, 140, 0, 921430989, '100% Cocok'],
-      ['TOTAL', 'Seluruh Portofolio PT PNS', 35160, 34806, 354, 1157444129562, '100% PARITAS']
+      ['Kode', 'Lokasi Operasional', 'Total Live Sheet', 'Terverifikasi', 'Belum Verifikasi', 'HPP Perolehan (Rp)', 'Status Paritas']
     ];
+    mat.rows.forEach(s => {
+      rows.push([s.code, s.name, s.total, s.verif, s.unverif, Math.round(s.hpp), s.code === 'BC' ? 'In Queue' : '100% Sinkron']);
+    });
+    rows.push(['TOTAL', 'Seluruh Portofolio PT PNS', mat.totalAll, mat.verifAll, mat.unverifAll, Math.round(mat.hppAll), '100% SINKRON']);
     const ws = XLSX.utils.aoa_to_sheet(rows);
-    XLSX.utils.book_append_sheet(wb, ws, 'Komparasi_API_Live_35160');
-    XLSX.writeFile(wb, 'Komparasi_Live_API_vs_Master_PT_PNS_35160.xlsx');
+    XLSX.utils.book_append_sheet(wb, ws, 'Komparasi_Live_Asset');
+    XLSX.writeFile(wb, `Komparasi_Live_API_vs_Master_PT_PNS_${mat.totalAll}.xlsx`);
     if (typeof showToast === 'function') {
-      showToast('File Excel Komparasi API (35.160 unit) berhasil diunduh!', 'success');
+      showToast(`File Excel Komparasi (${mat.totalAll.toLocaleString('id-ID')} unit) berhasil diunduh!`, 'success');
     }
   };
 
@@ -19287,6 +19387,7 @@ window.switchMobileView = function(view) {
     window.PNS_ALL_ASSETS_ROWS = newRows;
     _pnsCachedNormalizedAssets = null;
     cachedFilteredAssets = null;
+    window._cachedUnifiedAssets = null;
     if (typeof _cachedUnifiedMaintAssets !== 'undefined') _cachedUnifiedMaintAssets = null;
 
     appState.assets = items;
